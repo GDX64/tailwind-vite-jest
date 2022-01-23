@@ -4,9 +4,11 @@ import App from './App.vue';
 import './index.css';
 import Home from './pages/Home.vue';
 import BackGround from './pages/BackGround.vue';
+import Tests from './pages/Tests.vue';
 const routes = [
   { path: '/', component: Home },
   { path: '/bg', component: BackGround },
+  { path: '/test', component: Tests },
 ];
 
 // 3. Create the router instance and pass the `routes` option
