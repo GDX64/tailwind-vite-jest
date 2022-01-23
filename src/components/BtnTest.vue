@@ -18,11 +18,11 @@ function remove(removeIndex: number) {
 </script>
 
 <template>
-  <div class="flex-col flex">
-    <ul ref="list">
+  <div class="flex-col flex select-none">
+    <ul ref="list" class="mb-5">
       <li
         v-for="(element, index) in currentList"
-        class="w-72 flex justify-between hover:bg-neutral-400/25 pr-2 pl-2 rounded-sm"
+        class="w-72 flex justify-between items-center hover:bg-neutral-400/25 hover:scale-105 h-8 pr-2 pl-2 rounded-sm transition-all duration-200"
       >
         <span test-data="todo">{{ element }}</span>
         <div
@@ -32,7 +32,13 @@ function remove(removeIndex: number) {
         >x</div>
       </li>
     </ul>
-    <input v-model="inputValue" type="text" ref="input" class="w-52 rounded-sm mb-5" />
+    <input
+      v-model="inputValue"
+      @keypress.enter="insertData"
+      type="text"
+      ref="input"
+      class="w-52 rounded-sm mb-5 text-prime-900 bg-prime-400 outline focus:outline-high-400 outline-2 border-none"
+    />
     <button
       @click="insertData"
       ref="add-btn"
