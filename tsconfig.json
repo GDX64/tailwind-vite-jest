@@ -10,7 +10,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "lib": ["esnext", "dom"]
+    "lib": ["esnext", "dom", "dom.iterable"]
   },
   "include": [
     "src/**/*.ts",
