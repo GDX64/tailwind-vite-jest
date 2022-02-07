@@ -21,7 +21,6 @@
 import BackGroundVue from './BackGround.vue';
 import CTableVue from '../components/Table/CTable.vue';
 import CRow from '../components/Table/CRow.vue';
-import mitt from 'mitt';
 import {
   fromEventPattern,
   map,
@@ -33,6 +32,7 @@ import {
   tap,
 } from 'rxjs';
 import { ref } from 'vue';
+import mitt from 'mitt';
 
 const randInt = () => Math.floor(Math.random() * 1000);
 const lot = [...Array(10)].map(() => ({ a: randInt(), b: randInt(), c: randInt() }));
@@ -103,5 +103,3 @@ function swap<T>(el1: T, el2: T, arr: Readonly<T[]>) {
   return arrCopy;
 }
 </script>
-
-<style></style>
