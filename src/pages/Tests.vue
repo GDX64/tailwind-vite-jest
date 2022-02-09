@@ -8,13 +8,12 @@
 // import BtnTestVue from '../components/BtnTest.vue';
 import { ref, watchEffect } from 'vue';
 import TestVModelVue from '../components/TestVModel.vue';
+import { provideTestStore } from '../stores/testStore';
 import BackGroundVue from './BackGround.vue';
 
 const myValue = ref('');
 const show = ref(true);
-watchEffect(() => {
-  show.value = myValue.value !== 'q';
-});
+provideTestStore();
 </script>
 
 <style></style>
