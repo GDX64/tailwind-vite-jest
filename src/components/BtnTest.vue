@@ -1,20 +1,21 @@
-<script setup lang="ts">import { ref } from 'vue';
+<script setup lang="ts">
+import { computed, ref } from 'vue';
 
 const props = defineProps<{ list: string[] }>();
 
-const inputValue = ref('')
-const currentList = ref(props.list)
+const inputValue = ref('');
+const currentList = ref(props.list);
+const derived = computed(() => inputValue.value + 'a');
 
 function insertData() {
-  if (inputValue.value === '') return
-  currentList.value.push(inputValue.value)
-  inputValue.value = ''
+  if (inputValue.value === '') return;
+  currentList.value.push(inputValue.value);
+  inputValue.value = '';
 }
 
 function remove(removeIndex: number) {
-  currentList.value = currentList.value.filter((_value, index) => index != removeIndex)
+  currentList.value = currentList.value.filter((_value, index) => index != removeIndex);
 }
-
 </script>
 
 <template>
@@ -29,7 +30,9 @@ function remove(removeIndex: number) {
           test-data="remove-btn"
           @click="remove(index)"
           class="text-red-400 hover:text-red-700 cursor-pointer"
-        >x</div>
+        >
+          x
+        </div>
       </li>
     </ul>
     <input
@@ -43,7 +46,9 @@ function remove(removeIndex: number) {
       @click="insertData"
       ref="add-btn"
       class="bg-gray-800 rounded-md w-28 hover:bg-zinc-500"
-    >Add</button>
+    >
+      Add
+    </button>
   </div>
 </template>
 
