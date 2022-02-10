@@ -13,7 +13,8 @@ import BackGroundVue from './BackGround.vue';
 
 const myValue = ref('');
 const show = ref(true);
-provideTestStore();
+const provided = provideTestStore();
+watchEffect(() => provided.update(myValue.value));
 </script>
 
 <style></style>

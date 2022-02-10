@@ -20,5 +20,5 @@ onUnmounted(() => {
 });
 
 const message = useTestStore().message;
-useTestStore();
+useTestStore().update('hi');
 </script>
