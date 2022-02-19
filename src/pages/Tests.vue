@@ -9,13 +9,13 @@
 import BackGroundVue from './BackGround.vue';
 import HistogramVue from '../components/Histogram.vue';
 import { ref } from 'vue';
-import { createLiveHist } from '../domain/histogramGen';
+import { createLiveHist, Bucket } from '../domain/histogramGen';
 import { Subscription } from 'rxjs';
-const list = ref([1, 2, 3]);
+const list = ref([] as Bucket[]);
 let subscription = null as null | Subscription;
 function restart() {
   subscription?.unsubscribe();
-  subscription = createLiveHist(1, 10).subscribe((hist) => {
+  subscription = createLiveHist(3, 10).subscribe((hist) => {
     list.value = hist;
   });
 }
