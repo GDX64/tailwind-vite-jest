@@ -15,7 +15,7 @@ const list = ref([1, 2, 3]);
 let subscription = null as null | Subscription;
 function restart() {
   subscription?.unsubscribe();
-  subscription = createLiveHist(1, 50).subscribe((hist) => {
+  subscription = createLiveHist(1, 10).subscribe((hist) => {
     list.value = hist;
   });
 }
