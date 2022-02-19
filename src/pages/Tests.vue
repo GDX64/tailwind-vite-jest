@@ -1,20 +1,26 @@
 <template>
   <BackGroundVue>
-    <TestVModelVue v-model:textValue="myValue" v-if="show"></TestVModelVue>
+    <HistogramVue :list="list"></HistogramVue>
+    <button @click="restart">Restart</button>
   </BackGroundVue>
 </template>
 
 <script lang="ts" setup>
-// import BtnTestVue from '../components/BtnTest.vue';
-import { ref, watchEffect } from 'vue';
-import TestVModelVue from '../components/TestVModel.vue';
-import { provideTestStore } from '../stores/testStore';
 import BackGroundVue from './BackGround.vue';
+import HistogramVue from '../components/Histogram.vue';
+import { ref } from 'vue';
+import { createLiveHist } from '../domain/histogramGen';
+import { Subscription } from 'rxjs';
+const list = ref([1, 2, 3]);
+let subscription = null as null | Subscription;
+function restart() {
+  subscription?.unsubscribe();
+  subscription = createLiveHist(1, 50).subscribe((hist) => {
+    list.value = hist;
+  });
+}
 
-const myValue = ref('');
-const show = ref(true);
-const provided = provideTestStore();
-watchEffect(() => provided.update(myValue.value));
+// (window as any).setList = (newList: number[]) => (list.value = newList);
 </script>
 
 <style></style>
