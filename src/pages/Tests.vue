@@ -15,7 +15,7 @@ const list = ref([] as Bucket[]);
 let subscription = null as null | Subscription;
 function restart() {
   subscription?.unsubscribe();
-  subscription = createLiveHist(3, 10).subscribe((hist) => {
+  subscription = createLiveHist(3).subscribe((hist) => {
     list.value = hist;
   });
 }

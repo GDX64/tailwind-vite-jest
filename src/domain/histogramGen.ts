@@ -1,11 +1,14 @@
-import { interval, map, scan, animationFrames, range } from 'rxjs';
+import { interval, map, scan, animationFrames, range, Observable } from 'rxjs';
 
 function random(max: number) {
   return animationFrames().pipe(map(() => boxMullerTransform() * max));
 }
 
-export function createLiveHist(bucketSize: number, max: number) {
-  return random(max).pipe(
+export function createLiveHist(
+  bucketSize: number,
+  from: Observable<number> = random(10)
+) {
+  return from.pipe(
     scan(
       (acc, num) => {
         return adjustBucketRange(num, { ...acc, bucketSize });
@@ -54,7 +57,7 @@ function adjustBucketRange(
   for (let i = newMin; i <= newMax; i++) {
     histObj[i] = histObj[i] ?? defaultBucket(i * bucketSize);
   }
-  const bucketObj = histObj[bucket * bucketSize] ?? defaultBucket(bucket);
+  const bucketObj = histObj[bucket] ?? defaultBucket(bucket);
   bucketObj.count += 1;
   return { histObj, min: newMin, max: newMax };
 }
