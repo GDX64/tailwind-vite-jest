@@ -1,4 +1,5 @@
-import { interval, map, scan, animationFrames, range, Observable } from 'rxjs';
+import { map, scan, animationFrames, Observable } from 'rxjs';
+import { reactive } from 'vue';
 
 function random(max: number) {
   return animationFrames().pipe(map(() => boxMullerTransform() * max));
@@ -12,7 +13,12 @@ export function createLiveHist(bucketSize: number, from: Observable<number> = ra
       },
       { min: Infinity, max: -Infinity, histObj: {} as HistObj }
     ),
-    map((obj) => histListFromObj(obj.histObj))
+    scan((acc, obj) => {
+      if (Object.keys(obj.histObj).length === acc.length) {
+        return acc;
+      }
+      return histListFromObj(obj.histObj);
+    }, [] as Bucket[])
   );
 }
 
@@ -60,5 +66,5 @@ function adjustBucketRange(
 }
 
 function defaultBucket(bucket: number) {
-  return { label: bucket, count: 0 };
+  return reactive({ label: bucket, count: 0 });
 }
