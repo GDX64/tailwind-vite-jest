@@ -1,6 +1,6 @@
 <template>
   <BackGroundVue>
-    <HistogramVue :list="list"></HistogramVue>
+    <HistogramVue :list="list" :max-count="maxCount"></HistogramVue>
     <button @click="restart">Restart</button>
   </BackGroundVue>
 </template>
@@ -12,11 +12,13 @@ import { ref } from 'vue';
 import { createLiveHist, Bucket } from '../domain/histogramGen';
 import { Subscription } from 'rxjs';
 const list = ref([] as Bucket[]);
+const maxCount = ref(0);
 let subscription = null as null | Subscription;
 function restart() {
   subscription?.unsubscribe();
-  subscription = createLiveHist(3).subscribe((hist) => {
-    list.value = hist;
+  subscription = createLiveHist(3).subscribe((histInfo) => {
+    list.value = histInfo.histList;
+    maxCount.value = histInfo.maxCount;
   });
 }
 

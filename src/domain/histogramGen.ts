@@ -11,14 +11,17 @@ export function createLiveHist(bucketSize: number, from: Observable<number> = ra
       (acc, num) => {
         return adjustBucketRange(num, { ...acc, bucketSize });
       },
-      { min: Infinity, max: -Infinity, histObj: {} as HistObj }
+      { min: Infinity, max: -Infinity, histObj: {} as HistObj, maxCount: 0 }
     ),
-    scan((acc, obj) => {
-      if (Object.keys(obj.histObj).length === acc.length) {
-        return acc;
-      }
-      return histListFromObj(obj.histObj);
-    }, [] as Bucket[])
+    scan(
+      (acc, obj) => {
+        if (Object.keys(obj.histObj).length === acc.histList.length) {
+          return { histList: acc.histList, maxCount: obj.maxCount };
+        }
+        return { histList: histListFromObj(obj.histObj), maxCount: obj.maxCount };
+      },
+      { histList: [] as Bucket[], maxCount: 0 }
+    )
   );
 }
 
@@ -52,17 +55,23 @@ function adjustBucketRange(
     max,
     histObj,
     bucketSize,
-  }: { min: number; max: number; histObj: HistObj; bucketSize: number }
+    maxCount,
+  }: { min: number; max: number; histObj: HistObj; bucketSize: number; maxCount: number }
 ) {
   const bucket = calcBucket(bucketSize, newValue);
-  const newMin = bucket < min ? bucket : min;
-  const newMax = bucket > max ? bucket : max;
+  const newMin = Math.min(bucket, min);
+  const newMax = Math.max(bucket, max);
   for (let i = newMin; i <= newMax; i++) {
     histObj[i] = histObj[i] ?? defaultBucket(i * bucketSize);
   }
   const bucketObj = histObj[bucket] ?? defaultBucket(bucket);
   bucketObj.count += 1;
-  return { histObj, min: newMin, max: newMax };
+  return {
+    histObj,
+    min: newMin,
+    max: newMax,
+    maxCount: Math.max(bucketObj.count, maxCount),
+  };
 }
 
 function defaultBucket(bucket: number) {
