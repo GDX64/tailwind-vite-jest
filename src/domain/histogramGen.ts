@@ -4,10 +4,7 @@ function random(max: number) {
   return animationFrames().pipe(map(() => boxMullerTransform() * max));
 }
 
-export function createLiveHist(
-  bucketSize: number,
-  from: Observable<number> = random(10)
-) {
+export function createLiveHist(bucketSize: number, from: Observable<number> = random(5)) {
   return from.pipe(
     scan(
       (acc, num) => {

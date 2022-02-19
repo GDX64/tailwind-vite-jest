@@ -1,7 +1,7 @@
 <template>
   <div class="w-[500px] h-[500px] bg-slate-600 flex justify-around items-end rounded-sm">
     <div
-      class="bg-purple-400 rounded-sm transition-all"
+      class="bg-purple-400 rounded-sm transition-all duration-75 text-center"
       v-for="item of list"
       :style="{
         height: `${item.count * heightFactor}px`,
