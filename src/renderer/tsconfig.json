@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "outDir": "./dist",
     "target": "ES6",
     "useDefineForClassFields": true,
     "module": "CommonJS",
@@ -12,11 +13,5 @@
     "skipLibCheck": true,
     "lib": ["esnext", "dom", "dom.iterable"]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "tests/**/*.ts"
-  ]
+  "include": ["./**/*.ts"]
 }
