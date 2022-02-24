@@ -5,10 +5,12 @@ import './index.css';
 import Home from './pages/Home.vue';
 import BackGround from './pages/BackGround.vue';
 import Tests from './pages/Tests.vue';
+import Pixi from './pixijs/pixi.vue';
 const routes = [
   { path: '/', component: Home },
   { path: '/bg', component: BackGround },
   { path: '/test', component: Tests },
+  { path: '/pixi', component: Pixi },
 ];
 
 // 3. Create the router instance and pass the `routes` option

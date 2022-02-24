@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@vue/vue3-jest": "^27.0.0-alpha.4",
+    "pixi.js": "^6.2.2",
     "rxjs": "^7.5.4",
     "vite-plugin-checker": "^0.3.4",
     "vue": "^3.2.25",
