@@ -1,6 +1,5 @@
 <template>
   <BackGroundVue>
-<<<<<<< HEAD
     <CTableVue :rows="list" :col-config="colConfig">
       <template #row="{ row, cols }">
         <CRow
@@ -15,16 +14,11 @@
         ></CRow>
       </template>
     </CTableVue>
-=======
-    <HistogramVue :list="list" :max-count="maxCount"></HistogramVue>
-    <button @click="restart">Restart</button>
->>>>>>> 7fb2a8f8b47723b728b7239aff38a58a421f8612
   </BackGroundVue>
 </template>
 
 <script lang="ts" setup>
 import BackGroundVue from './BackGround.vue';
-<<<<<<< HEAD
 import CTableVue from '../components/Table/CTable.vue';
 import CRow from '../components/Table/CRow.vue';
 import {
@@ -63,25 +57,6 @@ const listenTo = <T extends keyof Events>(key: T) =>
     (handler) => events.on(key, handler),
     (handler) => events.off(key, handler)
   );
-=======
-import HistogramVue from '../components/Histogram.vue';
-import { ref } from 'vue';
-import { createLiveHist, Bucket } from '../domain/histogramGen';
-import { Subscription } from 'rxjs';
-const list = ref([] as Bucket[]);
-const maxCount = ref(0);
-let subscription = null as null | Subscription;
-function restart() {
-  subscription?.unsubscribe();
-  subscription = createLiveHist(3).subscribe((histInfo) => {
-    list.value = histInfo.histList;
-    maxCount.value = histInfo.maxCount;
-  });
-}
-
-// (window as any).setList = (newList: number[]) => (list.value = newList);
-</script>
->>>>>>> 7fb2a8f8b47723b728b7239aff38a58a421f8612
 
 listenTo('dragStart')
   .pipe(
