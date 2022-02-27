@@ -1,5 +1,4 @@
 import * as PIXI from 'pixi.js';
-import { watchEffect } from 'vue';
 
 function createRandomRow() {
   return {
@@ -11,13 +10,25 @@ function createRandomRow() {
 type RandomRow = ReturnType<typeof createRandomRow>;
 
 function createRandomRows() {
-  return [...Array(10)].map(createRandomRow);
+  return [...Array(50)].map(createRandomRow);
 }
 
 export function tableTest(el: HTMLElement) {
-  const app = new PIXI.Application();
+  const font = PIXI.BitmapFont.from(
+    'myFont',
+    {
+      fontFamily: 'Segoe Ui',
+      fontSize: 14,
+    },
+    { chars: PIXI.BitmapFont.ASCII }
+  );
+  debugger;
+  const app = new PIXI.Application({
+    height: 1000,
+    width: 1000,
+    backgroundColor: 0xffffff,
+  });
   el.appendChild(app.view);
-  app.stage.addChild(createFrame());
   const rows = createRandomRows();
   const table = createTable(rows);
   app.stage.addChild(table.table);
@@ -32,19 +43,13 @@ function updateText(table: TextTable) {
   });
 }
 
-function createFrame() {
-  const frame = new PIXI.Graphics();
-  frame.beginFill(0xffffff);
-  frame.lineStyle({ color: 0xffffff, width: 4, alignment: 0 });
-  frame.drawRect(0, 0, 1000, 1000);
-  return frame;
-}
-
 function createRow<T extends DataRow>(dataRow: T, ColConfigs: ColConfig<T>[]) {
   let initialPos = 0;
   let maxHeight = 0;
   const texts = ColConfigs.map((config) => {
-    const text = new PIXI.Text(dataRow[config.prop], { fontSize: 14 });
+    const text = new PIXI.BitmapText(dataRow[config.prop], {
+      fontName: 'myFont',
+    });
     text.x = initialPos;
     initialPos += config.width;
     maxHeight = Math.max(text.height);
@@ -70,6 +75,10 @@ function createConfigs() {
     { prop: 'first', width: 50 },
     { prop: 'second', width: 70 },
     { prop: 'third', width: 50 },
+    { prop: 'second', width: 70 },
+    { prop: 'third', width: 50 },
+    { prop: 'first', width: 50 },
+    { prop: 'second', width: 70 },
   ];
   return configs;
 }
@@ -83,7 +92,7 @@ type DataRow = Record<string, string>;
 
 class TextRow {
   row: PIXI.Container;
-  constructor(public texts: PIXI.Text[]) {
+  constructor(public texts: PIXI.BitmapText[]) {
     const row = new PIXI.Container();
     row.addChild(...texts);
     this.row = row;
