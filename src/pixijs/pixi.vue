@@ -4,10 +4,10 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { startTest } from './dragTest';
+import { tableTest } from './pixiTable';
 const pixi = ref<HTMLElement>();
 onMounted(() => {
   if (!pixi.value) throw Error('no pixi');
-  startTest(pixi.value);
+  tableTest(pixi.value);
 });
 </script>
