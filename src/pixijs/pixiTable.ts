@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import { watchEffect } from 'vue';
 
 function createRandomRow() {
   return {
@@ -7,12 +8,28 @@ function createRandomRow() {
     third: Math.random().toFixed(4),
   };
 }
+type RandomRow = ReturnType<typeof createRandomRow>;
+
+function createRandomRows() {
+  return [...Array(10)].map(createRandomRow);
+}
 
 export function tableTest(el: HTMLElement) {
   const app = new PIXI.Application();
   el.appendChild(app.view);
   app.stage.addChild(createFrame());
-  app.stage.addChild(createTable(10));
+  const rows = createRandomRows();
+  const table = createTable(rows);
+  app.stage.addChild(table.table);
+  setInterval(() => updateText(table), 1000);
+}
+
+function updateText(table: TextTable) {
+  createRandomRows().forEach((row, indexRow) => {
+    table.configs.forEach(({ prop }, indexCol) => {
+      table.rows[indexRow].texts[indexCol].text = row[prop];
+    });
+  });
 }
 
 function createFrame() {
@@ -33,28 +50,23 @@ function createRow<T extends DataRow>(dataRow: T, ColConfigs: ColConfig<T>[]) {
     maxHeight = Math.max(text.height);
     return text;
   });
-  const row = new PIXI.Container();
-  row.addChild(...texts);
-  return row;
+  return new TextRow(texts);
 }
 
-function createTable(size: number) {
+function createTable(randomRows: RandomRow[]) {
   const configs = createConfigs();
   let accHeight = 0;
-  const rows = [...Array(size)].map(() => {
-    const row = createRow(createRandomRow(), configs);
-    row.y = accHeight;
-    accHeight += row.height;
-    return row;
+  const rows = randomRows.map(() => {
+    const textRow = createRow(createRandomRow(), configs);
+    textRow.row.y = accHeight;
+    accHeight += textRow.row.height;
+    return textRow;
   });
-  const table = new PIXI.Container();
-  table.addChild(...rows);
-  console.log(table);
-  return table;
+  return new TextTable(rows, configs);
 }
 
 function createConfigs() {
-  const configs: ColConfig<ReturnType<typeof createRandomRow>>[] = [
+  const configs: ColConfig<RandomRow>[] = [
     { prop: 'first', width: 50 },
     { prop: 'second', width: 70 },
     { prop: 'third', width: 50 },
@@ -68,3 +80,20 @@ interface ColConfig<T extends DataRow> {
 }
 
 type DataRow = Record<string, string>;
+
+class TextRow {
+  row: PIXI.Container;
+  constructor(public texts: PIXI.Text[]) {
+    const row = new PIXI.Container();
+    row.addChild(...texts);
+    this.row = row;
+  }
+}
+class TextTable {
+  table: PIXI.Container;
+  constructor(public rows: TextRow[], public configs: ColConfig<RandomRow>[]) {
+    const table = new PIXI.Container();
+    table.addChild(...rows.map((row) => row.row));
+    this.table = table;
+  }
+}
