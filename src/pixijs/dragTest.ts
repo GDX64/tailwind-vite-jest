@@ -5,14 +5,14 @@ export function startTest(el: HTMLElement) {
   el.appendChild(app.view);
   const sprite = PIXI.Sprite.from('./afsdf.png');
   const graphics = new PIXI.Graphics();
-  graphics.lineStyle({ width: 10, color: 0xff0000 });
-  graphics.drawRect(0, 0, 500, 500);
+  graphics.lineStyle({ width: 1, color: 0xff0000 });
+  graphics.drawRect(0, 0, 200, 200);
   const text = new PIXI.Text('this is a rectangle');
   graphics.addChild(text);
   console.log(graphics);
   graphics.hitArea = {
     contains: (x, y) => {
-      return x < 500 && y < 500 && x >= 0 && y >= 0;
+      return x < 200 && y < 200 && x >= 0 && y >= 0;
     },
   };
 
@@ -29,17 +29,7 @@ export function startTest(el: HTMLElement) {
     graphics.x += event.movementX;
     graphics.y += event.movementY;
   });
-  graphics.on('mouseover', () => {
-    graphics.beginFill(0xff0000);
-    graphics.drawRect(0, 0, 500, 500);
-    graphics.endFill();
-  });
-  graphics.on('mouseout', () => {
-    console.log('leave');
-    graphics.beginFill(0xaa0000);
-    graphics.drawRect(0, 0, 500, 500);
-    graphics.endFill();
-  });
+  graphics.scale.set(5, 1);
 }
 
 function spriteDrag(sprite: PIXI.Container) {
