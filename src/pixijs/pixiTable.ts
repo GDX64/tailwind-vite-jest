@@ -1,15 +1,15 @@
 import * as PIXI from 'pixi.js';
 
-function createRandomRow() {
+export function createRandomRow() {
   return {
     first: Math.random().toFixed(4),
     second: Math.random().toFixed(4),
     third: Math.random().toFixed(4),
   };
 }
-type RandomRow = ReturnType<typeof createRandomRow>;
+export type RandomRow = ReturnType<typeof createRandomRow>;
 
-function createRandomRows() {
+export function createRandomRows() {
   return [...Array(50)].map(createRandomRow);
 }
 
@@ -32,7 +32,7 @@ export function tableTest(el: HTMLElement) {
   const rows = createRandomRows();
   const table = createTable(rows);
   app.stage.addChild(table.table);
-  setInterval(() => updateText(table), 1000);
+  setInterval(() => updateText(table), 20);
 }
 
 function updateText(table: TextTable) {
@@ -70,7 +70,7 @@ function createTable(randomRows: RandomRow[]) {
   return new TextTable(rows, configs);
 }
 
-function createConfigs() {
+export function createConfigs() {
   const configs: ColConfig<RandomRow>[] = [
     { prop: 'first', width: 50 },
     { prop: 'second', width: 70 },
