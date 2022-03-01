@@ -1,13 +1,13 @@
 <template>
   <div ref="pixi"></div>
+  <button @click="test">Test</button>
 </template>
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { shadersTest } from './shaders';
+import { test } from './gpgpu';
 const pixi = ref<HTMLElement>();
 onMounted(() => {
   if (!pixi.value) throw Error('no pixi');
-  shadersTest(pixi.value);
 });
 </script>
