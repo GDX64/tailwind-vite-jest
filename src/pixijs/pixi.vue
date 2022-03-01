@@ -1,13 +1,13 @@
 <template>
   <div ref="pixi"></div>
-  <button @click="test">Test</button>
 </template>
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { test } from './gpgpu';
+import { testeo } from '../webgl2/hello';
 const pixi = ref<HTMLElement>();
 onMounted(() => {
   if (!pixi.value) throw Error('no pixi');
+  testeo(pixi.value);
 });
 </script>
