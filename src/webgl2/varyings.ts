@@ -17,13 +17,8 @@ export function main() {
 
   const matrixLocation = gl.getUniformLocation(program, 'u_matrix')!;
 
-  const vao = gl.createVertexArray()!;
-  gl.bindVertexArray(vao);
-
   // Create a buffer for the positons.
-  setLocations(gl, positionLocation);
-  // Create a buffer for the colors.
-  setColors(gl);
+  const vao = setLocations(gl, positionLocation);
 
   // tell the color attribute how to pull data out of the current ARRAY_BUFFER
   gl.enableVertexAttribArray(colorLocation);
@@ -45,6 +40,8 @@ interface SceneArgs {
 }
 
 function setLocations(gl: WebGL2RenderingContext, positionLocation: number) {
+  const vao = gl.createVertexArray()!;
+  gl.bindVertexArray(vao);
   const buffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 
@@ -59,7 +56,9 @@ function setLocations(gl: WebGL2RenderingContext, positionLocation: number) {
   const stride = 0;
   const offset = 0;
   gl.vertexAttribPointer(positionLocation, size, type, normalize, stride, offset);
-  return { buffer, size, type, normalize, stride, offset };
+  // Create a buffer for the colors.
+  setColors(gl);
+  return vao;
 }
 
 function drawScene({ gl, program, vao, matrixLocation }: SceneArgs) {
