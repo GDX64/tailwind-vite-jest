@@ -8,8 +8,9 @@
   },
   "dependencies": {
     "@vue/vue3-jest": "^27.0.0-alpha.4",
-    "mitt": "^3.0.0",
+    "gl-matrix": "^3.4.3",
     "gpu.js": "^2.9.0",
+    "mitt": "^3.0.0",
     "pixi.js": "^6.2.2",
     "ramda": "^0.28.0",
     "rxjs": "^7.5.4",
