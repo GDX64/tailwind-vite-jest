@@ -47,6 +47,9 @@ class StickPlot {
   }
 }
 
+class Chart {
+  constructor(private plots: StickPlot[], private app: PIXI.Application) {}
+}
 interface Stick {
   min: number;
   max: number;
