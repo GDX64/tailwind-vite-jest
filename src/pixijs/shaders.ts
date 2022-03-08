@@ -34,6 +34,9 @@ export function shadersTest(el: HTMLElement) {
   const triangle = new PIXI.Mesh(geometry, shader);
 
   triangle.position.set(400, 300);
+  const filter = new PIXI.filters.FXAAFilter();
+  filter.resolution = 20;
+  triangle.filters = [filter];
 
   app.stage.addChild(triangle);
 
