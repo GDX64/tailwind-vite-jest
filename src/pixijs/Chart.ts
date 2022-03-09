@@ -23,7 +23,7 @@ export class Scale {
 
 export class StickPlot {
   private data = [] as Stick[];
-  private range = [0, 0] as [number, number];
+  private range = [0, 0] as Range;
   constructor(
     private scaleY: Scale,
     private scaleX: Scale,
@@ -31,7 +31,7 @@ export class StickPlot {
   ) {}
 
   private transformData() {
-    return this.data.map((stick) => {
+    return this.getView().map((stick) => {
       const min = this.scaleY.transform(stick.min);
       const max = this.scaleY.transform(stick.max);
       const pos = this.scaleX.transform(stick.pos);
@@ -86,11 +86,33 @@ export class StickPlot {
   }
 }
 
-export class Chart {
-  plots = [] as StickPlot[];
-  constructor(private app: PIXI.Application) {}
+type Range = [number, number];
 
-  updateScales() {}
+export class Chart {
+  private plots = [] as StickPlot[];
+  private range = [0, 0] as Range;
+  constructor() {}
+
+  private getMinMax() {
+    if (this.plots.length) {
+      const max = Math.max(...this.plots.map((plot) => plot.getMinMax().max));
+      const min = Math.min(...this.plots.map((plot) => plot.getMinMax().min));
+      return { min, max };
+    }
+    return { min: 0, max: 0 };
+  }
+
+  public updateScales({ width = 0, height = 0 }) {
+    this.plots.forEach((plot) => plot.setRange(...this.range));
+    const { min, max } = this.getMinMax();
+    const scaleX = new Scale(this.range[0], this.range[1], 0, width);
+    const scaleY = new Scale(min, max, height, 0);
+    this.plots.forEach((plot) => plot.updateScales(scaleX, scaleY));
+  }
+
+  setRange(min: number, max: number) {
+    this.range = [min, max];
+  }
 
   addPlot(plot: StickPlot) {
     this.plots.push(plot);
