@@ -21,15 +21,16 @@ export class Scale {
   }
 }
 
-class StickPlot {
-  data = [] as Stick[];
+export class StickPlot {
+  private data = [] as Stick[];
+  private range = [0, 0] as [number, number];
   constructor(
     private scaleY: Scale,
     private scaleX: Scale,
-    private graphics: PIXI.Graphics
+    private graphics: PlotGraphics
   ) {}
 
-  transformData() {
+  private transformData() {
     return this.data.map((stick) => {
       const min = this.scaleY.transform(stick.min);
       const max = this.scaleY.transform(stick.max);
@@ -38,20 +39,75 @@ class StickPlot {
     });
   }
 
-  draw() {
+  setData(data: Stick[]) {
+    this.data = data;
+  }
+
+  draw(): Draw<Stick[]> {
     this.graphics.clear();
-    this.transformData().forEach(({ min, max, pos }) => {
+    const transformedData = this.transformData();
+    transformedData.forEach(({ min, max, pos }) => {
       this.graphics.moveTo(pos, min);
       this.graphics.lineTo(pos, max);
     });
+    return { data: transformedData };
+  }
+
+  private getView(): Stick[] {
+    const minIndex = this.data.findIndex((stick) => stick.pos >= this.range[0]);
+    const maxIndex = this.data.findIndex((stick) => stick.pos > this.range[1]);
+    return this.data.slice(
+      minIndex === -1 ? 0 : minIndex,
+      maxIndex === -1 ? undefined : maxIndex
+    );
+  }
+
+  getMinMax() {
+    const dataInView = this.getView();
+    if (dataInView.length > 0) {
+      return dataInView.reduce(
+        (acc, stick) => ({
+          min: Math.min(stick.min, acc.min),
+          max: Math.max(acc.max, stick.max),
+        }),
+        { min: dataInView[0].min, max: dataInView[0].max }
+      );
+    }
+    return { min: 0, max: 0 };
+  }
+
+  setRange(min: number, max: number) {
+    this.range = [min, max];
+  }
+
+  updateScales(scaleX: Scale, scaleY: Scale) {
+    this.scaleX = scaleX;
+    this.scaleY = scaleY;
   }
 }
 
-class Chart {
-  constructor(private plots: StickPlot[], private app: PIXI.Application) {}
+export class Chart {
+  plots = [] as StickPlot[];
+  constructor(private app: PIXI.Application) {}
+
+  updateScales() {}
+
+  addPlot(plot: StickPlot) {
+    this.plots.push(plot);
+  }
+
+  draw() {
+    return this.plots.map((plot) => plot.draw());
+  }
 }
 interface Stick {
   min: number;
   max: number;
   pos: number;
 }
+
+interface Draw<T> {
+  data: T;
+}
+
+type PlotGraphics = Pick<PIXI.Graphics, 'lineTo' | 'moveTo' | 'clear'>;
