@@ -6,10 +6,11 @@
 import { onMounted, ref } from 'vue';
 // import { testeo } from '../webgl2/hello';
 // import { main } from '../webgl2/varyings';
-import { shadersTest } from './shaders';
+// import { shadersTest } from './shaders';
+import { createTest } from './Chart';
 const pixi = ref<HTMLElement>();
 onMounted(() => {
   if (!pixi.value) throw Error('no pixi');
-  shadersTest(pixi.value);
+  createTest(pixi.value);
 });
 </script>

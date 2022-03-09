@@ -12,8 +12,7 @@ describe('test scale', () => {
 });
 describe('Test StickPlot', () => {
   test('Should have the right min and max', () => {
-    const scale = new Scale(0, 1, 2, 3);
-    const plot = new StickPlot(scale, scale, {
+    const plot = new StickPlot({
       clear() {},
       lineTo() {},
       moveTo() {},
@@ -27,8 +26,7 @@ describe('Test StickPlot', () => {
 });
 describe('Test Chart', () => {
   test('Should transform data correctly', () => {
-    const scale = new Scale(0, 1, 2, 3);
-    const plot = new StickPlot(scale, scale, {
+    const plot = new StickPlot({
       clear() {},
       lineTo() {},
       moveTo() {},

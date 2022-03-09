@@ -24,11 +24,9 @@ export class Scale {
 export class StickPlot {
   private data = [] as Stick[];
   private range = [0, 0] as Range;
-  constructor(
-    private scaleY: Scale,
-    private scaleX: Scale,
-    private graphics: PlotGraphics
-  ) {}
+  private scaleY = new Scale(0, 0, 0, 0);
+  private scaleX = new Scale(0, 0, 0, 0);
+  constructor(private graphics: PlotGraphics) {}
 
   private transformData() {
     return this.getView().map((stick) => {
@@ -45,8 +43,10 @@ export class StickPlot {
 
   draw(): Draw<Stick[]> {
     this.graphics.clear();
+    this.graphics.lineStyle({ color: 0x000000, width: 2 });
     const transformedData = this.transformData();
     transformedData.forEach(({ min, max, pos }) => {
+      console.log({ min, max, pos });
       this.graphics.moveTo(pos, min);
       this.graphics.lineTo(pos, max);
     });
@@ -132,4 +132,20 @@ interface Draw<T> {
   data: T;
 }
 
-type PlotGraphics = Pick<PIXI.Graphics, 'lineTo' | 'moveTo' | 'clear'>;
+type PlotGraphics = Pick<PIXI.Graphics, 'lineTo' | 'moveTo' | 'clear' | 'lineStyle'>;
+
+export function createTest($el: HTMLElement) {
+  const app = new PIXI.Application({ backgroundColor: 0xffffff });
+  $el.appendChild(app.view);
+  const graphics = new PIXI.Graphics();
+  graphics.drawRect(100, 100, 300, 300);
+  app.stage.addChild(graphics);
+  const stick = (pos: number, min: number, max: number) => ({ pos, min, max });
+  const plot = new StickPlot(graphics);
+  plot.setData([stick(0, 1, 5), stick(6, 2, 3), stick(9, 3, 4), stick(11, 5, 7)]);
+  const chart = new Chart();
+  chart.addPlot(plot);
+  chart.setRange(5, 10);
+  chart.updateScales({ width: app.screen.width, height: app.screen.height });
+  chart.draw();
+}
