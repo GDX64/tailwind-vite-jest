@@ -1,90 +1,8 @@
 import * as PIXI from 'pixi.js';
-
-function rect(g: PIXI.Graphics) {
-  g.drawRect(10, 20, 100, 100);
-}
-
-export class Scale {
-  alpha: number;
-  k: number;
-  constructor(
-    fromInitial: number,
-    fromFinal: number,
-    toInitial: number,
-    toFinal: number
-  ) {
-    this.alpha = (toFinal - toInitial) / (fromFinal - fromInitial);
-    this.k = toInitial - fromInitial * this.alpha;
-  }
-  transform(value: number) {
-    return this.alpha * value + this.k;
-  }
-}
-
-export class StickPlot {
-  private data = [] as Stick[];
-  private range = [0, 0] as Range;
-  private scaleY = new Scale(0, 0, 0, 0);
-  private scaleX = new Scale(0, 0, 0, 0);
-  constructor(private graphics: PlotGraphics) {}
-
-  private transformData() {
-    return this.getView().map((stick) => {
-      const min = this.scaleY.transform(stick.min);
-      const max = this.scaleY.transform(stick.max);
-      const pos = this.scaleX.transform(stick.pos);
-      return { min, max, pos };
-    });
-  }
-
-  setData(data: Stick[]) {
-    this.data = data;
-  }
-
-  draw(): Draw<Stick[]> {
-    this.graphics.clear();
-    this.graphics.lineStyle({ color: 0x000000, width: 2 });
-    const transformedData = this.transformData();
-    transformedData.forEach(({ min, max, pos }) => {
-      console.log({ min, max, pos });
-      this.graphics.moveTo(pos, min);
-      this.graphics.lineTo(pos, max);
-    });
-    return { data: transformedData };
-  }
-
-  private getView(): Stick[] {
-    const minIndex = this.data.findIndex((stick) => stick.pos >= this.range[0]);
-    const maxIndex = this.data.findIndex((stick) => stick.pos > this.range[1]);
-    return this.data.slice(
-      minIndex === -1 ? 0 : minIndex,
-      maxIndex === -1 ? undefined : maxIndex
-    );
-  }
-
-  getMinMax() {
-    const dataInView = this.getView();
-    if (dataInView.length > 0) {
-      return dataInView.reduce(
-        (acc, stick) => ({
-          min: Math.min(stick.min, acc.min),
-          max: Math.max(acc.max, stick.max),
-        }),
-        { min: dataInView[0].min, max: dataInView[0].max }
-      );
-    }
-    return { min: 0, max: 0 };
-  }
-
-  setRange(min: number, max: number) {
-    this.range = [min, max];
-  }
-
-  updateScales(scaleX: Scale, scaleY: Scale) {
-    this.scaleX = scaleX;
-    this.scaleY = scaleY;
-  }
-}
+import { makeStickData } from './dataProvider';
+import { lastValueFrom, toArray } from 'rxjs';
+import { StickPlot } from './StickPlot';
+import { Scale } from './Scale';
 
 type Range = [number, number];
 
@@ -122,30 +40,19 @@ export class Chart {
     return this.plots.map((plot) => plot.draw());
   }
 }
-interface Stick {
-  min: number;
-  max: number;
-  pos: number;
-}
 
-interface Draw<T> {
-  data: T;
-}
-
-type PlotGraphics = Pick<PIXI.Graphics, 'lineTo' | 'moveTo' | 'clear' | 'lineStyle'>;
-
-export function createTest($el: HTMLElement) {
+export async function createTest($el: HTMLElement) {
   const app = new PIXI.Application({ backgroundColor: 0xffffff });
   $el.appendChild(app.view);
   const graphics = new PIXI.Graphics();
   graphics.drawRect(100, 100, 300, 300);
   app.stage.addChild(graphics);
-  const stick = (pos: number, min: number, max: number) => ({ pos, min, max });
   const plot = new StickPlot(graphics);
-  plot.setData([stick(0, 1, 5), stick(6, 2, 3), stick(9, 3, 4), stick(11, 5, 7)]);
+  const data = await lastValueFrom(makeStickData().pipe(toArray()));
+  plot.setData(data);
   const chart = new Chart();
   chart.addPlot(plot);
-  chart.setRange(5, 10);
+  chart.setRange(0, 100);
   chart.updateScales({ width: app.screen.width, height: app.screen.height });
   chart.draw();
 }

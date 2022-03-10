@@ -1,4 +1,6 @@
-import { Chart, Scale, StickPlot } from './Chart';
+import { Chart } from './Chart';
+import { Scale } from './Scale';
+import { StickPlot } from './StickPlot';
 
 const stick = (pos: number, min: number, max: number) => ({ pos, min, max });
 
