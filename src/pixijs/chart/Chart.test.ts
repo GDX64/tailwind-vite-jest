@@ -32,12 +32,12 @@ describe('Test Chart', () => {
       clear() {},
       lineTo() {},
       moveTo() {},
+      lineStyle() {},
     } as any);
     plot.setData([stick(0, 1, 5), stick(5, 2, 3), stick(9, 4, 4), stick(11, 5, 7)]);
-    const chart = new Chart();
+    const chart = new Chart({ screen: { width: 100, height: 100 } } as any);
     chart.addPlot(plot);
     chart.setRange(5, 10);
-    chart.updateScales({ width: 100, height: 100 });
     expect(chart.draw()).toMatchObject([
       {
         data: [

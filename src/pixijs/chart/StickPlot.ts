@@ -26,7 +26,6 @@ export class StickPlot {
     this.graphics.lineStyle({ color: 0x000000, width: 2 });
     const transformedData = this.transformData();
     transformedData.forEach(({ min, max, pos }) => {
-      console.log({ min, max, pos });
       this.graphics.moveTo(pos, min);
       this.graphics.lineTo(pos, max);
     });

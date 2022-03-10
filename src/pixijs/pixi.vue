@@ -7,7 +7,7 @@ import { onMounted, ref } from 'vue';
 // import { testeo } from '../webgl2/hello';
 // import { main } from '../webgl2/varyings';
 // import { shadersTest } from './shaders';
-import { createTest } from './chart/Chart';
+import { createTest } from './chart/test';
 const pixi = ref<HTMLElement>();
 onMounted(() => {
   if (!pixi.value) throw Error('no pixi');

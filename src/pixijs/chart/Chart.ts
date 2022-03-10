@@ -1,15 +1,30 @@
-import * as PIXI from 'pixi.js';
-import { makeStickData } from './dataProvider';
-import { lastValueFrom, toArray } from 'rxjs';
 import { StickPlot } from './StickPlot';
 import { Scale } from './Scale';
+import { Observable } from 'rxjs';
+import { clamp } from 'ramda';
 
 type Range = [number, number];
 
 export class Chart {
   private plots = [] as StickPlot[];
   private range = [0, 0] as Range;
-  constructor() {}
+  constructor(private app: ChartApplication) {
+    this.app.wheelInput.subscribe(this.handleWheel.bind(this));
+  }
+
+  get width() {
+    return this.app.screen.width;
+  }
+  get height() {
+    return this.app.screen.height;
+  }
+
+  private handleWheel(x: number) {
+    const { min } = this.getMinMax();
+    this.range[0] = clamp(min, this.range[1], this.range[0] + x);
+    console.log(x);
+    this.draw();
+  }
 
   private getMinMax() {
     if (this.plots.length) {
@@ -37,22 +52,15 @@ export class Chart {
   }
 
   draw() {
+    this.updateScales({ width: this.width, height: this.height });
     return this.plots.map((plot) => plot.draw());
   }
 }
 
-export async function createTest($el: HTMLElement) {
-  const app = new PIXI.Application({ backgroundColor: 0xffffff });
-  $el.appendChild(app.view);
-  const graphics = new PIXI.Graphics();
-  graphics.drawRect(100, 100, 300, 300);
-  app.stage.addChild(graphics);
-  const plot = new StickPlot(graphics);
-  const data = await lastValueFrom(makeStickData().pipe(toArray()));
-  plot.setData(data);
-  const chart = new Chart();
-  chart.addPlot(plot);
-  chart.setRange(0, 100);
-  chart.updateScales({ width: app.screen.width, height: app.screen.height });
-  chart.draw();
+interface ChartApplication {
+  screen: {
+    width: number;
+    height: number;
+  };
+  wheelInput: Observable<number>;
 }
