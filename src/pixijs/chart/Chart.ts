@@ -20,19 +20,23 @@ export class Chart {
   }
 
   private handleWheel(x: number) {
-    const { min } = this.getMinMax();
-    this.range[0] = clamp(min, this.range[1], this.range[0] + x);
-    console.log(x);
+    const { minPos, maxPos } = this.getMinMax();
+    const rangeSize = this.range[1] - this.range[0];
+    const step = x * rangeSize;
+    this.range[0] = clamp(minPos, this.range[1], this.range[0] + step);
+    this.range[1] = clamp(this.range[0], maxPos, this.range[1] + step);
     this.draw();
   }
 
-  private getMinMax() {
+  getMinMax() {
     if (this.plots.length) {
       const max = Math.max(...this.plots.map((plot) => plot.getMinMax().max));
       const min = Math.min(...this.plots.map((plot) => plot.getMinMax().min));
-      return { min, max };
+      const minPos = Math.min(...this.plots.map((plot) => plot.minMaxPos().min));
+      const maxPos = Math.max(...this.plots.map((plot) => plot.minMaxPos().max));
+      return { min, max, minPos, maxPos };
     }
-    return { min: 0, max: 0 };
+    return { min: 0, max: 0, minPos: 0, maxPos: 0 };
   }
 
   public updateScales({ width = 0, height = 0 }) {
@@ -55,9 +59,13 @@ export class Chart {
     this.updateScales({ width: this.width, height: this.height });
     return this.plots.map((plot) => plot.draw());
   }
+
+  getRange() {
+    return this.range;
+  }
 }
 
-interface ChartApplication {
+export interface ChartApplication {
   screen: {
     width: number;
     height: number;

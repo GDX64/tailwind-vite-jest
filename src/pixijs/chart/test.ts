@@ -14,11 +14,11 @@ export async function createTest($el: HTMLElement) {
   const data = await lastValueFrom(makeStickData().pipe(toArray()));
   plot.setData(data);
   const wheelInput = fromEvent<WheelEvent>($el, 'wheel').pipe(
-    map((event) => event.deltaY / 25)
+    map((event) => (event.deltaY / 100) * 0.05)
   );
   const chart = new Chart({ screen: app.screen, wheelInput });
   chart.addPlot(plot);
-  chart.setRange(0, 100);
+  chart.setRange(40, 60);
   chart.updateScales({ width: app.screen.width, height: app.screen.height });
   chart.draw();
 }

@@ -55,6 +55,13 @@ export class StickPlot {
     return { min: 0, max: 0 };
   }
 
+  minMaxPos() {
+    if (this.data.length) {
+      return { min: this.data[0].pos, max: this.data[this.data.length - 1].pos };
+    }
+    return { min: 0, max: 0 };
+  }
+
   setRange(min: number, max: number) {
     this.range = [min, max];
   }
@@ -65,7 +72,7 @@ export class StickPlot {
   }
 }
 
-interface Stick {
+export interface Stick {
   min: number;
   max: number;
   pos: number;
