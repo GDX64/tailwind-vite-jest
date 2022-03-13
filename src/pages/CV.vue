@@ -1,15 +1,34 @@
 <template>
   <div class="flex w-full justify-center items-center">
     <div class="cv-container">
-      <header class="flex items-center flex-col">
-        <h1 class="text-sky-600 text-3xl">Gabriel Eduardo de Lima Machado</h1>
-        <div class="flex justify-between w-96">
-          <div>glmachado.herokuapp.com</div>
-          <div>phone</div>
-          <div>email</div>
-          <div>github</div>
+      <header class="flex items-center flex-col text-sm">
+        <h1 class="text-sky-600 text-3xl mb-2">Gabriel Eduardo de Lima Machado</h1>
+        <h2 class="text-sky-600 text-xl mb-4">Software Developer</h2>
+        <div class="icons-container mb-2">
+          <div class="flex">
+            <Globe class="cv-icon"></Globe
+            ><a href="https://glmachado.herokuapp.com">glmachado.herokuapp.com</a>
+          </div>
+          <div class="flex whitespace-nowrap">
+            <Mobile class="cv-icon"></Mobile>+55 32 98493-5474
+          </div>
+          <div class="flex">
+            <Envelope class="cv-icon"></Envelope>gabriel.delmachado@gmail.com
+          </div>
+          <div class="flex">
+            <GitHub class="cv-icon"></GitHub><a href="https://github.com/GDX64">GDX64</a>
+          </div>
+          <div class="flex">
+            <Location class="cv-icon"></Location>
+            Porto Real, RJ, BR
+          </div>
+          <div class="flex">
+            <Linkedin class="cv-icon"></Linkedin>
+            <a href="https://www.linkedin.com/in/gabriel-e-l-machado/"
+              >gabriel-e-l-machado</a
+            >
+          </div>
         </div>
-        <div class="text-gray-500">address</div>
       </header>
       <div class="education">
         <FieldTitleVue title="Education"></FieldTitleVue>
@@ -82,6 +101,13 @@
 <script lang="ts" setup>
 import Field from '../components/CV/CVField.vue';
 import FieldTitleVue from '../components/CV/FieldTitle.vue';
+import GitHub from '../assets/github-brands.svg';
+import Globe from '../assets/globe-solid.svg';
+import Envelope from '../assets/envelope-solid.svg';
+import Location from '../assets/location-pin-solid.svg';
+import Mobile from '../assets/mobile-solid.svg';
+// import News from '../assets/newspaper-solid.svg';
+import Linkedin from '../assets/linkedin-brands.svg';
 </script>
 
 <style>
@@ -90,7 +116,17 @@ import FieldTitleVue from '../components/CV/FieldTitle.vue';
   font-family: 'Lato', sans-serif;
   width: 800px;
   height: 1131px;
-  background-color: rgb(250, 241, 227);
+  background-color: rgb(248, 244, 237);
   padding: 40px 70px 50px 70px;
+}
+.cv-icon {
+  height: 16px;
+  margin: 2px;
+}
+.icons-container {
+  display: grid;
+  font-size: 11px;
+  grid-template-columns: min-content min-content min-content;
+  column-gap: 20px;
 }
 </style>
