@@ -87,7 +87,7 @@
             <a href="https://glmachado.herokuapp.com/files/TCC.pdf" class="text-sky-600"
               >here</a
             >
-            (it is in my website)</span
+            (it is in my website).</span
           >
         </Field>
         <Field
