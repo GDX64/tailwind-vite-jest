@@ -40,7 +40,7 @@
         <Field
           company="Electronic Engineering Bachelor"
           date-and-place="UFJF - Juiz de fora, MG. 2014-2019"
-          description="The course had more emphasis in Signal Processing, and I used it to study more computation related things, as Python and Matlab Programming."
+          description="The course had more emphasis in Signal Processing, where I used Matlab and Python programming."
           class="mb-2"
         ></Field>
         <Field
@@ -87,12 +87,16 @@
           wich I like to learn in my spare time."
           class="mb-2"
         ></Field>
-        <Field
-          :company="'Blogs And Small Articles'"
-          description="When I'm learning something new, I like to write about it. 
-          So I have A Medium with some engineering, Math and programming related articles. I also have some content on Linkedin."
-          class="mb-2"
-        ></Field>
+        <Field :company="'Blogs And Small Articles'" class="mb-2" description="">
+          <span
+            >When I'm learning something new, I like to write about it. So I have a
+            <a href="https://medium.com/@gabriel-delmachado" class="text-sky-600"
+              >Medium</a
+            >
+            with some engineering, Math and programming related articles. I also have some
+            content on Linkedin.</span
+          >
+        </Field>
       </div>
     </div>
   </div>
@@ -121,7 +125,7 @@ import Linkedin from '../assets/linkedin-brands.svg';
 }
 .cv-icon {
   height: 16px;
-  margin: 2px;
+  margin-right: 5px;
 }
 .icons-container {
   display: grid;
