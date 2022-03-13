@@ -14,12 +14,15 @@
       <div class="experiences">
         <h2 class="text-sky-600 text-xl">Experiences</h2>
         <hr class="w-full border-t-2 border-t-sky-600" />
+        <Field></Field>
       </div>
     </div>
   </div>
 </template>
 
-<script></script>
+<script lang="ts" setup>
+import { Field } from '../components/CV/CVField';
+</script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
