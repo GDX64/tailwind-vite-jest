@@ -65,7 +65,7 @@
         <Field
           company="PSA - Intern"
           date-and-place="Buenos Aires, AR. 2019"
-          description="I've work for two months as a Maintenance Intern in PSA, helping in the control of spare parts. 
+          description="I've worked for two months as a Maintenance Intern in PSA, helping in the control of spare parts. 
           Unfortunately, I had some issues issues with working papers and could not continue more time."
           class="mb-2"
         ></Field>
