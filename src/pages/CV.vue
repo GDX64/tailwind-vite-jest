@@ -47,7 +47,7 @@
           company="Electronic Engineering Interchange"
           date-and-place="UBA - Buneos Aires, AR. 2019"
           description="I went for a 2 semesters interchange in Argentina whilst I developed my bachelor thesis. 
-          There I studied adaptive signal processing, machine learning and computer graphics (where I've learnt Javascript)."
+          There I studied adaptive signal processing, machine learning and computer graphics (where I learned Javascript)."
           class="mb-2"
         ></Field>
       </div>
@@ -75,11 +75,21 @@
         <Field
           :company="'Bachelor Thesis'"
           date-and-place="2019"
-          description="In my thesis I implemented adaptive filtering algorithms from papers with Matlab to analyse harmonics from the electrical energy network. 
-           In this work I had the opportunity to work with some advanced Linear Algebra to implement the computations.
-           I wrote it while I was in the interchange in Argentina."
+          description=""
           class="mb-2"
-        ></Field>
+        >
+          <span
+            >In my thesis I implemented adaptive filtering algorithms from papers with
+            Matlab to analyse harmonics from the electrical energy network. In this work I
+            had the opportunity to work with some advanced Linear Algebra to implement the
+            computations. I wrote it while I was in the interchange in Argentina. You can
+            download it
+            <a href="https://glmachado.herokuapp.com/files/TCC.pdf" class="text-sky-600"
+              >here</a
+            >
+            (it is in my website)</span
+          >
+        </Field>
         <Field
           :company="'Personal Website'"
           description="I've built my personal website some time ago, 
