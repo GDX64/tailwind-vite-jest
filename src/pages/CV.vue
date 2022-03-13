@@ -9,7 +9,7 @@
           <div>email</div>
           <div>github</div>
         </div>
-        <div class="text-gray-500">adrress</div>
+        <div class="text-gray-500">address</div>
       </header>
       <div class="education">
         <FieldTitleVue title="Education"></FieldTitleVue>
@@ -19,13 +19,13 @@
           class="mb-2"
         ></Field>
         <Field
-          company="Electronic Engeneering Bachelor"
+          company="Electronic Engineering Bachelor"
           date-and-place="UFJF - Juiz de fora, MG. 2014-2019"
-          description="The course had more enphasis in Signal Processing, and I used it to study more computation related things, as Python and Matlab Programming."
+          description="The course had more emphasis in Signal Processing, and I used it to study more computation related things, as Python and Matlab Programming."
           class="mb-2"
         ></Field>
         <Field
-          company="Electronic Engeneering Interchange"
+          company="Electronic Engineering Interchange"
           date-and-place="UBA - Buneos Aires, AR. 2019"
           description="I went for a 2 semesters interchange in Argentina whilst I developed my bachelor thesis. 
           There I studied adaptive signal processing, machine learning and computer graphics (where I've learnt Javascript)."
@@ -40,14 +40,14 @@
           title="Software Developer"
           description="Nelogica is the biggest trading software company in Brazil, and has several trading platforms. 
           I was hired in 2020 to work in the Web Platforms as a Javascript developer, creating and improving our trading dashboards.
-          Now I work more on performance related subjects inside the Web Platformns and leading the transition to Typescript."
+          Now I work more on performance related subjects inside the Web Platforms and leading the transition to Typescript."
           class="mb-2"
         ></Field>
         <Field
           company="PSA - Intern"
           date-and-place="Buenos Aires, AR. 2019"
-          description="I've work for two months as an Maintenance Intern in PSA, helping in the control of spare parts. 
-          Unfortunatly, I had some issues issues with woking papers and could not continue more time."
+          description="I've work for two months as a Maintenance Intern in PSA, helping in the control of spare parts. 
+          Unfortunately, I had some issues issues with working papers and could not continue more time."
           class="mb-2"
         ></Field>
       </div>
@@ -57,7 +57,7 @@
           :company="'Bachelor Thesis'"
           date-and-place="2019"
           description="In my thesis I implemented adaptive filtering algorithms from papers with Matlab to analyse harmonics from the electrical energy network. 
-           In this work I had the oportunity to work with some advanced Linear Algebra to implement the computations.
+           In this work I had the opportunity to work with some advanced Linear Algebra to implement the computations.
            I wrote it while I was in the interchange in Argentina."
           class="mb-2"
         ></Field>
@@ -68,17 +68,10 @@
           wich I like to learn in my spare time."
           class="mb-2"
         ></Field>
-      </div>
-      <div class="skills">
-        <FieldTitleVue title="Skills"></FieldTitleVue>
         <Field
-          :company="'Web development'"
-          description="I have solid skills with Javascript/Typescript and the other Browser related technologies"
-          class="mb-2"
-        ></Field>
-        <Field
-          company="Scientific Programming"
-          description="At college I woked more with Matlab to implement DSP algorithms, but I also did some Python and Julia Programing (you can find it in my github)"
+          :company="'Blogs And Small Articles'"
+          description="When I'm learning something new, I like to write about it. 
+          So I have A Medium with some engineering, Math and programming related articles. I also have some content on Linkedin."
           class="mb-2"
         ></Field>
       </div>

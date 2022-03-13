@@ -1,12 +1,12 @@
 <template>
   <div>
     <header class="flex justify-between w-full mb-1">
-      <div>{{ company }}</div>
-      <div>{{ dateAndPlace }}</div>
+      <div class="">{{ company }}</div>
+      <div class="">{{ dateAndPlace }}</div>
     </header>
     <div v-if="description" class="">
-      <div class="rounded-full w-[6px] h-[6px] bg-sky-600 mr-2 inline-block"></div>
-      <span spellcheck="true">{{ description }}</span>
+      <div class="rounded-full w-[6px] h-[6px] bg-gray-700 mr-2 inline-block"></div>
+      <span spellcheck="true" class="text-gray-700">{{ description }}</span>
     </div>
   </div>
 </template>
