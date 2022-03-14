@@ -34,7 +34,7 @@
         <FieldTitleVue title="Education"></FieldTitleVue>
         <Field
           company="Electro-Mechanical Technician"
-          date-and-place="ETPC - Volta Redonda, RJ"
+          date-and-place="ETPC - Volta Redonda, RJ. 2011-2013"
           class="mb-2"
         ></Field>
         <Field
