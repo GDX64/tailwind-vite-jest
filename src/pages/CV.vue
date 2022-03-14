@@ -66,7 +66,7 @@
           company="PSA - Intern"
           date-and-place="Buenos Aires, AR. 2019"
           description="I've worked for two months as a Maintenance Intern in PSA, helping in the control of spare parts. 
-          Unfortunately, I had some issues issues with working papers and could not continue more time."
+          Unfortunately, I had some issues with working papers and could not continue more time."
           class="mb-2"
         ></Field>
       </div>
@@ -103,7 +103,7 @@
             <a href="https://medium.com/@gabriel-delmachado" class="text-sky-600"
               >Medium</a
             >
-            with some engineering, Math and programming related articles. I also have some
+            with some engineering, math and programming related articles. I also have some
             content on Linkedin.</span
           >
         </Field>
