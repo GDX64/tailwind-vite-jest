@@ -19,6 +19,24 @@
           link: 'https://www.linkedin.com/in/gabriel-e-l-machado/',
         },
       ],
+      education: [
+        {
+          title: 'Electro-Mechanical Technician',
+          schoolPlaceDate: 'ETPC - Volta Redonda, RJ. 2011-2013',
+        },
+        {
+          title: 'Electronic Engineering Bachelor',
+          schoolPlaceDate: 'UFJF - Juiz de fora, MG. 2014-2019',
+          description:
+            'The course had more emphasis in Signal Processing, where I used Matlab and Python programming.',
+        },
+        {
+          description: `I went for a 2 semesters interchange in Argentina whilst I developed my bachelor thesis. 
+          There I studied adaptive signal processing, machine learning and computer graphics (where I learned Javascript).`,
+          schoolPlaceDate: 'UBA - Buneos Aires, AR. 2019',
+          title: 'Electronic Engineering Interchange',
+        },
+      ],
     }"
   ></CVSimpleVue>
 </template>

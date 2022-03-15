@@ -16,24 +16,14 @@
       </header>
       <div class="education">
         <FieldTitleVue title="Education"></FieldTitleVue>
-        <Field
-          main="Electro-Mechanical Technician"
-          date-and-place="ETPC - Volta Redonda, RJ. 2011-2013"
-          class="mb-2"
-        ></Field>
-        <Field
-          main="Electronic Engineering Bachelor"
-          date-and-place="UFJF - Juiz de fora, MG. 2014-2019"
-          description="The course had more emphasis in Signal Processing, where I used Matlab and Python programming."
-          class="mb-2"
-        ></Field>
-        <Field
-          main="Electronic Engineering Interchange"
-          date-and-place="UBA - Buneos Aires, AR. 2019"
-          description="I went for a 2 semesters interchange in Argentina whilst I developed my bachelor thesis. 
-          There I studied adaptive signal processing, machine learning and computer graphics (where I learned Javascript)."
-          class="mb-2"
-        ></Field>
+        <template v-for="data of cvData.education">
+          <Field
+            :main="data.title"
+            :date-and-place="data.schoolPlaceDate"
+            :description="data.description"
+            class="mb-2"
+          ></Field>
+        </template>
       </div>
       <div class="experiences">
         <FieldTitleVue title="Experiences"></FieldTitleVue>
@@ -121,6 +111,7 @@ interface CVData {
   name: string;
   title: string;
   arrUserInfo: { text: string; icon: Icons; link?: string }[];
+  education: { schoolPlaceDate: string; title: string; description?: string }[];
 }
 </script>
 
