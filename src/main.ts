@@ -4,12 +4,12 @@ import App from './App.vue';
 import './index.css';
 import Home from './pages/Home.vue';
 import BackGround from './pages/BackGround.vue';
-import Tests from './pages/DragTest.vue';
+import Test from './pages/QuickTest.vue';
 import Pixi from './pixijs/pixi.vue';
 const routes = [
   { path: '/', component: Home },
   { path: '/bg', component: BackGround },
-  { path: '/test', component: Tests },
+  { path: '/test', component: Test },
   { path: '/pixi', component: Pixi },
   { path: '/animation', component: Pixi },
 ];
