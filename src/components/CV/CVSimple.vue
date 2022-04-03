@@ -51,6 +51,14 @@
           description=""
           class="mb-2"
         >
+          
+        </Field>
+        <Field
+          :main="'Bachelor Thesis'"
+          date-and-place="2019"
+          description=""
+          class="mb-2"
+        >
           <span
             >In my thesis I implemented adaptive filtering algorithms from papers with
             Matlab to analyse harmonics from the electrical energy network. In this work I
