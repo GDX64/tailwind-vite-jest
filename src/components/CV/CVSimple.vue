@@ -27,21 +27,17 @@
       </div>
       <div class="experiences">
         <FieldTitleVue title="Experiences"></FieldTitleVue>
-        <Field
-          main="Nelogica - Software Developer"
-          date-and-place="Porto Alegre - RS, BR. 2020-(Now)"
-          title="Software Developer"
-          description="Nelogica is the biggest trading software company in Brazil, and has several trading platforms. 
-          I was hired in 2020 to work in the Web Platforms as a Javascript developer, creating and improving our trading dashboards.
-          Now I work more on performance related subjects inside the Web Platforms and the transition to Typescript."
-          class="mb-2"
-        ></Field>
-        <Field
-          main="PSA - Intern"
-          date-and-place="Buenos Aires, AR. 2019"
-          description="I've worked for two months as a Maintenance Intern in PSA, helping in the control of spare parts."
-          class="mb-2"
-        ></Field>
+        <template v-for="experience in cvData.experiences">
+          <Field
+            :date-and-place="experience.schoolPlaceDate"
+            :main="experience.title"
+            class="mb-2"
+            ><LinkProcess
+              class="text-with-link"
+              :text="experience.description"
+            ></LinkProcess
+          ></Field>
+        </template>
       </div>
       <div class="projects">
         <FieldTitleVue title="Relevant Projects"></FieldTitleVue>
@@ -49,7 +45,6 @@
           <Field
             :main="project.title"
             :date-and-place="project.schoolPlaceDate"
-            description=""
             class="mb-2"
           >
             <LinkProcess class="text-with-link" :text="project.description"></LinkProcess>
@@ -89,6 +84,7 @@ interface CVData {
   arrUserInfo: { text: string; icon: Icons; link?: string }[];
   education: { schoolPlaceDate: string; title: string; description?: string }[];
   projects: { schoolPlaceDate?: string; title: string; description?: string }[];
+  experiences: { schoolPlaceDate?: string; title: string; description?: string }[];
 }
 </script>
 

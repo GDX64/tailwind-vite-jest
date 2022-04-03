@@ -60,6 +60,20 @@
           programming related articles. I also have some content on Linkedin.`,
         },
       ],
+      experiences: [
+        {
+          title: 'Nelogica - Software Developer',
+          description: `Nelogica is the biggest trading software company in Brazil, and has several trading platforms. 
+          I was hired in 2020 to work in the Web Platforms as a Javascript developer, creating and improving our trading dashboards.
+          Now I work more on performance related subjects inside the Web Platforms and the transition to Typescript.`,
+          schoolPlaceDate: 'Porto Alegre - RS, BR. 2020-(Now)',
+        },
+        {
+          title: 'PSA - Intern',
+          schoolPlaceDate: 'Buenos Aires, AR. 2019',
+          description: `I've worked for two months as a Maintenance Intern in PSA, helping in the control of spare parts.`,
+        },
+      ],
     }"
   ></CVSimpleVue>
 </template>

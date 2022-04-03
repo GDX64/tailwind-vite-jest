@@ -12,6 +12,7 @@ export function processLinks(text: string) {
 export default defineComponent({
   props: { text: String },
   setup(props) {
+    console.log('text', props.text);
     return () => {
       const arr = processLinks(props.text ?? '').map((item) => {
         if (typeof item === 'string') {
