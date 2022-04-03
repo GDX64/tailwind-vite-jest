@@ -4,19 +4,23 @@
       <div class="">{{ main }}</div>
       <div class="">{{ dateAndPlace }}</div>
     </header>
-    <div v-if="description != null" class="text-gray-700">
+    <div v-if="hasDescription" class="text-gray-700">
       <div class="rounded-full w-[6px] h-[6px] bg-gray-700 mr-2 inline-block"></div>
       <slot></slot>
-      <span spellcheck="true">{{ description }}</span>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-defineProps<{
-  main: string;
-  dateAndPlace?: string;
-  description?: string;
-  title?: string;
-}>();
+withDefaults(
+  defineProps<{
+    main: string;
+    dateAndPlace?: string;
+    title?: string;
+    hasDescription?: boolean;
+  }>(),
+  {
+    hasDescription: true,
+  }
+);
 </script>

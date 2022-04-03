@@ -20,8 +20,9 @@
           <Field
             :main="data.title"
             :date-and-place="data.schoolPlaceDate"
-            :description="data.description"
+            :has-description="Boolean(data.description)"
             class="mb-2"
+            ><LinkProcess class="text-with-link" :text="data.description"></LinkProcess
           ></Field>
         </template>
       </div>
@@ -64,7 +65,7 @@ import Envelope from '../../assets/envelope-solid.svg';
 import Location from '../../assets/location-pin-solid.svg';
 import Mobile from '../../assets/mobile-solid.svg';
 import Linkedin from '../../assets/linkedin-brands.svg';
-import { Icons } from './SimpleCVTypes';
+import { CVData, Icons } from './SimpleCVTypes';
 import LinkProcess from './LinkProcess';
 
 defineProps<{ cvData: CVData }>();
@@ -77,15 +78,6 @@ const componentMap = {
   [Icons.Location]: Location,
   [Icons.Linkedin]: Linkedin,
 };
-
-interface CVData {
-  name: string;
-  title: string;
-  arrUserInfo: { text: string; icon: Icons; link?: string }[];
-  education: { schoolPlaceDate: string; title: string; description?: string }[];
-  projects: { schoolPlaceDate?: string; title: string; description?: string }[];
-  experiences: { schoolPlaceDate?: string; title: string; description?: string }[];
-}
 </script>
 
 <style>
