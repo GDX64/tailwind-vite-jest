@@ -11,7 +11,16 @@ export interface CVData {
   name: string;
   title: string;
   arrUserInfo: { text: string; icon: Icons; link?: string }[];
-  education: { schoolPlaceDate: string; title: string; description?: string }[];
-  projects: { schoolPlaceDate?: string; title: string; description?: string }[];
-  experiences: { schoolPlaceDate?: string; title: string; description?: string }[];
+  categories: Category[];
+}
+
+export interface Category {
+  title: string;
+  fields: Field[];
+}
+
+export interface Field {
+  title: string;
+  description?: string;
+  schoolPlaceDate?: string;
 }

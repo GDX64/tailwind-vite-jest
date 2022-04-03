@@ -14,42 +14,17 @@
           </template>
         </div>
       </header>
-      <div class="education">
-        <FieldTitleVue title="Education"></FieldTitleVue>
-        <template v-for="data of cvData.education">
+      <div class="" v-for="(category, categoryIndex) of cvData.categories">
+        <FieldTitleVue :title="category.title"></FieldTitleVue>
+        <template v-for="(data, fieldIndex) of category.fields">
           <Field
+            @dblclick="$emit('updateField', { categoryIndex, fieldIndex })"
             :main="data.title"
             :date-and-place="data.schoolPlaceDate"
             :has-description="Boolean(data.description)"
             class="mb-2"
             ><LinkProcess class="text-with-link" :text="data.description"></LinkProcess
           ></Field>
-        </template>
-      </div>
-      <div class="experiences">
-        <FieldTitleVue title="Experiences"></FieldTitleVue>
-        <template v-for="experience in cvData.experiences">
-          <Field
-            :date-and-place="experience.schoolPlaceDate"
-            :main="experience.title"
-            class="mb-2"
-            ><LinkProcess
-              class="text-with-link"
-              :text="experience.description"
-            ></LinkProcess
-          ></Field>
-        </template>
-      </div>
-      <div class="projects">
-        <FieldTitleVue title="Relevant Projects"></FieldTitleVue>
-        <template v-for="project of cvData.projects">
-          <Field
-            :main="project.title"
-            :date-and-place="project.schoolPlaceDate"
-            class="mb-2"
-          >
-            <LinkProcess class="text-with-link" :text="project.description"></LinkProcess>
-          </Field>
         </template>
       </div>
     </div>
@@ -69,6 +44,9 @@ import { CVData, Icons } from './SimpleCVTypes';
 import LinkProcess from './LinkProcess';
 
 defineProps<{ cvData: CVData }>();
+defineEmits<{
+  (event: 'updateField', data: { fieldIndex: number; categoryIndex: number }): void;
+}>();
 
 const componentMap = {
   [Icons.Globe]: Globe,

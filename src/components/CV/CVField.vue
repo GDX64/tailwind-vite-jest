@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="hover:bg-sky-100">
     <header class="flex justify-between w-full mb-1">
       <div class="">{{ main }}</div>
       <div class="">{{ dateAndPlace }}</div>
