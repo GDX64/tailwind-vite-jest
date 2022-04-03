@@ -33,7 +33,7 @@
           title="Software Developer"
           description="Nelogica is the biggest trading software company in Brazil, and has several trading platforms. 
           I was hired in 2020 to work in the Web Platforms as a Javascript developer, creating and improving our trading dashboards.
-          Now I work more on performance related subjects inside the Web Platforms and leading the transition to Typescript."
+          Now I work more on performance related subjects inside the Web Platforms and the transition to Typescript."
           class="mb-2"
         ></Field>
         <Field
@@ -45,49 +45,16 @@
       </div>
       <div class="projects">
         <FieldTitleVue title="Relevant Projects"></FieldTitleVue>
-        <Field
-          :main="'Bachelor Thesis'"
-          date-and-place="2019"
-          description=""
-          class="mb-2"
-        >
-          
-        </Field>
-        <Field
-          :main="'Bachelor Thesis'"
-          date-and-place="2019"
-          description=""
-          class="mb-2"
-        >
-          <span
-            >In my thesis I implemented adaptive filtering algorithms from papers with
-            Matlab to analyse harmonics from the electrical energy network. In this work I
-            had the opportunity to work with some advanced Linear Algebra to implement the
-            computations. I wrote it while I was in the interchange in Argentina. You can
-            download it
-            <a href="https://glmachado.herokuapp.com/files/TCC.pdf" class="text-sky-600"
-              >here</a
-            >
-            (it is in my website).</span
+        <template v-for="project of cvData.projects">
+          <Field
+            :main="project.title"
+            :date-and-place="project.schoolPlaceDate"
+            description=""
+            class="mb-2"
           >
-        </Field>
-        <Field
-          :main="'Personal Website'"
-          description="I've built my personal website some time ago, 
-          it is a little bit outdated but it has some interesting 3D animations and computer Graphics related things,
-          wich I like to learn in my spare time."
-          class="mb-2"
-        ></Field>
-        <Field :main="'Blogs And Small Articles'" class="mb-2" description="">
-          <span
-            >When I'm learning something new, I like to write about it. So I have a
-            <a href="https://medium.com/@gabriel-delmachado" class="text-sky-600"
-              >Medium</a
-            >
-            with some engineering, math and programming related articles. I also have some
-            content on Linkedin.</span
-          >
-        </Field>
+            <LinkProcess class="text-with-link" :text="project.description"></LinkProcess>
+          </Field>
+        </template>
       </div>
     </div>
   </div>
@@ -103,6 +70,7 @@ import Location from '../../assets/location-pin-solid.svg';
 import Mobile from '../../assets/mobile-solid.svg';
 import Linkedin from '../../assets/linkedin-brands.svg';
 import { Icons } from './SimpleCVTypes';
+import LinkProcess from './LinkProcess';
 
 defineProps<{ cvData: CVData }>();
 
@@ -120,6 +88,7 @@ interface CVData {
   title: string;
   arrUserInfo: { text: string; icon: Icons; link?: string }[];
   education: { schoolPlaceDate: string; title: string; description?: string }[];
+  projects: { schoolPlaceDate?: string; title: string; description?: string }[];
 }
 </script>
 
@@ -141,5 +110,8 @@ interface CVData {
   font-size: 11px;
   grid-template-columns: min-content min-content min-content;
   column-gap: 20px;
+}
+.text-with-link a {
+  @apply text-sky-600;
 }
 </style>

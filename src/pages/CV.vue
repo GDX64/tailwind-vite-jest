@@ -37,6 +37,29 @@
           title: 'Electronic Engineering Interchange',
         },
       ],
+      projects: [
+        {
+          title: 'Bachelor Thesis',
+          description: `In my thesis I implemented adaptive filtering algorithms from papers with
+            Matlab to analyse harmonics from the electrical energy network. In this work I
+            had the opportunity to work with some advanced Linear Algebra to implement the
+            computations. I wrote it while I was in the interchange in Argentina. You can
+            download it [here](https://glmachado.herokuapp.com/files/TCC.pdf) (it is in my website).`,
+          schoolPlaceDate: '2019',
+        },
+        {
+          title: 'Personal Website',
+          description: `I've built my personal website some time ago, 
+          it is a little bit outdated but it has some interesting 3D animations and computer Graphics related things,
+          wich I like to learn in my spare time.`,
+        },
+        {
+          title: 'Blogs And Small Articles',
+          description: `When I'm learning something new, I like to write about it. So I have a
+          [Medium](https://medium.com/@gabriel-delmachado) with some engineering, math and
+          programming related articles. I also have some content on Linkedin.`,
+        },
+      ],
     }"
   ></CVSimpleVue>
 </template>
