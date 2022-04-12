@@ -1,16 +1,15 @@
 <template>
   <div ref="pixi"></div>
+  <canvas></canvas>
 </template>
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-// import { testeo } from '../webgl2/hello';
-// import { main } from '../webgl2/varyings';
-// import { shadersTest } from './shaders';
-import { createTest } from './chart/test';
+// import { createTest } from './chart/test';
+import { start } from '../webgpu/hello';
 const pixi = ref<HTMLElement>();
 onMounted(() => {
   if (!pixi.value) throw Error('no pixi');
-  createTest(pixi.value);
+  start();
 });
 </script>
