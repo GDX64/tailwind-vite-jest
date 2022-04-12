@@ -10,7 +10,8 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "lib": ["esnext", "dom", "dom.iterable"]
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "typeRoots": ["./node_modules/@webgpu/types", "./node_modules/@types"]
   },
   "include": [
     "src/**/*.ts",
