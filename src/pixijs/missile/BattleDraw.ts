@@ -5,11 +5,7 @@ import Missile from './Missile';
 import { Scale, ScalePair } from '../chart/Scale';
 import { explode } from './Explosion';
 
-export function test(el: HTMLElement) {
-  new BattleDraw(el).animate();
-}
-
-class BattleDraw {
+export default class BattleDraw {
   private map: BattleMap;
   private g: PIXI.Graphics = new Graphics();
   private app: PIXI.Application;
@@ -24,13 +20,22 @@ class BattleDraw {
     this.scalePair = createScale(this.app.screen.width, this.app.screen.height);
     el.appendChild(this.app.view);
     this.map = new BattleMap(0.05);
-    this.map.addMissile(createMissile());
     this.app.stage.addChild(this.g);
     this.app.stage.addChild(this.explosionsContainer);
   }
 
+  static start(el: HTMLElement) {
+    const battle = new BattleDraw(el);
+    battle.animate();
+    return battle;
+  }
+
   animate() {
     this.app.ticker.add(() => this.drawScene(this.map.evolve()));
+  }
+
+  shot() {
+    this.map.addMissile(createMissile());
   }
 
   private drawScene(scene: Scene) {
