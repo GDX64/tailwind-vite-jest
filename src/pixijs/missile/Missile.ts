@@ -1,4 +1,4 @@
-type Vec2 = [number, number];
+export type Vec2 = [number, number];
 
 function dot(v: Vec2, other: Vec2) {
   return v[0] * other[0] + v[1] * other[1];
@@ -31,19 +31,26 @@ const maxAbsoluteAcc = 20;
 const maxOrthogonal = 2;
 
 export default class Missile {
-  constructor(public speed: Vec2, public pos: Vec2, private updateFn: () => Vec2) {}
+  public exploded = false;
+  constructor(public speed: Vec2, public pos: Vec2, private updateFn: UpdateFn) {}
 
   evolve(deltaT: number) {
-    const acc = clampAcc(this.updateFn(), this.speed);
+    const { acc: calcAcc, explode } = this.updateFn({ missile: this });
+    const acc = clampAcc(calcAcc, this.speed);
     const { speed, pos } = evolve(this.pos, this.speed, acc, deltaT);
     this.speed = speed;
     this.pos = pos;
+    this.exploded = this.exploded || explode;
   }
 
-  static default({ fnAcc = () => [1, 0] as Vec2 } = {}) {
+  static default({ fnAcc = defaultAccFunction } = {}) {
     return new Missile([0, 0], [0, 0], fnAcc);
   }
 }
+
+const defaultAccFunction: UpdateFn = () => {
+  return { acc: [1, 0] as Vec2, explode: false };
+};
 
 function evolve(pos: Vec2, speed: Vec2, acc: Vec2, deltaT: number) {
   return {
@@ -63,3 +70,5 @@ function clampAcc(acc: Vec2, speed: Vec2) {
   const newAcc = add(projection, clampedOrthogonal);
   return clampNorm(newAcc, maxAbsoluteAcc);
 }
+
+type UpdateFn = (args: { missile: Missile }) => { acc: Vec2; explode: boolean };

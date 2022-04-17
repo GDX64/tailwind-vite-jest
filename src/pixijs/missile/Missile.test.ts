@@ -10,7 +10,7 @@ describe('missile', () => {
   });
 
   test('acc clamp', () => {
-    const m = Missile.default({ fnAcc: () => [50, 50] });
+    const m = Missile.default({ fnAcc: () => ({ acc: [50, 50], explode: false }) });
     m.evolve(1);
     m.evolve(1);
     expect(m.speed[0]).toBeCloseTo(40 / Math.sqrt(2));

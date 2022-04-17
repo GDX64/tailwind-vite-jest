@@ -17,6 +17,13 @@ export class Scale {
   }
 }
 
+export class ScalePair {
+  constructor(private scaleX: Scale, private scaleY: Scale) {}
+  scaleVec2([x, y]: [number, number]) {
+    return [this.scaleX.transform(x), this.scaleY.transform(y)] as [number, number];
+  }
+}
+
 export class YScale {
   private scale: Scale;
   // private container: PIXI.Container;
