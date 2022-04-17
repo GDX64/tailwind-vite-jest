@@ -12,7 +12,7 @@ export function test(el: HTMLElement) {
 
   el.appendChild(app.view);
   const map = new BattleMap(0.05);
-  map.addMissile(Missile.default({ fnAcc: () => [1, 1] }));
+  map.addMissile(Missile.default({ fnAcc: () => [10, 10] }));
   const g = new Graphics();
   app.stage.addChild(g);
   app.ticker.add(() => drawScene(map.evolve(), g, app));
@@ -24,7 +24,7 @@ function drawScene(scene: Scene, g: PIXI.Graphics, app: PIXI.Application) {
   g.clear();
   scene.missiles.forEach((m) => {
     g.beginFill(0x000000, 1);
-    g.drawCircle(scaleX.transform(m.pos[0]), scaleY.transform(m.pos[1]), 10);
+    g.drawEllipse(scaleX.transform(m.pos[0]), scaleY.transform(m.pos[1]), 6, 6);
     g.endFill();
   });
 }
