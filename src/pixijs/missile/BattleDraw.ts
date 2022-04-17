@@ -1,22 +1,30 @@
 import * as PIXI from 'pixi.js';
 import { Graphics } from 'pixi.js';
-import BattleMap from './BattleMap';
-import { Missile } from './missile';
-
+import BattleMap, { Scene } from './BattleMap';
+import Missile from './Missile';
+import { Scale } from '../chart/Scale';
 export function test(el: HTMLElement) {
-  const app = new PIXI.Application({ backgroundColor: 0xffffff });
+  const app = new PIXI.Application({
+    backgroundColor: 0xffdddd,
+    height: 600,
+    width: 600,
+  });
+
   el.appendChild(app.view);
   const map = new BattleMap(0.05);
-  map.addMissile(Missile.default());
+  map.addMissile(Missile.default({ fnAcc: () => [1, 1] }));
   const g = new Graphics();
   app.stage.addChild(g);
-  app.ticker.add((delta) => {
-    g.clear();
-    const scene = map.evolve();
-    scene.missiles.forEach((m) => {
-      g.beginFill(0x000000, 1);
-      g.drawCircle(m.pos[0], m.pos[1], 10);
-      g.endFill();
-    });
+  app.ticker.add(() => drawScene(map.evolve(), g, app));
+}
+
+function drawScene(scene: Scene, g: PIXI.Graphics, app: PIXI.Application) {
+  const scaleX = new Scale(0, 100, 0, app.screen.width);
+  const scaleY = new Scale(0, 100, app.screen.height, 0);
+  g.clear();
+  scene.missiles.forEach((m) => {
+    g.beginFill(0x000000, 1);
+    g.drawCircle(scaleX.transform(m.pos[0]), scaleY.transform(m.pos[1]), 10);
+    g.endFill();
   });
 }

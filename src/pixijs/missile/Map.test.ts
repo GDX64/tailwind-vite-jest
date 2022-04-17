@@ -1,5 +1,5 @@
 import BattleMap from './BattleMap';
-import { Missile } from './missile';
+import Missile from './Missile';
 
 describe('map', () => {
   test('scene', () => {

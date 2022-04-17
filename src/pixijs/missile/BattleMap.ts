@@ -1,4 +1,4 @@
-import { Missile } from './missile';
+import Missile from './Missile';
 
 export default class BattleMap {
   private missiles: Missile[] = [];
@@ -14,6 +14,6 @@ export default class BattleMap {
   }
 }
 
-interface Scene {
+export interface Scene {
   missiles: Missile[];
 }

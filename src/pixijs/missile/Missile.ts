@@ -16,7 +16,7 @@ function norm(v: Vec2) {
   return Math.sqrt(dot(v, v));
 }
 
-export class Missile {
+export default class Missile {
   constructor(public speed: Vec2, public pos: Vec2, private updateFn: () => Vec2) {}
 
   evolve(deltaT: number) {
@@ -26,8 +26,8 @@ export class Missile {
     this.pos = pos;
   }
 
-  static default() {
-    return new Missile([0, 0], [0, 0], () => [1, 0]);
+  static default({ fnAcc = () => [1, 0] as Vec2 } = {}) {
+    return new Missile([0, 0], [0, 0], fnAcc);
   }
 }
 

@@ -1,4 +1,4 @@
-import { Missile } from './missile';
+import Missile from './Missile';
 
 describe('missile', () => {
   test('should go straight up', () => {
