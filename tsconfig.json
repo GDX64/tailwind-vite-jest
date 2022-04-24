@@ -11,7 +11,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "lib": ["esnext", "dom", "dom.iterable"],
-    "typeRoots": ["./node_modules/@webgpu/types", "./node_modules/@types"]
+    "types": ["vitest/globals", "@webgpu/types"]
   },
   "include": [
     "src/**/*.ts",
