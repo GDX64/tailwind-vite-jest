@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import { mount } from '@vue/test-utils';
 import BtnTest from '../src/components/BtnTest.vue';
 
