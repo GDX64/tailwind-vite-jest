@@ -16,15 +16,9 @@ onMounted(async () => {
   console.log('changed text');
 });
 
-onBeforeUpdate(() => {
-  console.log('before update');
-});
+onBeforeUpdate(() => console.log('before update'));
 
-onRenderTriggered(() => {
-  console.log('rerender');
-});
+onRenderTriggered(() => console.log('rerender'));
 
-onUpdated(() => {
-  console.log('updated');
-});
+onUpdated(() => console.log('updated'));
 </script>
