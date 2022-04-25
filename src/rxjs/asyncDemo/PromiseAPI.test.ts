@@ -2,11 +2,14 @@ import { getPlanetInfo } from './PromiseAPI';
 
 describe('Promises', () => {
   test('getPlanetInfo', async () => {
-    const moons = await getPlanetInfo('earth');
-    expect(moons).toMatchObject(['moon']);
+    vi.useFakeTimers();
+    const moons = getPlanetInfo('earth');
+    vi.advanceTimersByTime(1000);
+    expect(await moons).toMatchObject(['moon']);
   });
   test('getPlanetInfo error', async () => {
-    const moons = await getPlanetInfo('abacate').catch((err: Error) => err);
-    expect(moons).toMatchObject(Error('No planet found with this name'));
+    const moons = getPlanetInfo('abacate').catch((err: Error) => err);
+    vi.advanceTimersByTime(1000);
+    expect(await moons).toMatchObject(Error('No planet found with this name'));
   });
 });
