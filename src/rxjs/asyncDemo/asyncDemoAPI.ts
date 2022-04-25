@@ -9,13 +9,13 @@ const data: Record<string, Record<string, { distance: number }>> = {
 export function getPlanets(
   planet: string,
   ok: (moons: string[]) => void,
-  err: (err: Error) => void
+  err?: (err: Error) => void
 ) {
   setTimeout(() => {
     if (planet in data) {
       ok(Object.keys(data[planet]));
     } else {
-      err(Error('No planet found with this name'));
+      err?.(Error('No planet found with this name'));
     }
   }, 100);
 }
