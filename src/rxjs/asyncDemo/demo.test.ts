@@ -5,10 +5,15 @@ describe('test ui', () => {
   test('typing', async () => {
     vi.useFakeTimers();
     mockRequester.getPlanets = (ok) => setTimeout(() => ok(['moon']));
-    mockRequester.getMoonInfo = (ok) => setTimeout(() => ok({ distance: 100 }));
+    mockRequester.getMoonInfo = (ok) => {
+      setTimeout(() => {
+        ok({ distance: 100 });
+      });
+    };
     const wrapper = mount(Demo);
     await wrapper.get('input').setValue('earth');
-    await wait(1000);
+    await wait(500);
+    await wait(500);
     const results = wrapper.findAll('[data-test="moon"]');
     expect(results).toHaveLength(1);
     expect(results[0].text()).toMatch(/moon: 100/);
@@ -20,7 +25,8 @@ describe('test ui', () => {
     mockRequester.getMoonInfo = (ok, err) => setTimeout(() => err(Error('deu pau')));
     const wrapper = mount(Demo);
     await wrapper.get('input').setValue('earth');
-    await wait(1000);
+    await wait(500);
+    await wait(500);
     const results = wrapper.findAll('[data-test="moon"]');
     expect(results).toHaveLength(0);
     expect(wrapper.html()).toMatch(/deu pau/);
@@ -40,7 +46,11 @@ const mockRequester = {
   getMoonInfo: (ok: any, err: any) => {},
 };
 
-async function wait(time: number) {
-  vi.advanceTimersByTime(time);
+function wait(time?: number) {
+  if (!time) {
+    vi.runAllTimers();
+  } else {
+    vi.advanceTimersByTime(time);
+  }
   return flushPromises();
 }

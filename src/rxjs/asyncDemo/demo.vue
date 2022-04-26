@@ -8,10 +8,10 @@
 
 <script lang="ts" setup>
 import { ref, watch } from 'vue';
-import { makeCBRequester } from './callbackRequester';
+import { makeCBRequester, makePromiseRequester } from './callbackRequester';
 const planet = ref('');
 const moons = ref([] as { name: string; distance: number }[]);
 const errorMsg = ref('');
-const requester = makeCBRequester(moons, errorMsg);
+const requester = makePromiseRequester(moons, errorMsg);
 watch(planet, (value) => requester.setPlanet(value));
 </script>
