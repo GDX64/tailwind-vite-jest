@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 import Demo from './demo.vue';
 
 describe('test ui', () => {
@@ -39,13 +39,22 @@ describe('test ui', () => {
     await wrapper.get('input').setValue('ear');
     await wait(1000);
     expect(wrapper.findAll('[type="radio"]')).toHaveLength(0);
+
+    await wrapper.get('input').setValue('mars');
+    mockRequester.getPlanets = (ok, err) => {
+      setTimeout(() => ok(['fobos', 'deimos']), 1000);
+    };
+
+    await wait(1500);
+    expect(wrapper.findAll('[type="radio"]')).toHaveLength(2);
   });
 });
 
 vi.mock('./asyncDemoAPI', () => {
   return {
     getPlanets: (_: any, ok: any, err: any) => mockRequester.getPlanets(ok, err),
-  };
+    getMoonInfo: () => {},
+  } as typeof import('./asyncDemoAPI');
 });
 
 const mockRequester = {
@@ -54,7 +63,5 @@ const mockRequester = {
 
 async function wait(time: number) {
   vi.advanceTimersByTime(time);
-  vi.useRealTimers();
-  await new Promise((resolve) => setTimeout(resolve));
-  vi.useFakeTimers();
+  return flushPromises();
 }
