@@ -13,6 +13,18 @@ describe('test ui', () => {
     expect(results).toHaveLength(1);
     expect(results[0].text()).toMatch(/moon: 100/);
   });
+
+  test('error handling', async () => {
+    vi.useFakeTimers();
+    mockRequester.getPlanets = (ok) => setTimeout(() => ok(['moon']));
+    mockRequester.getMoonInfo = (ok, err) => setTimeout(() => err(Error('deu pau')));
+    const wrapper = mount(Demo);
+    await wrapper.get('input').setValue('earth');
+    await wait(1000);
+    const results = wrapper.findAll('[data-test="moon"]');
+    expect(results).toHaveLength(0);
+    expect(wrapper.html()).toMatch(/deu pau/);
+  });
 });
 
 vi.mock('./asyncDemoAPI', () => {
