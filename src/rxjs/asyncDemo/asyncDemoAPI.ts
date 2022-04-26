@@ -23,7 +23,7 @@ export function getPlanets(
 export function getMoonInfo(
   moon: string,
   ok: (moons: { distance: number }) => void,
-  err: (err: Error) => void
+  err?: (err: Error) => void
 ) {
   setTimeout(() => {
     const moons = Object.fromEntries(
@@ -32,7 +32,7 @@ export function getMoonInfo(
     if (moon in moons) {
       ok(moons[moon]);
     } else {
-      err(Error('No moon found with this name'));
+      err?.(Error('No moon found with this name'));
     }
   }, 100);
 }

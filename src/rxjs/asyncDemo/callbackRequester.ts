@@ -1,24 +1,15 @@
 import { Ref } from 'vue';
-import { getPlanets } from './asyncDemoAPI';
-export function makeCBRequester(moons: Ref<string[]>, distance: Ref<string>) {
-  let timeout: any = -1;
-  let planetID = 0;
+import { getPlanets, getMoonInfo } from './asyncDemoAPI';
+export function makeCBRequester(moonsView: Ref<{ name: string; distance: number }[]>) {
   return {
-    async setPlanet(planet: string) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        planetID++;
-        const currentID = planetID;
-        getPlanets(
-          planet,
-          (result) => {
-            if (planetID === currentID) {
-              moons.value = result;
-            }
-          },
-          () => this.setPlanet(planet)
-        );
-      }, 250);
+    setPlanet(planet: string) {
+      getPlanets(planet, (moons) => {
+        moons.forEach((moon) => {
+          getMoonInfo(moon, ({ distance }) => {
+            moonsView.value.push({ name: moon, distance });
+          });
+        });
+      });
     },
   };
 }
