@@ -60,7 +60,7 @@ export function makeObservableRequester(
   errMsg: Ref<string>
 ) {
   const planet$ = new Subject<string>();
-  planet$
+  const subscription = planet$
     .pipe(
       debounceTime(200),
       switchMap((planet) => {
@@ -85,6 +85,7 @@ export function makeObservableRequester(
     });
 
   return {
+    unsubscribe: () => subscription.unsubscribe(),
     async setPlanet(planet: string) {
       planet$.next(planet);
     },
