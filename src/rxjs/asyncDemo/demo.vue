@@ -16,7 +16,7 @@ import {
 const planet = ref('');
 const moons = ref([] as { name: string; distance: number }[]);
 const errorMsg = ref('');
-const requester = makeObservableRequester(moons, errorMsg);
+const requester = makeCBRequester(moons, errorMsg);
 watch(planet, (value) => requester.setPlanet(value));
 onUnmounted(() => {
   requester.unsubscribe();

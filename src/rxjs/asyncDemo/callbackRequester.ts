@@ -10,25 +10,43 @@ export function makeCBRequester(
   const onError = (err: Error) => {
     errMsg.value = err.message;
   };
+  let timeout = -1 as any;
+  let cancelPlanetsRequest = () => {};
   return {
     setPlanet(planet: string) {
-      moonsView.value = [];
-      getPlanets(
-        planet,
-        (moons) => {
-          moons.forEach((moon) => {
-            getMoonInfo(
-              moon,
-              ({ distance }) => {
-                moonsView.value.push({ name: moon, distance });
-              },
-              onError
-            );
-          });
-        },
-        onError
-      );
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        moonsView.value = [];
+        cancelPlanetsRequest();
+        cancelPlanetsRequest = getPlanetsCancelable(
+          planet,
+          (moons) => {
+            moons.forEach((moon) => {
+              getMoonInfo(
+                moon,
+                ({ distance }) => {
+                  moonsView.value.push({ name: moon, distance });
+                },
+                onError
+              );
+            });
+          },
+          onError
+        );
+      }, 250);
     },
+  };
+}
+
+function getPlanetsCancelable(
+  planet: string,
+  ok: (moons: string[]) => void,
+  error: (err: Error) => void
+) {
+  let canceled = false;
+  getPlanets(planet, (moons) => !canceled && ok(moons), error);
+  return () => {
+    canceled = true;
   };
 }
 
