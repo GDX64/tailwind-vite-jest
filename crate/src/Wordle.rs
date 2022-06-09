@@ -1,4 +1,4 @@
-use crate::Naive::NaiveGuesser;
+use crate::{Naive::NaiveGuesser, WORDS};
 
 use super::{Guess, WORDLE_SIZE};
 use wasm_bindgen::prelude::*;
@@ -8,6 +8,7 @@ pub struct Wordle {
     guesser: NaiveGuesser,
     history: Vec<Guess>,
     answer: String,
+    words: Vec<&'static str>,
 }
 
 #[wasm_bindgen]
@@ -17,13 +18,18 @@ impl Wordle {
             guesser: NaiveGuesser::new(),
             history: Vec::new(),
             answer: "hello".to_string(),
+            words: WORDS.split_whitespace().collect(),
         }
+    }
+
+    fn available_words(&self) -> Vec<&str> {
+        filter_with(&self.words, &self.history)
     }
 
     pub fn simulate(&mut self, answer: &str) -> usize {
         self.history = Vec::new();
         for i in 0..=16 {
-            let guess = self.guesser.guess(&self.history);
+            let guess = self.guesser.guess(&self.available_words());
             if guess == answer {
                 self.reset();
                 return i;
@@ -44,7 +50,9 @@ impl Wordle {
             mask: correcness.clone(),
             word: guess_word.to_string(),
         };
-        let information_gain = self.guesser.guess_information(&self.history, &guess);
+        let information_gain = self
+            .guesser
+            .guess_information(&self.available_words(), &guess);
         self.history.push(guess);
         let mask: Vec<u32> = correcness.iter().map(|value| *value as u32).collect();
         JsValue::from_serde(&(mask, information_gain)).unwrap()
@@ -59,8 +67,13 @@ impl Wordle {
     }
 
     pub fn calc_best_guesses(&self) -> JsValue {
-        let guesses = self.guesser.calc_best_guesses(&self.history);
+        let guesses = self.guesser.calc_best_guesses(&self.available_words());
         JsValue::from_serde(&guesses).unwrap()
+    }
+
+    pub fn distribution_of(&self, guess: &str) -> Vec<usize> {
+        let valid_words = &filter_with(&self.words, &self.history);
+        Guess::calc_distribution(valid_words, guess).into()
     }
 }
 
@@ -94,6 +107,18 @@ fn check_word((c, index): (u8, usize), answer: &[u8; WORDLE_SIZE]) -> Correctnes
         _ if answer.contains(&c) => Correctness::Misplaced,
         _ => Correctness::Wrong,
     }
+}
+
+pub fn filter_with<'a>(all_words: &[&'a str], history: &[Guess]) -> Vec<&'a str> {
+    all_words
+        .iter()
+        .filter(|&&word| {
+            history
+                .iter()
+                .all(|guess| guess.matches(word) && guess.word != word)
+        })
+        .map(|&str| str)
+        .collect()
 }
 
 #[cfg(test)]
