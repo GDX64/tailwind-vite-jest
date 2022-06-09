@@ -26,6 +26,16 @@ impl Guesser for NaiveGuesser {
             panic!("no words available to make a guess")
         }
     }
+
+    fn calc_best_guesses(&self, history: &[crate::Guess]) -> Vec<(&str, f64)> {
+        let available_words = filter_with(&self.words, history);
+        let mut best_guesses = available_words
+            .iter()
+            .map(|word| (*word, calc_goodness(word, &available_words)))
+            .collect::<Vec<_>>();
+        best_guesses.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+        best_guesses[..10.min(best_guesses.len())].to_vec()
+    }
 }
 
 fn calc_goodness(guess_word: &str, valid_words: &[&str]) -> f64 {

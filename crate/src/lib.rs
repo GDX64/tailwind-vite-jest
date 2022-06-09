@@ -25,12 +25,8 @@ impl Guess {
 
 pub trait Guesser {
     fn guess(&mut self, history: &[Guess]) -> String;
-}
 
-impl Guesser for fn(&[Guess]) -> String {
-    fn guess(&mut self, history: &[Guess]) -> String {
-        (*self)(history)
-    }
+    fn calc_best_guesses(&self, history: &[Guess]) -> Vec<(&str, f64)>;
 }
 
 #[wasm_bindgen]

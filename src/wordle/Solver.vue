@@ -21,5 +21,6 @@ const input = ref('');
 function onEnter() {
   inputHistory.value = [...inputHistory.value, input.value];
   console.log(player.play(input.value));
+  console.log(player.calc_best_guesses());
 }
 </script>

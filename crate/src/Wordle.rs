@@ -55,6 +55,11 @@ impl Wordle {
     pub fn set_ans(&mut self, answer: &str) {
         self.answer = answer.to_string();
     }
+
+    pub fn calc_best_guesses(&self) -> JsValue {
+        let guesses = self.guesser.calc_best_guesses(&self.history);
+        JsValue::from_serde(&guesses).unwrap()
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
