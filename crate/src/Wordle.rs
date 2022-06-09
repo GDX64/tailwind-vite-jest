@@ -1,25 +1,59 @@
-use super::{Guess, Guesser, WORDLE_SIZE};
-pub struct Wordle {}
+use crate::Naive::NaiveGuesser;
 
+use super::{Guess, Guesser, WORDLE_SIZE};
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+pub struct Wordle {
+    guesser: Box<dyn Guesser>,
+    history: Vec<Guess>,
+    answer: String,
+}
+
+#[wasm_bindgen]
 impl Wordle {
     pub fn new() -> Self {
-        Wordle {}
+        let naive = Box::new(NaiveGuesser::new());
+        Wordle {
+            guesser: naive,
+            history: Vec::new(),
+            answer: "hello".to_string(),
+        }
     }
 
-    pub fn play(&self, answer: &'static str, mut guesser: impl Guesser) -> usize {
-        let mut history: Vec<Guess> = Vec::new();
+    pub fn simulate(&mut self, answer: &str) -> usize {
+        self.history = Vec::new();
         for i in 0..=16 {
-            let guess = guesser.guess(&history);
+            let guess = self.guesser.guess(&self.history);
             if guess == answer {
+                self.reset();
                 return i;
             }
             let correcness = Correctness::check(answer, &guess);
-            history.push(Guess {
+            self.history.push(Guess {
                 mask: correcness,
                 word: guess,
             })
         }
+        self.reset();
         panic!("Max guesses reached");
+    }
+
+    pub fn play(&mut self, guess: &str) -> Vec<u32> {
+        let correcness = Correctness::check(&self.answer, &guess);
+        self.history.push(Guess {
+            mask: correcness.clone(),
+            word: guess.to_string(),
+        });
+        return correcness.iter().map(|value| *value as u32).collect();
+    }
+
+    pub fn reset(&mut self) {
+        *self = Wordle::new();
+    }
+
+    pub fn set_ans(&mut self, answer: &str) {
+        self.answer = answer.to_string();
     }
 }
 
