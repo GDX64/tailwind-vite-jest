@@ -8,6 +8,8 @@ import Test from './pages/QuickTest.vue';
 import Pixi from './pixijs/pixi.vue';
 import Grid from './components/Grid.vue';
 import CV from './pages/CV.vue';
+import Wordle from './wordle/Wordle.vue';
+
 const routes = [
   { path: '/', component: Home },
   { path: '/bg', component: BackGround },
@@ -16,6 +18,7 @@ const routes = [
   { path: '/animation', component: Pixi },
   { path: '/grid', component: Grid },
   { path: '/cv', component: CV },
+  { path: '/Wordle', component: Wordle },
 ];
 
 // 3. Create the router instance and pass the `routes` option
@@ -27,4 +30,4 @@ const router = createRouter({
   routes, // short for `routes: routes`
 });
 
-const app = createApp(App).use(router).mount('#app');
+createApp(App).use(router).mount('#app');
