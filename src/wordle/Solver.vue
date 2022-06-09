@@ -1,15 +1,20 @@
 <template>
   <BackGround>
     <ul>
-      <li v-for="guess of inputHistory">{{ guess }}</li>
+      <li v-for="guess of inputHistory">
+        {{ guess.word }} {{ guess.expected }} {{ guess.information }}
+      </li>
     </ul>
-    <input
-      type="text"
-      class="text-black bg-slate-300 rounded-md pl-1"
-      v-model="input"
-      maxlength="5"
-      @keydown.enter="onEnter"
-    />
+    <div class="flex">
+      <input
+        type="text"
+        class="text-black bg-slate-300 rounded-md pl-1"
+        v-model="input"
+        maxlength="5"
+        @keydown.enter="onEnter"
+      />
+      <div>{{ inputEntropy }}</div>
+    </div>
     <h2>Best guesses</h2>
     <ul>
       <li
@@ -43,8 +48,11 @@ import BackGround from '../pages/BackGround.vue';
 const {} = await init();
 const player = Wordle.new();
 player.set_ans('hello');
-const inputHistory = ref([] as string[]);
+const inputHistory = ref([] as { word: string; information: number; expected: number }[]);
 const input = ref('');
+const inputEntropy = computed(() =>
+  isvalidWord(input.value) ? player.entropy_of(input.value).toFixed(2) : 0
+);
 const bestGuesses = ref(getBestGuesses());
 const distribution = computed(() => {
   if (isvalidWord(input.value)) {
@@ -54,10 +62,12 @@ const distribution = computed(() => {
 });
 
 function onEnter() {
-  inputHistory.value = [...inputHistory.value, input.value];
-  console.log(player.play(input.value));
+  const [, information] = player.play(input.value);
+  inputHistory.value = [
+    ...inputHistory.value,
+    { word: input.value, information, expected: Number(inputEntropy.value) },
+  ];
   bestGuesses.value = getBestGuesses();
-  console.log();
 }
 
 function getBestGuesses() {
@@ -67,8 +77,6 @@ function getBestGuesses() {
     return { word, entropy, percent: entropy / biggestEntropy };
   });
 }
-
-function getDistributionOf(word: string) {}
 
 function normalize(arr: number[]) {
   const max = Math.max(...arr);

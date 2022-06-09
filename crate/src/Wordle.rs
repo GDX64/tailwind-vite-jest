@@ -75,6 +75,10 @@ impl Wordle {
         let valid_words = &filter_with(&self.words, &self.history);
         Guess::calc_distribution(valid_words, guess).into()
     }
+
+    pub fn entropy_of(&self, word: &str) -> f64 {
+        self.guesser.entropy_of(word, &self.available_words())
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
