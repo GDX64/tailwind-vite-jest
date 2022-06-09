@@ -24,12 +24,12 @@
       <ul>
         <li
           v-for="guess of bestGuesses"
-          class="w-40 relative pl-1"
+          class="w-40 relative pl-"
           @click="onWordClick(guess.word)"
         >
           {{ guess.word }} {{ guess.entropy.toFixed(2) }} bits
           <div
-            class="bg-slate-600/20 h-full absolute top-0 left-0 rounded-sm"
+            class="bg-slate-600/20 h-full absolute top-0 left-0 rounded-sm hover:bg-slate-400/20"
             :style="{ width: `${guess.percent * 100}%` }"
           ></div>
         </li>
@@ -39,8 +39,9 @@
   <h3>Distribution</h3>
   <div class="flex h-[200px] items-end">
     <div
-      v-for="value of distribution"
-      class="bg-slate-500"
+      v-for="{ value, index } of distribution"
+      @click="onDistributionClick(index)"
+      class="bg-slate-500 hover:bg-slate-400"
       :style="{ height: `${value * 100}%`, width: '5px', 'margin-right': '1px' }"
     ></div>
   </div>
@@ -61,7 +62,7 @@ const inputEntropy = computed(() =>
 const bestGuesses = ref(getBestGuesses());
 const distribution = computed(() => {
   if (isvalidWord(input.value)) {
-    return normalize([...player.distribution_of(input.value)]).sort((a, b) => b - a);
+    return getDistribution(input.value);
   }
   return [];
 });
@@ -97,5 +98,21 @@ function onWordClick(word: string) {
 }
 function isvalidWord(word: string) {
   return word.length === 5;
+}
+
+function maskFromNumber(num: number) {
+  return num.toString(3).padEnd(5, '0').split('').map(Number);
+}
+
+function getDistribution(word: string) {
+  return normalize([...player.distribution_of(word)])
+    .map((num, index) => {
+      return { value: num, index };
+    })
+    .sort((a, b) => b.value - a.value);
+}
+
+function onDistributionClick(value: number) {
+  console.log(maskFromNumber(value));
 }
 </script>
