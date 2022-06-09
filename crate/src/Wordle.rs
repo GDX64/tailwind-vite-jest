@@ -1,11 +1,11 @@
 use crate::Naive::NaiveGuesser;
 
-use super::{Guess, Guesser, WORDLE_SIZE};
+use super::{Guess, WORDLE_SIZE};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub struct Wordle {
-    guesser: Box<dyn Guesser>,
+    guesser: NaiveGuesser,
     history: Vec<Guess>,
     answer: String,
 }
@@ -13,9 +13,8 @@ pub struct Wordle {
 #[wasm_bindgen]
 impl Wordle {
     pub fn new() -> Self {
-        let naive = Box::new(NaiveGuesser::new());
         Wordle {
-            guesser: naive,
+            guesser: NaiveGuesser::new(),
             history: Vec::new(),
             answer: "hello".to_string(),
         }
@@ -39,13 +38,16 @@ impl Wordle {
         panic!("Max guesses reached");
     }
 
-    pub fn play(&mut self, guess: &str) -> Vec<u32> {
-        let correcness = Correctness::check(&self.answer, &guess);
-        self.history.push(Guess {
+    pub fn play(&mut self, guess_word: &str) -> JsValue {
+        let correcness = Correctness::check(&self.answer, &guess_word);
+        let guess = Guess {
             mask: correcness.clone(),
-            word: guess.to_string(),
-        });
-        return correcness.iter().map(|value| *value as u32).collect();
+            word: guess_word.to_string(),
+        };
+        let information_gain = self.guesser.guess_information(&self.history, &guess);
+        self.history.push(guess);
+        let mask: Vec<u32> = correcness.iter().map(|value| *value as u32).collect();
+        JsValue::from_serde(&(mask, information_gain)).unwrap()
     }
 
     pub fn reset(&mut self) {

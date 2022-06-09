@@ -23,12 +23,6 @@ impl Guess {
     }
 }
 
-pub trait Guesser {
-    fn guess(&mut self, history: &[Guess]) -> String;
-
-    fn calc_best_guesses(&self, history: &[Guess]) -> Vec<(&str, f64)>;
-}
-
 #[wasm_bindgen]
 pub fn main() {
     Wordle::Wordle::new().simulate("brick");

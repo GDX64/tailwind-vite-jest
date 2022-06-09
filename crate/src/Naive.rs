@@ -1,4 +1,4 @@
-use crate::{Guesser, Wordle::Correctness, WORDLE_SIZE, WORDS};
+use crate::{Guess, Wordle::Correctness, WORDLE_SIZE, WORDS};
 const MAP_ARR_SIZE: usize = 3usize.pow(WORDLE_SIZE as u32);
 
 pub struct NaiveGuesser {
@@ -10,10 +10,8 @@ impl NaiveGuesser {
         let dict = WORDS.split_whitespace().collect();
         NaiveGuesser { words: dict }
     }
-}
 
-impl Guesser for NaiveGuesser {
-    fn guess(&mut self, history: &[crate::Guess]) -> String {
+    pub fn guess(&mut self, history: &[Guess]) -> String {
         let available_words = filter_with(&self.words, history);
         let best_guess = available_words
             .iter()
@@ -27,7 +25,7 @@ impl Guesser for NaiveGuesser {
         }
     }
 
-    fn calc_best_guesses(&self, history: &[crate::Guess]) -> Vec<(&str, f64)> {
+    pub fn calc_best_guesses(&self, history: &[Guess]) -> Vec<(&str, f64)> {
         let available_words = filter_with(&self.words, history);
         let mut best_guesses = available_words
             .iter()
@@ -35,6 +33,15 @@ impl Guesser for NaiveGuesser {
             .collect::<Vec<_>>();
         best_guesses.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
         best_guesses[..10.min(best_guesses.len())].to_vec()
+    }
+
+    pub fn guess_information(&self, history: &[Guess], guess: &Guess) -> f64 {
+        let available_words = filter_with(&self.words, &history);
+        let after_guess_count = available_words
+            .iter()
+            .filter(|&&word| guess.matches(word))
+            .count();
+        (after_guess_count as f64 / available_words.len() as f64).log2()
     }
 }
 
@@ -58,7 +65,7 @@ fn calc_information(probability: f64) -> f64 {
     probability as f64 * probability.log2().abs()
 }
 
-fn filter_with<'a>(all_words: &[&'a str], history: &[crate::Guess]) -> Vec<&'a str> {
+fn filter_with<'a>(all_words: &[&'a str], history: &[Guess]) -> Vec<&'a str> {
     all_words
         .iter()
         .filter(|&&word| {
