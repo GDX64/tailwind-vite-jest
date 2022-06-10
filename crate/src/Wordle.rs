@@ -1,4 +1,4 @@
-use crate::{Naive::NaiveGuesser, WORDS};
+use crate::{Naive, WORDS};
 
 use super::{Guess, WORDLE_SIZE};
 use wasm_bindgen::prelude::*;
@@ -6,7 +6,6 @@ pub type ByteStr = [u8; 5];
 
 #[wasm_bindgen]
 pub struct Wordle {
-    guesser: NaiveGuesser,
     history: Vec<Guess>,
     answer: ByteStr,
     words: Vec<ByteStr>,
@@ -16,7 +15,6 @@ pub struct Wordle {
 impl Wordle {
     pub fn new() -> Self {
         Wordle {
-            guesser: NaiveGuesser::new(),
             history: Vec::new(),
             answer: *b"hello",
             words: WORDS.split_whitespace().map(str5).collect(),
@@ -31,7 +29,7 @@ impl Wordle {
         let answer = str5(answer);
         self.history = Vec::new();
         for i in 0..=16 {
-            let guess = self.guesser.guess(&self.available_words());
+            let guess = Naive::guess(&self.available_words());
             if guess == answer {
                 self.reset();
                 return i;
@@ -53,9 +51,7 @@ impl Wordle {
             mask: correcness.clone(),
             word: guess_word,
         };
-        let information_gain = self
-            .guesser
-            .guess_information(&self.available_words(), &guess);
+        let information_gain = Naive::guess_information(&self.available_words(), &guess);
         self.history.push(guess);
         let mask: Vec<u32> = correcness.iter().map(|value| *value as u32).collect();
         JsValue::from_serde(&(mask, information_gain)).unwrap()
@@ -70,9 +66,7 @@ impl Wordle {
     }
 
     pub fn calc_best_guesses(&self) -> JsValue {
-        let guesses: Vec<_> = self
-            .guesser
-            .calc_best_guesses(&self.available_words())
+        let guesses: Vec<_> = Naive::calc_best_guesses(&self.available_words())
             .into_iter()
             .map(|(v, score)| (String::from_utf8(v.to_vec()).unwrap(), score))
             .collect();
@@ -85,8 +79,7 @@ impl Wordle {
     }
 
     pub fn entropy_of(&self, word: &str) -> f64 {
-        self.guesser
-            .entropy_of(&str5(word), &self.available_words())
+        Naive::entropy_of(&str5(word), &self.available_words())
     }
 }
 

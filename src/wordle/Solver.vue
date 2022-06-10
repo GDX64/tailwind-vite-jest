@@ -73,7 +73,6 @@ import WordleMask from './WordleMask.vue';
 
 const {} = await init();
 const player = Wordle.new();
-player.set_ans('hello');
 const inputHistory = ref(
   [] as { word: string; information: string; expected: string; mask: number[] }[]
 );
