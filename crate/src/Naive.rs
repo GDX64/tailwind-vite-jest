@@ -26,7 +26,11 @@ pub fn calc_best_guesses(words: &[ByteStr], candidates: &[ByteStr]) -> Vec<(Byte
 
 pub fn guess_information(words: &[ByteStr], guess: &Guess) -> f64 {
     let after_guess_count = words.iter().filter(|&&word| guess.matches(&word)).count();
-    (after_guess_count as f64 / words.len() as f64).log2().neg()
+    if words.len() != 0 {
+        (after_guess_count as f64 / words.len() as f64).log2().neg()
+    } else {
+        0.0
+    }
 }
 
 pub fn entropy_of(guess_word: &ByteStr, valid_words: &[ByteStr]) -> f64 {
