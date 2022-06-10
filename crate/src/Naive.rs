@@ -15,7 +15,7 @@ pub fn guess(words: &[ByteStr]) -> ByteStr {
     }
 }
 
-pub fn calc_best_guesses<'a>(words: &[ByteStr]) -> Vec<(ByteStr, f64)> {
+pub fn calc_best_guesses(words: &[ByteStr]) -> Vec<(ByteStr, f64)> {
     let mut best_guesses = words
         .iter()
         .map(|word| (*word, entropy_of(word, words)))
@@ -40,7 +40,7 @@ pub fn entropy_of(guess_word: &ByteStr, valid_words: &[ByteStr]) -> f64 {
     })
 }
 
-pub struct ProgressiveCalculator {}
+// pub fn calc_best_guesses(words: &[ByteStr]) -> Vec<(ByteStr, f64)> {}
 
 fn calc_information(probability: f64) -> f64 {
     probability as f64 * probability.log2().abs()
