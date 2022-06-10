@@ -2,20 +2,31 @@
   <div class="flex">
     <div class="pr-10">
       <!-- INPUT CONTAINER -->
-      <div class="flex">
+      <div>
+        <div>
+          total information:
+          <span class="text-green-200">{{ totalInformation.toFixed(2) }}</span>
+        </div>
+        <div>
+          you still need:
+          <span class="text-blue-300">{{ neededInformation.toFixed(2) }}</span>
+        </div>
+      </div>
+      <div class="flex items-center">
         <input
           type="text"
-          class="text-black bg-slate-300 rounded-md pl-1 mr-2"
+          class="text-black bg-slate-300 rounded-md pl-1 mr-2 mt-2 mb-2"
           v-model="input"
           maxlength="5"
           @keydown.enter="onEnter"
         />
-        <div>{{ inputEntropy }}</div>
+        <div class="text-yellow-200">{{ inputEntropy }}</div>
       </div>
       <ul>
         <li v-for="guess of inputHistory">
           <WordleMask :mask="guess.mask" :word="guess.word"></WordleMask>
-          {{ guess.word }} {{ guess.expected }} {{ guess.information }}
+          expected: <span class="text-yellow-200">{{ guess.expected }}</span> got:
+          <span class="text-green-200">{{ guess.information }}</span>
         </li>
       </ul>
     </div>
@@ -66,6 +77,13 @@ player.set_ans('hello');
 const inputHistory = ref(
   [] as { word: string; information: string; expected: string; mask: number[] }[]
 );
+const totalInformation = computed(() => {
+  return inputHistory.value.reduce(
+    (acc, { information }) => acc + Number(information),
+    0
+  );
+});
+const neededInformation = computed(() => -totalInformation.value - Math.log2(1 / 13_000));
 const input = ref('');
 const inputEntropy = computed(() =>
   isvalidWord(input.value) ? player.entropy_of(input.value).toFixed(2) : '0'
