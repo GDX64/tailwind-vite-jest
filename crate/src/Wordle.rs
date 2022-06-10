@@ -92,12 +92,65 @@ pub enum Correctness {
     Correct = 2,
 }
 
+struct CharCounter {
+    chars: ByteStr,
+    count: ByteStr,
+}
+
+impl CharCounter {
+    pub fn new(word: &ByteStr) -> Self {
+        let mut chars = [0u8; WORDLE_SIZE];
+        let mut count = [0u8; WORDLE_SIZE];
+        word.iter().for_each(|char| {
+            for (index, item) in chars.iter_mut().enumerate() {
+                if *item == 0 {
+                    (*item) = *char
+                }
+                if *item == *char {
+                    count[index] += 1;
+                    break;
+                }
+            }
+        });
+        CharCounter { chars, count }
+    }
+
+    pub fn find_count(&self, c: u8) -> usize {
+        self.chars
+            .iter()
+            .enumerate()
+            .find(|(_, &char)| char == c)
+            .map(|(index, _)| self.count[index])
+            .unwrap_or(0) as usize
+    }
+
+    pub fn decrement(&mut self, c: u8) {
+        if let Some((index, _)) = self.chars.iter().enumerate().find(|(_, &char)| char == c) {
+            self.count[index] -= 1;
+        }
+    }
+}
+
 impl Correctness {
     pub fn check(answer: &ByteStr, guess: &ByteStr) -> [Self; WORDLE_SIZE] {
         let mut mask = [Correctness::Wrong; WORDLE_SIZE];
-        guess.iter().enumerate().for_each(|(index, c)| {
-            mask[index] = check_word((*c, index), answer);
+        let mut not_correct = [0u8; WORDLE_SIZE];
+        guess.iter().enumerate().for_each(|(index, &c)| {
+            if c == answer[index] {
+                mask[index] = Correctness::Correct
+            } else {
+                not_correct[index] = answer[index];
+            }
         });
+        let mut counter = CharCounter::new(&not_correct);
+        mask.iter_mut()
+            .enumerate()
+            .for_each(|(index, correctness)| {
+                if *correctness != Correctness::Correct && counter.find_count(guess[index]) > 0 {
+                    counter.decrement(guess[index]);
+                    *correctness = Correctness::Misplaced;
+                }
+            });
         mask
     }
 
@@ -105,14 +158,6 @@ impl Correctness {
         mask.iter().enumerate().fold(0, |acc, (index, value)| {
             acc + *value as usize * 3usize.pow(index as u32)
         })
-    }
-}
-
-fn check_word((c, index): (u8, usize), answer: &[u8; WORDLE_SIZE]) -> Correctness {
-    match answer.get(index) {
-        Some(&index_char) if index_char == c => Correctness::Correct,
-        _ if answer.contains(&c) => Correctness::Misplaced,
-        _ => Correctness::Wrong,
     }
 }
 
@@ -133,4 +178,27 @@ pub fn str5(val: &str) -> ByteStr {
 }
 
 #[cfg(test)]
-mod test {}
+mod test {
+    use super::Correctness;
+    use super::Correctness::{Correct, Misplaced, Wrong};
+
+    #[test]
+    fn test_check() {
+        let mask = Correctness::check(b"hello", b"there");
+        assert_eq!(mask, [Wrong, Misplaced, Misplaced, Wrong, Wrong])
+    }
+
+    #[test]
+    fn check_2letters() {
+        let mask = Correctness::check(b"there", b"flees");
+        assert_eq!(mask, [Wrong, Wrong, Correct, Misplaced, Wrong])
+    }
+
+    #[test]
+    fn check_2letters_one_correct() {
+        let mask = Correctness::check(b"aabcd", b"afagt");
+        assert_eq!(mask, [Correct, Wrong, Misplaced, Wrong, Wrong]);
+        let mask = Correctness::check(b"ajbcd", b"afagt");
+        assert_eq!(mask, [Correct, Wrong, Wrong, Wrong, Wrong]);
+    }
+}
