@@ -14,6 +14,7 @@
       </div>
       <ul>
         <li v-for="guess of inputHistory">
+          <WordleMask :mask="guess.mask" :word="guess.word"></WordleMask>
           {{ guess.word }} {{ guess.expected }} {{ guess.information }}
         </li>
       </ul>
@@ -57,11 +58,14 @@
 import { computed, ref } from 'vue';
 import init, { Wordle } from 'wasm';
 import Refresh from '../assets/arrows-rotate-solid.svg?component';
+import WordleMask from './WordleMask.vue';
 
 const {} = await init();
 const player = Wordle.new();
 player.set_ans('hello');
-const inputHistory = ref([] as { word: string; information: string; expected: string }[]);
+const inputHistory = ref(
+  [] as { word: string; information: string; expected: string; mask: number[] }[]
+);
 const input = ref('');
 const inputEntropy = computed(() =>
   isvalidWord(input.value) ? player.entropy_of(input.value).toFixed(2) : '0'
@@ -75,13 +79,14 @@ const distribution = computed(() => {
 });
 
 function onEnter() {
-  const [, information] = player.play(input.value);
+  const [mask, information] = player.play(input.value);
   inputHistory.value = [
     ...inputHistory.value,
     {
       word: input.value,
       information: information.toFixed(2),
       expected: inputEntropy.value,
+      mask,
     },
   ];
   bestGuesses.value = getBestGuesses();
