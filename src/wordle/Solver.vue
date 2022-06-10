@@ -20,7 +20,13 @@
     </div>
     <div>
       <!-- GUESSES CONTAINER -->
-      <h2>Best guesses</h2>
+      <div class="flex items-center">
+        <h2 class="pr-3">Best guesses</h2>
+        <Refresh
+          class="w-5 h-5 fill-slate-600 hover:fill-slate-400"
+          @click="onRefresh"
+        ></Refresh>
+      </div>
       <ul>
         <li
           v-for="guess of bestGuesses"
@@ -50,6 +56,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import init, { Wordle } from 'wasm';
+import Refresh from '../assets/arrows-rotate-solid.svg?component';
 
 const {} = await init();
 const player = Wordle.new();
@@ -59,7 +66,7 @@ const input = ref('');
 const inputEntropy = computed(() =>
   isvalidWord(input.value) ? player.entropy_of(input.value).toFixed(2) : '0'
 );
-const bestGuesses = ref(getBestGuesses());
+const bestGuesses = ref([] as ReturnType<typeof getBestGuesses>);
 const distribution = computed(() => {
   if (isvalidWord(input.value)) {
     return getDistribution(input.value);
@@ -114,5 +121,8 @@ function getDistribution(word: string) {
 
 function onDistributionClick(value: number) {
   console.log(maskFromNumber(value));
+}
+function onRefresh() {
+  bestGuesses.value = getBestGuesses();
 }
 </script>

@@ -1,5 +1,5 @@
-/// <reference types="vite/client" /> //add a bar to return vite references
-
+/// <reference types="vite/client" />
+/// <reference types="vite-svg-loader" />
 declare module '*.vue' {
   import { DefineComponent } from 'vue';
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
