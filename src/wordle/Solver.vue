@@ -96,7 +96,7 @@ const inputEntropy = computed(() =>
   isvalidWord(input.value) ? player.entropy_of(input.value).toFixed(2) : '0'
 );
 
-const bestGuesses = ref([] as ReturnType<typeof getBestGuesses>);
+const bestGuesses = ref(getBestGuesses());
 const distribution = computed(() => {
   if (isvalidWord(input.value)) {
     return getDistribution(input.value);

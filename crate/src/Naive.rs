@@ -15,8 +15,8 @@ pub fn guess(words: &[ByteStr]) -> ByteStr {
     }
 }
 
-pub fn calc_best_guesses(words: &[ByteStr]) -> Vec<(ByteStr, f64)> {
-    let mut best_guesses = words
+pub fn calc_best_guesses(words: &[ByteStr], candidates: &[ByteStr]) -> Vec<(ByteStr, f64)> {
+    let mut best_guesses = candidates
         .iter()
         .map(|word| (*word, entropy_of(word, words)))
         .collect::<Vec<_>>();

@@ -1,4 +1,6 @@
-use crate::{Naive, WORDS};
+use std::collections::{hash_map::RandomState, HashSet};
+
+use crate::{random, Naive, WORDS};
 
 use super::{Guess, WORDLE_SIZE};
 use wasm_bindgen::prelude::*;
@@ -66,7 +68,13 @@ impl Wordle {
     }
 
     pub fn calc_best_guesses(&self) -> JsValue {
-        let guesses: Vec<_> = Naive::calc_best_guesses(&self.available_words())
+        let words = self.available_words();
+        let random_words: Vec<_> = (0..500)
+            .filter_map(|_| get_random_word(&words))
+            .collect::<HashSet<_>>()
+            .into_iter()
+            .collect();
+        let guesses: Vec<_> = Naive::calc_best_guesses(&words, &random_words)
             .into_iter()
             .map(|(v, score)| (String::from_utf8(v.to_vec()).unwrap(), score))
             .collect();
@@ -81,6 +89,11 @@ impl Wordle {
     pub fn entropy_of(&self, word: &str) -> f64 {
         Naive::entropy_of(&str5(word), &self.available_words())
     }
+}
+
+fn get_random_word(words: &[ByteStr]) -> Option<ByteStr> {
+    let index = (words.len() as f64 * random()).round() as usize;
+    words.get(index).map(|str| *str)
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
