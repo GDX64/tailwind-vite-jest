@@ -1,4 +1,4 @@
-use std::collections::{hash_map::RandomState, HashSet};
+use std::collections::HashSet;
 
 use crate::{random, Naive, WORDS};
 
@@ -56,7 +56,8 @@ impl Wordle {
         let information_gain = Naive::guess_information(&self.available_words(), &guess);
         self.history.push(guess);
         let mask: Vec<u32> = correcness.iter().map(|value| *value as u32).collect();
-        JsValue::from_serde(&(mask, information_gain)).unwrap()
+        JsValue::from_serde(&(mask, information_gain))
+            .expect("could not turn the result into a js value")
     }
 
     pub fn reset(&mut self) {
@@ -76,9 +77,12 @@ impl Wordle {
             .collect();
         let guesses: Vec<_> = Naive::calc_best_guesses(&words, &random_words)
             .into_iter()
-            .map(|(v, score)| (String::from_utf8(v.to_vec()).unwrap(), score))
+            .map(|(v, score)| {
+                let string = String::from_utf8(v.to_vec()).expect("could not decode utf8 string");
+                (string, score)
+            })
             .collect();
-        JsValue::from_serde(&guesses).unwrap()
+        JsValue::from_serde(&guesses).expect("could not turn guess into js value")
     }
 
     pub fn distribution_of(&self, guess: &str) -> Vec<usize> {
@@ -185,7 +189,9 @@ pub fn filter_with<'a>(all_words: &[ByteStr], history: &[Guess]) -> Vec<ByteStr>
 }
 
 pub fn str5(val: &str) -> ByteStr {
-    val.as_bytes().try_into().unwrap()
+    val.as_bytes()
+        .try_into()
+        .expect("The word passed is not a 5 letters word")
 }
 
 #[cfg(test)]
