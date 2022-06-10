@@ -76,8 +76,7 @@ import WordleMask from './WordleMask.vue';
 const props = defineProps<{ ans: string }>();
 const {} = await init();
 
-const player = Wordle.new();
-player.set_ans(props.ans);
+const player = Wordle.new(undefined, props.ans);
 
 const inputHistory = ref(
   [] as { word: string; information: string; expected: string; mask: number[] }[]
@@ -105,6 +104,7 @@ const distribution = computed(() => {
 });
 
 function onEnter() {
+  if (!isvalidWord(input.value)) return;
   const [mask, information] = player.play(input.value);
   inputHistory.value = [
     ...inputHistory.value,

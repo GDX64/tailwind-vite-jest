@@ -42,7 +42,7 @@ impl Guess {
 
 #[wasm_bindgen]
 pub fn main() {
-    Wordle::Wordle::new().simulate("brick");
+    Wordle::Wordle::new(None, "hello").simulate("brick");
 }
 
 #[cfg(test)]

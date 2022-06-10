@@ -15,12 +15,20 @@ pub struct Wordle {
 
 #[wasm_bindgen]
 impl Wordle {
-    pub fn new() -> Self {
-        Wordle {
+    pub fn new(words: Option<String>, answer: &str) -> Self {
+        let mut wordle = Wordle {
             history: Vec::new(),
-            answer: *b"hello",
-            words: WORDS.split_whitespace().map(str5).collect(),
+            answer: str5(answer),
+            words: words
+                .unwrap_or(WORDS.to_string())
+                .split_whitespace()
+                .map(str5)
+                .collect(),
+        };
+        if !wordle.words.contains(&wordle.answer) {
+            wordle.words.push(wordle.answer)
         }
+        wordle
     }
 
     fn available_words(&self) -> Vec<ByteStr> {
@@ -61,11 +69,7 @@ impl Wordle {
     }
 
     pub fn reset(&mut self) {
-        *self = Wordle::new();
-    }
-
-    pub fn set_ans(&mut self, answer: &str) {
-        self.answer = str5(answer);
+        *self = Wordle::new(None, "hello");
     }
 
     pub fn calc_best_guesses(&self) -> JsValue {
