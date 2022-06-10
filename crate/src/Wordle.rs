@@ -70,7 +70,12 @@ impl Wordle {
     }
 
     pub fn calc_best_guesses(&self) -> JsValue {
-        let guesses = self.guesser.calc_best_guesses(&self.available_words());
+        let guesses: Vec<_> = self
+            .guesser
+            .calc_best_guesses(&self.available_words())
+            .into_iter()
+            .map(|(v, score)| (String::from_utf8(v.to_vec()).unwrap(), score))
+            .collect();
         JsValue::from_serde(&guesses).unwrap()
     }
 
