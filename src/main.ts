@@ -8,7 +8,8 @@ import Test from './pages/QuickTest.vue';
 import Pixi from './pixijs/pixi.vue';
 import Grid from './components/Grid.vue';
 import CV from './pages/CV.vue';
-import Wordle from './wordle/Wordle.vue';
+// import Wordle from './wordle/Wordle.vue';
+import TickerPage from './rxjs/tickerformDemo/TickerPage.vue';
 
 const routes = [
   { path: '/', component: Home },
@@ -18,7 +19,8 @@ const routes = [
   { path: '/animation', component: Pixi },
   { path: '/grid', component: Grid },
   { path: '/cv', component: CV },
-  { path: '/Wordle', component: Wordle },
+  // { path: '/Wordle', component: Wordle },
+  { path: '/ticker', component: TickerPage },
 ];
 
 // 3. Create the router instance and pass the `routes` option
