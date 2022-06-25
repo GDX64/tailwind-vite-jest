@@ -20,7 +20,7 @@
     "rxjs": "^7.5.4",
     "vite-plugin-checker": "^0.3.4",
     "vite-svg-loader": "^3.1.2",
-    "vue": "^3.2.33",
+    "vue": "^3.2.37",
     "vue-router": "^4.0.12",
     "wordle": "file:crate/pkg"
   },
@@ -36,7 +36,7 @@
     "typescript": "^4.5.4",
     "vite": "^2.7.2",
     "vite-plugin-glsl": "^0.0.9",
-    "vitest": "^0.9.4",
+    "vitest": "^0.16.0",
     "vue-tsc": "^0.29.8"
   }
 }
