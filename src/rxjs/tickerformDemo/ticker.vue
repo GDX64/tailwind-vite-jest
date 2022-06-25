@@ -3,13 +3,15 @@
     class="my-input"
     test-data="ticker-input"
     type="text"
-    @input="$emit('change-ticker', ($event.target as any).value)"
+    :value="ticker"
+    @input="$emit('update:ticker', ($event.target as any).value)"
   />
   <input
     class="my-input"
     test-data="coin-input"
     type="text"
-    @input="$emit('change-coin', ($event.target as any).value)"
+    :value="coin"
+    @input="$emit('update:coin', ($event.target as any).value)"
   />
   <div v-for="ticker of data">
     <div class="flex">
@@ -28,10 +30,12 @@
 import { TickerData } from './interfaces';
 defineProps<{
   data: TickerData[];
+  coin: string;
+  ticker: string;
 }>();
 
 defineEmits<{
-  (event: 'change-ticker', value: string): void;
-  (event: 'change-coin', value: string): void;
+  (event: 'update:ticker', value: string): void;
+  (event: 'update:coin', value: string): void;
 }>();
 </script>

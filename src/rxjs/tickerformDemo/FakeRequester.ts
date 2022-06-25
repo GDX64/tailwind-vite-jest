@@ -1,4 +1,13 @@
-import { interval, map, Subscription } from 'rxjs';
+import {
+  concat,
+  interval,
+  map,
+  Observable,
+  of,
+  Subscription,
+  switchMap,
+  timer,
+} from 'rxjs';
 import { Requester } from './interfaces';
 
 const tickers = ['BTC', 'BCH', 'BTG', 'BTA', 'ETH', 'ETC', 'ETX', 'ADA', 'ADD'];
@@ -23,7 +32,7 @@ export default class FakeRequester implements Requester {
   subscribeQuotation(ticker: string, response: (n: number) => void) {
     this.quotationSubs.set(
       this.quotationID++,
-      interval(500)
+      randomTimeEmit(() => Math.random() * 1000)
         .pipe(map(() => Math.random() * 20))
         .subscribe(response)
     );
@@ -43,4 +52,18 @@ export default class FakeRequester implements Requester {
       return setTimeout(() => response(nFrom / nTo), 500);
     }
   }
+}
+
+function randomTimeEmit(time: () => number): Observable<0> {
+  return new Observable((sub$) => {
+    let timeout: any = -1;
+    const randomTime = () => {
+      timeout = setTimeout(() => {
+        sub$.next(0);
+        randomTime();
+      }, time());
+    };
+    randomTime();
+    return () => clearTimeout(timeout);
+  });
 }
