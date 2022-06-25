@@ -1,4 +1,14 @@
-import { combineLatest, map, Observable, Subject, switchMap } from 'rxjs';
+import {
+  combineLatest,
+  combineLatestWith,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  startWith,
+  Subject,
+  switchMap,
+} from 'rxjs';
 import { ref, Ref } from 'vue';
 import { Requester, TickerData } from './interfaces';
 
@@ -7,14 +17,19 @@ export default class TickerRequestController {
   private coin$ = new Subject<string>();
   private data$: Observable<TickerData[]>;
   constructor(private requester: Requester) {
-    this.data$ = this.ticker$.pipe(
+    const currentCoinConversion$ = this.coin$.pipe(
+      switchMap((coin) => this.coinFromRequester(coin)),
+      shareReplay(1)
+    );
+    const dataWithoutConversion$: Observable<TickerData[]> = this.ticker$.pipe(
       switchMap((ticker) => {
-        console.log('made request');
-        return this.tickerFromRequester(ticker);
+        return this.tickerFromRequester(ticker).pipe(startWith([] as string[]));
       }),
       switchMap((tickersAnswer) => {
+        if (tickersAnswer.length === 0) return of([]);
         const quotationsWithName = tickersAnswer.map((ticker) =>
           this.quotationFromRequester(ticker).pipe(
+            startWith(0),
             map((value) => {
               return { name: ticker, price: value };
             })
@@ -22,6 +37,16 @@ export default class TickerRequestController {
         );
         return combineLatest(quotationsWithName);
       })
+    );
+
+    this.data$ = combineLatest(
+      [currentCoinConversion$, dataWithoutConversion$],
+      (conversion, data) => {
+        return data.map((tickerData) => ({
+          ...tickerData,
+          price: tickerData.price * conversion,
+        }));
+      }
     );
   }
 
@@ -32,6 +57,12 @@ export default class TickerRequestController {
         (r) => sub$.next(r),
         (err) => sub$.error(err)
       );
+    });
+  }
+
+  private coinFromRequester(coin: string): Observable<number> {
+    return new Observable((sub$) => {
+      this.requester.conversion('BRL', coin, (r) => sub$.next(r));
     });
   }
 

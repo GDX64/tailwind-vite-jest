@@ -18,7 +18,7 @@
         class="font-bold"
         :class="ticker.price > 0 ? 'text-green-400' : 'text-red-400'"
       >
-        {{ ticker.price }}
+        {{ ticker.price.toFixed(2) }}
       </div>
     </div>
   </div>
