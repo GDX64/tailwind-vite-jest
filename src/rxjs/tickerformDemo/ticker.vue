@@ -6,7 +6,7 @@
       <div class="">{{ ticker.name }}:</div>
       <div
         class="font-bold"
-        :class="Number(ticker.price) > 0 ? 'text-green-400' : 'text-red-400'"
+        :class="ticker.price > 0 ? 'text-green-400' : 'text-red-400'"
       >
         {{ ticker.price }}
       </div>

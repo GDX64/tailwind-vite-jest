@@ -1,4 +1,4 @@
 export interface TickerData {
   name: string;
-  price: string;
+  price: number;
 }
