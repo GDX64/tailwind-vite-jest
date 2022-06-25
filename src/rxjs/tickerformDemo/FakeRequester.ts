@@ -15,6 +15,7 @@ const tickers = ['BTC', 'BCH', 'BTG', 'BTA', 'ETH', 'ETC', 'ETX', 'ADA', 'ADD'];
 const absoluteQuotation = new Map([
   ['BRL', 1],
   ['USD', 5],
+  ['ARS', 0.1],
 ]);
 
 export default class FakeRequester implements Requester {

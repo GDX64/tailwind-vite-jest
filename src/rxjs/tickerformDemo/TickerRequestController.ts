@@ -21,7 +21,7 @@ export default class TickerRequestController {
   private quotationCache = new Map<string, Observable<number>>();
   constructor(private requester: Requester) {
     const currentCoinConversion$ = this.coin$.pipe(
-      switchMap((coin) => this.coinFromRequester(coin)),
+      switchMap((coin) => this.coinFromRequester(coin).pipe(startWith(0))),
       shareReplay({ refCount: true, bufferSize: 1 })
     );
     const dataWithoutConversion$: Observable<TickerData[]> = this.ticker$.pipe(

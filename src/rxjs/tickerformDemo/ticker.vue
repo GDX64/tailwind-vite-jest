@@ -6,21 +6,24 @@
     :value="ticker"
     @input="$emit('update:ticker', ($event.target as any).value)"
   />
-  <input
+  <select
     class="my-input"
     test-data="coin-input"
-    type="text"
     :value="coin"
     @input="$emit('update:coin', ($event.target as any).value)"
-  />
+  >
+    <option value="BRL">BRL</option>
+    <option value="USD">USD</option>
+    <option value="ARS">ARS</option>
+  </select>
   <div v-for="ticker of data">
     <div class="flex">
       <div class="">{{ ticker.name }}:</div>
       <div
         class="font-bold"
-        :class="ticker.price > 0 ? 'text-green-400' : 'text-red-400'"
+        :class="ticker.price >= 0 ? 'text-green-400' : 'text-red-400'"
       >
-        {{ ticker.price.toFixed(2) }}
+        {{ ticker.price ? ticker.price.toFixed(2) : '-' }}
       </div>
     </div>
   </div>
