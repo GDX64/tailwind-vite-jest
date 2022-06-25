@@ -1,10 +1,10 @@
 import { mount } from '@vue/test-utils';
 import { TickerData } from './interfaces';
-import ticker from './ticker.vue';
+import Ticker from './Ticker.vue';
 describe('tickerform', () => {
   test('ticker sanity test', () => {
     const data: TickerData[] = [{ name: 'BTC', price: 10 }];
-    const wrapper = mount(ticker, { props: { data } });
+    const wrapper = mount(Ticker, { props: { data } });
     const inputCoin = wrapper.find('[test-data="coin-input"]');
     const inputTicker = wrapper.find('[test-data="ticker-input"]');
     inputTicker.setValue('ETH');
