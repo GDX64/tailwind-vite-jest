@@ -1,10 +1,12 @@
 <template>
   <input
+    class="my-input"
     test-data="ticker-input"
     type="text"
     @input="$emit('change-ticker', ($event.target as any).value)"
   />
   <input
+    class="my-input"
     test-data="coin-input"
     type="text"
     @input="$emit('change-coin', ($event.target as any).value)"
