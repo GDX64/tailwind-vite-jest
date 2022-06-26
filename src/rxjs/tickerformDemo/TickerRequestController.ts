@@ -9,7 +9,6 @@ import {
   startWith,
   Subject,
   switchMap,
-  timer,
 } from 'rxjs';
 import { ref, Ref } from 'vue';
 import { Requester, TickerData } from './interfaces';
@@ -20,36 +19,38 @@ export default class TickerRequestController {
   private data$: Observable<TickerData[]>;
   private quotationCache = new Map<string, Observable<number>>();
   constructor(private requester: Requester) {
-    const currentCoinConversion$ = this.coin$.pipe(
+    const currentCoinConversion$ = this.currentCoinConversion$();
+    const arrTickers$ = this.arrTickers$();
+    const quotations$ = this.quotationsOf(arrTickers$);
+    const convertedQuotation$ = convertQuotations(currentCoinConversion$, quotations$);
+    this.data$ = combineTickerAndQuotations(arrTickers$, convertedQuotation$);
+  }
+
+  private currentCoinConversion$() {
+    return this.coin$.pipe(
       switchMap((coin) => this.coinFromRequester(coin).pipe(startWith(0))),
       shareReplay({ refCount: true, bufferSize: 1 })
     );
-    const dataWithoutConversion$: Observable<TickerData[]> = this.ticker$.pipe(
+  }
+
+  private arrTickers$() {
+    return this.ticker$.pipe(
       switchMap((ticker) => {
         return this.tickerFromRequester(ticker).pipe(startWith([] as string[]));
       }),
+      share()
+    );
+  }
+
+  private quotationsOf(arrTickers$: Observable<string[]>): Observable<number[]> {
+    return arrTickers$.pipe(
       switchMap((tickersAnswer) => {
         if (tickersAnswer.length === 0) return of([]);
         const quotationsWithName = tickersAnswer.map((ticker) =>
-          this.quotationFromRequester(ticker).pipe(
-            startWith(0),
-            map((value) => {
-              return { name: ticker, price: value };
-            })
-          )
+          this.quotationFromRequester(ticker).pipe(startWith(0))
         );
         return combineLatest(quotationsWithName);
       })
-    );
-
-    this.data$ = combineLatest(
-      [currentCoinConversion$, dataWithoutConversion$],
-      (conversion, data) => {
-        return data.map((tickerData) => ({
-          ...tickerData,
-          price: tickerData.price * conversion,
-        }));
-      }
     );
   }
 
@@ -106,4 +107,25 @@ export default class TickerRequestController {
     });
     return dataRef;
   }
+}
+
+function convertQuotations(
+  currentCoinConversion$: Observable<number>,
+  quotations$: Observable<number[]>
+) {
+  return combineLatest([currentCoinConversion$, quotations$], (factor, quotations) => {
+    return quotations.map((quotation) => quotation * factor);
+  });
+}
+
+function combineTickerAndQuotations(
+  arrTickers$: Observable<string[]>,
+  quotations$: Observable<number[]>
+): Observable<TickerData[]> {
+  return combineLatest([arrTickers$, quotations$], (arrTickers, quotations) => {
+    return arrTickers.map((item, index) => ({
+      name: item,
+      price: quotations[index],
+    }));
+  });
 }
