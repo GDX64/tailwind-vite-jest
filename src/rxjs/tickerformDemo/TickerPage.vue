@@ -6,8 +6,8 @@
 </template>
 
 <script lang="ts" setup>
-import { Subject } from 'rxjs';
-import { onMounted, ref, watchEffect } from 'vue';
+import { BehaviorSubject } from 'rxjs';
+import { onUnmounted, Ref, ref, watchEffect } from 'vue';
 import FakeRequester from './FakeRequester';
 import { TickerData } from './interfaces';
 import RequesterToObs from './RequesterToObs';
@@ -16,19 +16,24 @@ import TickerRequestController from './TickerRequestController';
 
 const fakerequester = new FakeRequester();
 const tickerRequester = new TickerRequestController(new RequesterToObs(fakerequester));
-const ticker$ = new Subject<string>();
-const coin$ = new Subject<string>();
-const tickerData = ref([] as TickerData[]);
 const coin = ref('USD');
 const ticker = ref('');
-const stopTicker = watchEffect(() => ticker$.next(ticker.value));
-const stopCoin = watchEffect(() => coin$.next(coin.value));
-const subscription = tickerRequester.data$(ticker$, coin$).subscribe((data) => {
-  tickerData.value = data;
-});
-onMounted(() => {
-  stopTicker();
-  stopCoin();
-  subscription.unsubscribe();
-});
+const tickerData = useTickerData(ticker, coin);
+
+function useTickerData(ticker: Ref<string>, coin: Ref<string>) {
+  const ticker$ = new BehaviorSubject<string>(ticker.value);
+  const coin$ = new BehaviorSubject<string>(coin.value);
+  const stopTicker = watchEffect(() => ticker$.next(ticker.value));
+  const stopCoin = watchEffect(() => coin$.next(coin.value));
+  const tickerData = ref([] as TickerData[]);
+  const subscription = tickerRequester.data$(ticker$, coin$).subscribe((data) => {
+    tickerData.value = data;
+  });
+  onUnmounted(() => {
+    stopTicker();
+    stopCoin();
+    subscription.unsubscribe();
+  });
+  return tickerData;
+}
 </script>
