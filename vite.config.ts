@@ -16,7 +16,7 @@ export default defineConfig((args) => {
       globals: true,
       environment: 'happy-dom',
       exclude: [...configDefaults.exclude],
-      include: ['./src/**/**.test.ts', './tests/**.test.ts'],
+      include: ['./src/**/**.test.ts'],
     },
     css: getCssConfig(args.mode),
   };

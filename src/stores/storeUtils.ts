@@ -34,7 +34,7 @@ type Identity<T> = T extends object
     }
   : T;
 
-function mapObj<T extends { [key: string]: any }, K>(
+export function mapObj<T extends { [key: string]: any }, K>(
   obj: T,
   fn: (x: T[keyof T]) => K
 ): { [key in keyof T]: K } {
