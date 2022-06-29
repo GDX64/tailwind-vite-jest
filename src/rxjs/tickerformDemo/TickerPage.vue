@@ -13,7 +13,8 @@ import { TickerData } from './interfaces';
 import RequesterToObs from './RequesterToObs';
 import TickerVue from './Ticker.vue';
 import TickerRequestController from './TickerRequestController';
-
+import { testQueues } from './aboutQueues';
+testQueues();
 const fakerequester = new FakeRequester();
 const tickerRequester = new TickerRequestController(new RequesterToObs(fakerequester));
 const coin = ref('USD');

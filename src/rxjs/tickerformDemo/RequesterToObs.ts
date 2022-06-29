@@ -6,7 +6,6 @@ export default class RequesterToObs {
 
   tickerFromRequester(ticker: string): Observable<string[]> {
     return new Observable((sub$) => {
-      console.log('sub');
       this.requester.requestTicker(
         ticker,
         (r) => sub$.next(r),

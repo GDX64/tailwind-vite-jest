@@ -55,11 +55,9 @@ export default class TickerRequestController {
   private quotationFromRequester(ticker: string): Observable<number> {
     if (!this.quotationCache.has(ticker)) {
       const replay = new ReplaySubject<number>(1);
-      const quotation$ = this.requester.makeQuotationFromRequester(ticker).pipe(
-        share({
-          connector: () => replay,
-        })
-      );
+      const quotation$ = this.requester
+        .makeQuotationFromRequester(ticker)
+        .pipe(share({ connector: () => replay }));
       this.quotationCache.set(ticker, quotation$);
     }
     return this.quotationCache.get(ticker)!;
