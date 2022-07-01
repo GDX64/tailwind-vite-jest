@@ -1,11 +1,16 @@
 import { combineLatest, map, Observable, shareReplay, startWith, switchMap } from 'rxjs';
 import { TickerData } from './interfaces';
-import RequesterToObs from './RequesterToObs';
+
+interface ObsRequester {
+  tickersOf(search: string): Observable<string[]>;
+  coinConversion(coin: string): Observable<number>;
+  quotationOf(ticker: string): Observable<number>;
+}
 
 export function tickerDataOf(
   ticker$: Observable<string>,
   coin$: Observable<string>,
-  requester: RequesterToObs
+  requester: ObsRequester
 ): Observable<TickerData[]> {
   const tickers$ = ticker$.pipe(
     switchMap((ticker) => requester.tickersOf(ticker).pipe(startWith([] as string[]))),
@@ -38,7 +43,7 @@ function combineTickerData$(
   );
 }
 
-function getQuotations$(tickers$: Observable<string[]>, requester: RequesterToObs) {
+function getQuotations$(tickers$: Observable<string[]>, requester: ObsRequester) {
   return tickers$.pipe(
     switchMap((tickers) => {
       const quotations$ = combineLatest(
