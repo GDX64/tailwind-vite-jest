@@ -1,13 +1,4 @@
-import {
-  concat,
-  interval,
-  map,
-  Observable,
-  of,
-  Subscription,
-  switchMap,
-  timer,
-} from 'rxjs';
+import { map, Observable, Subscription } from 'rxjs';
 import { Requester } from './interfaces';
 
 const tickers = [
