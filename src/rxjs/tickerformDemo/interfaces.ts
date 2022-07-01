@@ -12,7 +12,7 @@ export interface Requester {
 
   subscribeQuotation(ticker: string, response: (n: number) => void): number;
 
-  unsubscribeQuotation(id: number): void;
+  unsubscribeQuotation(id: number, asset: string): void;
 
   conversion(from: string, to: string, response: (n: number) => void): void;
 }

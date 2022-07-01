@@ -23,7 +23,7 @@ export default class RequesterToObs {
     return new Observable((sub$) => {
       const id = this.requester.subscribeQuotation(ticker, (n) => sub$.next(n));
       return () => {
-        this.requester.unsubscribeQuotation(id);
+        this.requester.unsubscribeQuotation(id, ticker);
       };
     });
   }

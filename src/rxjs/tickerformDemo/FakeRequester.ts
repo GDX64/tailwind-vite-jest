@@ -10,7 +10,20 @@ import {
 } from 'rxjs';
 import { Requester } from './interfaces';
 
-const tickers = ['BTC', 'BCH', 'BTG', 'BTA', 'ETH', 'ETC', 'ETX', 'ADA', 'ADD'];
+const tickers = [
+  'BTC',
+  'BCH',
+  'BTG',
+  'BTA',
+  'ETH',
+  'ETC',
+  'ETX',
+  'ADA',
+  'ADD',
+  'SOL',
+  'XRP',
+  'NEAR',
+].sort();
 
 const absoluteQuotation = new Map([
   ['BRL', 1],
@@ -31,6 +44,7 @@ export default class FakeRequester implements Requester {
   }
 
   subscribeQuotation(ticker: string, response: (n: number) => void) {
+    console.log('subscribing to', ticker);
     this.quotationSubs.set(
       this.quotationID++,
       randomTimeEmit(() => Math.random() * 1000)
@@ -40,8 +54,8 @@ export default class FakeRequester implements Requester {
     return this.quotationID;
   }
 
-  unsubscribeQuotation(id: number) {
-    console.log('unsub', id);
+  unsubscribeQuotation(id: number, asset: string) {
+    console.log('unsub', asset, id);
     this.quotationSubs.get(id)?.unsubscribe();
     this.quotationSubs.delete(id);
   }
