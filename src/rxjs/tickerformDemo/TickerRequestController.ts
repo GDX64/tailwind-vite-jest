@@ -1,86 +1,55 @@
-import {
-  combineLatest,
-  Observable,
-  of,
-  ReplaySubject,
-  share,
-  shareReplay,
-  startWith,
-  Subject,
-  switchMap,
-} from 'rxjs';
+import { combineLatest, map, Observable, shareReplay, startWith, switchMap } from 'rxjs';
 import { TickerData } from './interfaces';
-import RequesterToObs from './RequesterToObs';
 
-export default class TickerRequestController {
-  private quotationCache = new Map<string, Observable<number>>();
-  constructor(private requester: RequesterToObs) {}
-
-  data$(ticker$: Subject<string>, coin$: Subject<string>) {
-    const currentCoinConversion$ = this.currentCoinConversion$(coin$);
-    const arrTickers$ = this.arrTickers$(ticker$);
-    const quotations$ = this.quotationsOf(arrTickers$);
-    const convertedQuotation$ = convertQuotations(currentCoinConversion$, quotations$);
-    return combineTickerAndQuotations(arrTickers$, convertedQuotation$);
-  }
-
-  private currentCoinConversion$(coin$: Observable<string>) {
-    return coin$.pipe(
-      switchMap((coin) => this.requester.coinFromRequester(coin).pipe(startWith(0))),
-      shareReplay({ refCount: true, bufferSize: 1 })
-    );
-  }
-
-  private arrTickers$(ticker$: Observable<string>) {
-    return ticker$.pipe(
-      switchMap((ticker) => {
-        return this.requester.tickerFromRequester(ticker).pipe(startWith([] as string[]));
-      }),
-      shareReplay({ refCount: true, bufferSize: 1 })
-    );
-  }
-
-  private quotationsOf(arrTickers$: Observable<string[]>): Observable<number[]> {
-    return arrTickers$.pipe(
-      switchMap((tickersAnswer) => {
-        if (tickersAnswer.length === 0) return of([]);
-        const quotationsWithName = tickersAnswer.map((ticker) =>
-          this.quotationFromRequester(ticker).pipe(startWith(0))
-        );
-        return combineLatest(quotationsWithName);
-      })
-    );
-  }
-
-  private quotationFromRequester(ticker: string): Observable<number> {
-    if (!this.quotationCache.has(ticker)) {
-      const replay = new ReplaySubject<number>(1);
-      const quotation$ = this.requester
-        .makeQuotationFromRequester(ticker)
-        .pipe(share({ connector: () => replay }));
-      this.quotationCache.set(ticker, quotation$);
-    }
-    return this.quotationCache.get(ticker)!;
-  }
+interface ObsRequester {
+  tickersOf(search: string): Observable<string[]>;
+  coinConversion(coin: string): Observable<number>;
+  quotationOf(ticker: string): Observable<number>;
 }
 
-function convertQuotations(
-  currentCoinConversion$: Observable<number>,
-  quotations$: Observable<number[]>
-) {
-  return combineLatest([currentCoinConversion$, quotations$], (factor, quotations) => {
-    return quotations.map((quotation) => quotation * factor);
-  });
-}
-
-function combineTickerAndQuotations(
-  arrTickers$: Observable<string[]>,
-  quotations$: Observable<number[]>
+export function tickerDataOf(
+  ticker$: Observable<string>,
+  coin$: Observable<string>,
+  requester: ObsRequester
 ): Observable<TickerData[]> {
-  return combineLatest([arrTickers$, quotations$], (arrTickers, quotations) => {
-    return arrTickers.map((item, index) => ({
-      name: item,
-      price: quotations[index],
-    }));
-  });
+  const tickers$ = ticker$.pipe(
+    switchMap((ticker) => requester.tickersOf(ticker).pipe(startWith([] as string[]))),
+    shareReplay(1)
+  );
+  const quotations$ = getQuotations$(tickers$, requester);
+  const conversion$ = coin$.pipe(
+    switchMap((coin) => {
+      return requester
+        .coinConversion(coin)
+        .pipe(map((conversion) => [conversion, coin] as [number, string]));
+    })
+  );
+  const tickerData$ = combineTickerData$(tickers$, quotations$, conversion$);
+  return tickerData$;
+}
+function combineTickerData$(
+  tickers$: Observable<string[]>,
+  quotations$: Observable<number[]>,
+  conversion$: Observable<[number, string]>
+) {
+  return combineLatest(
+    [tickers$, quotations$, conversion$],
+    (tickers, quotations, [conversion, coin]) => {
+      return tickers.map((ticker, index) => ({
+        name: ticker,
+        price: `${(quotations[index] * conversion).toFixed(2)} (${coin})`,
+      }));
+    }
+  );
+}
+
+function getQuotations$(tickers$: Observable<string[]>, requester: ObsRequester) {
+  return tickers$.pipe(
+    switchMap((tickers) => {
+      const quotations$ = combineLatest(
+        tickers.map((ticker) => requester.quotationOf(ticker).pipe(startWith(0)))
+      );
+      return quotations$;
+    })
+  );
 }
