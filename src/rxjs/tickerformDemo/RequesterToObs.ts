@@ -4,7 +4,7 @@ import { Requester } from './interfaces';
 export default class RequesterToObs {
   constructor(private requester: Requester) {}
 
-  tickerFromRequester(ticker: string): Observable<string[]> {
+  tickersOf(ticker: string): Observable<string[]> {
     return new Observable((sub$) => {
       this.requester.requestTicker(
         ticker,
@@ -14,12 +14,12 @@ export default class RequesterToObs {
     });
   }
 
-  coinFromRequester(coin: string): Observable<number> {
+  coinConversion(coin: string): Observable<number> {
     return new Observable((sub$) => {
       this.requester.conversion('BRL', coin, (r) => sub$.next(r));
     });
   }
-  makeQuotationFromRequester(ticker: string): Observable<number> {
+  quotationOf(ticker: string): Observable<number> {
     return new Observable((sub$) => {
       const id = this.requester.subscribeQuotation(ticker, (n) => sub$.next(n));
       return () => {

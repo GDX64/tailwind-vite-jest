@@ -12,22 +12,20 @@ import FakeRequester from './FakeRequester';
 import { TickerData } from './interfaces';
 import RequesterToObs from './RequesterToObs';
 import TickerVue from './Ticker.vue';
-import TickerRequestController from './TickerRequestController';
-import { testQueues } from './aboutQueues';
-testQueues();
-const fakerequester = new FakeRequester();
-const tickerRequester = new TickerRequestController(new RequesterToObs(fakerequester));
+import { tickerDataOf } from './TickerRequestController';
 const coin = ref('USD');
 const ticker = ref('');
 const tickerData = useTickerData(ticker, coin);
 
 function useTickerData(ticker: Ref<string>, coin: Ref<string>) {
+  const fakerequester = new FakeRequester();
+  const requester = new RequesterToObs(fakerequester);
   const ticker$ = new BehaviorSubject<string>(ticker.value);
   const coin$ = new BehaviorSubject<string>(coin.value);
   const stopTicker = watchEffect(() => ticker$.next(ticker.value));
   const stopCoin = watchEffect(() => coin$.next(coin.value));
   const tickerData = ref([] as TickerData[]);
-  const subscription = tickerRequester.data$(ticker$, coin$).subscribe((data) => {
+  const subscription = tickerDataOf(ticker$, coin$, requester).subscribe((data) => {
     tickerData.value = data;
   });
   onUnmounted(() => {
