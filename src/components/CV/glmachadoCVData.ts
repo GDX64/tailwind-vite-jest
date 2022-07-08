@@ -24,8 +24,9 @@ const projects = [
     description: `In my thesis I implemented adaptive filtering algorithms from papers with
             Matlab to analyse harmonics from the electrical energy network. In this work I
             had the opportunity to work with some advanced Linear Algebra to implement the
-            computations. I wrote it while I was in the interchange in Argentina. You can
-            download it [here](https://glmachado.herokuapp.com/files/TCC.pdf) (it is in my website).`,
+            computations. There is also an implementation of the basic algorithm in C with FreeRTOS 
+            in my github for embedded ESP32. You can download it 
+            [here](https://glmachado.herokuapp.com/files/TCC.pdf) (it is in my website).`,
     schoolPlaceDate: '2019',
   },
   {
