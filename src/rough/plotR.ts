@@ -22,6 +22,7 @@ export function plot(
 
   const candleWidth = Math.max(Math.round(width / candles.length) - minGap, 0);
 
+  drawBg(canvasData, width, height);
   const pixels = candlePlot(
     candles,
     { transform: scaleX.transform.bind(scaleX), calcWidth: () => candleWidth },
@@ -29,6 +30,15 @@ export function plot(
   );
 
   pixels.forEach((pixel) => candleDraw(canvasData.d, pixel));
+}
+
+function drawBg(canvasData: CanvasData, width: number, height: number) {
+  canvasData.d.rectangle(0, 0, width, height, {
+    fill: '#dddddd',
+    roughness: 0.5,
+    stroke: '#ffffff00',
+    fillWeight: 4,
+  });
 }
 
 function candleDraw(d: RoughCanvas, { open, close, min, max, x, width }: PixelCandle) {
