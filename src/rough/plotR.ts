@@ -10,15 +10,16 @@ export function plot(
   range: [number, number]
 ) {
   const { width, height } = canvasData.canvas;
+  canvasData.canvas.width = width;
   const candles = allCandles.slice(...range);
   const maxY = Math.max(...candles.map((candle) => candle.max));
   const minY = Math.min(...candles.map((candle) => candle.min));
-  const maxX = candles[candles.length - 1].x;
-  const minX = candles[0].x;
+  const maxX = candles[candles.length - 1]?.x ?? 0;
+  const minX = candles[0]?.x ?? 0;
   const scaleX = new LinScale.Scale(minX - 0.5, maxX + 0.5, 0, width);
   const scaleY = new LinScale.Scale(minY, maxY, height, 0);
 
-  const candleWidth = Math.round(width / candles.length) - minGap;
+  const candleWidth = Math.max(Math.round(width / candles.length) - minGap, 0);
 
   const pixels = candlePlot(
     candles,
