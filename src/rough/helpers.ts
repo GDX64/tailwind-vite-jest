@@ -31,3 +31,25 @@ export function genCandleChart(
   }
   return arr;
 }
+
+export function mergeCandles(candles: Candle[], maxValue: number) {
+  const agregationFactor = Math.floor(candles.length / maxValue);
+  if (agregationFactor <= 1) return candles;
+  const agregated = [] as Candle[];
+  let i = 0;
+  while (i * agregationFactor < candles.length) {
+    const slice = candles.slice(i, i + agregationFactor);
+    const { open, close, min, max } = mergeCandle(slice);
+    agregated.push({ open, close, min, max, x: i });
+    i++;
+  }
+  return agregated;
+}
+
+function mergeCandle(candles: Candle[]) {
+  const open = candles[0].open;
+  const close = candles[candles.length - 1].close;
+  const max = Math.max(...candles.map((candle) => candle.max));
+  const min = Math.min(...candles.map((candle) => candle.min));
+  return { open, close, max, min };
+}

@@ -9,18 +9,18 @@ import { plot } from '../rough/plotR';
 import { genCandleChart } from '../rough/helpers';
 const canvas = ref<HTMLCanvasElement>();
 
-const range = ref([0, 10] as [number, number]);
+const range = ref([0, 50] as [number, number]);
 
 function onWheel(event: WheelEvent) {
   const N = range.value[1] - range.value[0];
   if (event.ctrlKey) {
-    const delta = Math.sign(event.deltaY) * N * 0.05;
+    const delta = Math.ceil(Math.sign(event.deltaY) * N * 0.05);
     const max = range.value[1] + delta;
     const min = range.value[0] - delta;
     if (max === min) return;
     range.value = [Math.max(min, 0), Math.min(max, candles.length)];
   } else {
-    const delta = -Math.sign(event.deltaY) * N * 0.05;
+    const delta = -Math.ceil(Math.sign(event.deltaY) * N * 0.05);
     const min = range.value[0] + delta;
     const max = range.value[1] + delta;
     if (min < 0 || max > candles.length) {

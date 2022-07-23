@@ -1,5 +1,6 @@
 import { RoughCanvas } from 'roughjs/bin/canvas';
 import * as LinScale from '../pixijs/chart/Scale';
+import { mergeCandles } from './helpers';
 import { Candle, PixelCandle, Scale, ScaleX } from './interfaces';
 
 const minGap = 10;
@@ -11,7 +12,7 @@ export function plot(
 ) {
   const { width, height } = canvasData.canvas;
   canvasData.canvas.width = width;
-  const candles = allCandles.slice(...range);
+  const candles = mergeCandles(allCandles.slice(...range), 50);
   const maxY = Math.max(...candles.map((candle) => candle.max));
   const minY = Math.min(...candles.map((candle) => candle.min));
   const maxX = candles[candles.length - 1]?.x ?? 0;
