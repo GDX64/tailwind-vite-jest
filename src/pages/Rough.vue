@@ -36,7 +36,12 @@ watchEffect(() => {
   console.log(range.value);
   if (canvas.value) {
     const roughCanvas = rough.canvas(canvas.value);
-    plot({ d: roughCanvas, canvas: canvas.value }, candles, range.value);
+    const drawables = plot(
+      { d: roughCanvas, canvas: canvas.value },
+      candles,
+      range.value
+    );
+    drawables.forEach((drawable) => roughCanvas.draw(drawable));
   }
 });
 </script>
