@@ -17,6 +17,7 @@
     "mitt": "^3.0.0",
     "pixi.js": "^6.2.2",
     "ramda": "^0.28.0",
+    "roughjs": "^4.5.2",
     "rxjs": "^7.5.4",
     "vite-plugin-checker": "^0.3.4",
     "vite-svg-loader": "^3.1.2",
