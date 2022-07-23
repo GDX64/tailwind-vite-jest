@@ -1,11 +1,5 @@
-import {
-  BehaviorSubject,
-  combineLatest,
-  map,
-  Observable,
-  Subject,
-  switchMap,
-} from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, switchMap } from 'rxjs';
+import { memoizeWith } from 'ramda';
 import { computed, ComputedRef, reactive, ref } from 'vue';
 
 describe('nested reactivity', () => {
@@ -25,6 +19,29 @@ describe('nested reactivity', () => {
     arr.push(3);
     expect(compArr.value).toMatchObject(['2', '0', '3']);
     expect(expensiveComputation).toHaveBeenCalledTimes(7);
+  });
+
+  test('naive memo', () => {
+    const arr = reactive([1, 0]);
+
+    const expensiveComputation = vitest.fn((x: number) => String(x));
+    const expensiveMemo = memoizeWith(String, expensiveComputation);
+    const compTransformation = ref<(x: number) => string>(expensiveMemo);
+    const compArr = computed(() => arr.map(compTransformation.value));
+
+    expect(compArr.value).toMatchObject(['1', '0']);
+    expect(expensiveComputation).toHaveBeenCalledTimes(2);
+
+    arr[0] = 2;
+    expect(compArr.value).toMatchObject(['2', '0']);
+    expect(expensiveComputation).toHaveBeenCalledTimes(3);
+
+    arr.push(3);
+    expect(compArr.value).toMatchObject(['2', '0', '3']);
+    expect(expensiveComputation).toHaveBeenCalledTimes(4);
+
+    compTransformation.value = () => 'a';
+    expect(compArr.value).toMatchObject(['a', 'a', 'a']);
   });
 
   test('nestedTest', () => {
@@ -78,7 +95,6 @@ describe('nested reactivity', () => {
     expect(expensiveComputation).toHaveBeenCalledTimes(6);
   });
 });
-
 function flatComputed<T>(c: ComputedRef<ComputedRef<T>[]>): ComputedRef<T[]> {
   return computed(() => c.value.map((c) => c.value));
 }
