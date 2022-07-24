@@ -1,6 +1,6 @@
 import { BehaviorSubject, combineLatest, map, Observable, switchMap } from 'rxjs';
 import { memoizeWith } from 'ramda';
-import { computed, ComputedRef, reactive, ref } from 'vue';
+import { computed, ComputedRef, effectScope, reactive, ref } from 'vue';
 
 describe('nested reactivity', () => {
   test('naive', () => {
@@ -128,6 +128,36 @@ describe('nested reactivity', () => {
     arr.next([sub1, sub2, new BehaviorSubject(3)]);
     expect(flatted.value).toMatchObject(['2', '0', '3']);
     expect(expensiveComputation).toHaveBeenCalledTimes(6);
+  });
+
+  test('computed', () => {
+    const num = ref(10);
+    //you should not append things into vue objects
+    //it's just to show it better on the console
+    (num as any).id = 'number reference';
+    const flag = ref(false);
+    (flag as any).id = 'flag reference';
+    const c = computed(() => (flag.value ? num.value : 0));
+    c.effect.onTrack = (event) =>
+      console.log('====track====', {
+        target: event.target,
+      });
+    c.effect.onTrigger = (event) =>
+      console.log('====trigger====', {
+        target: event.target,
+      });
+
+    //this is going to shot a track of the flag reference
+    //but not the num reference, because num is not going to run
+    expect(c.value).toBe(0); // First log
+    //vue does not care about this update
+    //because this variable is not being tracked
+    num.value = 20;
+    //this is going to trigger an update
+    flag.value = true; // Second log
+    //and now a track of the num reference will happen
+    //because num is going to run this time
+    expect(c.value).toBe(20); // Third log
   });
 });
 
