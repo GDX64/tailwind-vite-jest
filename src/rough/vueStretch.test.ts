@@ -4,18 +4,32 @@ import { computed, ComputedRef, reactive, ref } from 'vue';
 
 describe('nested reactivity', () => {
   test('naive', () => {
+    //using reactive() makes vue track changes to this array
     const arr = reactive([1, 0]);
 
     const expensiveComputation = vitest.fn((x: number) => String(x));
     const compArr = computed(() => arr.map(expensiveComputation));
 
+    //accessing compArr.value makes vue call the function we wrote above
+    //computed is usualy lazy, it will perform the calculation only
+    //when we need it
+    expect(compArr.value).toMatchObject(['1', '0']);
+    expect(expensiveComputation).toHaveBeenCalledTimes(2);
+    //acessing the value again does not trigger another calculation
+    //vue caches the return value and only calculates it again if
+    //some of the dependencies change
     expect(compArr.value).toMatchObject(['1', '0']);
     expect(expensiveComputation).toHaveBeenCalledTimes(2);
 
+    //now something that vue cares about will change
     arr[0] = 2;
+    //if we try to access the value again, new calculations
+    //will be triggered
     expect(compArr.value).toMatchObject(['2', '0']);
     expect(expensiveComputation).toHaveBeenCalledTimes(4);
 
+    //pushing another value into the array also triggers
+    //an update
     arr.push(3);
     expect(compArr.value).toMatchObject(['2', '0', '3']);
     expect(expensiveComputation).toHaveBeenCalledTimes(7);
