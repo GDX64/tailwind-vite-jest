@@ -24,8 +24,8 @@ export function genCandleChart(
     arr.push({
       open,
       close,
-      min: randomInt(Math.min(open, close) - variance, Math.min(open, close)),
-      max: randomInt(Math.max(open, close), Math.max(open, close) + variance),
+      min: randomInt(Math.min(open, close) - variance / 2, Math.min(open, close)),
+      max: randomInt(Math.max(open, close), Math.max(open, close) + variance / 2),
       x: i,
     });
   }
