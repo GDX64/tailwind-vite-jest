@@ -14,5 +14,6 @@ export interface Requester {
 
   unsubscribeQuotation(id: number, asset: string): void;
 
-  conversion(from: string, to: string, response: (n: number) => void): void;
+  conversion(from: string, to: string, response: (n: number) => void): number;
+  unsubConversion(coin: string, id: number): void;
 }

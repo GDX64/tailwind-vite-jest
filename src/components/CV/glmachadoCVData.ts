@@ -9,7 +9,7 @@ const education = [
     title: 'Electronic Engineering Bachelor',
     schoolPlaceDate: 'UFJF - Juiz de fora, MG. 2014-2019',
     description:
-      'The course had more emphasis in Signal Processing, where I used Matlab and Python programming.',
+      'The course had more emphasis in Signal Processing and embedded software development, where I used Matlab, Python, and C with FreeRTOS.',
   },
   {
     description: `I went for a 2 semesters interchange in Argentina whilst I developed my bachelor thesis. 
@@ -24,8 +24,9 @@ const projects = [
     description: `In my thesis I implemented adaptive filtering algorithms from papers with
             Matlab to analyse harmonics from the electrical energy network. In this work I
             had the opportunity to work with some advanced Linear Algebra to implement the
-            computations. I wrote it while I was in the interchange in Argentina. You can
-            download it [here](https://glmachado.herokuapp.com/files/TCC.pdf) (it is in my website).`,
+            computations. There is also an implementation of the basic algorithm in C with FreeRTOS 
+            in my github for embedded ESP32. You can download it 
+            [here](https://glmachado.herokuapp.com/files/TCC.pdf) (it is in my website).`,
     schoolPlaceDate: '2019',
   },
   {
@@ -38,7 +39,7 @@ const projects = [
     title: 'Blogs And Small Articles',
     description: `When I'm learning something new, I like to write about it. So I have a
           [Medium](https://medium.com/@gabriel-delmachado) with some engineering, math and
-          programming related articles. I also have some content on Linkedin.`,
+          programming related articles. I also have some content on Linkedin about control theory, Rust and Webassembly.`,
   },
 ];
 const experiences = [

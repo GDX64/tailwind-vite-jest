@@ -46,7 +46,7 @@ export default class FakeRequester implements Requester {
   }
 
   unsubscribeQuotation(id: number, asset: string) {
-    console.log('unsub', asset, id);
+    console.log('unsub', asset);
     this.quotationSubs.get(id)?.unsubscribe();
     this.quotationSubs.delete(id);
   }
@@ -55,8 +55,14 @@ export default class FakeRequester implements Requester {
     const nFrom = absoluteQuotation.get(from);
     const nTo = absoluteQuotation.get(to);
     if (nFrom && nTo) {
-      return setTimeout(() => response(nFrom / nTo), 500);
+      console.log('subscribing coin', to);
+      setTimeout(() => response(nFrom / nTo), 500);
     }
+    return 0;
+  }
+
+  unsubConversion(coin: string, id: number): void {
+    console.log('unsub conversion', coin);
   }
 }
 

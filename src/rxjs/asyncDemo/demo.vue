@@ -7,11 +7,18 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
-import { makeCBRequester, makePromiseRequester } from './callbackRequester';
+import { onUnmounted, ref, watch } from 'vue';
+import {
+  makeCBRequester,
+  makeObservableRequester,
+  makePromiseRequester,
+} from './callbackRequester';
 const planet = ref('');
 const moons = ref([] as { name: string; distance: number }[]);
 const errorMsg = ref('');
-const requester = makePromiseRequester(moons, errorMsg);
+const requester = makeCBRequester(moons, errorMsg);
 watch(planet, (value) => requester.setPlanet(value));
+onUnmounted(() => {
+  requester.unsubscribe();
+});
 </script>

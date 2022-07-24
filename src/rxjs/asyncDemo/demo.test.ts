@@ -31,6 +31,26 @@ describe('test ui', () => {
     expect(results).toHaveLength(0);
     expect(wrapper.html()).toMatch(/deu pau/);
   });
+
+  test('switch', async () => {
+    vi.useFakeTimers();
+    const shouldNotBeCalled = vi.fn();
+    mockRequester.getPlanets = (ok) => setTimeout(() => ok(['moon']), 300);
+    mockRequester.getMoonInfo = () => setTimeout(() => shouldNotBeCalled(), 300);
+    const wrapper = mount(Demo);
+    await wrapper.get('input').setValue('ear');
+    await wait(50);
+    await wrapper.get('input').setValue('earth');
+    await wait(250);
+    mockRequester.getPlanets = (ok) => setTimeout(() => ok(['fobos']));
+    mockRequester.getMoonInfo = (ok) => setTimeout(() => ok({ distance: 120 }));
+    await wrapper.get('input').setValue('mars');
+    await wait(250);
+    await wait(100);
+    console.log(wrapper.html());
+    expect(wrapper.html()).toMatch(/fobos: 120/);
+    expect(shouldNotBeCalled).toHaveBeenCalledTimes(0);
+  });
 });
 
 vi.mock('./asyncDemoAPI', () => {

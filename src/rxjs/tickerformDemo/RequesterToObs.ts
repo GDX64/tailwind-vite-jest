@@ -16,7 +16,8 @@ export default class RequesterToObs {
 
   coinConversion(coin: string): Observable<number> {
     return new Observable((sub$) => {
-      this.requester.conversion('BRL', coin, (r) => sub$.next(r));
+      const id = this.requester.conversion('BRL', coin, (r) => sub$.next(r));
+      return () => this.requester.unsubConversion(coin, id);
     });
   }
   quotationOf(ticker: string): Observable<number> {

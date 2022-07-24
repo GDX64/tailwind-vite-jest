@@ -1,6 +1,7 @@
 <template>
   <div class="flex justify-between">
     <FieldEditorVue
+      v-if="false"
       v-model:field="cvData.categories[editedCategory].fields[editedField]"
     ></FieldEditorVue>
     <CVSimpleVue :cv-data="cvData" @update-field="onEditField"></CVSimpleVue>
