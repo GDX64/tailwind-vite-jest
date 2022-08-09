@@ -1,6 +1,6 @@
 use std::ops::Neg;
 
-use crate::{Guess, Wordle::ByteStr};
+use super::{Guess, Wordle::ByteStr};
 
 pub fn guess(words: &[ByteStr]) -> ByteStr {
     let best_guess = words

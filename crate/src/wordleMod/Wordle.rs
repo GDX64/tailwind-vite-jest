@@ -1,8 +1,6 @@
-use std::collections::HashSet;
-
-use crate::{random, Naive, WORDS};
-
+use super::{random, Naive, WORDS};
 use super::{Guess, WORDLE_SIZE};
+use std::collections::HashSet;
 use wasm_bindgen::prelude::*;
 pub type ByteStr = [u8; 5];
 

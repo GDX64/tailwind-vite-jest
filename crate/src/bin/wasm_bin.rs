@@ -1,3 +1,3 @@
 fn main() {
-    wasm::main()
+    wasm::wordleMod::main();
 }
