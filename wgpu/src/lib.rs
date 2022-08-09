@@ -1,6 +1,7 @@
 use std::iter;
 
 use winit::{
+    dpi::PhysicalPosition,
     event::*,
     event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowBuilder},
@@ -15,6 +16,7 @@ struct State {
     queue: wgpu::Queue,
     config: wgpu::SurfaceConfiguration,
     size: winit::dpi::PhysicalSize<u32>,
+    color: wgpu::Color,
 }
 
 impl State {
@@ -62,12 +64,20 @@ impl State {
         };
         surface.configure(&device, &config);
 
+        let color = wgpu::Color {
+            r: 0.1,
+            g: 0.2,
+            b: 0.3,
+            a: 1.0,
+        };
+
         Self {
             surface,
             device,
             queue,
             config,
             size,
+            color,
         }
     }
 
@@ -106,12 +116,7 @@ impl State {
                     view: &view,
                     resolve_target: None,
                     ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.1,
-                            g: 0.2,
-                            b: 0.3,
-                            a: 1.0,
-                        }),
+                        load: wgpu::LoadOp::Clear(self.color),
                         store: true,
                     },
                 })],
@@ -123,6 +128,11 @@ impl State {
         output.present();
 
         Ok(())
+    }
+
+    fn on_mouse_move(&mut self, position: &PhysicalPosition<f64>) {
+        self.color.r = position.x / self.size.width as f64;
+        self.color.g = position.y / self.size.height as f64;
     }
 }
 
@@ -188,6 +198,7 @@ pub async fn run() {
                             // new_inner_size is &&mut so w have to dereference it twice
                             state.resize(**new_inner_size);
                         }
+                        WindowEvent::CursorMoved { position, .. } => state.on_mouse_move(position),
                         _ => {}
                     }
                 }
