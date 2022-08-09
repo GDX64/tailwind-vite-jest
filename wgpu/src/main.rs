@@ -1,3 +1,5 @@
+use pong::run;
+
 fn main() {
-    pong::run();
+    pollster::block_on(run());
 }
