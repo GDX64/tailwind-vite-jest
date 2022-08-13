@@ -37,7 +37,7 @@ type Validates<T extends Validator> = {
     : never;
 };
 
-type Identity<T extends {}> = {} & {
+export type Identity<T extends {}> = {} & {
   [P in keyof T]: T[P];
 };
 
