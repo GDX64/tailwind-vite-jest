@@ -1,4 +1,4 @@
-import { map, of, Stream, switchAll } from './Stream';
+import { combineStreams, map, of, Stream, switchAll } from './Stream';
 
 describe('stream', () => {
   test('map', () => {
@@ -21,5 +21,21 @@ describe('stream', () => {
     s.next(sInner2);
     sInner.next(1);
     expect(values).toEqual([1, 2, 3, 4]);
+  });
+
+  test('combine all', () => {
+    const s1 = new Stream<number>();
+    const s2 = new Stream<number>();
+    const combined = combineStreams((x: number, y: number) => x + y, s1, s2);
+    const values = [] as number[];
+    combined.subscribe((x) => {
+      values.push(x);
+    });
+    expect(values).toEqual([]);
+    s1.next(1);
+    s2.next(2);
+    expect(values).toEqual([3]);
+    s2.next(3);
+    expect(values).toEqual([3, 4]);
   });
 });
