@@ -1,9 +1,23 @@
+import { Stream } from './Stream';
+
 export class Signal<T> {
   private needsToCalc = false;
-  subscribers = [] as Signal<any>[];
+  private subscribers = [] as Signal<any>[];
+  private clearFns = [] as (() => void)[];
   value;
   constructor(private calcValue: () => T) {
     this.value = calcValue();
+  }
+
+  static fromStream<T>(s: Stream<T>, initial: T): Signal<T> {
+    const signal = new Signal<T>(() => initial);
+    signal.clearFns = [
+      s.subscribe((x) => {
+        signal.value = x;
+        signal.notifyChange();
+      }),
+    ];
+    return signal;
   }
 
   clearCache() {
@@ -16,7 +30,7 @@ export class Signal<T> {
   }
 
   addDependencies(d: Signal<any>[]) {
-    d.forEach((s) => s.subscribe(this));
+    this.clearFns = d.map((s) => s.subscribe(this));
   }
 
   getValue() {
@@ -34,6 +48,11 @@ export class Signal<T> {
 
   subscribe(s: Signal<any>) {
     this.subscribers.push(s);
+    return () => (this.subscribers = this.subscribers.filter((item) => item !== s));
+  }
+
+  dispose() {
+    this.clearFns.forEach((fn) => fn());
   }
 }
 

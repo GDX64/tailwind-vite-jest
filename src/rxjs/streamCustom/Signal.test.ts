@@ -1,4 +1,5 @@
 import { combineSignals, Signal } from './Signal';
+import { Stream } from './Stream';
 
 describe('Signal', () => {
   test('combine', () => {
@@ -13,5 +14,17 @@ describe('Signal', () => {
     expect(s3.getValue()).toBe(3);
     expect(s1Fn).toHaveBeenCalledTimes(2);
     expect(s2Fn).toHaveBeenCalledTimes(1);
+  });
+
+  test('fromStream()', () => {
+    const stream = new Stream<number>();
+    const signal = Signal.fromStream(stream, 0);
+    expect(signal.getValue()).toBe(0);
+    stream.next(10);
+    expect(signal.getValue()).toBe(10);
+    const mapped = combineSignals((x: number) => String(x), signal);
+    expect(mapped.getValue()).toBe('10');
+    stream.next(2);
+    expect(mapped.getValue()).toBe('2');
   });
 });
