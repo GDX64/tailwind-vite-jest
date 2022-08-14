@@ -21,8 +21,10 @@ export class Signal<T> {
   }
 
   clearCache() {
-    this.needsToCalc = true;
-    this.notifyChange();
+    if (!this.needsToCalc) {
+      this.needsToCalc = true;
+      this.notifyChange();
+    }
   }
 
   notifyChange() {

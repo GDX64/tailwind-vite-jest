@@ -27,4 +27,17 @@ describe('Signal', () => {
     stream.next(2);
     expect(mapped.getValue()).toBe('2');
   });
+
+  test('combine fromStream', () => {
+    const stream1 = new Stream<number>();
+    const stream2 = new Stream<number>();
+    const signal1 = Signal.fromStream(stream1, 0);
+    const signal2 = Signal.fromStream(stream2, 0);
+    const mapped = combineSignals((x: number, y: number) => x + y, signal1, signal2);
+    expect(mapped.getValue()).toBe(0);
+    stream1.next(5);
+    expect(mapped.getValue()).toBe(5);
+    stream2.next(5);
+    expect(mapped.getValue()).toBe(10);
+  });
 });
