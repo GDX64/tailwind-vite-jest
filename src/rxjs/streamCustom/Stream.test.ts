@@ -1,4 +1,4 @@
-import { map, Stream, switchAll } from './Stream';
+import { map, of, Stream, switchAll } from './Stream';
 
 describe('stream', () => {
   test('map', () => {
@@ -17,12 +17,9 @@ describe('stream', () => {
     s.next(sInner);
     sInner.next(1);
     sInner.next(2);
-    const sInner2 = new Stream<number>();
+    const sInner2 = of(3, 4);
     s.next(sInner2);
-    sInner.next(3);
-    sInner2.next(4);
-    sInner2.next(5);
-    sInner.next(6);
-    expect(values).toEqual([1, 2, 4, 5]);
+    sInner.next(1);
+    expect(values).toEqual([1, 2, 3, 4]);
   });
 });

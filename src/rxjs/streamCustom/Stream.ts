@@ -3,6 +3,8 @@ type SubFn<T> = (x: T) => void;
 export class Stream<T> {
   subscribers = [] as SubFn<T>[];
   onSubZero = () => {};
+  onFirstSub = () => {};
+  hasSubscribers = false;
 
   next(x: T) {
     this.subscribers.forEach((sub) => sub(x));
@@ -10,6 +12,10 @@ export class Stream<T> {
 
   subscribe(fn: SubFn<T>) {
     this.subscribers.push(fn);
+    if (!this.hasSubscribers) {
+      this.onFirstSub();
+      this.hasSubscribers = true;
+    }
     return () => {
       this.subscribers = this.subscribers.filter((item) => item !== fn);
       if (this.subscribers.length === 0) {
@@ -38,6 +44,14 @@ export function switchAll<T>(stream: Stream<Stream<T>>): Stream<T> {
   s.onSubZero = () => {
     lastUnsub();
     unsubFirstStream();
+  };
+  return s;
+}
+
+export function of<T>(...args: T[]) {
+  const s = new Stream<T>();
+  s.onFirstSub = () => {
+    args.forEach((arg) => s.next(arg));
   };
   return s;
 }
