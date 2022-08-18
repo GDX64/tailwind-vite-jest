@@ -24,7 +24,7 @@ describe('proxyWorker', () => {
     };
     expose(workerMethods, workerThread);
     const proxy = makeProxy<typeof workerMethods>(workerMain);
-    const echo = await firstValueFrom(proxy.hello('hi'));
+    const echo = await proxy.p.hello('hi');
     expect(echo).toBe('hi');
   });
 
