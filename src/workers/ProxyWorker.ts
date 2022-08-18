@@ -12,7 +12,9 @@ import {
 } from 'rxjs';
 import { FinishStream, GenericGet, GenericRequest, WorkerLike } from './interfaces';
 
-export function makeProxy<T extends {}>(worker: WorkerLike): T {
+export function makeProxy<T extends Record<string, (x: any) => Observable<any>>>(
+  worker: WorkerLike
+): T {
   const get$ = new Subject<GenericGet>();
   worker.addEventListener('message', (message) => {
     if (message.data.type === 'get') {
