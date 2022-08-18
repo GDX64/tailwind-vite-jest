@@ -10,9 +10,9 @@ import {
   takeUntil,
   takeWhile,
 } from 'rxjs';
-import { FinishStream, GenericGet, GenericRequest } from './interfaces';
+import { FinishStream, GenericGet, GenericRequest, WorkerLike } from './interfaces';
 
-export function makeProxy<T extends {}>(worker: Worker): T {
+export function makeProxy<T extends {}>(worker: WorkerLike): T {
   const get$ = new Subject<GenericGet>();
   worker.addEventListener('message', (message) => {
     if (message.data.type === 'get') {
@@ -45,10 +45,10 @@ type WorkerMethodsRecord = Record<
   (x: any) => Observable<{ data: any; transfer?: Transferable[] }>
 >;
 
-export function expose(methods: WorkerMethodsRecord) {
+export function expose(methods: WorkerMethodsRecord, ctx: WorkerLike) {
   const func$ = new Subject<GenericRequest>();
   const finish$ = new Subject<number>();
-  self.addEventListener('message', (message) => {
+  ctx.addEventListener('message', (message) => {
     const data = message.data as GenericRequest | FinishStream;
     if (data.type === 'func') {
       func$.next(data);
@@ -58,7 +58,7 @@ export function expose(methods: WorkerMethodsRecord) {
   });
   func$
     .pipe(mergeMap((data) => makeGenericRequest(data, finish$, methods)))
-    .subscribe((data) => self.postMessage(data, (data.transfer as any) ?? []));
+    .subscribe((data) => ctx.postMessage(data, data.transfer ?? []));
 }
 
 function makeGenericRequest(

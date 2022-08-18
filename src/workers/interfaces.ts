@@ -17,3 +17,5 @@ export type FinishStream = {
   type: 'finish';
   id: number;
 };
+
+export type WorkerLike = Pick<Worker, 'addEventListener' | 'postMessage'>;
