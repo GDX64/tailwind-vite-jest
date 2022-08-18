@@ -21,7 +21,7 @@ type ExtractData<T> = T extends (x: any) => Observable<{ data: infer A }>
   ? Observable<A>
   : never;
 type TransformRecord<T extends Record<string, WorkerObservableFn>> = {
-  [Key in keyof T]: (x: Parameters<T[Key]>[0]) => ExtractData<T[Key]>;
+  [Key in keyof T]: (...args: Parameters<T[Key]>) => ExtractData<T[Key]>;
 };
 
 export function makeProxy<T extends Record<string, WorkerObservableFn>>(

@@ -1,4 +1,15 @@
-import { asyncScheduler, firstValueFrom, observeOn, of, Subject } from 'rxjs';
+import {
+  asyncScheduler,
+  finalize,
+  firstValueFrom,
+  interval,
+  map,
+  observeOn,
+  of,
+  Subject,
+  take,
+  toArray,
+} from 'rxjs';
 import { WorkerLike } from './interfaces';
 import { expose, makeProxy } from './ProxyWorker';
 
@@ -16,7 +27,27 @@ describe('proxyWorker', () => {
     const echo = await firstValueFrom(proxy.hello('hi'));
     expect(echo).toBe('hi');
   });
+
+  it('tests stream of data', async () => {
+    const { workerThread, workerMain } = setup();
+    const spy = vitest.fn();
+    const workerMethods = {
+      interval() {
+        console.log('run echo');
+        return interval(1).pipe(
+          finalize(spy),
+          map((x) => ({ data: x }))
+        );
+      },
+    };
+    expose(workerMethods, workerThread);
+    const proxy = makeProxy<typeof workerMethods>(workerMain);
+    const nums = await firstValueFrom(proxy.interval().pipe(take(3), toArray()));
+    expect(nums).toEqual([0, 1, 2]);
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
 });
+
 function setup() {
   const mainToThread = new Subject<any>();
   const threadToMain = new Subject<any>();
