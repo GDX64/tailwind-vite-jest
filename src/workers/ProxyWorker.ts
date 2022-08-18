@@ -9,6 +9,7 @@ import {
   Subject,
   takeUntil,
   takeWhile,
+  tap,
 } from 'rxjs';
 import { FinishStream, GenericGet, GenericRequest, WorkerLike } from './interfaces';
 
@@ -38,11 +39,9 @@ export function makeProxy<T extends Record<string, WorkerObservableFn>>(
         return defer(() => {
           const id = Math.random();
           const genericRequest: GenericRequest = { type: 'func', prop, arg, id };
-          worker.postMessage(genericRequest, transfer);
+          queueMicrotask(() => worker.postMessage(genericRequest, transfer));
           return get$.pipe(
-            finalize(() => {
-              worker.postMessage({ type: 'finish', id });
-            }),
+            finalize(() => worker.postMessage({ type: 'finish', id })),
             filter((resp) => id === resp.id),
             takeWhile((resp) => !resp.last),
             map((resp) => resp.response)
