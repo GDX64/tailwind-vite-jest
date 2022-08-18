@@ -12,16 +12,27 @@ import {
 } from 'rxjs';
 import { FinishStream, GenericGet, GenericRequest, WorkerLike } from './interfaces';
 
-export function makeProxy<T extends Record<string, (x: any) => Observable<any>>>(
+type WorkerObservableFn = (
+  x: any
+) => Observable<{ data: any; transfer?: Transferable[] }>;
+
+type ExtractData<T> = T extends (x: any) => Observable<{ data: infer A }>
+  ? Observable<A>
+  : never;
+type TransformRecord<T extends Record<string, WorkerObservableFn>> = {
+  [Key in keyof T]: (x: Parameters<T[Key]>[0]) => ExtractData<T[Key]>;
+};
+
+export function makeProxy<T extends Record<string, WorkerObservableFn>>(
   worker: WorkerLike
-): T {
+): TransformRecord<T> {
   const get$ = new Subject<GenericGet>();
   worker.addEventListener('message', (message) => {
     if (message.data.type === 'get') {
       get$.next(message.data);
     }
   });
-  return new Proxy({} as T, {
+  return new Proxy({} as TransformRecord<T>, {
     get(target, prop: string) {
       return (arg: any, transfer: any) => {
         return defer(() => {
@@ -42,10 +53,7 @@ export function makeProxy<T extends Record<string, (x: any) => Observable<any>>>
   });
 }
 
-type WorkerMethodsRecord = Record<
-  string,
-  (x: any) => Observable<{ data: any; transfer?: Transferable[] }>
->;
+type WorkerMethodsRecord = Record<string, WorkerObservableFn>;
 
 export function expose(methods: WorkerMethodsRecord, ctx: WorkerLike) {
   const func$ = new Subject<GenericRequest>();

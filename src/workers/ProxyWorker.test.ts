@@ -1,15 +1,35 @@
-import { Observable } from 'rxjs';
-import { WorkerLike } from './interfaces';
-import { makeProxy } from './ProxyWorker';
+import { firstValueFrom, Observable, of, Subject } from 'rxjs';
+import { GenericGet, WorkerLike } from './interfaces';
+import { expose, makeProxy } from './ProxyWorker';
 
 describe('proxyWorker', () => {
   test('echo', () => {
-    const worker: WorkerLike = {
-      addEventListener: vitest.fn(),
-      postMessage: vitest.fn((message: any) => {}),
+    const mainToThread = new Subject<any>();
+    const threadToMain = new Subject<any>();
+    const workerMain: WorkerLike = {
+      addEventListener: (_: string, callback: (x: any) => void) => {
+        threadToMain.subscribe(callback);
+      },
+      postMessage: (message: any) => mainToThread.next(message),
     };
 
-    const proxy = makeProxy<{ hello: (x: string) => Observable<string> }>(worker);
-    proxy.hello();
+    const workerThread: WorkerLike = {
+      addEventListener: (_: string, callback: (x: any) => void) => {
+        mainToThread.subscribe(callback);
+      },
+      postMessage: (message: any) => threadToMain.next(message),
+    };
+
+    const workerMethods = {
+      hello(echo: string) {
+        return of({ data: echo });
+      },
+    };
+
+    expose(workerMethods, workerThread);
+    const proxy = makeProxy<typeof workerMethods>(workerMain);
+
+    const echo = firstValueFrom(proxy.hello('hi'));
+    console.log(echo);
   });
 });

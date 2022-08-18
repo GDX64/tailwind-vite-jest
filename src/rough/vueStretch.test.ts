@@ -138,14 +138,6 @@ describe('nested reactivity', () => {
     const flag = ref(false);
     (flag as any).id = 'flag reference';
     const c = computed(() => (flag.value ? num.value : 0));
-    c.effect.onTrack = (event) =>
-      console.log('====track====', {
-        target: event.target,
-      });
-    c.effect.onTrigger = (event) =>
-      console.log('====trigger====', {
-        target: event.target,
-      });
 
     //this is going to shot a track of the flag reference
     //but not the num reference, because num is not going to run
