@@ -1,10 +1,8 @@
 import {
-  asyncScheduler,
   finalize,
   firstValueFrom,
   interval,
   map,
-  observeOn,
   of,
   Subject,
   take,
@@ -18,7 +16,6 @@ describe('proxyWorker', () => {
     const { workerThread, workerMain } = setup();
     const workerMethods = {
       hello(echo: string) {
-        console.log('run echo');
         return of({ data: echo });
       },
     };
@@ -33,7 +30,6 @@ describe('proxyWorker', () => {
     const spy = vitest.fn();
     const workerMethods = {
       interval() {
-        console.log('run echo');
         return interval(1).pipe(
           finalize(spy),
           map((x) => ({ data: x }))
@@ -51,8 +47,6 @@ describe('proxyWorker', () => {
 function setup() {
   const mainToThread = new Subject<any>();
   const threadToMain = new Subject<any>();
-  mainToThread.subscribe((x) => console.log('maintothread', x));
-  threadToMain.subscribe((x) => console.log('threadToMain', x));
   const workerMain: WorkerLike = {
     addEventListener: (_: string, callback: (x: any) => void) => {
       threadToMain.subscribe(callback);
