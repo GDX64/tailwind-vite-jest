@@ -9,7 +9,7 @@ export type GenericGet = {
 export type GenericRequest = {
   type: 'func';
   prop: string;
-  arg: any;
+  args: any[];
   id: number;
 };
 

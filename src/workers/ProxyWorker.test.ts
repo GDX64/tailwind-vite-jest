@@ -3,6 +3,7 @@ import {
   firstValueFrom,
   interval,
   map,
+  Observable,
   of,
   Subject,
   take,
@@ -15,14 +16,34 @@ describe('proxyWorker', () => {
   it('echo test', async () => {
     const { workerThread, workerMain } = setup();
     const workerMethods = {
-      hello(echo: string) {
+      hello(...echo: string[]) {
         return of({ data: echo });
       },
     };
     expose(workerMethods, workerThread);
+
     const proxy = makeProxy<typeof workerMethods>(workerMain);
     const echo = await proxy.p.hello('hi');
-    expect(echo).toBe('hi');
+    expect(echo).toEqual(['hi']);
+
+    const multipleArgs = await proxy.p.hello('hello', 'darkness');
+    expect(multipleArgs).toEqual(['hello', 'darkness']);
+  });
+
+  it('tests transfer', async () => {
+    const { workerThread, workerMain } = setup();
+    function hello(...echo: string[]) {
+      return of({ data: echo });
+    }
+    const workerMethods = { hello };
+    expose(workerMethods, workerThread);
+
+    const proxy = makeProxy<typeof workerMethods>(workerMain);
+    const echo = await proxy.t([]).p.hello('hi');
+    expect(echo).toEqual(['hi']);
+
+    const multipleArgs = await proxy.t([]).p.hello('hello', 'darkness');
+    expect(multipleArgs).toEqual(['hello', 'darkness']);
   });
 
   it('tests stream of data', async () => {

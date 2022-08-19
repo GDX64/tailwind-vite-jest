@@ -15,23 +15,26 @@ import {
 import { FinishStream, GenericGet, GenericRequest, WorkerLike } from './interfaces';
 
 type WorkerObservableFn = (
-  x: any
+  ...x: any[]
 ) => Observable<{ data: any; transfer?: Transferable[] }>;
 
 type ExtractData<T> = T extends (x: any) => Observable<{ data: infer A }> ? A : never;
 type TransformRecord<T extends Record<string, WorkerObservableFn>> = {
-  [Key in keyof T]: (
-    ...args: [...Parameters<T[Key]>, ...[t?: Transferable[] | undefined]]
-  ) => Observable<ExtractData<T[Key]>>;
+  [Key in keyof T]: (...args: Parameters<T[Key]>) => Observable<ExtractData<T[Key]>>;
 };
 
-type WorkerProxy<T extends Record<string, WorkerObservableFn>> = TransformRecord<T> & {
+type WorkerProxy<
+  T extends Record<string, WorkerObservableFn>,
+  Transfer = true
+> = TransformRecord<T> & {
   p: {
-    [Key in keyof T]: (
-      ...args: [...Parameters<T[Key]>, ...[t?: Transferable[] | undefined]]
-    ) => Promise<ExtractData<T[Key]>>;
+    [Key in keyof T]: (...args: Parameters<T[Key]>) => Promise<ExtractData<T[Key]>>;
   };
-};
+} & (Transfer extends true
+    ? {
+        t(transfer: Transferable[]): WorkerProxy<T, false>;
+      }
+    : {});
 
 export function makeProxy<T extends Record<string, WorkerObservableFn>>(
   worker: WorkerLike
@@ -43,10 +46,10 @@ export function makeProxy<T extends Record<string, WorkerObservableFn>>(
     }
   });
 
-  function makeGetObs(prop: any, arg: any, transfer: any) {
+  function makeGetObs(prop: any, args: any[], transfer: any) {
     return defer(() => {
       const id = Math.random();
-      const genericRequest: GenericRequest = { type: 'func', prop, arg, id };
+      const genericRequest: GenericRequest = { type: 'func', prop, args, id };
       queueMicrotask(() => worker.postMessage(genericRequest, transfer));
       return get$.pipe(
         finalize(() => worker.postMessage({ type: 'finish', id })),
@@ -62,7 +65,24 @@ export function makeProxy<T extends Record<string, WorkerObservableFn>>(
       if (prop === 'p') {
         return makePProxy(makeGetObs);
       }
-      return (arg: any, transfer: any) => makeGetObs(prop, arg, transfer);
+      if (prop === 't') {
+        return (transfer: Transferable[]) => makeTransferProxy(makeGetObs, transfer);
+      }
+      return (...arg: any[]) => makeGetObs(prop, arg, []);
+    },
+  });
+}
+
+function makeTransferProxy(
+  makeGetObs: (prop: any, arg: any, transfer: any) => Observable<any>,
+  transfer: Transferable[]
+) {
+  return new Proxy({} as any, {
+    get(target, prop: string) {
+      if (prop === 'p') {
+        return makePProxy((prop, arg) => makeGetObs(prop, arg, transfer));
+      }
+      return (...args: any[]) => makeGetObs(prop, args, transfer);
     },
   });
 }
@@ -74,8 +94,7 @@ function makePProxy(
     {},
     {
       get(target, prop: string) {
-        return (arg: any, transfer: any) =>
-          firstValueFrom(makeGetObs(prop, arg, transfer));
+        return (...arg: any[]) => firstValueFrom(makeGetObs(prop, arg, []));
       },
     }
   );
@@ -111,7 +130,7 @@ function makeGenericRequest(
     type: 'get',
   };
 
-  return methods[data.prop](data.arg).pipe(
+  return methods[data.prop](...data.args).pipe(
     takeUntil(finish$.pipe(filter((id) => id === data.id))),
     map((answer): GenericGet => {
       return {
