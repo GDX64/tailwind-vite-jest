@@ -1,14 +1,4 @@
-import {
-  finalize,
-  firstValueFrom,
-  interval,
-  map,
-  Observable,
-  of,
-  Subject,
-  take,
-  toArray,
-} from 'rxjs';
+import { finalize, firstValueFrom, interval, of, Subject, take, toArray } from 'rxjs';
 import { WorkerLike } from './interfaces';
 import { expose, makeProxy } from './ProxyWorker';
 
@@ -17,7 +7,7 @@ describe('proxyWorker', () => {
     const { workerThread, workerMain } = setup();
     const workerMethods = {
       hello(...echo: string[]) {
-        return of({ data: echo });
+        return of(echo);
       },
     };
     expose(workerMethods, workerThread);
@@ -33,7 +23,7 @@ describe('proxyWorker', () => {
   it('tests transfer', async () => {
     const { workerThread, workerMain } = setup();
     function hello(...echo: string[]) {
-      return of({ data: echo });
+      return of({ data: echo, transfer: [] });
     }
     const workerMethods = { hello };
     expose(workerMethods, workerThread);
@@ -51,10 +41,7 @@ describe('proxyWorker', () => {
     const spy = vitest.fn();
     const workerMethods = {
       interval() {
-        return interval(1).pipe(
-          finalize(spy),
-          map((x) => ({ data: x }))
-        );
+        return interval(1).pipe(finalize(spy));
       },
     };
     expose(workerMethods, workerThread);

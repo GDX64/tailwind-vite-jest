@@ -14,11 +14,15 @@ import {
 } from 'rxjs';
 import { FinishStream, GenericGet, GenericRequest, WorkerLike } from './interfaces';
 
-type WorkerObservableFn = (
-  ...x: any[]
-) => Observable<{ data: any; transfer?: Transferable[] }>;
+type WorkerObservableFn =
+  | ((...x: any[]) => Observable<any>)
+  | ((...x: any[]) => Observable<{ data: any; transfer: Transferable[] }>);
 
-type ExtractData<T> = T extends (x: any) => Observable<{ data: infer A }> ? A : never;
+type ExtractData<T> = T extends (x: any) => Observable<{ data: infer A; transfer: any }>
+  ? A
+  : T extends (x: any) => Observable<infer B>
+  ? B
+  : never;
 type TransformRecord<T extends Record<string, WorkerObservableFn>> = {
   [Key in keyof T]: (...args: Parameters<T[Key]>) => Observable<ExtractData<T[Key]>>;
 };
@@ -136,9 +140,9 @@ function makeGenericRequest(
       return {
         id: data.id,
         last: false,
-        response: answer.data,
+        response: answer.transfer ? answer.data : answer,
         type: 'get',
-        transfer: answer.transfer,
+        transfer: answer.transfer ?? [],
       };
     }),
     endWith(endMessage)
