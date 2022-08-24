@@ -1,3 +1,4 @@
+import { lastIndexOf } from 'ramda';
 import { Item } from './interfaces';
 
 export function findSelectedPath(
@@ -30,7 +31,34 @@ export function findSelected(path: number[], items: (Item | undefined)[]): Item 
   return null;
 }
 
-class MenuTree {
+export class MenuTree {
   path: number[] = [];
   constructor(private items: Item[]) {}
+
+  action(fn: (path: number[], lastIndex: number) => number[]) {
+    const lastIndex = this.path.at(-1) ?? -1;
+    const newPath = fn(this.path, lastIndex);
+    const item = findSelected(newPath, this.items);
+    if (item) {
+      this.path = newPath;
+      return true;
+    }
+    return false;
+  }
+
+  goDown() {
+    return this.action((path, last) => [...path.slice(0, -1), last + 1]);
+  }
+
+  goUp() {
+    return this.action((path, last) => [...path.slice(0, -1), last - 1]);
+  }
+
+  goRight() {
+    return this.action((path, last) => [...path, 0]);
+  }
+
+  goLeft() {
+    return this.action((path, last) => path.slice(0, -1));
+  }
 }
