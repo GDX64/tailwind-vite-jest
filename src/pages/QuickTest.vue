@@ -1,16 +1,27 @@
 <template>
-  <input type="text" v-model="value" class="bg-slate-400" />
+  <div class="relative w-1" tabindex="-1" @keydown="onKeyDown">
+    <RecursiveMenu :items="items" class="block"></RecursiveMenu>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, getCurrentInstance, ref } from 'vue';
-const _value = ref('hello');
-const value = computed({
-  get: () => _value.value,
-  set(another) {
-    const old = _value.value;
-    _value.value = another;
-    _value.value = old;
-  },
-});
+import { reactive, ref } from 'vue';
+import { Item } from '../menu/interfaces';
+import RecursiveMenu from '../menu/RecursiveMenu.vue';
+import { findSelectedPath } from '../menu/utils';
+const items: Item[] = [
+  { items: [{ text: 'abc' }, { text: 'asdfasdf' }], text: 'menu' },
+  { text: 'acb', selection: true },
+  { text: 'sdfadf' },
+];
+
+const itemPath = ref([] as number[]);
+itemPath.value = findSelectedPath((x) => Boolean(x.selection), items) ?? [];
+
+function onKeyDown(event: KeyboardEvent) {
+  console.log(event, event.key);
+  if(event.key === 'ArrowDown'){
+    
+  }
+}
 </script>
