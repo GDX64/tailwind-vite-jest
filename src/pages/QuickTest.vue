@@ -1,27 +1,16 @@
 <template>
-  <div class="relative w-1" tabindex="-1" @keydown="onKeyDown">
-    <RecursiveMenu :items="items" class="block"></RecursiveMenu>
-  </div>
+  <MySelect :selected-value="1">
+    <template #header="{ data }">
+      <div class="w-64">this is {{ data }}</div>
+    </template>
+    <MyOption :value="1" data="first">one</MyOption>
+    <div>nao é uma opção</div>
+    <MyOption :value="2" data="second">two</MyOption>
+    <MyOption :value="3" data="third">three</MyOption>
+  </MySelect>
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from 'vue';
-import { Item } from '../menu/interfaces';
-import RecursiveMenu from '../menu/RecursiveMenu.vue';
-import { findSelectedPath } from '../menu/utils';
-const items: Item[] = [
-  { items: [{ text: 'abc' }, { text: 'asdfasdf' }], text: 'menu' },
-  { text: 'acb', selection: true },
-  { text: 'sdfadf' },
-];
-
-const itemPath = ref([] as number[]);
-itemPath.value = findSelectedPath((x) => Boolean(x.selection), items) ?? [];
-
-function onKeyDown(event: KeyboardEvent) {
-  console.log(event, event.key);
-  if(event.key === 'ArrowDown'){
-    
-  }
-}
+import MySelect from '../menu/MySelect.vue';
+import MyOption from '../menu/MyOption.vue';
 </script>
