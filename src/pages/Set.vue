@@ -1,17 +1,23 @@
 <template>
-  <button @click="">draw</button>
-  <div class="">delta {{ regionSeen.x1 - regionSeen.x0 }}</div>
-  <canvas ref="canvas" width="1000" height="1000" class="relative"> </canvas>
+  <canvas ref="canvas" :width="width" :height="height" class="relative"> </canvas>
+  <div class="absolute text-cyan-200 z-10 top-0 left-0">
+    delta {{ regionSeen.x1 - regionSeen.x0 }} | duration: {{ duration }}
+  </div>
   <div class="selected-area absolute bg-slate-400/20" :style="squareStyle"></div>
 </template>
 
 <script setup lang="ts">
-import { endWith, fromEvent, map, Subject, switchMap, takeUntil } from 'rxjs';
-import { onMounted, ref, watchEffect } from 'vue';
+import { endWith, fromEvent, map, switchMap, takeUntil } from 'rxjs';
+import { onMounted, ref } from 'vue';
 import { drawSet } from '../mandelbrot/mdSet';
 const canvas = ref<HTMLCanvasElement>();
 const toPixel = (x: number) => `${x}px`;
-const regionSeen = ref({ x0: -2, x1: 2, y0: -2, y1: 2 });
+const width = 1920;
+const height = 1080;
+const baseX = 2;
+const baseY = (baseX * height) / width;
+const duration = ref(0);
+const regionSeen = ref({ x0: -baseX, x1: baseX, y0: -baseY, y1: baseY });
 const squareStyle = ref({
   top: toPixel(0),
   left: toPixel(0),
@@ -71,7 +77,9 @@ onMounted(() => {
     )
     .subscribe((region) => {
       regionSeen.value = region;
+      performance.mark('start');
       scales = drawSet(canvas.value!, region);
+      duration.value = performance.measure('set draw', 'start').duration;
     });
 });
 </script>

@@ -40,24 +40,26 @@ export function drawSet(
   canvas: HTMLCanvasElement,
   region: { x0: number; y0: number; x1: number; y1: number }
 ) {
-  performance.mark('start');
   const ctx = canvas.getContext('2d')!;
   const scaleX = new Scale(0, canvas.width, region.x0, region.x1);
   const scaleY = new Scale(canvas.height, 0, region.y0, region.y1);
-  // const matrix: boolean[][] = [...Array(canvas.height)].map(() =>
-  //   Array(canvas.width).fill(false)
-  // );
   const width = canvas.width;
   const height = canvas.height;
   ctx.clearRect(0, 0, width, height);
-  for (let i = 0; i < width; i++) {
-    for (let j = 0; j < height; j++) {
+  const image = ctx.getImageData(0, 0, width, height);
+  for (let j = 0; j < height; j++) {
+    for (let i = 0; i < width; i++) {
       const score = calcScore(new Complex(scaleX.transform(i), scaleY.transform(j)));
-      const color = (1 - score) ** (2 / 5) * 255;
-      ctx.fillStyle = `rgb(${color}, ${color}, ${color})`;
-      ctx.fillRect(i, j, 1, 1);
+      const color = Math.round((1 - score) ** (1 / 2) * 255);
+      const indexNow = j * width * 4 + i * 4;
+      image.data[indexNow] = 0;
+      image.data[indexNow + 1] = 0;
+      image.data[indexNow + 2] = 0;
+      image.data[indexNow + 3] = color;
     }
   }
-  console.log(performance.measure('set draw', 'start').duration);
+  console.log(image.data);
+  ctx.putImageData(image, 0, 0);
+
   return { scaleX, scaleY };
 }
