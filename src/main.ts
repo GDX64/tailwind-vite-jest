@@ -11,6 +11,7 @@ import CV from './pages/CV.vue';
 // import Wordle from './wordle/Wordle.vue';
 import TickerPage from './rxjs/tickerformDemo/TickerPage.vue';
 import Rough from './pages/Rough.vue';
+import Set from './pages/Set.vue';
 
 const routes = [
   { path: '/', component: Home },
@@ -23,6 +24,7 @@ const routes = [
   // { path: '/Wordle', component: Wordle },
   { path: '/ticker', component: TickerPage },
   { path: '/plot', component: Rough },
+  { path: '/set', component: Set },
 ];
 
 // 3. Create the router instance and pass the `routes` option
