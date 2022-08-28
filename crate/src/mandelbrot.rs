@@ -65,7 +65,7 @@ impl Scale {
 #[wasm_bindgen]
 pub fn calc_set(width: usize, heigth: usize, region: &[f64]) -> Vec<u8> {
     if let [x0, x1, y0, y1] = region {
-        let mut image = vec![0u8; width * heigth * 4];
+        let mut image = vec![255u8; width * heigth * 4];
         let scale_x = Scale::new((0f64, width as f64), (*x0, *x1));
         let scale_y = Scale::new((heigth as f64, 0f64), (*y0, *y1));
         for j in 0..heigth {
@@ -75,9 +75,11 @@ pub fn calc_set(width: usize, heigth: usize, region: &[f64]) -> Vec<u8> {
                     r: scale_x.apply(i as f64),
                     i: scale_y.apply(j as f64),
                 });
-                let color = ((1.0 - score).sqrt() * 255.0).round();
+                let color = ((1.0 - score).sqrt() * 255.0).round() as u8;
                 let index_now = row + i * 4;
-                image[index_now + 3] = color as u8;
+                image[index_now] = color;
+                image[index_now + 1] = color;
+                image[index_now + 2] = color;
             }
         }
         return image;
