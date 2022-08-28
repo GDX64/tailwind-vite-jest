@@ -13,6 +13,7 @@
 import { endWith, filter, fromEvent, map, switchMap, takeUntil } from 'rxjs';
 import { onMounted, ref } from 'vue';
 import init, { calc_set } from 'wordle';
+import { drawSet as drawJs } from '../mandelbrot/mdSet';
 import { Scale } from '../pixijs/chart/Scale';
 const canvas = ref<HTMLCanvasElement>();
 const toPixel = (x: number) => `${x}px`;
@@ -100,6 +101,13 @@ function drawSet(
   canvas: HTMLCanvasElement,
   region: { x0: number; y0: number; x1: number; y1: number }
 ) {
+  if (false) {
+    performance.mark('start');
+    const scales = drawJs(canvas, region);
+    duration.value = performance.measure('set draw', 'start').duration;
+    return scales;
+  }
+  performance.mark('start');
   const ctx = canvas!.getContext('2d')!;
   const scaleX = new Scale(0, canvas.width, region.x0, region.x1);
   const scaleY = new Scale(canvas.height, 0, region.y0, region.y1);
@@ -107,7 +115,6 @@ function drawSet(
   const height = canvas.height;
   ctx.clearRect(0, 0, width, height);
 
-  performance.mark('start');
   const clamped = new Uint8ClampedArray(
     calc_set(
       width,
@@ -115,9 +122,9 @@ function drawSet(
       new Float64Array([region.x0, region.x1, region.y0, region.y1])
     )
   );
-  duration.value = performance.measure('set draw', 'start').duration;
   const imageData = new ImageData(clamped, width, height);
   ctx.putImageData(imageData, 0, 0);
+  duration.value = performance.measure('set draw', 'start').duration;
   return { scaleX, scaleY };
 }
 </script>

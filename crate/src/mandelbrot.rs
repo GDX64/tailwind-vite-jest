@@ -69,13 +69,14 @@ pub fn calc_set(width: usize, heigth: usize, region: &[f64]) -> Vec<u8> {
         let scale_x = Scale::new((0 as f64, width as f64), (*x0, *x1));
         let scale_y = Scale::new((heigth as f64, 0 as f64), (*y0, *y1));
         for j in 0..heigth {
+            let row = j * width * 4;
             for i in 0..width {
                 let score = calc_score(&Complex {
                     r: scale_x.apply(i as f64),
                     i: scale_y.apply(j as f64),
                 });
-                let color = ((1.0 - score) * 255.0).round();
-                let index_now = j * width * 4 + i * 4;
+                let color = ((1.0 - score).sqrt() * 255.0).round();
+                let index_now = row + i * 4;
                 image[index_now] = 0;
                 image[index_now + 1] = 0;
                 image[index_now + 2] = 0;
