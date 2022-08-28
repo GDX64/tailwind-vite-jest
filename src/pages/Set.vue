@@ -12,7 +12,8 @@
 <script setup lang="ts">
 import { endWith, filter, fromEvent, map, switchMap, takeUntil } from 'rxjs';
 import { onMounted, ref } from 'vue';
-import { drawSet } from '../mandelbrot/mdSet';
+import init, { calc_set } from 'wordle';
+import { Scale } from '../pixijs/chart/Scale';
 const canvas = ref<HTMLCanvasElement>();
 const toPixel = (x: number) => `${x}px`;
 const width = 1920;
@@ -28,7 +29,8 @@ const squareStyle = ref({
   width: toPixel(0),
   display: 'none',
 });
-onMounted(() => {
+onMounted(async () => {
+  await init();
   let scales = drawSet(canvas.value!, regionSeen.value);
   const mouseDown$ = fromEvent<MouseEvent>(canvas.value!, 'mousedown').pipe(
     filter((event) => event.button === 0)
@@ -90,9 +92,32 @@ onMounted(() => {
     )
     .subscribe((region) => {
       regionSeen.value = region;
-      performance.mark('start');
       scales = drawSet(canvas.value!, region);
-      duration.value = performance.measure('set draw', 'start').duration;
     });
 });
+
+function drawSet(
+  canvas: HTMLCanvasElement,
+  region: { x0: number; y0: number; x1: number; y1: number }
+) {
+  const ctx = canvas!.getContext('2d')!;
+  const scaleX = new Scale(0, canvas.width, region.x0, region.x1);
+  const scaleY = new Scale(canvas.height, 0, region.y0, region.y1);
+  const width = canvas.width;
+  const height = canvas.height;
+  ctx.clearRect(0, 0, width, height);
+
+  performance.mark('start');
+  const clamped = new Uint8ClampedArray(
+    calc_set(
+      width,
+      height,
+      new Float64Array([region.x0, region.x1, region.y0, region.y1])
+    )
+  );
+  duration.value = performance.measure('set draw', 'start').duration;
+  const imageData = new ImageData(clamped, width, height);
+  ctx.putImageData(imageData, 0, 0);
+  return { scaleX, scaleY };
+}
 </script>
