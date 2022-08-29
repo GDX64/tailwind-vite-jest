@@ -69,7 +69,7 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
-import init, { Wordle } from 'wasm';
+import init, { Wordle } from 'wordle';
 import Refresh from '../assets/arrows-rotate-solid.svg?component';
 import WordleMask from './WordleMask.vue';
 
