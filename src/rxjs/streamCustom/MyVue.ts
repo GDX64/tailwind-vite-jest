@@ -1,6 +1,9 @@
 export class MyCTX {
+  onDispose = [] as (() => void)[];
   constructor(public awake: () => void) {}
-  isActive = true;
+  dispose() {
+    this.onDispose.forEach((fn) => fn());
+  }
 }
 
 export class CompRef<T> {
@@ -9,17 +12,12 @@ export class CompRef<T> {
 
   set(value: T) {
     this.value = value;
-    this.dependents.forEach((dep) => {
-      if (dep.isActive) dep.awake();
-      else this.dependents.delete(dep);
-    });
+    this.dependents.forEach((dep) => dep.awake());
   }
 
   track(ctx: MyCTX) {
-    if (this.dependents.size > 10) {
-      this.dependents.forEach((dep) => !dep.isActive && this.dependents.delete(dep));
-    }
     this.dependents.add(ctx);
+    ctx.onDispose.push(() => this.dependents.delete(ctx));
     return this.value;
   }
 }
@@ -44,16 +42,14 @@ export class Computation<T> {
   }
 
   track(ctx: MyCTX) {
-    if (this.dependents.size > 10) {
-      this.dependents.forEach((dep) => !dep.isActive && this.dependents.delete(dep));
-    }
     this.dependents.add(ctx);
+    ctx.onDispose.push(() => this.dependents.delete(ctx));
     return this.get();
   }
 
   get() {
     if (this.needsToRun) {
-      this.ctx.isActive = false;
+      this.ctx.dispose();
       this.ctx = this.createNewContext();
       this.value = this.calc(this.ctx);
       this.needsToRun = false;
@@ -63,10 +59,6 @@ export class Computation<T> {
 
   awake() {
     this.needsToRun = true;
-    this.dependents.forEach((dep) => {
-      if (dep.isActive) dep.awake();
-      else this.dependents.delete(dep);
-    });
-    return true;
+    this.dependents.forEach((dep) => dep.awake());
   }
 }
