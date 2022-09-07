@@ -9,7 +9,11 @@ export class CompRef<T> {
 
   set(value: T) {
     this.value = value;
-    this.dependents.forEach((dep) => dep.awake());
+    this.dependents.forEach((dep) => {
+      if (!dep.awake()) {
+        this.dependents.delete(dep);
+      }
+    });
   }
 
   track(ctx: MyCTX) {
