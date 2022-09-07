@@ -3,6 +3,21 @@ export interface MyCTX {
   dispose(): void;
 }
 
+export class CompRef<T> {
+  dependents = new Set<MyCTX>();
+  constructor(public value: T) {}
+
+  set(value: T) {
+    this.value = value;
+    this.dependents.forEach((dep) => dep.awake());
+  }
+
+  track(ctx: MyCTX) {
+    this.dependents.add(ctx);
+    return this.value;
+  }
+}
+
 export class Computation<T> implements MyCTX {
   dependents = new Set<MyCTX>();
   needsToRun = false;

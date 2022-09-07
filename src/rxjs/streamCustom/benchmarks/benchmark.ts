@@ -2,7 +2,7 @@ import { suite, add, complete, cycle, save } from 'benny';
 import { computed, ref } from 'vue';
 import { combineSignals, Signal } from '../Signal';
 import { Stream } from '../Stream';
-import { Computation } from '../MyVue';
+import { CompRef, Computation } from '../MyVue';
 function testSignal() {
   const stream1 = new Stream<number>();
   const stream2 = new Stream<number>();
@@ -28,13 +28,13 @@ function testVue() {
 }
 
 function testMyVue() {
-  const comp1 = new Computation(() => 0);
-  const comp2 = new Computation(() => 0);
+  const comp1 = new CompRef(0);
+  const comp2 = new CompRef(0);
   const comp = new Computation((ctx) => comp1.track(ctx) + comp2.track(ctx));
   comp.get();
-  comp1.update(() => 5);
+  comp1.set(5);
   comp.get();
-  comp2.update(() => 5);
+  comp2.set(5);
   comp.get();
 }
 
