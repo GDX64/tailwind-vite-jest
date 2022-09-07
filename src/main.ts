@@ -12,6 +12,7 @@ import Wordle from './wordle/Wordle.vue';
 import TickerPage from './rxjs/tickerformDemo/TickerPage.vue';
 import Rough from './pages/Rough.vue';
 import Set from './pages/Set.vue';
+import Hilbert from './pages/Hilbert.vue';
 
 const routes = [
   { path: '/', component: Home },
@@ -25,6 +26,7 @@ const routes = [
   { path: '/ticker', component: TickerPage },
   { path: '/plot', component: Rough },
   { path: '/set', component: Set },
+  { path: '/hilbert', component: Hilbert },
 ];
 
 // 3. Create the router instance and pass the `routes` option
