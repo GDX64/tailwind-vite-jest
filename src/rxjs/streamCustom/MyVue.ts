@@ -1,6 +1,6 @@
-export interface MyCTX {
-  awake(): boolean;
-  dispose(): void;
+export class MyCTX {
+  constructor(public awake: () => void) {}
+  isActive = true;
 }
 
 export class CompRef<T> {
@@ -10,19 +10,21 @@ export class CompRef<T> {
   set(value: T) {
     this.value = value;
     this.dependents.forEach((dep) => {
-      if (!dep.awake()) {
-        this.dependents.delete(dep);
-      }
+      if (dep.isActive) dep.awake();
+      else this.dependents.delete(dep);
     });
   }
 
   track(ctx: MyCTX) {
+    if (this.dependents.size > 10) {
+      this.dependents.forEach((dep) => !dep.isActive && this.dependents.delete(dep));
+    }
     this.dependents.add(ctx);
     return this.value;
   }
 }
 
-export class Computation<T> implements MyCTX {
+export class Computation<T> {
   dependents = new Set<MyCTX>();
   needsToRun = false;
   value: T;
@@ -33,12 +35,7 @@ export class Computation<T> implements MyCTX {
   }
 
   private createNewContext(): MyCTX {
-    return {
-      awake: () => this.awake(),
-      dispose() {
-        this.awake = () => false;
-      },
-    };
+    return new MyCTX(() => this.awake());
   }
 
   update(calc: (ctx: MyCTX) => T) {
@@ -47,13 +44,16 @@ export class Computation<T> implements MyCTX {
   }
 
   track(ctx: MyCTX) {
+    if (this.dependents.size > 10) {
+      this.dependents.forEach((dep) => !dep.isActive && this.dependents.delete(dep));
+    }
     this.dependents.add(ctx);
     return this.get();
   }
 
   get() {
     if (this.needsToRun) {
-      this.ctx.dispose();
+      this.ctx.isActive = false;
       this.ctx = this.createNewContext();
       this.value = this.calc(this.ctx);
       this.needsToRun = false;
@@ -64,12 +64,9 @@ export class Computation<T> implements MyCTX {
   awake() {
     this.needsToRun = true;
     this.dependents.forEach((dep) => {
-      if (!dep.awake()) {
-        this.dependents.delete(dep);
-      }
+      if (dep.isActive) dep.awake();
+      else this.dependents.delete(dep);
     });
     return true;
   }
-
-  dispose(): void {}
 }
