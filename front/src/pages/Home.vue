@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import BackGroundVue from './BackGround.vue';
-import Demo from '../rxjs/asyncDemo/demo.vue';
 </script>
 
 <template>
   <BackGroundVue>
-    <!-- <Demo></Demo> -->
+    <h1 class="text-white text-xl">Trust me, I'm an engineer</h1>
   </BackGroundVue>
 </template>
 
