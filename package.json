@@ -2,7 +2,6 @@
   "name": "tailwind",
   "version": "0.0.0",
   "scripts": {
-    "wasm": "wasm-pack build ./crate --target web",
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
@@ -23,8 +22,7 @@
     "vite-plugin-checker": "^0.3.4",
     "vite-svg-loader": "^3.1.2",
     "vue": "^3.2.37",
-    "vue-router": "^4.0.12",
-    "wordle": "file:crate/pkg"
+    "vue-router": "^4.0.12"
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",
@@ -40,5 +38,8 @@
     "vite-plugin-glsl": "^0.0.9",
     "vitest": "^0.22.1",
     "vue-tsc": "^0.29.8"
-  }
+  },
+  "workspaces": [
+    "rust"
+  ]
 }

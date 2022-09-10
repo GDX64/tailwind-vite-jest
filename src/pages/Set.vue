@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { endWith, filter, fromEvent, map, switchMap, takeUntil } from 'rxjs';
 import { onMounted, ref } from 'vue';
-import init, { calc_set } from 'wordle';
+import init, { calc_set } from 'rust';
 import { drawSet as drawJs } from '../mandelbrot/mdSet';
 import { Scale } from '../pixijs/chart/Scale';
 const canvas = ref<HTMLCanvasElement>();

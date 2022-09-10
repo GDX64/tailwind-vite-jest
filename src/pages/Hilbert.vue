@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import init, { all_hilbert } from 'wordle';
+import init, { all_hilbert } from 'rust';
 const canvas = ref<HTMLCanvasElement>();
 const width = 512;
 type Pair = [number, number];
