@@ -2,40 +2,80 @@
 import * as P from 'pixi.js';
 import { onMounted, ref, watchEffect } from 'vue';
 import { animate } from 'popmotion';
-import { zip, fromEvent, Observable, switchMap } from 'rxjs';
+import { zip, fromEvent, Observable, switchMap, animationFrames } from 'rxjs';
 import { Application } from 'pixi.js';
-
+import { RK4Order2, EulerOrder2 } from '../unitFormation/UnitFormation';
+import { Chart, registerables } from 'chart.js';
+import { range } from 'ramda';
+Chart.register(...registerables);
 const pixi = ref<HTMLElement>();
+const canvas = ref<HTMLCanvasElement>();
 const stiffness = ref(250);
 const damping = ref(20);
 onMounted(() => {
-  const app = new P.Application({ antialias: true, backgroundColor: 0xffffff });
-  pixi.value!.appendChild(app.view);
-  new Ball(app);
+  // const app = new P.Application({ antialias: true, backgroundColor: 0xffffff });
+  // pixi.value!.appendChild(app.view);
+  const dt = 1;
+  const N = 500;
+  const rk4 = new RK4Order2(100, 0, dt, 0, (_, x) => -x);
+  const euler = new EulerOrder2(100, 0, dt, 0, (_, x) => -x);
+  const valuesRk4 = range(0, N).map(() => {
+    const { x, t } = rk4.evolve();
+    return { x: t, y: x };
+  });
+  const valuesEuler = range(0, N).map(() => {
+    const { x, t } = euler.evolve();
+    return { x: t, y: x };
+  });
+  const c = new Chart(canvas.value!, {
+    data: {
+      datasets: [
+        {
+          label: 'RK4',
+          borderColor: 'rgb(255, 193, 99)',
+          data: valuesRk4,
+          showLine: true,
+        },
+        {
+          label: 'EULER',
+          borderColor: 'rgb(54, 117, 199)',
+          data: valuesEuler,
+          showLine: true,
+        },
+      ],
+    },
+    type: 'scatter',
+    options: {},
+  });
 });
 
 class Ball {
-  constructor(app: Application) {
+  graphics;
+  constructor(public app: Application) {
     const graphics = new P.Graphics();
     // Rectangle
     graphics.beginFill(0x26306b);
     graphics.lineStyle(2, 0xfeeb77, 1);
     graphics.drawCircle(0, 0, 50);
     graphics.endFill();
-    fromEvent<MouseEvent>(app.view, 'mousedown')
+    app.stage.addChild(graphics);
+    this.graphics = graphics;
+  }
+
+  mouseClick() {
+    fromEvent<MouseEvent>(this.app.view, 'mousedown')
       .pipe(
         switchMap((down) => {
           return zip([
-            springAnimation(graphics.x, down.offsetX),
-            springAnimation(graphics.y, down.offsetY),
+            springAnimation(this.graphics.x, down.offsetX),
+            springAnimation(this.graphics.y, down.offsetY),
           ]);
         })
       )
       .subscribe(([x, y]) => {
-        graphics.x = x;
-        graphics.y = y;
+        this.graphics.x = x;
+        this.graphics.y = y;
       });
-    app.stage.addChild(graphics);
   }
 }
 
@@ -67,6 +107,7 @@ function springAnimation(from: number, to: number) {
       <label for="">damping</label>
       <input type="range" min="0" max="50" step="1" v-model="damping" />
     </div>
+    <canvas ref="canvas"></canvas>
     <div class="" ref="pixi"></div>
     <slot></slot>
   </div>
