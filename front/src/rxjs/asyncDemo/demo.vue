@@ -8,10 +8,10 @@
 
 <script lang="ts" setup>
 import { ref, watch } from 'vue';
-import { makePromiseRequester } from './callbackRequester';
+import { makeObservableRequester } from './callbackRequester';
 const planet = ref('');
 const moons = ref([] as { name: string; distance: number }[]);
 const errorMsg = ref('');
-const requester = makePromiseRequester(moons, errorMsg);
+const requester = makeObservableRequester(moons, errorMsg);
 watch(planet, (value) => requester.setPlanet(value));
 </script>

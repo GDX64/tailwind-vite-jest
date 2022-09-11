@@ -47,7 +47,6 @@ describe('test ui', () => {
     await wrapper.get('input').setValue('mars');
     await wait(250);
     await wait(100);
-    console.log(wrapper.html());
     expect(wrapper.html()).toMatch(/fobos: 120/);
     expect(shouldNotBeCalled).toHaveBeenCalledTimes(0);
   });
