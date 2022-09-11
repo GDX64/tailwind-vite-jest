@@ -35,7 +35,7 @@ onMounted(() => {
   });
   pixi.value!.appendChild(app.view);
   const randVar = () => Math.floor(Math.random() * 1000);
-  const points = range(0, 15).map(() => [randVar(), randVar()] as V2);
+  const points = range(0, 50).map(() => [randVar(), randVar()] as V2);
   const sys = new EulerSystem(
     points,
     points.map(() => [0, 0] as V2),
@@ -71,7 +71,7 @@ onMounted(() => {
       balls[index].graphics.y = point[1];
     });
   });
-  fromEvent<MouseEvent>(app.view, 'mousedown').subscribe((event) => {
+  fromEvent<MouseEvent>(app.view, 'mousemove').subscribe((event) => {
     center.value = [event.offsetX, event.offsetY];
   });
 });
@@ -116,8 +116,8 @@ class Ball {
   constructor(public app: Application) {
     const graphics = new P.Graphics();
     // Rectangle
-    graphics.beginFill(0x26306b);
-    graphics.lineStyle(2, 0xfeeb77, 1);
+    graphics.beginFill(0x222222);
+    graphics.lineStyle(1, 0xf05555, 1);
     graphics.drawCircle(0, 0, 10);
     graphics.endFill();
     app.stage.addChild(graphics);
