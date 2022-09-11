@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "dependencies": {},
-  "devDependencies": {},
   "scripts": {
     "build": "npm run build --workspace=rust && npm run build --workspace=front",
     "deploy": "npm run build && firebase deploy",
