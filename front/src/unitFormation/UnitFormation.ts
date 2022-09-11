@@ -95,3 +95,46 @@ export class RK4Order2 {
     return this;
   }
 }
+
+export type V2 = [number, number];
+
+export function square([x, y]: V2) {
+  return x * x + y * y;
+}
+export function add([x1, y1]: V2, [x2, y2]: V2): V2 {
+  return [x1 + x2, y1 + y2];
+}
+export function scale(s: number, [x, y]: V2): V2 {
+  return [x * s, y * s];
+}
+
+export function norm([x, y]: V2) {
+  return Math.sqrt(square([x, y]));
+}
+
+export function normalized([x, y]: V2): V2 {
+  const d = norm([x, y]);
+  return [x / d, y / d];
+}
+
+export class EulerSystem {
+  t = 0;
+  acc = [] as V2[];
+  constructor(
+    public points: V2[],
+    public v: V2[],
+    public dt: number,
+    public f: (points: V2[], speed: V2[]) => V2[]
+  ) {}
+
+  evolve() {
+    this.acc = this.f(this.points, this.v);
+    const dv = this.acc.map((acc) => scale(this.dt, acc));
+    this.v = this.v.map((v, index) => add(v, dv[index]));
+    this.points = this.points.map((point, index) =>
+      add(point, scale(this.dt, this.v[index]))
+    );
+    this.t += this.dt;
+    return this;
+  }
+}
