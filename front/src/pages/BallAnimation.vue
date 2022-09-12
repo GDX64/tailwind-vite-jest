@@ -10,12 +10,12 @@ import {
   square,
   normalized,
   V2,
+  norm,
 } from '../unitFormation/UnitFormation';
 import { clamp, range } from 'ramda';
 
 const pixi = ref<HTMLElement>();
-const canvas = ref<HTMLCanvasElement>();
-const maxClamp = ref(50);
+const maxClamp = ref(10);
 const much = ref(800);
 const center = ref([400, 500] as V2);
 const centerInfluence = ref(0.5);
@@ -43,7 +43,7 @@ onMounted(() => {
       }
       function baseInfluence(point: V2, ref: V2): V2 {
         const r = add(point, scale(-1, ref));
-        const acc = scale(-centerInfluence.value, normalized(r));
+        const acc = scale(-centerInfluence.value * Math.min(norm(r), 1), normalized(r));
         return acc;
       }
       return points.map((point, index) => {
@@ -61,6 +61,7 @@ onMounted(() => {
     sys.evolve().points.forEach((point, index) => {
       balls[index].graphics.x = point[0];
       balls[index].graphics.y = point[1];
+      balls[index].graphics.alpha = norm(sys.v[index]) / 10;
     });
   });
   const sub = merge(
@@ -86,12 +87,13 @@ class Ball {
   constructor(public app: Application) {
     const graphics = new P.Graphics();
     // Rectangle
-    graphics.beginFill(0x222222);
-    graphics.lineStyle(1, 0xf05555, 1);
-    graphics.drawCircle(0, 0, 8);
-    graphics.endFill();
     app.stage.addChild(graphics);
     this.graphics = graphics;
+    this.graphics.clear();
+    this.graphics.beginFill(0x222222);
+    this.graphics.lineStyle(1, 0x000000, 1);
+    this.graphics.drawCircle(0, 0, 8);
+    this.graphics.endFill();
   }
 }
 </script>
