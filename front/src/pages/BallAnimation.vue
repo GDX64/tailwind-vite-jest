@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import * as P from 'pixi.js';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { ref, watchEffect } from 'vue';
 import { fromEvent, animationFrames, merge } from 'rxjs';
 import { Application } from 'pixi.js';
 import {
@@ -19,18 +19,25 @@ const maxClamp = ref(10);
 const much = ref(800);
 const center = ref([400, 500] as V2);
 const centerInfluence = ref(0.5);
-let cleanUp = () => {};
-onUnmounted(() => cleanUp());
-onMounted(() => {
+const particles = ref(5);
+
+watchEffect((clear) => {
+  clear(createBallApp());
+});
+
+function createBallApp() {
+  if (!pixi.value) {
+    return () => {};
+  }
   const app = new P.Application({
     antialias: true,
     backgroundColor: 0xffffff,
     width: window.screen.width,
     height: window.screen.height,
   });
-  pixi.value!.appendChild(app.view);
+  pixi.value.appendChild(app.view);
   const randVar = () => Math.floor(Math.random() * 1000);
-  const points = range(0, 50).map(() => [randVar(), randVar()] as V2);
+  const points = range(0, particles.value).map(() => [randVar(), randVar()] as V2);
   const sys = new EulerSystem(
     points,
     points.map(() => [0, 0] as V2),
@@ -61,7 +68,7 @@ onMounted(() => {
     sys.evolve().points.forEach((point, index) => {
       balls[index].graphics.x = point[0];
       balls[index].graphics.y = point[1];
-      balls[index].graphics.alpha = norm(sys.v[index]) / 10;
+      balls[index].graphics.alpha = norm(sys.v[index]) / 10 + 0.2;
     });
   });
   const sub = merge(
@@ -75,12 +82,12 @@ onMounted(() => {
       center.value = [mouseOrTouch.clientX, mouseOrTouch.clientY];
     }
   });
-  cleanUp = () => {
+  return () => {
     sub.unsubscribe();
     animation.unsubscribe();
     app.destroy(true, { children: true });
   };
-});
+}
 
 class Ball {
   graphics;
@@ -100,18 +107,32 @@ class Ball {
 
 <template>
   <div class="fixed w-screen h-screen">
-    <div class="inputs flex flex-wrap absolute top-0 left-0">
-      <div class="flex">
+    <div class="inputs flex flex-wrap absolute top-0 left-0 items-center">
+      <div class="flex mr-2">
         <label for="" class="w-36">max repulsion: {{ maxClamp }}</label>
         <input type="range" min="0" max="500" step="1" v-model="maxClamp" />
       </div>
-      <div class="flex">
+      <div class="flex mr-2">
         <label for="" class="w-36">repulsion: {{ much }}</label>
         <input type="range" min="0" max="1000" step="1" v-model="much" />
       </div>
-      <div class="flex">
+      <div class="flex mr-2">
         <label for="" class="w-36">center froce: {{ centerInfluence }}</label>
         <input type="range" min="0" max="3" step="0.01" v-model="centerInfluence" />
+      </div>
+      <div class="flex">
+        <button
+          @click="particles += 1"
+          class="bg-cyan-800 rounded-md p-1 text-white hover:bg-cyan-700 mr-2"
+        >
+          Add Particle
+        </button>
+        <button
+          @click="particles = particles > 1 ? particles - 1 : particles"
+          class="bg-cyan-800 rounded-md p-1 text-white hover:bg-cyan-700"
+        >
+          Remove Particle
+        </button>
       </div>
     </div>
     <div class="" ref="pixi"></div>
