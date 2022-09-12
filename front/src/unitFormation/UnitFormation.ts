@@ -114,6 +114,9 @@ export function norm([x, y]: V2) {
 
 export function normalized([x, y]: V2): V2 {
   const d = norm([x, y]);
+  if (d === 0) {
+    return [0, 0];
+  }
   return [x / d, y / d];
 }
 

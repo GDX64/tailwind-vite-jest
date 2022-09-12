@@ -43,14 +43,18 @@ function createBallApp() {
     points.map(() => [0, 0] as V2),
     1,
     (points, speed) => {
-      function influence(point: V2, ref: V2, much = 1): V2 {
-        const r = add(point, scale(-1, ref));
+      function influence(point: V2, reference: V2, much = 1): V2 {
+        const r = add(point, scale(-1, reference));
         const acc = scale(clamp(0, maxClamp.value, much / square(r)), normalized(r));
         return acc;
       }
-      function baseInfluence(point: V2, ref: V2): V2 {
-        const r = add(point, scale(-1, ref));
+      function baseInfluence(point: V2, reference: V2): V2 {
+        const r = add(point, scale(-1, reference));
         const acc = scale(-centerInfluence.value * Math.min(norm(r), 1), normalized(r));
+        if (acc.some(isNaN)) {
+          console.log(acc, r, point, reference);
+          debugger;
+        }
         return acc;
       }
       return points.map((point, index) => {
@@ -86,6 +90,7 @@ function createBallApp() {
     sub.unsubscribe();
     animation.unsubscribe();
     app.destroy(true, { children: true });
+    console.log('destroy');
   };
 }
 
