@@ -89,8 +89,7 @@ function createBallApp() {
   return () => {
     sub.unsubscribe();
     animation.unsubscribe();
-    app.destroy(true, { children: true });
-    console.log('destroy');
+    app.destroy(true, true);
   };
 }
 
