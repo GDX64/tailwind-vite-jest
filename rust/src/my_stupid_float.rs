@@ -1,25 +1,28 @@
 use std::ops::{Add, AddAssign, Mul};
 
 #[derive(Debug)]
-struct Euler<T, F>
+pub struct Euler<T, F>
 where
-    F: Fn(&T, f64) -> T,
+    F: Fn(&T, &T, f64) -> T,
 {
     t: f64,
     dt: f64,
     x: T,
-    f: F,
+    v: T,
+    dv: F,
 }
 
 impl<T, F> Euler<T, F>
 where
-    F: Fn(&T, f64) -> T,
-    T: Add<T, Output = T> + AddAssign + Mul<f64, Output = T>,
+    F: Fn(&T, &T, f64) -> T,
+    T: Add<T, Output = T> + AddAssign + Mul<f64, Output = T> + Clone,
 {
     fn evolve(&mut self) -> &mut Self {
-        let dx = (self.f)(&self.x, self.t) * (self.dt);
-        self.t += self.dt;
+        let dv = (self.dv)(&self.x, &self.v, self.t) * (self.dt);
+        self.v += dv;
+        let dx = self.v.clone() * self.dt;
         self.x += dx;
+        self.t += self.dt;
         self
     }
 }
@@ -65,7 +68,8 @@ mod test {
             t: 0.0,
             dt: 0.1,
             x: V2 { x: 1.0, y: 1.0 },
-            f: |x: &V2, _: f64| x.clone() * -1.0,
+            v: V2 { x: 0.0, y: 0.0 },
+            dv: |x: &V2, _: &V2, _: f64| x.clone() * -1.0,
         };
         euler.evolve();
         println!("{:?}", euler.x);
