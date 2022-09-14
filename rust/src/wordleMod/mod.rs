@@ -11,12 +11,6 @@ pub const WORDLE_SIZE: usize = 5;
 pub const WORDS: &str = include_str!("./words.txt");
 const MAP_ARR_SIZE: usize = 3usize.pow(WORDLE_SIZE as u32);
 
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = Math)]
-    pub fn random() -> f64;
-}
-
 pub struct Guess {
     word: ByteStr,
     mask: [Correctness; WORDLE_SIZE],

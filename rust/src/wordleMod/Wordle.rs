@@ -1,8 +1,9 @@
-use super::{random, Naive, WORDS};
 use super::{Guess, WORDLE_SIZE};
+use super::{Naive, WORDS};
 use std::collections::HashSet;
 use wasm_bindgen::prelude::*;
 pub type ByteStr = [u8; 5];
+use super::super::random;
 
 #[wasm_bindgen]
 pub struct Wordle {
