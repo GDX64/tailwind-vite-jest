@@ -32,7 +32,6 @@ impl ParticleWorld {
 #[cfg(test)]
 mod test {
     use super::ParticleWorld;
-
     #[test]
     fn test() {
         let world = ParticleWorld::random_world(10.0, 10.0, 2);
