@@ -1,5 +1,5 @@
 use std::ops::{Add, AddAssign, Mul};
-
+extern crate nalgebra as na;
 #[derive(Debug)]
 pub struct Euler<T, F>
 where
@@ -70,6 +70,20 @@ mod test {
             x: V2 { x: 1.0, y: 1.0 },
             v: V2 { x: 0.0, y: 0.0 },
             dv: |x: &V2, _: &V2, _: f64| x.clone() * -1.0,
+        };
+        euler.evolve();
+        println!("{:?}", euler.x);
+    }
+
+    #[test]
+    fn test_matrix() {
+        use nalgebra::Matrix3 as Mat;
+        let mut euler = Euler {
+            t: 0.0,
+            dt: 0.1,
+            x: Mat::identity(),
+            v: Mat::default(),
+            dv: |x: &Mat<f64>, _: &Mat<f64>, _: f64| x.clone() * -1.0,
         };
         euler.evolve();
         println!("{:?}", euler.x);
