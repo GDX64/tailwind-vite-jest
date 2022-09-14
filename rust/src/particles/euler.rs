@@ -1,9 +1,5 @@
 use std::ops::{Add, AddAssign, Mul};
 extern crate nalgebra as na;
-pub trait Evolvable<T> {
-    fn evolve(&mut self);
-    fn get_x(&self) -> &T;
-}
 
 #[derive(Debug)]
 pub struct Euler<T, F>
@@ -17,21 +13,17 @@ where
     pub dv: F,
 }
 
-impl<T, F> Evolvable<T> for Euler<T, F>
+impl<T, F> Euler<T, F>
 where
     F: Fn(&T, &T, f64) -> T,
     T: Add<T, Output = T> + AddAssign + Mul<f64, Output = T> + Clone,
 {
-    fn evolve(&mut self) {
+    pub fn evolve(&mut self) {
         let dv = (self.dv)(&self.x, &self.v, self.t) * (self.dt);
         self.v += dv;
         let dx = self.v.clone() * self.dt;
         self.x += dx;
         self.t += self.dt;
-    }
-
-    fn get_x(&self) -> &T {
-        &self.x
     }
 }
 
@@ -68,7 +60,6 @@ impl Mul<f64> for V2 {
 
 #[cfg(test)]
 mod test {
-    use crate::particles::euler::Evolvable;
 
     use super::{Euler, V2};
 

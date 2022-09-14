@@ -1,6 +1,6 @@
 pub mod hilbert;
 pub mod mandelbrot;
-mod particles;
+pub mod particles;
 pub mod wordleMod;
 
 use wasm_bindgen::prelude::wasm_bindgen;
