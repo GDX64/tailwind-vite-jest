@@ -1,15 +1,17 @@
 mod euler;
 
-use nalgebra::MatrixXx2;
+use nalgebra::{Matrix2xX, Vector2, VectorSlice2};
 
 use self::euler::Euler;
 
 use super::random;
 
-type Mat = MatrixXx2<f64>;
+type Mat = Matrix2xX<f64>;
+type V2 = Vector2<f64>;
+type V2Slice<'a> = VectorSlice2<'a, f64>;
 
 pub struct ParticleWorld {
-    euler: Euler<Mat, Box<dyn (Fn(&Mat, &Mat, f64) -> Mat)>>,
+    euler: Euler<Mat, fn(&Mat, &Mat, f64) -> Mat>,
 }
 
 impl ParticleWorld {
@@ -17,15 +19,13 @@ impl ParticleWorld {
         let v = (0..number_of_particles).flat_map(|_| {
             return [random() * max_x, random() * max_y];
         });
-        let dv: Box<dyn (Fn(&Mat, &Mat, f64) -> Mat)> =
-            Box::new(|x: &Mat, _: &Mat, _: f64| x.clone() * -1.0);
-        let matrix = MatrixXx2::from_iterator(number_of_particles, v);
+        let matrix = Mat::from_iterator(number_of_particles, v);
         let euler = Euler {
             x: matrix,
-            v: MatrixXx2::zeros(number_of_particles),
+            v: Mat::zeros(number_of_particles),
             t: 0.0,
             dt: 0.1,
-            dv,
+            dv: calc_acc as fn(&Mat, &Mat, f64) -> Mat,
         };
         ParticleWorld { euler }
     }
@@ -35,12 +35,68 @@ impl ParticleWorld {
     }
 }
 
+const CENTER_FORCE: f64 = 2.0;
+const DAMPING: f64 = 0.1;
+const CENTER: V2 = V2::new(400.0, 400.0);
+
+fn calc_acc(position: &Mat, speed: &Mat, _: f64) -> Mat {
+    let mut result = Mat::zeros(position.ncols());
+    position.column_iter().enumerate().for_each(|(i, col)| {
+        let mut acc = base_influence(&col);
+        acc += speed.column(i) * -DAMPING; //speed damping
+        position
+            .column_iter()
+            .enumerate()
+            .filter(|(j, _)| *j != i)
+            .for_each(|(_, other)| acc += influence(&col, &other));
+        result.set_column(i, &acc);
+    });
+    result
+}
+
+fn influence(point: &V2Slice, reference: &V2Slice) -> V2 {
+    let r = point - reference;
+    let norm_sq = r.norm_squared();
+    if norm_sq == 0.0 {
+        r
+    } else {
+        r.normalize() * (1.0 / r.norm_squared()).clamp(0.0, 50.0) * 80.0
+    }
+}
+
+fn base_influence(point: &V2Slice) -> V2 {
+    let r = CENTER - point;
+    let norm = r.norm();
+    if norm == 0.0 {
+        r
+    } else {
+        r.normalize() * norm.min(1.0) * CENTER_FORCE
+    }
+}
+
 #[cfg(test)]
 mod test {
-    use super::ParticleWorld;
+    use std::borrow::BorrowMut;
+
+    use nalgebra::Matrix2;
+
+    use super::{Mat, ParticleWorld};
     #[test]
     fn test() {
-        let world = ParticleWorld::random_world(10.0, 10.0, 2);
-        let x = &world.euler.x;
+        let mut world = ParticleWorld::random_world(10.0, 10.0, 1);
+        {
+            let x = world.euler.x.borrow_mut();
+            x[0] = 0.0;
+        }
+        world.evolve();
+        println!("{:?}", world.euler.x);
+    }
+
+    #[test]
+    fn test_norm() {
+        let n = Mat::from_row_slice(&[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]);
+        n.column_iter()
+            .enumerate()
+            .for_each(|col| println!("{:?}", col))
     }
 }

@@ -3,6 +3,7 @@ pub mod mandelbrot;
 pub mod particles;
 pub mod wordleMod;
 
+#[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::wasm_bindgen;
 
 #[cfg(target_arch = "wasm32")]
