@@ -1,37 +1,48 @@
 mod euler;
-
-use nalgebra::{Matrix2xX, Vector2, VectorSlice2};
-
 use self::euler::Euler;
-
 use super::random;
+use nalgebra::{Matrix2xX, Vector2, VectorSlice2};
+use wasm_bindgen::prelude::*;
 
 type Mat = Matrix2xX<f64>;
 type V2 = Vector2<f64>;
 type V2Slice<'a> = VectorSlice2<'a, f64>;
 
+#[wasm_bindgen]
 pub struct ParticleWorld {
     euler: Euler<Mat, fn(&Mat, &Mat, f64) -> Mat>,
 }
 
-impl ParticleWorld {
-    pub fn random_world(max_x: f64, max_y: f64, number_of_particles: usize) -> Self {
-        let v = (0..number_of_particles).flat_map(|_| {
-            return [random() * max_x, random() * max_y];
-        });
-        let matrix = Mat::from_iterator(number_of_particles, v);
-        let euler = Euler {
-            x: matrix,
-            v: Mat::zeros(number_of_particles),
-            t: 0.0,
-            dt: 0.1,
-            dv: calc_acc as fn(&Mat, &Mat, f64) -> Mat,
-        };
-        ParticleWorld { euler }
-    }
+#[wasm_bindgen]
+pub fn random_world(max_x: f64, max_y: f64, number_of_particles: usize) -> ParticleWorld {
+    let v = (0..number_of_particles).flat_map(|_| {
+        return [random() * max_x, random() * max_y];
+    });
+    let matrix = Mat::from_iterator(number_of_particles, v);
+    let euler = Euler {
+        x: matrix,
+        v: Mat::zeros(number_of_particles),
+        t: 0.0,
+        dt: 0.1,
+        dv: calc_acc as fn(&Mat, &Mat, f64) -> Mat,
+    };
+    ParticleWorld { euler }
+}
 
+#[wasm_bindgen]
+impl ParticleWorld {
     pub fn evolve(&mut self) {
         self.euler.evolve();
+    }
+
+    pub fn points(&self) -> Vec<f64> {
+        let data = &self.euler.x.data;
+        data.as_vec().clone()
+    }
+
+    pub fn speed(&self) -> Vec<f64> {
+        let data = &self.euler.v.data;
+        data.as_vec().clone()
     }
 }
 
@@ -78,12 +89,12 @@ fn base_influence(point: &V2Slice) -> V2 {
 mod test {
     use std::borrow::BorrowMut;
 
-    use nalgebra::Matrix2;
+    use crate::particles::random_world;
 
-    use super::{Mat, ParticleWorld};
+    use super::Mat;
     #[test]
     fn test() {
-        let mut world = ParticleWorld::random_world(10.0, 10.0, 2);
+        let mut world = random_world(10.0, 10.0, 2);
         {
             let x = world.euler.x.borrow_mut();
             x[0] = 1.0;
