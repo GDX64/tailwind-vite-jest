@@ -35,7 +35,7 @@ impl ParticleWorld {
     }
 }
 
-const CENTER_FORCE: f64 = 2.0;
+const CENTER_FORCE: f64 = 1.5;
 const DAMPING: f64 = 0.1;
 const CENTER: V2 = V2::new(400.0, 400.0);
 
@@ -83,10 +83,10 @@ mod test {
     use super::{Mat, ParticleWorld};
     #[test]
     fn test() {
-        let mut world = ParticleWorld::random_world(10.0, 10.0, 1);
+        let mut world = ParticleWorld::random_world(10.0, 10.0, 2);
         {
             let x = world.euler.x.borrow_mut();
-            x[0] = 0.0;
+            x[0] = 1.0;
         }
         world.evolve();
         println!("{:?}", world.euler.x);
