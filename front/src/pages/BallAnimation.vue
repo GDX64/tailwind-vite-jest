@@ -20,7 +20,7 @@ const maxClamp = ref(10);
 const much = ref(800);
 const center = ref([400, 500] as V2);
 const centerInfluence = ref(0.5);
-const particles = ref(200);
+const particles = ref(50);
 const ready = ref(false);
 
 onMounted(async () => {
