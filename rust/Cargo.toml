@@ -12,6 +12,7 @@ name = "wasm"
 [dependencies]
 nalgebra = "0.31.1"
 serde = {version = "1.0", features = ["derive"]}
+space-time = "0.2.0"
 wasm-bindgen = {version = "0.2", features = ["serde-serialize"]}
 
 [package.metadata.wasm-pack.profile.release]

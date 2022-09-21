@@ -128,4 +128,11 @@ mod test {
             .enumerate()
             .for_each(|col| println!("{:?}", col))
     }
+
+    #[test]
+    fn space_filling() {
+        use space_time::zorder;
+        let z = zorder::z_2::Z2::new(15, 15);
+        println!("value is {}", z.z())
+    }
 }
