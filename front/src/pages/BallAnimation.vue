@@ -20,7 +20,7 @@ const maxClamp = ref(10);
 const much = ref(800);
 const center = ref([400, 500] as V2);
 const centerInfluence = ref(0.5);
-const particles = ref(50);
+const particles = ref(500);
 const ready = ref(false);
 
 onMounted(async () => {
@@ -44,7 +44,7 @@ function createBallApp() {
   });
   pixi.value.appendChild(app.view);
 
-  const sys = makeEulerSys();
+  const sys = eulerWasm();
   const balls = sys.points.map(() => new Ball(app));
   const animation = animationFrames().subscribe(() => {
     const points = sys.evolve().points;
@@ -61,20 +61,21 @@ function createBallApp() {
   ).subscribe((mouseOrTouch) => {
     if (mouseOrTouch instanceof TouchEvent) {
       const touch = mouseOrTouch.touches[0];
-      center.value = [touch.clientX, touch.clientY];
+      sys.setCenter([touch.clientX, touch.clientY]);
     } else {
-      center.value = [mouseOrTouch.clientX, mouseOrTouch.clientY];
+      sys.setCenter([mouseOrTouch.clientX, mouseOrTouch.clientY]);
     }
   });
   return () => {
     sub.unsubscribe();
     animation.unsubscribe();
     app.destroy(true, true);
+    sys.destroy();
   };
 }
 
 function eulerWasm() {
-  const world = random_world(500, 500, 1000);
+  const world = random_world(500, 500, particles.value);
   return {
     evolve() {
       world.evolve();
@@ -87,6 +88,12 @@ function eulerWasm() {
     get v(): V2[] {
       const points = world.speed();
       return splitEvery(2, [...points]) as V2[];
+    },
+    destroy() {
+      world.free();
+    },
+    setCenter([x, y]: V2) {
+      world.set_center(x, y);
     },
   };
 }
@@ -140,32 +147,7 @@ class Ball {
 <template>
   <div class="fixed w-screen h-screen">
     <div class="inputs flex flex-wrap absolute top-0 left-0 items-center">
-      <div class="flex mr-2">
-        <label for="" class="w-36">max repulsion: {{ maxClamp }}</label>
-        <input type="range" min="0" max="500" step="1" v-model="maxClamp" />
-      </div>
-      <div class="flex mr-2">
-        <label for="" class="w-36">repulsion: {{ much }}</label>
-        <input type="range" min="0" max="1000" step="1" v-model="much" />
-      </div>
-      <div class="flex mr-2">
-        <label for="" class="w-36">center froce: {{ centerInfluence }}</label>
-        <input type="range" min="0" max="3" step="0.01" v-model="centerInfluence" />
-      </div>
-      <div class="flex">
-        <button
-          @click="particles += 1"
-          class="bg-cyan-800 rounded-md p-1 text-white hover:bg-cyan-700 mr-2"
-        >
-          Add Particle
-        </button>
-        <button
-          @click="particles = particles > 1 ? particles - 1 : particles"
-          class="bg-cyan-800 rounded-md p-1 text-white hover:bg-cyan-700"
-        >
-          Remove Particle
-        </button>
-      </div>
+      <input type="number" v-model="particles" class="w-20" />
     </div>
     <div class="" ref="pixi"></div>
     <slot></slot>

@@ -2,24 +2,19 @@ use std::ops::{Add, AddAssign, Mul};
 extern crate nalgebra as na;
 
 #[derive(Debug)]
-pub struct Euler<T, F>
-where
-    F: Fn(&T, &T, f64) -> T,
-{
+pub struct Euler<T> {
     pub t: f64,
     pub dt: f64,
     pub x: T,
     pub v: T,
-    pub dv: F,
 }
 
-impl<T, F> Euler<T, F>
+impl<T> Euler<T>
 where
-    F: Fn(&T, &T, f64) -> T,
     T: Add<T, Output = T> + AddAssign + Mul<f64, Output = T> + Clone,
 {
-    pub fn evolve(&mut self) {
-        let dv = (self.dv)(&self.x, &self.v, self.t) * (self.dt);
+    pub fn evolve<F: Fn(&T, &T, f64) -> T>(&mut self, dv: F) {
+        let dv = (dv)(&self.x, &self.v, self.t) * (self.dt);
         self.v += dv;
         let dx = self.v.clone() * self.dt;
         self.x += dx;
@@ -70,9 +65,8 @@ mod test {
             dt: 0.1,
             x: V2 { x: 1.0, y: 1.0 },
             v: V2 { x: 0.0, y: 0.0 },
-            dv: |x: &V2, _: &V2, _: f64| x.clone() * -1.0,
         };
-        euler.evolve();
+        euler.evolve(|x: &V2, _: &V2, _: f64| x.clone() * -1.0);
         println!("{:?}", euler.x);
     }
 
@@ -84,9 +78,8 @@ mod test {
             v: Mat::default(),
             t: 0.0,
             dt: 0.1,
-            dv: |x: &Mat<f64>, _: &Mat<f64>, _: f64| x.clone() * -1.0,
         };
-        euler.evolve();
+        euler.evolve(|x: &Mat<f64>, _: &Mat<f64>, _: f64| x.clone() * -1.0);
         println!("{:?}", euler.x);
     }
 }
