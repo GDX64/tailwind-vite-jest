@@ -32,6 +32,8 @@ pub fn random_world(max_x: f64, max_y: f64, number_of_particles: usize) -> Parti
         euler,
         calc: ParticleWorldCalc {
             center: V2::new(400.0, 400.0),
+            repulsion: 200.0,
+            center_force: 1.5,
         },
     }
 }
@@ -57,50 +59,28 @@ impl ParticleWorld {
     pub fn set_center(&mut self, x: f64, y: f64) {
         self.calc.center = V2::new(x, y);
     }
+
+    pub fn set_forces(&mut self, repulsion: f64, center: f64) {
+        self.calc.repulsion = repulsion;
+        self.calc.center_force = center;
+    }
 }
 
 struct ParticleWorldCalc {
     center: V2,
-}
-
-const BASE_VALUE: usize = 16;
-const ALL_INDEXES: usize = BASE_VALUE * BASE_VALUE;
-
-fn calc_buckets(position: &Mat) -> [Vec<V2Slice>; ALL_INDEXES] {
-    let mut buckets: [Vec<V2Slice>; ALL_INDEXES] = vec![vec![]; ALL_INDEXES].try_into().unwrap();
-    position.column_iter().for_each(|col| {
-        let index = calc_index(&col);
-        if index < ALL_INDEXES {
-            buckets[index].push(col.clone());
-        }
-    });
-    return buckets;
-}
-
-fn calc_index(col: &V2Slice) -> usize {
-    use space_time::zorder::z_2::Z2;
-    return Z2::new((col.x / 10.0).round() as u32, (col.y / 10.0).round() as u32).z() as usize;
-}
-
-fn get_all_near<'a>(
-    v2: &V2Slice,
-    buckets: &'a [Vec<V2Slice>; ALL_INDEXES],
-) -> impl Iterator<Item = V2Slice<'a>> {
-    let zorder = calc_index(&v2);
-    let low_index = (zorder as i32 - 50).max(0) as usize;
-    buckets[(low_index.min(ALL_INDEXES - 1)).max(0)..(zorder + 50).min(ALL_INDEXES - 1)]
-        .iter()
-        .flat_map(|v| v.clone())
+    repulsion: f64,
+    center_force: f64,
 }
 
 impl ParticleWorldCalc {
     fn calc_acc(&self, position: &Mat, speed: &Mat) -> Mat {
         let mut result = Mat::zeros(position.ncols());
-        let buckets = calc_buckets(position);
         position.column_iter().enumerate().for_each(|(i, col)| {
             let mut acc = self.base_influence(&col);
             acc += speed.column(i) * -DAMPING; //speed damping
-            get_all_near(&col, &buckets).for_each(|other| acc += self.influence(&col, &other));
+            position
+                .column_iter()
+                .for_each(|other| acc += self.influence(&col, &other));
             result.set_column(i, &acc);
         });
         result
@@ -112,7 +92,7 @@ impl ParticleWorldCalc {
         if norm_sq == 0.0 {
             r
         } else {
-            r.normalize() * (1.0 / r.norm_squared()).clamp(0.0, 50.0) * 80.0
+            r.normalize() * (self.repulsion / r.norm_squared()).clamp(0.0, 50.0)
         }
     }
 
@@ -122,12 +102,11 @@ impl ParticleWorldCalc {
         if norm == 0.0 {
             r
         } else {
-            r.normalize() * norm.min(1.0) * CENTER_FORCE
+            r.normalize() * norm.min(1.0) * self.center_force
         }
     }
 }
 
-const CENTER_FORCE: f64 = 1.5;
 const DAMPING: f64 = 0.1;
 
 #[cfg(test)]

@@ -19,8 +19,9 @@ const pixi = ref<HTMLElement>();
 const maxClamp = ref(10);
 const much = ref(800);
 const center = ref([400, 500] as V2);
-const centerInfluence = ref(0.5);
-const particles = ref(500);
+const centerForce = ref(1.5);
+const repulsion = ref(100);
+const particles = ref(200);
 const ready = ref(false);
 
 onMounted(async () => {
@@ -66,11 +67,15 @@ function createBallApp() {
       sys.setCenter([mouseOrTouch.clientX, mouseOrTouch.clientY]);
     }
   });
+  const stop = watchEffect(() => {
+    sys.setForces(repulsion.value, centerForce.value);
+  });
   return () => {
     sub.unsubscribe();
     animation.unsubscribe();
     app.destroy(true, true);
     sys.destroy();
+    stop();
   };
 }
 
@@ -95,6 +100,9 @@ function eulerWasm() {
     setCenter([x, y]: V2) {
       world.set_center(x, y);
     },
+    setForces(repulsion: number, center: number) {
+      world.set_forces(repulsion, center);
+    },
   };
 }
 
@@ -113,7 +121,7 @@ function makeEulerSys() {
       }
       function baseInfluence(point: V2, reference: V2): V2 {
         const r = add(point, scale(-1, reference));
-        const acc = scale(-centerInfluence.value * Math.min(norm(r), 1), normalized(r));
+        const acc = scale(-centerForce.value * Math.min(norm(r), 1), normalized(r));
         return acc;
       }
       return points.map((point, index) => {
@@ -147,7 +155,32 @@ class Ball {
 <template>
   <div class="fixed w-screen h-screen">
     <div class="inputs flex flex-wrap absolute top-0 left-0 items-center">
-      <input type="number" v-model="particles" class="w-20" />
+      <div class="">
+        <label for="">particles</label
+        ><input type="number" v-model="particles" class="w-20" />
+      </div>
+      <div class="">
+        <label for="">force</label
+        ><input
+          type="range"
+          min="40"
+          max="1000"
+          step="1"
+          v-model="repulsion"
+          class="w-20"
+        />
+      </div>
+      <div class="">
+        <label for="">center</label
+        ><input
+          type="range"
+          min="0.5"
+          max="10"
+          step="0.1"
+          v-model="centerForce"
+          class="w-20"
+        />
+      </div>
     </div>
     <div class="" ref="pixi"></div>
     <slot></slot>

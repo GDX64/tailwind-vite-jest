@@ -11,12 +11,14 @@ use wasm_bindgen::prelude::wasm_bindgen;
 extern "C" {
     #[wasm_bindgen(js_namespace = Math)]
     pub fn random() -> f64;
-
     #[wasm_bindgen(js_namespace = console)]
-    pub fn log(str: &str);
+    pub fn log(s: &str);
 }
 
 #[cfg(not(target_arch = "wasm32"))]
 pub fn random() -> f64 {
     rand::random()
 }
+
+#[cfg(not(target_arch = "wasm32"))]
+pub fn log(_: &str) {}
