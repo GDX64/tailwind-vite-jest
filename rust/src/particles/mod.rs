@@ -63,17 +63,44 @@ struct ParticleWorldCalc {
     center: V2,
 }
 
+const BASE_VALUE: usize = 16;
+const ALL_INDEXES: usize = BASE_VALUE * BASE_VALUE;
+
+fn calc_buckets(position: &Mat) -> [Vec<V2Slice>; ALL_INDEXES] {
+    let mut buckets: [Vec<V2Slice>; ALL_INDEXES] = vec![vec![]; ALL_INDEXES].try_into().unwrap();
+    position.column_iter().for_each(|col| {
+        let index = calc_index(&col);
+        if index < ALL_INDEXES {
+            buckets[index].push(col.clone());
+        }
+    });
+    return buckets;
+}
+
+fn calc_index(col: &V2Slice) -> usize {
+    use space_time::zorder::z_2::Z2;
+    return Z2::new((col.x / 10.0).round() as u32, (col.y / 10.0).round() as u32).z() as usize;
+}
+
+fn get_all_near<'a>(
+    v2: &V2Slice,
+    buckets: &'a [Vec<V2Slice>; ALL_INDEXES],
+) -> impl Iterator<Item = V2Slice<'a>> {
+    let zorder = calc_index(&v2);
+    let low_index = (zorder as i32 - 50).max(0) as usize;
+    buckets[(low_index.min(ALL_INDEXES - 1)).max(0)..(zorder + 50).min(ALL_INDEXES - 1)]
+        .iter()
+        .flat_map(|v| v.clone())
+}
+
 impl ParticleWorldCalc {
     fn calc_acc(&self, position: &Mat, speed: &Mat) -> Mat {
         let mut result = Mat::zeros(position.ncols());
+        let buckets = calc_buckets(position);
         position.column_iter().enumerate().for_each(|(i, col)| {
             let mut acc = self.base_influence(&col);
             acc += speed.column(i) * -DAMPING; //speed damping
-            position
-                .column_iter()
-                .enumerate()
-                .filter(|(j, _)| *j != i)
-                .for_each(|(_, other)| acc += self.influence(&col, &other));
+            get_all_near(&col, &buckets).for_each(|other| acc += self.influence(&col, &other));
             result.set_column(i, &acc);
         });
         result
@@ -112,7 +139,7 @@ mod test {
     use super::Mat;
     #[test]
     fn test() {
-        let mut world = random_world(10.0, 10.0, 2);
+        let mut world = random_world(500.0, 500.0, 500);
         {
             let x = world.euler.x.borrow_mut();
             x[0] = 1.0;
