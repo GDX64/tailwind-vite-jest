@@ -27,10 +27,10 @@ const routes = [
   { path: '/ticker', component: TickerPage },
   { path: '/plot', component: Rough },
   { path: '/tippy', component: TippyTest },
-  // { path: '/set', component: Set },
-  // { path: '/Wordle', component: Wordle },
-  // { path: '/hilbert', component: Hilbert },
-  // { path: '/ball', component: BallAnimation },
+  { path: '/set', component: Set },
+  { path: '/Wordle', component: Wordle },
+  { path: '/hilbert', component: Hilbert },
+  { path: '/ball', component: BallAnimation },
 ];
 
 // 3. Create the router instance and pass the `routes` option
