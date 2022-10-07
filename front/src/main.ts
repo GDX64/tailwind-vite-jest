@@ -14,6 +14,7 @@ import Rough from './pages/Rough.vue';
 import Set from './pages/Set.vue';
 import Hilbert from './pages/Hilbert.vue';
 import BallAnimation from './pages/BallAnimation.vue';
+import TippyTest from './pages/TippyTest.vue';
 
 const routes = [
   { path: '/', component: Home },
@@ -25,6 +26,7 @@ const routes = [
   { path: '/cv', component: CV },
   { path: '/ticker', component: TickerPage },
   { path: '/plot', component: Rough },
+  { path: '/tippy', component: TippyTest },
   // { path: '/set', component: Set },
   // { path: '/Wordle', component: Wordle },
   // { path: '/hilbert', component: Hilbert },
