@@ -23,12 +23,12 @@ const routes = [
   { path: '/animation', component: Pixi },
   { path: '/grid', component: Grid },
   { path: '/cv', component: CV },
-  { path: '/Wordle', component: Wordle },
   { path: '/ticker', component: TickerPage },
   { path: '/plot', component: Rough },
-  { path: '/set', component: Set },
-  { path: '/hilbert', component: Hilbert },
-  { path: '/ball', component: BallAnimation },
+  // { path: '/set', component: Set },
+  // { path: '/Wordle', component: Wordle },
+  // { path: '/hilbert', component: Hilbert },
+  // { path: '/ball', component: BallAnimation },
 ];
 
 // 3. Create the router instance and pass the `routes` option
