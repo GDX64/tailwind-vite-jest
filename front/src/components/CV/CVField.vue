@@ -1,10 +1,12 @@
 <template>
   <div class="">
-    <header class="flex justify-between w-full mb-1">
+    <header ref="header" class="flex justify-between w-full mb-1">
       <FieldEditTip :value="main" @update:value="$emit('update:main', $event)">
         <div class="hover-field">{{ main }}</div>
       </FieldEditTip>
-      <div class="grow hover-field"></div>
+      <TippyWrap class="grow">
+        <template #content> header </template>
+      </TippyWrap>
       <FieldEditTip
         v-if="dateAndPlace"
         :value="dateAndPlace"
@@ -29,6 +31,8 @@
 <script lang="ts" setup>
 import LinkProcess from './LinkProcess';
 import FieldEditTip from './FieldEditTip.vue';
+import TippyWrap from '../../TippyWrapper/TippyWrap.vue';
+import { ref } from 'vue';
 
 defineEmits<{
   (event: 'update:main', value: string): void;
@@ -41,6 +45,7 @@ const props = defineProps<{
   title?: string;
   description?: string;
 }>();
+const header = ref<HTMLElement>();
 </script>
 
 <style scoped>

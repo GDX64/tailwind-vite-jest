@@ -1,23 +1,40 @@
 <template>
-  <div ref="target" class="w-fit">
+  <span ref="localTarget">
     <slot></slot>
-  </div>
-  <Teleport v-if="to" :to="to">
-    <slot v-if="to" name="content"></slot>
-  </Teleport>
+    <Teleport v-if="to" :to="to">
+      <slot v-if="to" name="content"></slot>
+    </Teleport>
+  </span>
 </template>
 
 <script lang="ts" setup>
-import tippy from 'tippy.js/headless';
-import { ref, watch, watchEffect } from 'vue';
-const target = ref<HTMLElement>();
+import tippy, { Instance } from 'tippy.js/headless';
+import { computed, ref, useSlots, watch, watchEffect } from 'vue';
+const localTarget = ref<HTMLElement>();
 const to = ref<Element>();
 const emit = defineEmits<{ (event: 'show'): void }>();
-watch(target, (_old, _mew, clear) => {
-  if (!target.value) {
+const props = defineProps<{
+  target?: HTMLElement;
+  triggerTarget?: HTMLElement;
+  trigger?: string;
+  show?: boolean;
+  delay?: number | [number, number];
+}>();
+const finalTarget = computed(() => props.target ?? localTarget.value);
+const tip = ref<Instance<any>>();
+console.log(useSlots());
+watchEffect(() => {
+  if (props.show) {
+    tip.value?.show();
+  } else {
+    tip.value?.hide();
+  }
+});
+watch(finalTarget, (_now, _old, clear) => {
+  if (!finalTarget.value) {
     return;
   }
-  const tip = tippy(target.value, {
+  tip.value = tippy(finalTarget.value, {
     onShow: (instance) => {
       emit('show');
       to.value = instance.popper;
@@ -32,11 +49,13 @@ watch(target, (_old, _mew, clear) => {
     placement: 'bottom',
     theme: 'dark',
     interactive: true,
-    trigger: 'click',
+    trigger: props.trigger,
     appendTo: () => document.body,
+    triggerTarget: props.triggerTarget,
+    delay: props.delay,
   });
   clear(() => {
-    tip.destroy();
+    tip.value?.destroy();
   });
 });
 </script>
