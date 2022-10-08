@@ -1,25 +1,9 @@
 <template>
   <div class="">
     <header class="flex justify-between w-full mb-1">
-      <TippyWrap>
-        <template #default>
-          <div class="hover:bg-sky-400">{{ main }}</div>
-        </template>
-        <template #content>
-          <div class="bg-sky-800/80 w-96 p-3 rounded-sm">
-            <textarea
-              class="bg-sky-800 w-full text-white rounded-md outline-none"
-              v-model="mainEdit"
-            />
-            <button
-              @click="$emit('update:main', mainEdit)"
-              class="w-fit h-6 bg-sky-500 text-white rounded-sm pr-2 pl-2 hover:bg-sky-400"
-            >
-              Ok
-            </button>
-          </div>
-        </template>
-      </TippyWrap>
+      <FieldEditTip :value="main" @update:value="$emit('update:main', $event)">
+        <div class="hover:bg-sky-400">{{ main }}</div>
+      </FieldEditTip>
       <div class="">{{ dateAndPlace }}</div>
     </header>
     <div v-if="description" class="text-gray-700">
@@ -31,8 +15,8 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import TippyWrap from '../../TippyWrapper/TippyWrap.vue';
 import LinkProcess from './LinkProcess';
+import FieldEditTip from './FieldEditTip.vue';
 
 defineEmits<{ (event: 'update:main', value: string): void }>();
 const props = defineProps<{
