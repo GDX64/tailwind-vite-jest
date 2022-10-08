@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import TippyWrap from '../TippyWrapper/TippyWrap.vue';
 import BackGround from './BackGround.vue';
 const val = ref('');
