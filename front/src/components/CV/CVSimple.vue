@@ -18,7 +18,6 @@
         <FieldTitleVue :title="category.title"></FieldTitleVue>
         <template v-for="(data, fieldIndex) of category.fields">
           <Field
-            @dblclick="$emit('updateField', { categoryIndex, fieldIndex })"
             :main="data.title"
             :date-and-place="data.schoolPlaceDate"
             :has-description="Boolean(data.description)"
@@ -40,13 +39,11 @@ import Envelope from '../../assets/envelope-solid.svg';
 import Location from '../../assets/location-pin-solid.svg';
 import Mobile from '../../assets/mobile-solid.svg';
 import Linkedin from '../../assets/linkedin-brands.svg';
-import { CVData, Icons } from './SimpleCVTypes';
+import { Icons } from './SimpleCVTypes';
 import LinkProcess from './LinkProcess';
+import { injectCV } from './CVStore';
 
-defineProps<{ cvData: CVData }>();
-defineEmits<{
-  (event: 'updateField', data: { fieldIndex: number; categoryIndex: number }): void;
-}>();
+const { data: cvData } = injectCV();
 
 const componentMap = {
   [Icons.Globe]: Globe,
