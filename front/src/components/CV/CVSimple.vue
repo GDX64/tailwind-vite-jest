@@ -17,13 +17,19 @@
       <div class="" v-for="(category, categoryIndex) of cvData.categories">
         <FieldTitleVue :title="category.title"></FieldTitleVue>
         <template v-for="(data, fieldIndex) of category.fields">
-          <Field
+          <FieldVue
             :main="data.title"
             :date-and-place="data.schoolPlaceDate"
             :description="data.description"
-            @update:main="onMainUpdate($event, categoryIndex, fieldIndex)"
+            @update:main="onUpdate($event, categoryIndex, fieldIndex, 'title')"
+            @update:dateAndPlace="
+              onUpdate($event, categoryIndex, fieldIndex, 'schoolPlaceDate')
+            "
+            @update:description="
+              onUpdate($event, categoryIndex, fieldIndex, 'description')
+            "
             class="mb-2"
-          ></Field>
+          ></FieldVue>
         </template>
       </div>
     </div>
@@ -31,7 +37,7 @@
 </template>
 
 <script lang="ts" setup>
-import Field from './CVField.vue';
+import FieldVue from './CVField.vue';
 import FieldTitleVue from './FieldTitle.vue';
 import GitHub from '../../assets/github-brands.svg';
 import Globe from '../../assets/globe-solid.svg';
@@ -39,7 +45,7 @@ import Envelope from '../../assets/envelope-solid.svg';
 import Location from '../../assets/location-pin-solid.svg';
 import Mobile from '../../assets/mobile-solid.svg';
 import Linkedin from '../../assets/linkedin-brands.svg';
-import { Icons } from './SimpleCVTypes';
+import { CVData, Field, Icons } from './SimpleCVTypes';
 import { injectCV } from './CVStore';
 
 const { data: cvData, doUndo, undo, doAgain } = injectCV();
@@ -53,14 +59,18 @@ const componentMap = {
   [Icons.Linkedin]: Linkedin,
 };
 
-function onMainUpdate(value: string, category: number, field: number) {
-  const valueNow = cvData.value.categories[category].fields[field].title;
+function onUpdate(value: string, category: number, field: number, kind: keyof Field) {
+  const valueNow = cvData.value.categories[category].fields[field][kind];
   doUndo({
     doFn: (cv) => {
-      cv.categories[category].fields[field].title = value;
+      cv.categories[category].fields[field][kind] = value;
     },
     undo: (cv) => {
-      cv.categories[category].fields[field].title = valueNow;
+      if (kind !== 'title') {
+        cv.categories[category].fields[field][kind] = valueNow;
+      } else if (valueNow != null) {
+        cv.categories[category].fields[field][kind] = valueNow;
+      }
     },
   });
 }
