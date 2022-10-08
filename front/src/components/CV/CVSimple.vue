@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-full justify-center items-center">
+  <div class="flex w-full justify-center items-center" tabindex="-1" @keydown="onkeydown">
     <div class="cv-container">
       <header class="flex items-center flex-col text-sm">
         <h1 class="text-sky-600 text-3xl mb-2">{{ cvData.name }}</h1>
@@ -20,9 +20,9 @@
           <Field
             :main="data.title"
             :date-and-place="data.schoolPlaceDate"
-            :has-description="Boolean(data.description)"
+            :description="data.description"
+            @update:main="onMainUpdate($event, categoryIndex, fieldIndex)"
             class="mb-2"
-            ><LinkProcess class="text-with-link" :text="data.description"></LinkProcess
           ></Field>
         </template>
       </div>
@@ -40,10 +40,9 @@ import Location from '../../assets/location-pin-solid.svg';
 import Mobile from '../../assets/mobile-solid.svg';
 import Linkedin from '../../assets/linkedin-brands.svg';
 import { Icons } from './SimpleCVTypes';
-import LinkProcess from './LinkProcess';
 import { injectCV } from './CVStore';
 
-const { data: cvData } = injectCV();
+const { data: cvData, doUndo, undo, doAgain } = injectCV();
 
 const componentMap = {
   [Icons.Globe]: Globe,
@@ -53,6 +52,27 @@ const componentMap = {
   [Icons.Location]: Location,
   [Icons.Linkedin]: Linkedin,
 };
+
+function onMainUpdate(value: string, category: number, field: number) {
+  const valueNow = cvData.value.categories[category].fields[field].title;
+  doUndo({
+    doFn: (cv) => {
+      cv.categories[category].fields[field].title = value;
+    },
+    undo: (cv) => {
+      cv.categories[category].fields[field].title = valueNow;
+    },
+  });
+}
+
+function onkeydown(event: KeyboardEvent) {
+  if (event.ctrlKey && event.key === 'z') {
+    undo();
+  }
+  if (event.ctrlKey && event.key === 'y') {
+    doAgain();
+  }
+}
 </script>
 
 <style>

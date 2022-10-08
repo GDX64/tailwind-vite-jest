@@ -2,22 +2,33 @@ import { inject, provide, readonly, Ref, ref } from 'vue';
 import { CVData } from './SimpleCVTypes';
 
 function createState(cvdata: CVData) {
-  type CVAction = (cv: CVData) => CVData;
+  type CVAction = (cv: CVData) => void;
   type ActionPair = { doFn: CVAction; undo: CVAction };
   const data: Ref<CVData> = ref(cvdata);
 
   const actionStack = [] as ActionPair[];
+  const doAgainStack = [] as ActionPair[];
 
   function doUndo(pair: ActionPair) {
-    data.value = pair.doFn(data.value);
+    pair.doFn(data.value);
     actionStack.push(pair);
+    doAgainStack.splice(0, doAgainStack.length);
   }
 
   function undo() {
-    data.value = actionStack.pop()?.undo(data.value) ?? data.value;
+    const pair = actionStack.pop();
+    if (pair) {
+      pair.undo(data.value);
+      doAgainStack.push(pair);
+    }
   }
 
-  return { doUndo, undo, data: readonly(data) };
+  function doAgain() {
+    const action = doAgainStack.pop();
+    action && doUndo(action);
+  }
+
+  return { doUndo, undo, doAgain, data: readonly(data) };
 }
 
 export function provideCV(data: CVData) {

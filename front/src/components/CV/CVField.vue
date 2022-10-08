@@ -9,9 +9,10 @@
           <div class="bg-sky-800/80 w-96 p-3 rounded-sm">
             <textarea
               class="bg-sky-800 w-full text-white rounded-md outline-none"
-              :value="main"
+              v-model="mainEdit"
             />
             <button
+              @click="$emit('update:main', mainEdit)"
               class="w-fit h-6 bg-sky-500 text-white rounded-sm pr-2 pl-2 hover:bg-sky-400"
             >
               Ok
@@ -21,24 +22,24 @@
       </TippyWrap>
       <div class="">{{ dateAndPlace }}</div>
     </header>
-    <div v-if="hasDescription" class="text-gray-700">
+    <div v-if="description" class="text-gray-700">
       <div class="rounded-full w-[6px] h-[6px] bg-gray-700 mr-2 inline-block"></div>
-      <slot></slot>
+      <LinkProcess class="text-with-link" :text="description"></LinkProcess>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue';
 import TippyWrap from '../../TippyWrapper/TippyWrap.vue';
-withDefaults(
-  defineProps<{
-    main: string;
-    dateAndPlace?: string;
-    title?: string;
-    hasDescription?: boolean;
-  }>(),
-  {
-    hasDescription: true,
-  }
-);
+import LinkProcess from './LinkProcess';
+
+defineEmits<{ (event: 'update:main', value: string): void }>();
+const props = defineProps<{
+  main: string;
+  dateAndPlace?: string;
+  title?: string;
+  description?: string;
+}>();
+const mainEdit = ref(props.main);
 </script>

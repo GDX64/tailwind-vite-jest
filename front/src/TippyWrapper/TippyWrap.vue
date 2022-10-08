@@ -33,6 +33,7 @@ watch(target, (_old, _mew, clear) => {
     theme: 'dark',
     interactive: true,
     trigger: 'click',
+    appendTo: () => document.body,
   });
   clear(() => {
     console.log('destroyed');
