@@ -28,8 +28,4 @@ defineEmits<{ (event: 'update:value', value: string): void }>();
 const edit = ref(props.value);
 </script>
 
-<style>
-.action-btn {
-  @apply w-16 h-7 bg-sky-500 text-white rounded-sm pr-2 pl-2 hover:bg-sky-400;
-}
-</style>
+<style></style>

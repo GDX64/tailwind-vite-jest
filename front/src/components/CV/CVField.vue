@@ -2,7 +2,9 @@
   <div class="">
     <TippyWrap :target="header">
       <template #content>
-        <div class="w-52 h-16 pop-container"></div>
+        <div class="w-52 h-16 pop-container">
+          <button class="action-btn" @click="descriptionEl?.click()">description</button>
+        </div>
       </template>
     </TippyWrap>
     <header ref="header" class="flex justify-between w-full mb-1">
@@ -18,11 +20,11 @@
       </FieldEditTip>
     </header>
     <FieldEditTip
-      v-if="description"
+      v-if="description != null"
       :value="description"
       @update:value="$emit('update:description', $event)"
     >
-      <div v-if="description" class="text-gray-700 hover-field">
+      <div class="text-gray-700 hover-field" ref="descriptionEl">
         <div class="rounded-full w-[6px] h-[6px] bg-gray-700 mr-2 inline-block"></div>
         <LinkProcess class="text-with-link" :text="description"></LinkProcess>
       </div>
@@ -48,6 +50,7 @@ const props = defineProps<{
   description?: string;
 }>();
 const header = ref<HTMLElement>();
+const descriptionEl = ref<HTMLElement>();
 </script>
 
 <style scoped>
