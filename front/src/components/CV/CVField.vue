@@ -1,12 +1,14 @@
 <template>
   <div class="">
+    <TippyWrap :target="header">
+      <template #content>
+        <div class="w-52 h-16 pop-container"></div>
+      </template>
+    </TippyWrap>
     <header ref="header" class="flex justify-between w-full mb-1">
       <FieldEditTip :value="main" @update:value="$emit('update:main', $event)">
         <div class="hover-field">{{ main }}</div>
       </FieldEditTip>
-      <TippyWrap class="grow">
-        <template #content> header </template>
-      </TippyWrap>
       <FieldEditTip
         v-if="dateAndPlace"
         :value="dateAndPlace"

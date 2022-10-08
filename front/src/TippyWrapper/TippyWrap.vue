@@ -10,6 +10,7 @@
 <script lang="ts" setup>
 import tippy, { Instance } from 'tippy.js/headless';
 import { computed, ref, useSlots, watch, watchEffect } from 'vue';
+
 const localTarget = ref<HTMLElement>();
 const to = ref<Element>();
 const emit = defineEmits<{ (event: 'show'): void }>();

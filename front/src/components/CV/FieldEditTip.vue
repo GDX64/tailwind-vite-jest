@@ -1,10 +1,10 @@
 <template>
-  <TippyWrap @show="edit = value">
+  <TippyWrap @show="edit = value" :trigger="'click'">
     <template #default>
       <slot></slot>
     </template>
     <template #content>
-      <div class="bg-sky-800/80 w-96 p-3 rounded-sm">
+      <div class="pop-container w-96 p-3">
         <textarea
           class="bg-sky-800 w-full text-white rounded-md outline-none"
           v-model="edit"
