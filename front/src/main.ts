@@ -15,6 +15,7 @@ import Set from './pages/Set.vue';
 import Hilbert from './pages/Hilbert.vue';
 import BallAnimation from './pages/BallAnimation.vue';
 import TippyTest from './pages/TippyTest.vue';
+import GPGPU from './pages/GPGPU.vue';
 
 const routes = [
   { path: '/', component: Home },
@@ -27,10 +28,11 @@ const routes = [
   { path: '/ticker', component: TickerPage },
   { path: '/plot', component: Rough },
   { path: '/tippy', component: TippyTest },
-  { path: '/set', component: Set },
-  { path: '/Wordle', component: Wordle },
-  { path: '/hilbert', component: Hilbert },
-  { path: '/ball', component: BallAnimation },
+  { path: '/gpgpu', component: GPGPU },
+  // { path: '/set', component: Set },
+  // { path: '/Wordle', component: Wordle },
+  // { path: '/hilbert', component: Hilbert },
+  // { path: '/ball', component: BallAnimation },
 ];
 
 // 3. Create the router instance and pass the `routes` option
