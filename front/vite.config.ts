@@ -10,7 +10,7 @@ import tailwind from 'tailwindcss';
 // https://vitejs.dev/config/
 export default defineConfig((args) => {
   return {
-    plugins: [vue(), checker({ typescript: true }), glsl(), svgLoader()],
+    plugins: [vue() /*checker({ typescript: true }) */, , glsl(), svgLoader()],
     test: {
       globals: true,
       environment: 'happy-dom',
