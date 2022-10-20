@@ -5,10 +5,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { make } from '../webgl2/GPGPU';
+import { mouseShader } from '../webgl2/shaderToy/MouseShader';
 const canvas = ref<HTMLCanvasElement>();
 
 onMounted(() => {
-  const gl = canvas.value!.getContext('webgl2');
-  make(gl!);
+  const gl = canvas.value!.getContext('webgl2')!;
+  mouseShader(gl, canvas.value!);
+  // make(gl!);
 });
 </script>

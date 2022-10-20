@@ -7,6 +7,7 @@
     "strict": true,
     "jsx": "preserve",
     "noUnusedLocals": false,
+    "allowJs": true,
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
