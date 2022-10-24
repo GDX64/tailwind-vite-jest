@@ -1,6 +1,7 @@
 #version 300 es
  
 in vec2 a_position;
+out float br;
 
 uniform vec2 u_resolution;
 
@@ -15,4 +16,5 @@ void main() {
   vec2 clipSpace = zeroToTwo - 1.0;
 
   gl_Position = vec4(clipSpace, 0, 1);
+  br = length(gl_Position)/2.0;
 }

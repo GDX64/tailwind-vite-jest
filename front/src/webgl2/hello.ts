@@ -1,9 +1,7 @@
 import vertexShaderSource from './vertexHello.glsl';
 import fragmentShaderSource from './fragmentHello.glsl';
 
-export function testeo(el: HTMLElement) {
-  const gl = getCanvasContext(el);
-  if (!gl) throw Error('No webgl');
+export function testeo(gl: WebGL2RenderingContext) {
   const program = createProgram(gl, vertexShaderSource, fragmentShaderSource);
   const positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
   const positionBuffer = gl.createBuffer();
@@ -47,13 +45,6 @@ export function testeo(el: HTMLElement) {
   gl.drawArrays(primitiveType, triangleOffset, count);
 }
 
-function getCanvasContext(el: HTMLElement) {
-  const canvas = document.createElement('canvas');
-  const gl = canvas.getContext('webgl2');
-  el.appendChild(canvas);
-  return gl;
-}
-
 function createShader(gl: WebGL2RenderingContext, type: number, source: string) {
   const shader = gl.createShader(type)!;
   gl.shaderSource(shader, source);
@@ -95,13 +86,27 @@ function setRectangle(
   const x2 = x + width;
   const y1 = y;
   const y2 = y + height;
+  const offset = 5;
   // NOTE: gl.bufferData(gl.ARRAY_BUFFER, ...) will affect
   // whatever buffer is bound to the `ARRAY_BUFFER` bind point
   // but so far we only have one buffer. If we had more than one
   // buffer we'd want to bind that buffer to `ARRAY_BUFFER` first.
   gl.bufferData(
     gl.ARRAY_BUFFER,
-    new Float32Array([x1, y1, x2, y1, x1, y2, x1, y2, x2, y1, x2, y2]),
+    new Float32Array([
+      x1,
+      y1,
+      x2,
+      y1,
+      x1,
+      y2,
+      x1 + offset,
+      y2 + offset,
+      x2 + offset,
+      y1 + offset,
+      x2 + offset,
+      y2 + offset,
+    ]),
     gl.STATIC_DRAW
   );
 }

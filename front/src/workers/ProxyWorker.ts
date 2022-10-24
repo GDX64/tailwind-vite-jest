@@ -12,7 +12,13 @@ import {
   takeWhile,
   tap,
 } from 'rxjs';
-import { FinishStream, GenericGet, GenericRequest, WorkerLike } from './interfaces';
+import {
+  FinishStream,
+  GenericGet,
+  GenericRequest,
+  StartStream,
+  WorkerLike,
+} from './interfaces';
 
 type WorkerObservableFn =
   | ((...x: any[]) => Observable<any>)
@@ -27,28 +33,45 @@ type TransformRecord<T extends Record<string, WorkerObservableFn>> = {
   [Key in keyof T]: (...args: Parameters<T[Key]>) => Observable<ExtractData<T[Key]>>;
 };
 
-type WorkerProxy<
+export type WorkerProxy<
   T extends Record<string, WorkerObservableFn>,
-  Transfer = true
+  Full = true
 > = TransformRecord<T> & {
   p: {
     [Key in keyof T]: (...args: Parameters<T[Key]>) => Promise<ExtractData<T[Key]>>;
   };
-} & (Transfer extends true
+} & (Full extends true
     ? {
         t(transfer: Transferable[]): WorkerProxy<T, false>;
+        terminate(): void;
       }
     : {});
 
-export function makeProxy<T extends Record<string, WorkerObservableFn>>(
+type TransferArg<T> = {
+  args: T;
+  tranfer?: Transferable[];
+};
+export function makeProxy<F extends () => Record<string, WorkerObservableFn>>(
   worker: WorkerLike
-): WorkerProxy<T> {
+): WorkerProxy<ReturnType<F>>;
+export function makeProxy<F extends (x: any) => Record<string, WorkerObservableFn>>(
+  worker: WorkerLike,
+  arg: TransferArg<Parameters<F>[0]>
+): WorkerProxy<ReturnType<F>>;
+export function makeProxy<F extends (args?: any) => Record<string, WorkerObservableFn>>(
+  worker: WorkerLike,
+  arg?: TransferArg<Parameters<F>[0]>
+): WorkerProxy<ReturnType<F>> {
   const get$ = new Subject<GenericGet>();
   worker.addEventListener('message', (message) => {
     if (message.data.type === 'get') {
       get$.next(message.data);
     }
   });
+  const startMessage: StartStream = { arg: arg?.args, type: 'start', id: 0 };
+  arg?.tranfer
+    ? worker.postMessage(startMessage, arg.tranfer)
+    : worker.postMessage(startMessage);
 
   function makeGetObs(prop: any, args: any[], transfer: any) {
     return defer(() => {
@@ -64,13 +87,16 @@ export function makeProxy<T extends Record<string, WorkerObservableFn>>(
     });
   }
 
-  return new Proxy({} as WorkerProxy<T>, {
+  return new Proxy({} as WorkerProxy<ReturnType<F>>, {
     get(target, prop: string) {
       if (prop === 'p') {
         return makePProxy(makeGetObs);
       }
       if (prop === 't') {
         return (transfer: Transferable[]) => makeTransferProxy(makeGetObs, transfer);
+      }
+      if (prop === 'terminate') {
+        return () => worker.terminate();
       }
       return (...arg: any[]) => makeGetObs(prop, arg, []);
     },
@@ -105,21 +131,23 @@ function makePProxy(
 }
 
 type WorkerMethodsRecord = Record<string, WorkerObservableFn>;
-
-export function expose(methods: WorkerMethodsRecord, ctx: WorkerLike) {
+type MethodsFac = (arg?: any) => WorkerMethodsRecord;
+export function expose(methodsFac: MethodsFac, ctx: WorkerLike) {
   const func$ = new Subject<GenericRequest>();
   const finish$ = new Subject<number>();
   ctx.addEventListener('message', (message) => {
-    const data = message.data as GenericRequest | FinishStream;
+    const data = message.data as GenericRequest | FinishStream | StartStream;
     if (data.type === 'func') {
       func$.next(data);
     } else if (data.type === 'finish') {
       finish$.next(data.id);
+    } else if (data.type === 'start') {
+      const methods = methodsFac(data.arg);
+      func$
+        .pipe(mergeMap((data) => makeGenericRequest(data, finish$, methods)))
+        .subscribe((data) => ctx.postMessage(data, data.transfer ?? []));
     }
   });
-  func$
-    .pipe(mergeMap((data) => makeGenericRequest(data, finish$, methods)))
-    .subscribe((data) => ctx.postMessage(data, data.transfer ?? []));
 }
 
 function makeGenericRequest(
@@ -140,11 +168,38 @@ function makeGenericRequest(
       return {
         id: data.id,
         last: false,
-        response: answer.transfer ? answer.data : answer,
+        response: answer?.transfer ? answer.data : answer,
         type: 'get',
-        transfer: answer.transfer ?? [],
+        transfer: answer?.transfer ?? [],
       };
     }),
     endWith(endMessage)
   );
+}
+
+export function makeFallback<T extends WorkerMethodsRecord>(rec: T) {
+  const { workerMain, workerThread } = setupSingleThread();
+  expose(() => rec, workerThread);
+  return makeProxy(workerMain);
+}
+
+export function setupSingleThread() {
+  const mainToThread = new Subject<any>();
+  const threadToMain = new Subject<any>();
+  const workerMain: WorkerLike = {
+    addEventListener: (_: string, callback: (x: any) => void) => {
+      threadToMain.subscribe(callback);
+    },
+    postMessage: (message: any) => mainToThread.next({ data: message }),
+    terminate() {},
+  };
+
+  const workerThread: WorkerLike = {
+    addEventListener: (_: string, callback: (x: any) => void) => {
+      mainToThread.subscribe(callback);
+    },
+    postMessage: (message: any) => threadToMain.next({ data: message }),
+    terminate() {},
+  };
+  return { workerThread, workerMain };
 }

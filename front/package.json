@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@pixi/particle-emitter": "^5.0.5",
+    "@types/offscreencanvas": "^2019.7.0",
     "@vitejs/plugin-vue-jsx": "^1.3.8",
     "@webgpu/types": "^0.1.14",
     "benny": "^3.7.1",

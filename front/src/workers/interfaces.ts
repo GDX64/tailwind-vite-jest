@@ -18,4 +18,10 @@ export type FinishStream = {
   id: number;
 };
 
-export type WorkerLike = Pick<Worker, 'addEventListener' | 'postMessage'>;
+export type StartStream = {
+  type: 'start';
+  id: number;
+  arg: any;
+};
+
+export type WorkerLike = Pick<Worker, 'addEventListener' | 'terminate' | 'postMessage'>;

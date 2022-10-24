@@ -16,6 +16,7 @@ import Hilbert from './pages/Hilbert.vue';
 import BallAnimation from './pages/BallAnimation.vue';
 import TippyTest from './pages/TippyTest.vue';
 import GPGPU from './pages/GPGPU.vue';
+import Performance from './pages/Performance.vue';
 
 const routes = [
   { path: '/', component: Home },
@@ -29,6 +30,7 @@ const routes = [
   { path: '/plot', component: Rough },
   { path: '/tippy', component: TippyTest },
   { path: '/gpgpu', component: GPGPU },
+  { path: '/perf', component: Performance },
   // { path: '/set', component: Set },
   // { path: '/Wordle', component: Wordle },
   // { path: '/hilbert', component: Hilbert },

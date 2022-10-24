@@ -1,0 +1,54 @@
+<template>
+  <canvas
+    ref="canvas"
+    width="600"
+    height="500"
+    @mousemove="onMouseMove"
+    @mouseleave="onMouseLeave"
+  >
+  </canvas>
+</template>
+
+<script setup lang="ts">
+import { ref, watchEffect } from 'vue';
+import Worker from '../workers/OffCanvas?worker';
+import { makeProxy, makeFallback } from '../workers/ProxyWorker';
+import { createOffCanvasInst } from '../workers/OffCanvasInst';
+
+const props = defineProps<{ testKind: 'canvas' | 'DOM' | 'Offscreen' }>();
+const onMouseMove = ref((_arg: MouseEvent) => {});
+const onMouseLeave = ref((_arg: MouseEvent) => {});
+const canvas = ref<HTMLCanvasElement>();
+watchEffect((clear) => {
+  const worker = createWorker();
+  if (!worker) return;
+  onMouseMove.value = (event) => {
+    worker.p.mousePos([event.offsetX, event.offsetY]);
+  };
+
+  onMouseLeave.value = () => worker.p.mousePos(null);
+
+  const sub = worker.startCanvas().subscribe();
+  clear(() => {
+    sub.unsubscribe();
+    worker.terminate();
+  });
+});
+
+function createWorker() {
+  const off =
+    props.testKind === 'Offscreen' ? canvas.value?.transferControlToOffscreen?.() : null;
+  if (off) {
+    return makeProxy<typeof createOffCanvasInst>(new Worker(), {
+      args: off,
+      tranfer: [off as any],
+    });
+  }
+  if (canvas.value) {
+    return makeFallback(createOffCanvasInst(canvas.value));
+  }
+  return null;
+}
+</script>
+
+<style></style>
