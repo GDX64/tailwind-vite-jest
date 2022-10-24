@@ -1,4 +1,9 @@
-'use strict';
+import {
+  createProgram,
+  makeBuffer,
+  makeBufferAndSetAttribute,
+  readBuffer,
+} from './myUtils';
 
 const vs = `#version 300 es
 
@@ -21,62 +26,14 @@ void main() {
 }
 `;
 
-function createShader(gl: WebGL2RenderingContext, type: number, src: string) {
-  const shader = gl.createShader(type)!;
-  gl.shaderSource(shader, src);
-  gl.compileShader(shader);
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    throw new Error(gl.getShaderInfoLog(shader)!);
-  }
-  return shader;
-}
-
-function makeBuffer(gl: WebGL2RenderingContext, sizeOrData: number | Float32Array) {
-  const buf = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  if (typeof sizeOrData === 'number') {
-    gl.bufferData(gl.ARRAY_BUFFER, sizeOrData, gl.STATIC_DRAW);
-  } else {
-    gl.bufferData(gl.ARRAY_BUFFER, sizeOrData, gl.STATIC_DRAW);
-  }
-  return buf;
-}
-
-function makeBufferAndSetAttribute(
-  gl: WebGL2RenderingContext,
-  data: number | Float32Array,
-  loc: number
-) {
-  const buf = makeBuffer(gl, data);
-  // setup our attributes to tell WebGL how to pull
-  // the data from the buffer above to the attribute
-  gl.enableVertexAttribArray(loc);
-  gl.vertexAttribPointer(
-    loc,
-    1, // size (num components)
-    gl.FLOAT, // type of data in buffer
-    false, // normalize
-    0, // stride (0 = auto)
-    0 // offset
-  );
-}
-
 export function make(gl: WebGL2RenderingContext) {
-  const vShader = createShader(gl, gl.VERTEX_SHADER, vs);
-  const fShader = createShader(gl, gl.FRAGMENT_SHADER, fs);
-
-  const program = gl.createProgram()!;
-  gl.attachShader(program, vShader);
-  gl.attachShader(program, fShader);
+  const program = createProgram(gl, { fs, vs });
   gl.transformFeedbackVaryings(
     program,
     ['sum', 'difference', 'product'],
     gl.SEPARATE_ATTRIBS
   );
   gl.linkProgram(program);
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    throw Error('could not get the program');
-  }
 
   const aLoc = gl.getAttribLocation(program, 'a');
   const bLoc = gl.getAttribLocation(program, 'b');
@@ -89,8 +46,8 @@ export function make(gl: WebGL2RenderingContext) {
   const b = [3, 6, 9, 12, 15, 18];
 
   // put data in buffers
-  const aBuffer = makeBufferAndSetAttribute(gl, new Float32Array(a), aLoc);
-  const bBuffer = makeBufferAndSetAttribute(gl, new Float32Array(b), bLoc);
+  const aBuffer = makeBufferAndSetAttribute(gl, { data: new Float32Array(a), loc: aLoc });
+  const bBuffer = makeBufferAndSetAttribute(gl, { data: new Float32Array(b), loc: bLoc });
 
   // Create and fill out a transform feedback
   const tf = gl.createTransformFeedback();
@@ -138,23 +95,4 @@ export function make(gl: WebGL2RenderingContext) {
     prod: readBuffer(gl, productBuffer, a.length * 4),
   };
   console.log(result);
-}
-
-function log(...args: any[]) {
-  console.log(...args);
-}
-
-function readBuffer(
-  gl: WebGL2RenderingContext,
-  buffer: WebGLBuffer | null,
-  size: number
-) {
-  const results = new Uint8Array(size);
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.getBufferSubData(
-    gl.ARRAY_BUFFER,
-    0, // byte offset into GPU buffer,
-    results
-  );
-  return results;
 }

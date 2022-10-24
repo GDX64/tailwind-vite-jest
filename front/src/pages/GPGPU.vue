@@ -13,7 +13,7 @@ const canvas = ref<HTMLCanvasElement>();
 onMounted(() => {
   const gl = canvas.value!.getContext('webgl2')!;
   // mouseShader(gl, canvas.value!);
-  main(gl);
-  // make(gl!);
+  // main(gl);
+  make(gl!);
 });
 </script>
