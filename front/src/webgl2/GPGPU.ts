@@ -132,30 +132,29 @@ export function make(gl: WebGL2RenderingContext) {
   // turn on using fragment shaders again
   gl.disable(gl.RASTERIZER_DISCARD);
 
-  log(`a: ${a}`);
-  log(`b: ${b}`);
-
-  printResults(gl, sumBuffer, 'sums');
-  printResults(gl, differenceBuffer, 'differences');
-  printResults(gl, productBuffer, 'products');
-
-  function printResults(
-    gl: WebGL2RenderingContext,
-    buffer: WebGLBuffer | null,
-    label: string
-  ) {
-    const results = new Float32Array(a.length);
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.getBufferSubData(
-      gl.ARRAY_BUFFER,
-      0, // byte offset into GPU buffer,
-      results
-    );
-    // print the results
-    log(`${label}: ${results}`);
-  }
+  const result = {
+    sum: readBuffer(gl, sumBuffer, a.length * 4),
+    diff: readBuffer(gl, differenceBuffer, a.length * 4),
+    prod: readBuffer(gl, productBuffer, a.length * 4),
+  };
+  console.log(result);
 }
 
 function log(...args: any[]) {
   console.log(...args);
+}
+
+function readBuffer(
+  gl: WebGL2RenderingContext,
+  buffer: WebGLBuffer | null,
+  size: number
+) {
+  const results = new Uint8Array(size);
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.getBufferSubData(
+    gl.ARRAY_BUFFER,
+    0, // byte offset into GPU buffer,
+    results
+  );
+  return results;
 }
