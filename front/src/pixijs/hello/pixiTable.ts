@@ -1,28 +1,40 @@
 import * as PIXI from 'pixi.js';
+import { animationFrames } from 'rxjs';
 
 export function createRandomRow() {
   return {
-    first: Math.random().toFixed(4),
-    second: Math.random().toFixed(4),
-    third: Math.random().toFixed(4),
+    first: Math.random().toString(),
+    sec: Math.random().toString(),
+    third: Math.random().toString(),
+    fourth: Math.random().toString(),
+    fifty: Math.random().toString(),
   };
 }
 export type RandomRow = ReturnType<typeof createRandomRow>;
 
 export function createRandomRows() {
-  return [...Array(50)].map(createRandomRow);
+  return [...Array(20)].map(createRandomRow);
 }
 
 export function tableTest(el: HTMLElement) {
-  const font = PIXI.BitmapFont.from(
-    'myFont',
+  PIXI.settings.RESOLUTION = devicePixelRatio;
+  PIXI.BitmapFont.from(
+    'black',
     {
       fontFamily: 'Segoe Ui',
-      fontSize: 14,
+      fontSize: 12,
     },
-    { chars: PIXI.BitmapFont.ASCII }
+    { chars: PIXI.BitmapFont.NUMERIC }
   );
-  debugger;
+  PIXI.BitmapFont.from(
+    'red',
+    {
+      fontFamily: 'Segoe Ui',
+      fontSize: 12,
+      fill: 'red',
+    },
+    { chars: PIXI.BitmapFont.NUMERIC }
+  );
   const app = new PIXI.Application({
     height: 1000,
     width: 1000,
@@ -32,13 +44,21 @@ export function tableTest(el: HTMLElement) {
   const rows = createRandomRows();
   const table = createTable(rows);
   app.stage.addChild(table.table);
-  setInterval(() => updateText(table), 20);
+  const sub = animationFrames().subscribe(() => {
+    updateText(table);
+  });
+  return () => {
+    sub.unsubscribe();
+    app.view.remove();
+    app.destroy();
+  };
 }
 
 function updateText(table: TextTable) {
   createRandomRows().forEach((row, indexRow) => {
     table.configs.forEach(({ prop }, indexCol) => {
-      table.rows[indexRow].texts[indexCol].text = row[prop];
+      const tex = table.rows[indexRow].texts[indexCol];
+      tex.text = row[prop];
     });
   });
 }
@@ -48,7 +68,7 @@ function createRow<T extends DataRow>(dataRow: T, ColConfigs: ColConfig<T>[]) {
   let maxHeight = 0;
   const texts = ColConfigs.map((config) => {
     const text = new PIXI.BitmapText(dataRow[config.prop], {
-      fontName: 'myFont',
+      fontName: 'black',
     });
     text.x = initialPos;
     initialPos += config.width;
@@ -72,13 +92,11 @@ function createTable(randomRows: RandomRow[]) {
 
 export function createConfigs() {
   const configs: ColConfig<RandomRow>[] = [
-    { prop: 'first', width: 50 },
-    { prop: 'second', width: 70 },
-    { prop: 'third', width: 50 },
-    { prop: 'second', width: 70 },
-    { prop: 'third', width: 50 },
-    { prop: 'first', width: 50 },
-    { prop: 'second', width: 70 },
+    { prop: 'first', width: 130 },
+    { prop: 'sec', width: 130 },
+    { prop: 'third', width: 130 },
+    { prop: 'fourth', width: 130 },
+    { prop: 'fifty', width: 130 },
   ];
   return configs;
 }

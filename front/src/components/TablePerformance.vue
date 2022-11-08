@@ -15,7 +15,7 @@ import Worker from '../workers/OffCanvas?worker';
 import { makeProxy, makeFallback } from '../workers/ProxyWorker';
 import { createOffCanvasInst } from '../workers/OffCanvasInst';
 
-const props = defineProps<{ testKind: 'canvas' | 'DOM' | 'Offscreen' }>();
+const props = defineProps<{ testKind: 'canvas' | 'Offscreen' }>();
 const onMouseMove = ref((_arg: MouseEvent) => {});
 const onMouseLeave = ref((_arg: MouseEvent) => {});
 const canvas = ref<HTMLCanvasElement>();
