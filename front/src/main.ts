@@ -17,6 +17,7 @@ import BallAnimation from './pages/BallAnimation.vue';
 import TippyTest from './pages/TippyTest.vue';
 import GPGPU from './pages/GPGPU.vue';
 import Performance from './pages/Performance.vue';
+import Layers from './pages/Layers.vue';
 
 const routes = [
   { path: '/', component: Home },
@@ -31,6 +32,7 @@ const routes = [
   { path: '/tippy', component: TippyTest },
   { path: '/gpgpu', component: GPGPU },
   { path: '/perf', component: Performance },
+  { path: '/layers', component: Layers },
   // { path: '/set', component: Set },
   // { path: '/Wordle', component: Wordle },
   // { path: '/hilbert', component: Hilbert },
