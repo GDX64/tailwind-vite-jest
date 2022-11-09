@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "tailwind": "^0.0.0"
+  },
   "scripts": {
     "build": "npm run build --workspace=rust && npm run build --workspace=front",
     "deploy": "npm run build && firebase deploy",

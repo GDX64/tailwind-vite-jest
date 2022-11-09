@@ -6,11 +6,17 @@ import svgLoader from 'vite-svg-loader';
 import { defineConfig } from 'vite';
 import auto from 'autoprefixer';
 import tailwind from 'tailwindcss';
+import solidPlugin from 'vite-plugin-solid';
 
 // https://vitejs.dev/config/
 export default defineConfig((args) => {
   return {
-    plugins: [vue() /*checker({ typescript: true }) */, , glsl(), svgLoader()],
+    plugins: [
+      vue() /*checker({ typescript: true }) */,
+      glsl(),
+      svgLoader(),
+      solidPlugin(),
+    ],
     test: {
       globals: true,
       environment: 'happy-dom',

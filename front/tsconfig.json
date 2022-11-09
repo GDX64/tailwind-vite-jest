@@ -7,6 +7,7 @@
     "strict": true,
     "strictNullChecks": true,
     "jsx": "preserve",
+    "jsxImportSource": "solid-js",
     "noUnusedLocals": false,
     "allowJs": true,
     "sourceMap": true,

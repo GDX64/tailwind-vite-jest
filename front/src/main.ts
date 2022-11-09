@@ -18,6 +18,7 @@ import TippyTest from './pages/TippyTest.vue';
 import GPGPU from './pages/GPGPU.vue';
 import Performance from './pages/Performance.vue';
 import Layers from './pages/Layers.vue';
+import Solid from './pages/Solid.vue';
 
 const routes = [
   { path: '/', component: Home },
@@ -33,6 +34,7 @@ const routes = [
   { path: '/gpgpu', component: GPGPU },
   { path: '/perf', component: Performance },
   { path: '/layers', component: Layers },
+  { path: '/solid', component: Solid },
   // { path: '/set', component: Set },
   // { path: '/Wordle', component: Wordle },
   // { path: '/hilbert', component: Hilbert },
