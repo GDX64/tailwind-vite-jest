@@ -4,6 +4,7 @@
     <option :value="'canvas'">canvas</option>
     <option :value="'Offscreen'">Offscreen</option>
     <option :value="'PIXI'">PIXI</option>
+    <option :value="'PIXIOff'">PIXI off</option>
   </select>
   <TablePerformance
     :test-kind="testKind"
@@ -27,7 +28,7 @@ import TablePerformance from '../components/TablePerformance.vue';
 import { tableTest } from '../pixijs/hello/pixiTable';
 
 const table = ref(createData());
-const testKind = ref('DOM' as 'canvas' | 'DOM' | 'Offscreen' | 'PIXI');
+const testKind = ref('DOM' as 'canvas' | 'DOM' | 'Offscreen' | 'PIXI' | 'PIXIOff');
 const pixi = ref<HTMLElement>();
 watchEffect((clear) => {
   if (testKind.value === 'DOM') {

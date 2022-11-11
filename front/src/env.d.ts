@@ -18,11 +18,3 @@ declare module '*.glsl' {
   const code: string;
   export default code;
 }
-
-interface HTMLCanvasElement {
-  transferControlToOffscreen?(): OffscreenCanvas;
-}
-
-interface OffscreenCanvasRenderingContext2D extends CanvasRenderingContext2D {
-  commit?(): void;
-}

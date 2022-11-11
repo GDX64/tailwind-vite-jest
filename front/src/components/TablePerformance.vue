@@ -15,7 +15,7 @@ import Worker from '../workers/OffCanvas?worker';
 import { makeProxy, makeFallback } from '../workers/ProxyWorker';
 import { createOffCanvasInst } from '../workers/OffCanvasInst';
 
-const props = defineProps<{ testKind: 'canvas' | 'Offscreen' }>();
+const props = defineProps<{ testKind: 'canvas' | 'Offscreen' | 'PIXIOff' }>();
 const onMouseMove = ref((_arg: MouseEvent) => {});
 const onMouseLeave = ref((_arg: MouseEvent) => {});
 const canvas = ref<HTMLCanvasElement>();
@@ -28,16 +28,20 @@ watchEffect((clear) => {
 
   onMouseLeave.value = () => worker.p.mousePos(null);
 
-  const sub = worker.startCanvas().subscribe();
-  clear(() => {
-    sub.unsubscribe();
-    worker.terminate();
-  });
+  if (props.testKind === 'PIXIOff') {
+    worker.pixi();
+  } else {
+    const sub = worker.startCanvas().subscribe();
+    clear(() => {
+      sub.unsubscribe();
+      worker.terminate();
+    });
+  }
 });
 
 function createWorker() {
   const off =
-    props.testKind === 'Offscreen' ? canvas.value?.transferControlToOffscreen?.() : null;
+    props.testKind !== 'canvas' ? canvas.value?.transferControlToOffscreen?.() : null;
   if (off) {
     return makeProxy<typeof createOffCanvasInst>(new Worker(), {
       args: off,

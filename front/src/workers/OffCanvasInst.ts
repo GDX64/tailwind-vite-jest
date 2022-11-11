@@ -9,7 +9,7 @@ import {
   tap,
 } from 'rxjs';
 import { canvasRendering, TableEl } from './CanvasRendering';
-
+import * as PIXI from 'pixi.js';
 export type MousePos = null | [number, number];
 export function createOffCanvasInst(off: OffscreenCanvas) {
   const ctx = getContext2D(off);
@@ -18,6 +18,10 @@ export function createOffCanvasInst(off: OffscreenCanvas) {
   return {
     mousePos(pos: MousePos) {
       mousePos$.next(pos);
+      return of(true);
+    },
+    pixi() {
+      new PIXI.Application({ view: off as any, backgroundColor: 0xff0000 });
       return of(true);
     },
     startCanvas() {
