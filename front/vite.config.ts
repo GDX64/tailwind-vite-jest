@@ -1,6 +1,5 @@
 import { configDefaults } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
-import checker from 'vite-plugin-checker';
 import glsl from 'vite-plugin-glsl';
 import svgLoader from 'vite-svg-loader';
 import { defineConfig } from 'vite';

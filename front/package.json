@@ -12,7 +12,7 @@
     "chart.js": "^3.9.1",
     "gl-matrix": "^3.4.3",
     "mitt": "^3.0.0",
-    "pixi.js": "^7.0.3",
+    "pixi.js": "^7.1.0-alpha",
     "popmotion": "^11.0.5",
     "ramda": "^0.28.0",
     "roughjs": "^4.5.2",

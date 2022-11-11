@@ -35,7 +35,7 @@ export function tableTest(el: HTMLElement) {
     },
     { chars: PIXI.BitmapFont.NUMERIC }
   );
-  const app = new PIXI.Application({
+  const app = new PIXI.Application<HTMLCanvasElement>({
     height: 1000,
     width: 1000,
     backgroundColor: 0xffffff,
