@@ -23,7 +23,7 @@ import { animationFrames } from 'rxjs';
 import TablePerformance from '../components/TablePerformance.vue';
 
 const table = ref(createData());
-const testKind = ref('DOM' as 'canvas' | 'DOM' | 'Offscreen' | 'PIXI' | 'PIXIOff');
+const testKind = ref('PIXI' as 'canvas' | 'DOM' | 'Offscreen' | 'PIXI' | 'PIXIOff');
 const pixi = ref<HTMLElement>();
 watchEffect((clear) => {
   if (testKind.value === 'DOM') {

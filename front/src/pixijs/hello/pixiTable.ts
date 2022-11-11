@@ -23,7 +23,7 @@ export function tableTest(view: HTMLCanvasElement, resolution: number) {
       fontFamily: 'Segoe Ui',
       fontSize: 12,
     },
-    { chars: PIXI.BitmapFont.NUMERIC }
+    { chars: PIXI.BitmapFont.NUMERIC, resolution }
   );
   PIXI.BitmapFont.from(
     'red',
@@ -32,11 +32,11 @@ export function tableTest(view: HTMLCanvasElement, resolution: number) {
       fontSize: 12,
       fill: 'red',
     },
-    { chars: PIXI.BitmapFont.NUMERIC }
+    { chars: PIXI.BitmapFont.NUMERIC, resolution }
   );
   const app = new PIXI.Application({
-    height: 1000,
-    width: 1000,
+    height: 500,
+    width: 500,
     backgroundColor: 0xffffff,
     view,
     resolution,
@@ -45,7 +45,7 @@ export function tableTest(view: HTMLCanvasElement, resolution: number) {
   const table = createTable(rows);
   app.stage.addChild(table.table);
   const sub = animationFrames().subscribe(() => {
-    updateText(table);
+    // updateText(table);
   });
   return () => {
     sub.unsubscribe();

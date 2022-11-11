@@ -1,12 +1,5 @@
 <template>
-  <canvas
-    ref="canvas"
-    width="600"
-    height="500"
-    @mousemove="onMouseMove"
-    @mouseleave="onMouseLeave"
-  >
-  </canvas>
+  <canvas ref="canvas" @mousemove="onMouseMove" @mouseleave="onMouseLeave"> </canvas>
 </template>
 
 <script setup lang="ts">
@@ -20,8 +13,12 @@ const onMouseMove = ref((_arg: MouseEvent) => {});
 const onMouseLeave = ref((_arg: MouseEvent) => {});
 const canvas = ref<HTMLCanvasElement>();
 watchEffect((clear) => {
+  if (!canvas.value) return;
+
+  canvas.value.style.width = '500px';
+  canvas.value.style.height = '500px';
   if (props.testKind === 'PIXI') {
-    clear(tableTest(canvas.value!, 1));
+    clear(tableTest(canvas.value!, devicePixelRatio));
     return;
   }
   const worker = createWorker();
