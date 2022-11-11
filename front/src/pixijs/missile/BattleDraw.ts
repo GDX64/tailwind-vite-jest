@@ -3,7 +3,6 @@ import { Graphics } from 'pixi.js';
 import BattleMap, { Scene } from './BattleMap';
 import Missile from './Missile';
 import { Scale, ScalePair } from '../chart/Scale';
-import { explode } from './Explosion';
 
 export default class BattleDraw {
   private map: BattleMap;
@@ -21,7 +20,6 @@ export default class BattleDraw {
     el.appendChild(this.app.view);
     this.map = new BattleMap(0.05);
     this.app.stage.addChild(this.g);
-    this.app.stage.addChild(this.explosionsContainer);
   }
 
   static start(el: HTMLElement) {
@@ -44,9 +42,7 @@ export default class BattleDraw {
       const [x, y] = this.scalePair.scaleVec2(m.pos);
       this.g.beginFill(0x000000, 1).drawEllipse(x, y, 6, 6).endFill();
     });
-    scene.explosions.forEach((explosion) => {
-      explode(this.explosionsContainer, this.scalePair.scaleVec2(explosion.at));
-    });
+    scene.explosions.forEach((explosion) => {});
   }
 }
 
