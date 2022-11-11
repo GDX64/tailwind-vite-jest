@@ -19,7 +19,7 @@ import GPGPU from './pages/GPGPU.vue';
 import Performance from './pages/Performance.vue';
 import Layers from './pages/Layers.vue';
 import Solid from './pages/Solid.vue';
-
+import PixiOff from './pages/PixiOff/PixiOff.vue';
 const routes = [
   { path: '/', component: Home },
   { path: '/bg', component: BackGround },
@@ -35,6 +35,7 @@ const routes = [
   { path: '/perf', component: Performance },
   { path: '/layers', component: Layers },
   { path: '/solid', component: Solid },
+  { path: '/offscreen', component: PixiOff },
   // { path: '/set', component: Set },
   // { path: '/Wordle', component: Wordle },
   // { path: '/hilbert', component: Hilbert },

@@ -29,7 +29,7 @@ watchEffect((clear) => {
   onMouseLeave.value = () => worker.p.mousePos(null);
 
   if (props.testKind === 'PIXIOff') {
-    worker.pixi();
+    worker.p.pixi();
   } else {
     const sub = worker.startCanvas().subscribe();
     clear(() => {

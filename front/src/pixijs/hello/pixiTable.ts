@@ -16,7 +16,7 @@ export function createRandomRows() {
   return [...Array(20)].map(createRandomRow);
 }
 
-export function tableTest(el: HTMLElement) {
+export function tableTest(el: HTMLCanvasElement) {
   PIXI.settings.RESOLUTION = devicePixelRatio;
   PIXI.BitmapFont.from(
     'black',

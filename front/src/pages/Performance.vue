@@ -37,7 +37,7 @@ watchEffect((clear) => {
     });
     clear(() => sub.unsubscribe());
   } else if (testKind.value === 'PIXI' && pixi.value) {
-    clear(tableTest(pixi.value));
+    // clear(tableTest(pixi.value));
   }
 });
 </script>

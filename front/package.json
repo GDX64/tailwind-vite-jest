@@ -9,6 +9,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@pixi/webworker": "^7.1.0-alpha",
     "chart.js": "^3.9.1",
     "gl-matrix": "^3.4.3",
     "mitt": "^3.0.0",
