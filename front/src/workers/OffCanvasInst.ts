@@ -7,9 +7,10 @@ import {
   combineLatest,
   BehaviorSubject,
   tap,
+  Observable,
 } from 'rxjs';
 import { canvasRendering, TableEl } from './CanvasRendering';
-import * as PIXI from '@pixi/webworker';
+import { tableTest } from '../pixijs/hello/pixiTable';
 export type MousePos = null | [number, number];
 export function createOffCanvasInst(off: OffscreenCanvas) {
   const mousePos$ = new BehaviorSubject(null as MousePos);
@@ -18,12 +19,8 @@ export function createOffCanvasInst(off: OffscreenCanvas) {
       mousePos$.next(pos);
       return of(true);
     },
-    pixi() {
-      const app = new PIXI.Application<HTMLCanvasElement>({
-        view: off as any,
-        backgroundColor: 0xff0000,
-      });
-      return of(true);
+    pixi(resolution: number) {
+      return new Observable(() => tableTest(off as HTMLCanvasElement, resolution));
     },
     startCanvas() {
       const ctx = getContext2D(off);

@@ -1,4 +1,4 @@
-import * as PIXI from 'pixi.js';
+import * as PIXI from '@pixi/webworker';
 import { animationFrames } from 'rxjs';
 
 export function createRandomRow() {
@@ -16,8 +16,7 @@ export function createRandomRows() {
   return [...Array(20)].map(createRandomRow);
 }
 
-export function tableTest(el: HTMLCanvasElement) {
-  PIXI.settings.RESOLUTION = devicePixelRatio;
+export function tableTest(view: HTMLCanvasElement, resolution: number) {
   PIXI.BitmapFont.from(
     'black',
     {
@@ -35,12 +34,13 @@ export function tableTest(el: HTMLCanvasElement) {
     },
     { chars: PIXI.BitmapFont.NUMERIC }
   );
-  const app = new PIXI.Application<HTMLCanvasElement>({
+  const app = new PIXI.Application({
     height: 1000,
     width: 1000,
     backgroundColor: 0xffffff,
+    view,
+    resolution,
   });
-  el.appendChild(app.view);
   const rows = createRandomRows();
   const table = createTable(rows);
   app.stage.addChild(table.table);
@@ -49,8 +49,7 @@ export function tableTest(el: HTMLCanvasElement) {
   });
   return () => {
     sub.unsubscribe();
-    app.view.remove();
-    app.destroy();
+    app.stop();
   };
 }
 

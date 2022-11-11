@@ -14,12 +14,16 @@ import { ref, watchEffect } from 'vue';
 import Worker from '../workers/OffCanvas?worker';
 import { makeProxy, makeFallback } from '../workers/ProxyWorker';
 import { createOffCanvasInst } from '../workers/OffCanvasInst';
-
-const props = defineProps<{ testKind: 'canvas' | 'Offscreen' | 'PIXIOff' }>();
+import { tableTest } from '../pixijs/hello/pixiTable';
+const props = defineProps<{ testKind: 'canvas' | 'Offscreen' | 'PIXIOff' | 'PIXI' }>();
 const onMouseMove = ref((_arg: MouseEvent) => {});
 const onMouseLeave = ref((_arg: MouseEvent) => {});
 const canvas = ref<HTMLCanvasElement>();
 watchEffect((clear) => {
+  if (props.testKind === 'PIXI') {
+    clear(tableTest(canvas.value!, 1));
+    return;
+  }
   const worker = createWorker();
   if (!worker) return;
   onMouseMove.value = (event) => {
@@ -29,7 +33,7 @@ watchEffect((clear) => {
   onMouseLeave.value = () => worker.p.mousePos(null);
 
   if (props.testKind === 'PIXIOff') {
-    worker.p.pixi();
+    worker.p.pixi(devicePixelRatio);
   } else {
     const sub = worker.startCanvas().subscribe();
     clear(() => {
@@ -41,7 +45,9 @@ watchEffect((clear) => {
 
 function createWorker() {
   const off =
-    props.testKind !== 'canvas' ? canvas.value?.transferControlToOffscreen?.() : null;
+    props.testKind !== 'canvas' && props.testKind !== 'PIXI'
+      ? canvas.value?.transferControlToOffscreen?.()
+      : null;
   if (off) {
     return makeProxy<typeof createOffCanvasInst>(new Worker(), {
       args: off,
