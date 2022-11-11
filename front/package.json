@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
+    "check": "vue-tsc --noEmit",
     "preview": "vite preview",
     "test": "vitest"
   },
@@ -45,6 +46,6 @@
     "vite-plugin-glsl": "^0.0.9",
     "vite-plugin-solid": "^2.4.0",
     "vitest": "^0.22.1",
-    "vue-tsc": "^0.29.8"
+    "vue-tsc": "^1.0.9"
   }
 }
