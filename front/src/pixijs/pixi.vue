@@ -9,7 +9,7 @@ import { shaderTexture } from './hello/shaderTexture';
 const canvas = ref<HTMLCanvasElement>();
 watchEffect((clear) => {
   if (canvas.value) {
-    clear(shaderTexture(canvas.value, devicePixelRatio));
+    clear(shadersTest(canvas.value, devicePixelRatio));
   }
 });
 </script>
