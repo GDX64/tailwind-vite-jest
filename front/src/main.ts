@@ -5,7 +5,7 @@ import './index.css';
 import Home from './pages/Home.vue';
 import BackGround from './pages/BackGround.vue';
 import Test from './pages/QuickTest.vue';
-import Pixi from './pixijs/pixi.vue';
+import Pixi from './pixijs/Pixi.vue';
 import Grid from './components/Grid.vue';
 import CV from './pages/CV.vue';
 import Wordle from './wordle/Wordle.vue';
@@ -24,7 +24,7 @@ const routes = [
   { path: '/', component: Home },
   { path: '/bg', component: BackGround },
   { path: '/test', component: Test },
-  { path: '/pixi', component: Pixi },
+  { path: '/pixi', component: Pixi, name: 'pixi' },
   { path: '/animation', component: Pixi },
   { path: '/grid', component: Grid },
   { path: '/cv', component: CV },
