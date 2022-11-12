@@ -1,21 +1,14 @@
 <template>
-  <div ref="pixi" @click="shot"></div>
+  <canvas ref="canvas"></canvas>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
-import BattleDraw from './missile/BattleDraw';
-// import { createTest } from './chart/test';
-// import { start } from '../webgpu/hello';
-
-const pixi = ref<HTMLElement>();
-let battle = null as null | BattleDraw;
-onMounted(() => {
-  if (!pixi.value) throw Error('no pixi');
-  battle = BattleDraw.start(pixi.value);
+import { ref, watchEffect } from 'vue';
+import { shadersTest } from './hello/shaders';
+const canvas = ref<HTMLCanvasElement>();
+watchEffect((clear) => {
+  if (canvas.value) {
+    clear(shadersTest(canvas.value, devicePixelRatio));
+  }
 });
-
-function shot() {
-  battle?.shot();
-}
 </script>

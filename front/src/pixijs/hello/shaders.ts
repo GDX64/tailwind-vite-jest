@@ -1,8 +1,7 @@
 import * as PIXI from 'pixi.js';
 
-export function shadersTest(el: HTMLElement) {
-  const app = new PIXI.Application();
-  el.appendChild(app.view);
+export function shadersTest(el: HTMLCanvasElement, resolution: number) {
+  const app = new PIXI.Application({ view: el, resolution, height: 500, width: 500 });
 
   const geometry = new PIXI.Geometry().addAttribute(
     'aVertexPosition',
@@ -10,7 +9,7 @@ export function shadersTest(el: HTMLElement) {
   );
 
   const shader = PIXI.Shader.from(
-    `
+    /*GLSL*/ `
     precision mediump float;
     attribute vec2 aVertexPosition;
 
@@ -22,7 +21,7 @@ export function shadersTest(el: HTMLElement) {
     } 
       `,
 
-    `precision mediump float;
+    /*GLSL*/ `precision mediump float;
   
       void main() {
           gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
@@ -43,4 +42,7 @@ export function shadersTest(el: HTMLElement) {
   app.ticker.add((delta) => {
     triangle.rotation += 0.01;
   });
+  return () => {
+    app.destroy();
+  };
 }

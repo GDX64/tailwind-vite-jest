@@ -5,7 +5,7 @@ import './index.css';
 import Home from './pages/Home.vue';
 import BackGround from './pages/BackGround.vue';
 import Test from './pages/QuickTest.vue';
-import Pixi from './pixijs/Pixi.vue';
+import Pixi from './pixijs/pixi.vue';
 import Grid from './components/Grid.vue';
 import CV from './pages/CV.vue';
 import Wordle from './wordle/Wordle.vue';
