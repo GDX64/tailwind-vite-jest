@@ -1,51 +1,64 @@
 import { faker } from '@faker-js/faker';
 import * as PIXI from 'pixi.js';
 import { range } from 'ramda';
-import { computed, effectScope, ref, Ref, watchEffect } from 'vue';
+import {
+  Accessor,
+  createEffect,
+  createMemo,
+  createRoot,
+  createSignal,
+  mapArray,
+  onCleanup,
+  Signal,
+} from 'solid-js';
 
 interface TableData {
-  values: { text: string }[];
+  values: Signal<{ text: string }>[];
   height: number;
 }
 
 function dataGen(): TableData {
   const cats = range(0, 10).map(() => {
     const text = faker.animal.cat();
-    return { text };
+    return createSignal({ text });
   });
   return { height: 20, values: cats };
 }
 
 export function setupDomTest(view: HTMLCanvasElement, resolution: number) {
-  const data = ref(dataGen());
-  const effect = effectScope();
+  const data = createSignal(dataGen());
   (window as any).data = data;
-  const clear = effect.run(() => createTable(view, data));
-  return () => {
-    effect.stop();
-    clear?.();
-  };
+  return createRoot((dispose) => {
+    <CreateTable view={view} data={data[0]}></CreateTable>;
+    return dispose;
+  });
 }
 
-function createTable(view: HTMLCanvasElement, data: Ref<TableData>) {
+function CreateTable({
+  view,
+  data,
+}: {
+  view: HTMLCanvasElement;
+  data: Accessor<TableData>;
+}) {
   createBitMapFonts(devicePixelRatio);
-
-  const compRows = computed(() => {
-    return data.value.values.map((row, index) => {
-      return computed(() => {
+  const compRows = mapArray(
+    () => data().values,
+    (row, index) => {
+      return createMemo(() => {
         console.log('row calc');
-        const tx = new PIXI.BitmapText(row.text, { fontName: 'black' });
-        tx.y = index * data.value.height;
+        const tx = new PIXI.BitmapText(row[0]().text, { fontName: 'black' });
+        tx.y = index() * data().height;
         tx.cacheAsBitmap = true;
         return tx;
       });
-    });
-  });
-  const rows = computed(() => {
+    }
+  );
+  const rows = createMemo(() => {
     const container = new PIXI.Container();
     container.x = 50;
     container.y = 50;
-    container.addChild(...compRows.value.map((row) => row.value));
+    container.addChild(...compRows().map((row) => row()));
     return container;
   });
 
@@ -56,12 +69,13 @@ function createTable(view: HTMLCanvasElement, data: Ref<TableData>) {
     resolution: devicePixelRatio,
     backgroundColor: 0xffffff,
   });
-  watchEffect((clear) => {
-    const rowsDisplay = rows.value;
+  createEffect(() => {
+    const rowsDisplay = rows();
     app.stage.addChild(rowsDisplay);
-    clear(() => app.stage.removeChild(rowsDisplay));
+    onCleanup(() => app.stage.removeChild(rowsDisplay));
   });
-  return () => app.destroy();
+  onCleanup(() => app.destroy());
+  return '';
 }
 
 function createBitMapFonts(resolution: number) {

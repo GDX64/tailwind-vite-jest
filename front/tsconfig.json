@@ -15,13 +15,18 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "lib": ["esnext", "dom", "dom.iterable"],
-    "types": ["vitest/globals", "@webgpu/types"]
+    "types": ["vitest/globals", "@webgpu/types"],
+    // "baseUrl": "./"
+    "paths": {
+      "@solidRender/*": ["./solidRender/*"]
+    }
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
-    "tests/**/*.ts"
+    "tests/**/*.ts",
+    "solidRender/**/*.ts"
   ]
 }
