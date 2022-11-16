@@ -7,11 +7,11 @@ import { Scale, ScalePair } from '../chart/Scale';
 export default class BattleDraw {
   private map: BattleMap;
   private g: PIXI.Graphics = new Graphics();
-  private app: PIXI.Application;
+  private app: PIXI.Application<HTMLCanvasElement>;
   private explosionsContainer = new PIXI.Container();
   private scalePair: ScalePair;
   constructor(el: HTMLElement) {
-    this.app = new PIXI.Application({
+    this.app = new PIXI.Application<HTMLCanvasElement>({
       backgroundColor: 0xffdddd,
       height: 900,
       width: 900,

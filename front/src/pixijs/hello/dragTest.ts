@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { fromEvent, fromEventPattern, switchMap, takeUntil } from 'rxjs';
 export function startTest(el: HTMLElement) {
-  const app = new PIXI.Application({});
+  const app = new PIXI.Application<HTMLCanvasElement>({});
   el.appendChild(app.view);
   const sprite = PIXI.Sprite.from('./afsdf.png');
   const graphics = new PIXI.Graphics();
@@ -33,7 +33,7 @@ export function startTest(el: HTMLElement) {
 }
 
 function spriteDrag(sprite: PIXI.Container) {
-  return fromEventPattern<PIXI.InteractionEvent>(
+  return fromEventPattern<PIXI.PointerEvents>(
     (add) => sprite.on('mousedown', add),
     (remove) => sprite.removeListener('mousedown', remove)
   ).pipe(

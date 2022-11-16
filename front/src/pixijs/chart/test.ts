@@ -5,7 +5,7 @@ import { makeStickData } from './dataProvider';
 import { StickPlot } from './StickPlot';
 
 export async function createTest($el: HTMLElement) {
-  const app = new PIXI.Application({ backgroundColor: 0xffffff });
+  const app = new PIXI.Application<HTMLCanvasElement>({ backgroundColor: 0xffffff });
   $el.appendChild(app.view);
   const graphics = new PIXI.Graphics();
   graphics.drawRect(100, 100, 300, 300);

@@ -37,7 +37,7 @@ function createBallApp() {
   if (!pixi.value || !ready.value) {
     return () => {};
   }
-  const app = new P.Application({
+  const app = new P.Application<HTMLCanvasElement>({
     antialias: true,
     backgroundColor: 0xffffff,
     width: window.screen.width,
