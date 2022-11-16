@@ -7,7 +7,9 @@
     "strict": true,
     "strictNullChecks": true,
     "jsx": "preserve",
-    "jsxImportSource": "solid-js",
+    "jsxImportSource": "solidRender",
+    // "jsxFactory": "solidRender",
+    // "jsxFragmentFactory": "solidRender",
     "noUnusedLocals": false,
     "allowJs": true,
     "sourceMap": true,
@@ -16,7 +18,7 @@
     "skipLibCheck": true,
     "lib": ["esnext", "dom", "dom.iterable"],
     "types": ["vitest/globals", "@webgpu/types"],
-    // "baseUrl": "./"
+    // "baseUrl": "./",
     "paths": {
       "@solidRender/*": ["./solidRender/*"]
     }
