@@ -6,6 +6,7 @@ import { defineConfig } from 'vite';
 import auto from 'autoprefixer';
 import tailwind from 'tailwindcss';
 import solidPlugin from 'vite-plugin-solid';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig((args) => {
@@ -14,7 +15,12 @@ export default defineConfig((args) => {
       vue() /*checker({ typescript: true }) */,
       glsl(),
       svgLoader(),
-      solidPlugin(),
+      solidPlugin({
+        solid: {
+          generate: 'universal',
+          moduleName: '@solidRender/CustomRender',
+        },
+      }),
     ],
     test: {
       globals: true,
@@ -35,6 +41,7 @@ export default defineConfig((args) => {
     resolve: {
       alias: {
         vue: 'vue/dist/vue.esm-bundler.js',
+        '@solidRender': path.resolve(__dirname, 'solidRender'),
       },
     },
   };

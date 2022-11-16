@@ -7,7 +7,9 @@
     "strict": true,
     "strictNullChecks": true,
     "jsx": "preserve",
-    "jsxImportSource": "solid-js",
+    "jsxImportSource": "solidRender",
+    // "jsxFactory": "solidRender",
+    // "jsxFragmentFactory": "solidRender",
     "noUnusedLocals": false,
     "allowJs": true,
     "sourceMap": true,
@@ -15,13 +17,18 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "lib": ["esnext", "dom", "dom.iterable"],
-    "types": ["vitest/globals", "@webgpu/types"]
+    "types": ["vitest/globals", "@webgpu/types"],
+    // "baseUrl": "./",
+    "paths": {
+      "@solidRender/*": ["./solidRender/*"]
+    }
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
-    "tests/**/*.ts"
+    "tests/**/*.ts",
+    "solidRender/**/*.ts"
   ]
 }
