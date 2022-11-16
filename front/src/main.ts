@@ -20,12 +20,14 @@ import Performance from './pages/Performance.vue';
 import Layers from './pages/Layers.vue';
 import Solid from './pages/Solid.vue';
 import PixiOff from './pages/PixiOff/PixiOff.vue';
+import Animation from './pages/Animation.vue';
 const routes = [
   { path: '/', component: Home },
   { path: '/bg', component: BackGround },
   { path: '/test', component: Test },
   { path: '/pixi', component: Pixi, name: 'pixi' },
   { path: '/animation', component: Pixi },
+  { path: '/ani', component: Animation },
   { path: '/grid', component: Grid },
   { path: '/cv', component: CV },
   { path: '/ticker', component: TickerPage },
