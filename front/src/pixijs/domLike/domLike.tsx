@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { render, For } from '@solidRender/CustomRender';
 import * as PIXI from 'pixi.js';
 import { range } from 'ramda';
 import {
@@ -28,40 +29,6 @@ function dataGen(): TableData {
 export function setupDomTest(view: HTMLCanvasElement, resolution: number) {
   const data = createSignal(dataGen());
   (window as any).data = data;
-  return createRoot((dispose) => {
-    <CreateTable view={view} data={data[0]}></CreateTable>;
-    return dispose;
-  });
-}
-
-function CreateTable({
-  view,
-  data,
-}: {
-  view: HTMLCanvasElement;
-  data: Accessor<TableData>;
-}) {
-  createBitMapFonts(devicePixelRatio);
-  const compRows = mapArray(
-    () => data().values,
-    (row, index) => {
-      return createMemo(() => {
-        console.log('row calc');
-        const tx = new PIXI.BitmapText(row[0]().text, { fontName: 'black' });
-        tx.y = index() * data().height;
-        tx.cacheAsBitmap = true;
-        return tx;
-      });
-    }
-  );
-  const rows = createMemo(() => {
-    const container = new PIXI.Container();
-    container.x = 50;
-    container.y = 50;
-    container.addChild(...compRows().map((row) => row()));
-    return container;
-  });
-
   const app = new PIXI.Application({
     view,
     height: 500,
@@ -69,13 +36,35 @@ function CreateTable({
     resolution: devicePixelRatio,
     backgroundColor: 0xffffff,
   });
+  return render(() => <CreateTable data={data[0]}></CreateTable>, app.stage);
+}
+
+function CreateTable(args: { data: Accessor<TableData> }) {
+  createBitMapFonts(devicePixelRatio);
+  return (
+    <cont x={100} y={100} cacheAsBitmap={true}>
+      <For each={args.data().values}>
+        {(item, index) =>
+          (<Row text={item[0]().text} y={index() * args.data().height}></Row>) as any
+        }
+      </For>
+    </cont>
+  );
+}
+
+function Row(arg: { text: string; y: number }) {
+  const tx = new PIXI.BitmapText(arg.text, { fontName: 'black' });
+  tx.interactive = true;
+  tx.addListener('mouseenter', () => (tx.alpha = 0.5));
+  tx.addListener('mouseleave', () => (tx.alpha = 1));
+  console.log('montei');
   createEffect(() => {
-    const rowsDisplay = rows();
-    app.stage.addChild(rowsDisplay);
-    onCleanup(() => app.stage.removeChild(rowsDisplay));
+    console.log('update');
+    tx.text = arg.text;
+    tx.y = arg.y;
   });
-  onCleanup(() => app.destroy());
-  return '';
+  onCleanup(() => console.log('clean'));
+  return tx;
 }
 
 function createBitMapFonts(resolution: number) {
