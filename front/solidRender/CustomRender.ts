@@ -2,6 +2,7 @@
 import { createRenderer } from 'solid-js/universal';
 import * as PIXI from 'pixi.js';
 import { BitmapText } from 'pixi.js';
+export * from './jsx-runtime';
 
 export const {
   render,
@@ -16,7 +17,13 @@ export const {
   setProp,
   mergeProps,
 } = createRenderer<PIXI.Container>({
-  createElement(string) {
+  createElement(kind) {
+    if (kind === 'graphics') {
+      return new PIXI.Graphics();
+    }
+    if (kind === 'text') {
+      return new PIXI.Text();
+    }
     return new PIXI.Container();
   },
   createTextNode(value: string) {
@@ -26,7 +33,11 @@ export const {
     const txt = textNode as PIXI.Text;
     txt.text = value;
   },
-  setProperty(node, name, value) {
+  setProperty(node: any, name: any, value: any) {
+    console.log(node, name, value);
+    if (name in node) {
+      node[name] = value;
+    }
     // if (name === 'style') Object.assign(node.style, value);
     // else if (name.startsWith('on')) node[name.toLowerCase()] = value;
     // else if (PROPERTIES.has(name)) node[name] = value;
