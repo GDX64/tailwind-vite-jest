@@ -5,21 +5,20 @@ import { range } from 'ramda';
 import { Accessor, createEffect, createSignal, onCleanup, Signal } from 'solid-js';
 
 interface TableData {
-  values: Signal<{ text: string }>[];
+  values: { text: Signal<string> }[];
   height: number;
 }
 
 function dataGen(): TableData {
   const cats = range(0, 10).map(() => {
     const text = faker.animal.cat();
-    return createSignal({ text });
+    return { text: createSignal(text) };
   });
   return { height: 20, values: cats };
 }
 
 export function setupDomTest(view: HTMLCanvasElement, resolution: number) {
   const data = createSignal(dataGen());
-  (window as any).data = data;
   const app = new PIXI.Application({
     view,
     height: 500,
@@ -33,25 +32,26 @@ export function setupDomTest(view: HTMLCanvasElement, resolution: number) {
 function CreateTable(args: { data: Accessor<TableData> }) {
   createBitMapFonts(devicePixelRatio);
   return (
-    <cont x={100} y={100} cacheAsBitmap={true}>
+    <cont x={100} y={100} cacheAsBitmap={false}>
       <For each={args.data().values}>
         {(item, index) =>
-          (<Row text={item[0]().text} y={index() * args.data().height}></Row>) as any
+          (<Row text={item.text} y={index() * args.data().height}></Row>) as any
         }
       </For>
     </cont>
   );
 }
 
-function Row(arg: { text: string; y: number }) {
-  const tx = new PIXI.BitmapText(arg.text, { fontName: 'black' });
+function Row(arg: { text: Signal<string>; y: number }) {
+  const tx = new PIXI.BitmapText(arg.text[0](), { fontName: 'black' });
   tx.interactive = true;
   tx.addListener('mouseenter', () => (tx.alpha = 0.5));
   tx.addListener('mouseleave', () => (tx.alpha = 1));
+  tx.addListener('click', () => arg.text[1](faker.animal.cat()));
   console.log('montei');
   createEffect(() => {
     console.log('update');
-    tx.text = arg.text;
+    tx.text = arg.text[0]();
     tx.y = arg.y;
   });
   onCleanup(() => console.log('clean'));
