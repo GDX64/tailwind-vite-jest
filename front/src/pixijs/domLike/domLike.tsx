@@ -2,16 +2,7 @@ import { faker } from '@faker-js/faker';
 import { render, For } from '@solidRender/CustomRender';
 import * as PIXI from 'pixi.js';
 import { range } from 'ramda';
-import {
-  Accessor,
-  createEffect,
-  createMemo,
-  createRoot,
-  createSignal,
-  mapArray,
-  onCleanup,
-  Signal,
-} from 'solid-js';
+import { Accessor, createEffect, createSignal, onCleanup, Signal } from 'solid-js';
 
 interface TableData {
   values: Signal<{ text: string }>[];
