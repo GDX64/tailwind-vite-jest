@@ -1,5 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils';
-import Demo from './demo.vue';
+import DemoComp from './demo.vue';
+
+const Demo = DemoComp as any;
 
 describe('test ui', () => {
   test('typing', async () => {
