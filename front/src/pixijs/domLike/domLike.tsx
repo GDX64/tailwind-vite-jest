@@ -34,9 +34,7 @@ function CreateTable(args: { data: Accessor<TableData> }) {
   return (
     <cont x={100} y={100} cacheAsBitmap={false}>
       <For each={args.data().values}>
-        {(item, index) =>
-          (<Row text={item.text} y={index() * args.data().height}></Row>) as any
-        }
+        {(item, index) => <Row text={item.text} y={index() * args.data().height}></Row>}
       </For>
     </cont>
   );
