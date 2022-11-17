@@ -15,7 +15,6 @@
 <script setup lang="ts">
 import { animationFrames, endWith, exhaustMap, fromEvent, map, takeUntil } from 'rxjs';
 import { onMounted, reactive, ref } from 'vue';
-import gsap from 'gsap';
 import { range } from 'ramda';
 import { randomColor, randRange } from '../pixijs/hello/utils';
 const el = ref<HTMLElement>();
@@ -30,12 +29,7 @@ const els = range(0, 100_000).map(() => {
 });
 onMounted(() => {
   if (!el.value) return;
-  gsapAni(el.value);
 });
-
-function gsapAni(square: HTMLElement) {
-  gsap.to(square, { repeat: Infinity, x: 500 });
-}
 
 function rxjsAni(square: HTMLElement) {
   const mouseObs = fromEvent<MouseEvent>(square, 'mousedown').pipe(
