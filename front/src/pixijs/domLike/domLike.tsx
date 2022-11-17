@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { render, For } from '@solidRender/CustomRender';
+import { render, For, JSX } from '@solidRender/CustomRender';
 import * as PIXI from 'pixi.js';
 import { range } from 'ramda';
 import { Accessor, createEffect, createSignal, onCleanup, Signal } from 'solid-js';
@@ -37,6 +37,9 @@ function CreateTable(args: { data: Accessor<TableData> }) {
   createBitMapFonts(devicePixelRatio);
   return (
     <cont x={100} y={100} cacheAsBitmap={false}>
+      <Graphic x={50} color={0xff0000}>
+        {[new PIXI.Rectangle(100, 0, 100, 30)]}
+      </Graphic>
       <Btn
         value="height +"
         onClick={() =>
@@ -72,12 +75,33 @@ function CreateTable(args: { data: Accessor<TableData> }) {
   );
 }
 
-function Btn(props: { value: string; onClick: () => void; y: number }) {
+function Graphic(args: PosProps & { children: PIXI.IShape[] } & { color: number }) {
+  const g = new PIXI.Graphics();
+  createEffect(() => {
+    g.clear();
+    args.children.forEach((shape) => {
+      g.beginFill(args.color).drawShape(shape).endFill();
+    });
+  });
+  posWatcher(g, args);
+  return g;
+}
+
+type PosProps = { x?: number; y?: number };
+
+function posWatcher(el: JSX.Element, pos: PosProps) {
+  createEffect(() => {
+    el.x = pos.x ?? el.x;
+    el.y = pos.y ?? el.y;
+  });
+}
+
+function Btn(props: { value: string; onClick: () => void } & PosProps) {
   const txt = new PIXI.Text(props.value);
   txt.style.fontSize = 12;
   txt.interactive = true;
   txt.addListener('click', props.onClick);
-  txt.y = props.y;
+  posWatcher(txt, props);
   return txt;
 }
 
