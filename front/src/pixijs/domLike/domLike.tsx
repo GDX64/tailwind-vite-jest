@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker';
 import { render, For, JSX } from '@solidRender/CustomRender';
 import * as PIXI from 'pixi.js';
 import { range } from 'ramda';
+import { animationFrames } from 'rxjs';
 import { createEffect, createMemo, createSignal, Signal } from 'solid-js';
 import { createMutable, createStore } from 'solid-js/store';
 
@@ -18,7 +19,7 @@ interface TableData {
 const store = dataGen();
 
 function dataGen(): TableData {
-  const cats = range(0, 10).map(() => {
+  const cats = range(0, 30).map(() => {
     return randomCat();
   });
   const store = createMutable({ height: 20, values: cats });
@@ -37,12 +38,14 @@ function randomCat() {
 export function setupDomTest(view: HTMLCanvasElement, resolution: number) {
   const app = new PIXI.Application({
     view,
-    height: 500,
+    height: 1000,
     width: 500,
     resolution: devicePixelRatio,
     backgroundColor: 0xffffff,
   });
-  return render(() => <CreateTable></CreateTable>, app.stage);
+  return render(() => {
+    return <CreateTable></CreateTable>;
+  }, app.stage);
 }
 
 function calcAge(date: Date) {
@@ -58,6 +61,10 @@ function CreateTable() {
   function sortByAge(cats: Cat[]) {
     return [...cats].sort((a, b) => (a.birth > b.birth ? -1 : 1));
   }
+  animationFrames().subscribe(() => {
+    const index = Math.floor(store.values.length * Math.random());
+    store.values[index].birth = faker.date.birthdate();
+  });
   return (
     <cont x={10} y={100} cacheAsBitmap={false}>
       <Btn
@@ -125,13 +132,14 @@ function Btn(props: { value: string; onClick: () => void } & PosProps) {
 
 function Row(args: { text: string; birth: Date; oldest: number; y: number }) {
   const age = createMemo(() => calcAge(args.birth));
+  const proportion = createMemo(() => (100 * age()) / args.oldest);
   return (
     <cont y={args.y}>
       <NameCell text={args.text} x={0}></NameCell>
       <NameCell text={args.birth.toUTCString()} x={100}></NameCell>
       <NameCell text={String(age())} x={300}></NameCell>
-      <Graphic x={350} color={0xff0000}>
-        {[new PIXI.Rectangle(0, 0, (100 * age()) / args.oldest, 10)]}
+      <Graphic x={350} color={Math.round((1 - proportion() / 100) * 255)}>
+        {[new PIXI.Rectangle(0, 0, proportion(), 10)]}
       </Graphic>
     </cont>
   );
