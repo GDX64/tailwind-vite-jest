@@ -2,51 +2,39 @@ import { faker } from '@faker-js/faker';
 import { render, For, JSX } from '@solidRender/CustomRender';
 import * as PIXI from 'pixi.js';
 import { range } from 'ramda';
-import {
-  Accessor,
-  createEffect,
-  createSignal,
-  onCleanup,
-  Signal,
-  createMemo,
-} from 'solid-js';
+import { createEffect, createMemo, createSignal, Signal } from 'solid-js';
+import { createStore } from 'solid-js/store';
 
 type Cat = {
-  text: Signal<string>;
-  birth: Signal<Date>;
-  age: () => number;
+  text: string;
+  birth: Date;
 };
 
 interface TableData {
-  values: Signal<Cat[]>;
-  oldest: () => number;
-  height: Signal<number>;
+  values: Cat[];
+  height: number;
 }
 
-function dataGen(): TableData {
-  const cats = createSignal(
-    range(0, 10).map(() => {
-      return randomCat();
-    })
-  );
-  const oldest = createMemo(() =>
-    cats[0]().reduce((a, b) => (a > b.age() ? a : b.age()), 0)
-  );
-  return { height: createSignal(20), values: cats, oldest };
+const [store, setStore] = dataGen();
+
+function dataGen() {
+  const cats = range(0, 10).map(() => {
+    return randomCat();
+  });
+  const store = createStore({ height: 20, values: cats });
+  return store;
 }
 
 function randomCat() {
   const text = faker.animal.cat();
-  const birth = createSignal(faker.date.birthdate());
+  const birth = faker.date.birthdate();
   return {
-    text: createSignal(text),
+    text: text,
     birth,
-    age: createMemo(() => new Date().getFullYear() - birth[0]().getFullYear()),
   };
 }
 
 export function setupDomTest(view: HTMLCanvasElement, resolution: number) {
-  const data = createSignal(dataGen());
   const app = new PIXI.Application({
     view,
     height: 500,
@@ -54,20 +42,28 @@ export function setupDomTest(view: HTMLCanvasElement, resolution: number) {
     resolution: devicePixelRatio,
     backgroundColor: 0xffffff,
   });
-  return render(() => <CreateTable data={data[0]()}></CreateTable>, app.stage);
+  return render(() => <CreateTable></CreateTable>, app.stage);
 }
 
-function CreateTable(args: { data: TableData }) {
+function calcAge(date: Date) {
+  return new Date().getFullYear() - date.getFullYear();
+}
+
+function CreateTable() {
   createBitMapFonts(devicePixelRatio);
+  const oldest = createMemo(() => {
+    const oldest = store.values.reduce((a, b) => (a < b.birth ? a : b.birth), new Date());
+    return calcAge(oldest);
+  });
   function sortByAge(cats: Cat[]) {
-    return [...cats].sort((a, b) => (a.birth[0]() > b.birth[0]() ? -1 : 1));
+    return [...cats].sort((a, b) => (a.birth > b.birth ? -1 : 1));
   }
   return (
     <cont x={10} y={100} cacheAsBitmap={false}>
       <Btn
         value="height +"
         onClick={() =>
-          args.data.height[1]((other) => {
+          setStore('height', (other) => {
             return other + 1;
           })
         }
@@ -76,21 +72,20 @@ function CreateTable(args: { data: TableData }) {
       <Btn
         value="cat +"
         onClick={() =>
-          args.data.values[1]((other) => {
+          setStore('values', (other) => {
             return [randomCat(), ...other];
           })
         }
         y={20}
       ></Btn>
       <cont y={40}>
-        <For each={sortByAge(args.data.values[0]())}>
+        <For each={sortByAge(store.values)}>
           {(item, index) => (
             <Row
               text={item.text}
-              y={index() * args.data.height[0]()}
+              y={index() * store.height}
               birth={item.birth}
-              age={item.age()}
-              oldest={args.data.oldest()}
+              oldest={oldest()}
             ></Row>
           )}
         </For>
@@ -132,20 +127,15 @@ function Btn(props: { value: string; onClick: () => void } & PosProps) {
   return txt;
 }
 
-function Row(args: {
-  text: Signal<string>;
-  birth: Signal<Date>;
-  oldest: number;
-  y: number;
-  age: number;
-}) {
+function Row(args: { text: string; birth: Date; oldest: number; y: number }) {
+  const age = createMemo(() => calcAge(args.birth));
   return (
     <cont y={args.y}>
-      <NameCell text={args.text[0]()} x={0}></NameCell>
-      <NameCell text={args.birth[0]().toUTCString()} x={100}></NameCell>
-      <NameCell text={String(args.age)} x={300}></NameCell>
+      <NameCell text={args.text} x={0}></NameCell>
+      <NameCell text={args.birth.toUTCString()} x={100}></NameCell>
+      <NameCell text={String(age())} x={300}></NameCell>
       <Graphic x={350} color={0xff0000}>
-        {[new PIXI.Rectangle(0, 0, (100 * args.age) / args.oldest, 10)]}
+        {[new PIXI.Rectangle(0, 0, (100 * age()) / args.oldest, 10)]}
       </Graphic>
     </cont>
   );
