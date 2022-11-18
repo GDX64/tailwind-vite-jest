@@ -3,7 +3,7 @@ import { render, For, JSX } from '@solidRender/CustomRender';
 import * as PIXI from 'pixi.js';
 import { range } from 'ramda';
 import { createEffect, createMemo, createSignal, Signal } from 'solid-js';
-import { createStore } from 'solid-js/store';
+import { createMutable, createStore } from 'solid-js/store';
 
 type Cat = {
   text: string;
@@ -15,13 +15,13 @@ interface TableData {
   height: number;
 }
 
-const [store, setStore] = dataGen();
+const store = dataGen();
 
-function dataGen() {
+function dataGen(): TableData {
   const cats = range(0, 10).map(() => {
     return randomCat();
   });
-  const store = createStore({ height: 20, values: cats });
+  const store = createMutable({ height: 20, values: cats });
   return store;
 }
 
@@ -62,20 +62,16 @@ function CreateTable() {
     <cont x={10} y={100} cacheAsBitmap={false}>
       <Btn
         value="height +"
-        onClick={() =>
-          setStore('height', (other) => {
-            return other + 1;
-          })
-        }
+        onClick={() => {
+          store.height += 1;
+        }}
         y={0}
       ></Btn>
       <Btn
         value="cat +"
-        onClick={() =>
-          setStore('values', (other) => {
-            return [randomCat(), ...other];
-          })
-        }
+        onClick={() => {
+          store.values = [randomCat(), ...store.values];
+        }}
         y={20}
       ></Btn>
       <cont y={40}>
