@@ -36,7 +36,6 @@ export const {
     txt.text = value;
   },
   setProperty(node: any, name: any, value: any) {
-    console.log(node, name, value);
     if (name in node) {
       node[name] = value;
     }
