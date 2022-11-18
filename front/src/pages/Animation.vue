@@ -29,6 +29,7 @@ const els = range(0, 100_000).map(() => {
 });
 onMounted(() => {
   if (!el.value) return;
+  rxjsAni(el.value);
 });
 
 function rxjsAni(square: HTMLElement) {
