@@ -69,22 +69,22 @@ function CreateTable() {
   return (
     <cont x={10} y={100} cacheAsBitmap={false}>
       <Btn
-        text="height +"
+        p_text="height +"
         withNode={(txt) => {
           return () => txt.removeAllListeners();
         }}
         listenTo={{ click: () => (store.height += 1) }}
-        y={0}
+        p_y={0}
       ></Btn>
       <Btn
-        text="cat +"
-        style={{ fill: 'green', fontSize: 12 }}
+        p_text="cat +"
+        p_style={{ fill: 'green', fontSize: 12 }}
         withNode={(txt) => {
           txt.addListener('click', () => {
             store.values = [randomCat(), ...store.values];
           });
         }}
-        y={20}
+        p_y={20}
       ></Btn>
       <cont y={40}>
         <For each={sortByAge(store.values)}>

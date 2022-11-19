@@ -12,10 +12,14 @@ export function NameCell(args: { text: string; x: number }) {
   return tx;
 }
 
-export function Btn(
-  props: WithNode<PIXI.Text> & Partial<PIXI.Text> & NativeEvents<PIXI.Text>
-) {
-  const txt = new PIXI.Text(props.text);
+type Pixed<T> = {
+  [K in keyof T as K extends string ? `p_${K}` : never]?: T[K];
+};
+
+type Essentials<T> = WithNode<T> & Pixed<T> & NativeEvents<T>;
+
+export function Btn(props: Essentials<PIXI.Text>) {
+  const txt = new PIXI.Text(props.p_text);
   txt.style.fontSize = 12;
   txt.interactive = true;
   nativeWatcher(props, txt);
@@ -38,17 +42,22 @@ function watchEvents<T extends { addListener(key: string, fn: any): any }>(
   });
 }
 
-type NativeEvents<T extends { addListener(key: string, fn: any): any }> = {
-  listenTo?: {
-    [K in Parameters<T['addListener']>[0]]?: Parameters<T['addListener']>[1];
-  };
-};
+type NativeEvents<T> = T extends { addListener(key: string, fn: any): any }
+  ? {
+      listenTo?: {
+        [K in Parameters<T['addListener']>[0]]?: Parameters<T['addListener']>[1];
+      };
+    }
+  : never;
 
-function nativeWatcher<T>(args: Partial<T>, node: T) {
-  const keys = Object.keys(args).filter((key) => key in node);
+function nativeWatcher<T>(args: Pixed<T>, node: T) {
+  const keys = Object.keys(args)
+    .filter((key) => key.startsWith('p_'))
+    .map((key) => [key, key.slice(2)] as const);
+  console.log(keys);
   createEffect(() => {
-    keys.forEach((key) => {
-      (node as any)[key] = (args as any)[key];
+    keys.forEach(([p_key, key]) => {
+      (node as any)[key] = (args as any)[p_key];
     });
   });
 }
