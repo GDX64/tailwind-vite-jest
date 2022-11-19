@@ -69,16 +69,20 @@ function CreateTable() {
   return (
     <cont x={10} y={100} cacheAsBitmap={false}>
       <Btn
-        value="height +"
-        onClick={() => {
-          store.height += 1;
+        text="height +"
+        withNode={(txt) => {
+          return () => txt.removeAllListeners();
         }}
+        listenTo={{ click: () => (store.height += 1) }}
         y={0}
       ></Btn>
       <Btn
-        value="cat +"
-        onClick={() => {
-          store.values = [randomCat(), ...store.values];
+        text="cat +"
+        style={{ fill: 'green', fontSize: 12 }}
+        withNode={(txt) => {
+          txt.addListener('click', () => {
+            store.values = [randomCat(), ...store.values];
+          });
         }}
         y={20}
       ></Btn>
