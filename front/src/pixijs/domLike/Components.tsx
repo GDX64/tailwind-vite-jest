@@ -12,12 +12,6 @@ export function NameCell(args: { text: string; x: number }) {
   return tx;
 }
 
-type Pixed<T> = {
-  [K in keyof T as K extends string ? `p_${K}` : never]?: T[K];
-};
-
-type Essentials<T> = WithNode<T> & Pixed<T> & NativeEvents<T>;
-
 export function Btn(props: Essentials<PIXI.Text>) {
   const txt = new PIXI.Text(props.p_text);
   txt.style.fontSize = 12;
@@ -26,41 +20,6 @@ export function Btn(props: Essentials<PIXI.Text>) {
   setupWithNode(props, txt);
   watchEvents(props, txt);
   return txt;
-}
-
-function watchEvents<T extends { addListener(key: string, fn: any): any }>(
-  props: NativeEvents<T>,
-  node: T
-) {
-  if (!props.listenTo) {
-    return;
-  }
-  createEffect(() => {
-    for (let key in props.listenTo) {
-      node.addListener(key, (props.listenTo as any)[key]);
-    }
-  });
-}
-
-type NativeEvents<T> = T extends { addListener(key: string, fn: any): any }
-  ? {
-      listenTo?: {
-        [K in Parameters<T['addListener']>[0]]?: Parameters<T['addListener']>[1];
-      };
-    }
-  : never;
-
-function nativeWatcher<T>(args: Pixed<T>, node: T) {
-  const expression = Object.keys(args)
-    .filter((key) => key.startsWith('p_'))
-    .map((p_key) => {
-      const key = p_key.slice(2);
-      return `(node['${key}']=args['${p_key}']);`;
-    })
-    .join('');
-  const func = eval(`()=>{${expression}}`);
-  console.log(func);
-  createEffect(func);
 }
 
 export function Graphic(
@@ -98,6 +57,47 @@ function setupWithNode<T>(args: WithNode<T>, node: T) {
     }
   });
 }
+
+function watchEvents<T extends { addListener(key: string, fn: any): any }>(
+  props: NativeEvents<T>,
+  node: T
+) {
+  if (!props.listenTo) {
+    return;
+  }
+  createEffect(() => {
+    for (let key in props.listenTo) {
+      node.addListener(key, (props.listenTo as any)[key]);
+    }
+  });
+}
+
+function nativeWatcher<T>(args: Pixed<T>, node: T) {
+  const expression = Object.keys(args)
+    .filter((key) => key.startsWith('p_'))
+    .map((p_key) => {
+      const key = p_key.slice(2);
+      return `(node['${key}']=args['${p_key}']);`;
+    })
+    .join('');
+  const func = eval(`()=>{${expression}}`);
+  console.log(func);
+  createEffect(func);
+}
+
+type Pixed<T> = {
+  [K in keyof T as K extends string ? `p_${K}` : never]?: T[K];
+};
+
+type Essentials<T> = WithNode<T> & Pixed<T> & NativeEvents<T>;
+
+type NativeEvents<T> = T extends { addListener(key: string, fn: any): any }
+  ? {
+      listenTo?: {
+        [K in Parameters<T['addListener']>[0]]?: Parameters<T['addListener']>[1];
+      };
+    }
+  : never;
 
 type WithNode<T> = {
   withNode?: (n: T) => (() => void) | void;
