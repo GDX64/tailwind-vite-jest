@@ -51,15 +51,16 @@ type NativeEvents<T> = T extends { addListener(key: string, fn: any): any }
   : never;
 
 function nativeWatcher<T>(args: Pixed<T>, node: T) {
-  const keys = Object.keys(args)
+  const expression = Object.keys(args)
     .filter((key) => key.startsWith('p_'))
-    .map((key) => [key, key.slice(2)] as const);
-  console.log(keys);
-  createEffect(() => {
-    keys.forEach(([p_key, key]) => {
-      (node as any)[key] = (args as any)[p_key];
-    });
-  });
+    .map((p_key) => {
+      const key = p_key.slice(2);
+      return `(node['${key}']=args['${p_key}']);`;
+    })
+    .join('');
+  const func = eval(`()=>{${expression}}`);
+  console.log(func);
+  createEffect(func);
 }
 
 export function Graphic(
