@@ -2,23 +2,17 @@ import { JSX } from '@solidRender/CustomRender';
 import { createEffect, onCleanup } from 'solid-js';
 import * as PIXI from 'pixi.js';
 
-export function NameCell(args: { text: string; x: number }) {
-  const tx = new PIXI.BitmapText(args.text, { fontName: 'black' });
-  tx.interactive = true;
-  createEffect(() => {
-    tx.text = args.text;
-    tx.x = args.x;
-  });
-  return tx;
+export function NameCell(props: Essentials<PIXI.BitmapText>) {
+  const txt = new PIXI.BitmapText(props.p_text ?? '', { fontName: 'black' });
+  setupEssentials(props, txt);
+  return txt;
 }
 
 export function Btn(props: Essentials<PIXI.Text>) {
   const txt = new PIXI.Text(props.p_text);
   txt.style.fontSize = 12;
   txt.interactive = true;
-  nativeWatcher(props, txt);
-  setupWithNode(props, txt);
-  watchEvents(props, txt);
+  setupEssentials(props, txt);
   return txt;
 }
 
@@ -74,9 +68,9 @@ function watchEvents<T extends { addListener(key: string, fn: any): any }>(
 
 function nativeWatcher<T>(args: Pixed<T>, node: T) {
   const expression = Object.keys(args)
-    .filter((key) => key.startsWith('p_'))
+    .filter((key) => key.startsWith(pixedPrefix))
     .map((p_key) => {
-      const key = p_key.slice(2);
+      const key = p_key.slice(sizeofPrefix);
       return `(node['${key}']=args['${p_key}']);`;
     })
     .join('');
@@ -85,8 +79,20 @@ function nativeWatcher<T>(args: Pixed<T>, node: T) {
   createEffect(func);
 }
 
+function setupEssentials<T extends { addListener(key: string, fn: any): any }>(
+  props: Essentials<T>,
+  node: T
+) {
+  nativeWatcher(props, node);
+  setupWithNode(props, node);
+  watchEvents(props, node);
+}
+
+const pixedPrefix = 'p_';
+const sizeofPrefix = pixedPrefix.length;
+
 type Pixed<T> = {
-  [K in keyof T as K extends string ? `p_${K}` : never]?: T[K];
+  [K in keyof T as K extends string ? `${typeof pixedPrefix}${K}` : never]?: T[K];
 };
 
 type Essentials<T> = WithNode<T> & Pixed<T> & NativeEvents<T>;

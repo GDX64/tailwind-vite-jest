@@ -107,9 +107,9 @@ function Row(args: { text: string; birth: Date; oldest: number; y: number }) {
   const proportion = createMemo(() => (100 * age()) / args.oldest);
   return (
     <cont y={args.y}>
-      <NameCell text={args.text} x={0}></NameCell>
-      <NameCell text={args.birth.toUTCString()} x={100}></NameCell>
-      <NameCell text={String(age())} x={300}></NameCell>
+      <NameCell p_text={args.text} p_x={0}></NameCell>
+      <NameCell p_text={args.birth.toUTCString()} p_x={100}></NameCell>
+      <NameCell p_text={String(age())} p_x={300}></NameCell>
       <Graphic x={350} color={Math.round((1 - proportion() / 100) * 255)}>
         {[new PIXI.Rectangle(0, 0, proportion(), 10)]}
       </Graphic>
