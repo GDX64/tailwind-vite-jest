@@ -21,6 +21,7 @@ import Layers from './pages/Layers.vue';
 import Solid from './pages/Solid.vue';
 import PixiOff from './pages/PixiOff/PixiOff.vue';
 import Animation from './pages/Animation.vue';
+import Lots from './pages/LotsOfSquares.vue';
 const routes = [
   { path: '/', component: Home },
   { path: '/bg', component: BackGround },
@@ -38,6 +39,7 @@ const routes = [
   { path: '/layers', component: Layers },
   { path: '/solid', component: Solid },
   { path: '/offscreen', component: PixiOff },
+  { path: '/lots', component: Lots },
   // { path: '/set', component: Set },
   // { path: '/Wordle', component: Wordle },
   // { path: '/hilbert', component: Hilbert },
