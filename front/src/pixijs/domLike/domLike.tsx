@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import * as PIXI from 'pixi.js';
-import { allPass, clamp, range } from 'ramda';
-import { animationFrames } from 'rxjs';
+import { allPass, clamp, range, values } from 'ramda';
+import { animationFrames, bufferTime, mergeAll } from 'rxjs';
 import { render, For } from '@solidRender/CustomRender';
 import { createMemo, createSignal } from 'solid-js';
 import { createMutable } from 'solid-js/store';
@@ -21,7 +21,7 @@ interface TableData {
 const store = dataGen();
 
 function dataGen(): TableData {
-  const cats = range(0, 30).map(() => {
+  const cats = range(0, 100).map(() => {
     return randomCat();
   });
   const store = createMutable({ height: 20, values: cats });
@@ -43,7 +43,7 @@ export function setupDomTest(view: HTMLCanvasElement, resolution: number) {
   const app = new PIXI.Application({
     view,
     height: 1000,
-    width: 500,
+    width: 650,
     resolution: devicePixelRatio,
     backgroundColor: 0xffffff,
   });
@@ -59,41 +59,43 @@ function calcAge(date: Date) {
 
 function CreateTable() {
   createBitMapFonts(devicePixelRatio);
-  const [slice, setSlice] = createSignal([0, 10] as [number, number]);
+  const sliceSize = 10;
+  const [slice, setSlice] = createSignal([0, sliceSize] as [number, number]);
+  const scrollPercent = createMemo(() => {
+    return Math.max(slice()[1] - sliceSize, 0) / (store.values.length - sliceSize) || 0;
+  });
   function onScroll({ deltaY }: { deltaY: number }) {
     const validateValues = ([begin, end]: [number, number]) => {
-      const beginClamp = clamp(0, Math.max(store.values.length - 10), begin);
+      const beginClamp = clamp(0, Math.max(store.values.length - sliceSize), begin);
       const endClamp = clamp(
-        beginClamp + 10,
-        Math.max(store.values.length, beginClamp + 10),
+        beginClamp + sliceSize,
+        Math.max(store.values.length, beginClamp + sliceSize),
         end
       );
       return [beginClamp, endClamp] as [number, number];
     };
     if (deltaY > 0) {
-      setSlice((prev) => validateValues([(prev[0] += 1), (prev[1] += 1)]));
+      setSlice((prev) => validateValues([(prev[0] += 5), (prev[1] += 5)]));
     } else {
-      setSlice((prev) => validateValues([(prev[0] -= 1), (prev[1] -= 1)]));
+      setSlice((prev) => validateValues([(prev[0] -= 5), (prev[1] -= 5)]));
     }
   }
-  const [columnsSize] = createSignal([0, 150, 280, 320, 450] as ColsSize);
-  const oldest = createMemo(() => {
+  const [columnsSize] = createSignal([0, 200, 350, 450, 550] as ColsSize);
+  const statistics = createMemo(() => {
     const oldest = store.values.reduce((a, b) => (a < b.birth ? a : b.birth), new Date());
     return calcAge(oldest);
   });
   const sortedByAge = createMemo(() => {
-    return [...store.values]
-      .sort((a, b) => (a.birth > b.birth ? -1 : 1))
-      .slice(...slice());
+    return store.values.slice(...slice());
   });
-  const median = createMemo(
-    () => sortedByAge()[Math.floor(sortedByAge().length / 2)]?.birth ?? new Date()
-  );
-  // animationFrames().subscribe(() => {
-  //   const index = Math.floor(store.values.length * Math.random());
-  //   Object.assign(store.values[index], randomCat());
-  //   // store.values[index] = randomCat();
-  // });
+  const median = createMemo(() => new Date(2000));
+  animationFrames()
+    .pipe(bufferTime(100), mergeAll())
+    .subscribe(() => {
+      const index = Math.floor(store.values.length * Math.random());
+      Object.assign(store.values[index], randomCat());
+      // store.values[index] = randomCat();
+    });
   return (
     <cont
       x={10}
@@ -104,6 +106,16 @@ function CreateTable() {
         el.addListener('wheel', (event) => onScroll(event));
       }}
     >
+      <Graphic color={0x0000}>
+        {[
+          new PIXI.Rectangle(
+            600,
+            80 + (sliceSize * store.height - 30) * scrollPercent(),
+            10,
+            30
+          ),
+        ]}
+      </Graphic>
       <Btn
         p_text="height +"
         withNode={(txt) => {
@@ -131,7 +143,7 @@ function CreateTable() {
             <Row
               animal={item}
               y={index() * store.height}
-              oldest={oldest()}
+              oldest={statistics()}
               median={median()}
               positions={columnsSize()}
               height={store.height}
