@@ -79,7 +79,7 @@ function nativeWatcher<T>(args: Pixed<T>, node: T) {
       return `(node['${key}']=args['${p_key}']);`;
     })
     .join('');
-  const func = eval(`(node, args)=>{${expression}}`);
+  const func = new Function('node', 'args', `${expression}`);
   createEffect(() => func(node, args));
 }
 
