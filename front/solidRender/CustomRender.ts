@@ -1,6 +1,6 @@
 // example custom dom renderer
 import { createRenderer } from 'solid-js/universal';
-import { For as SolidFor } from 'solid-js';
+import { For as SolidFor, JSXElement } from 'solid-js';
 import * as PIXI from 'pixi.js';
 import { BitmapText } from 'pixi.js';
 export * from './jsx-runtime';
@@ -68,6 +68,10 @@ export const For = SolidFor as any as <T>(args: {
   each: T[];
   children: (value: T, index: () => number) => JSX.Element;
 }) => JSX.Element;
+
+export function use(fn: (el: JSX.Element) => void, el: JSX.Element) {
+  fn(el);
+}
 
 // Forward Solid control flow
 export {

@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import * as PIXI from 'pixi.js';
-import { range } from 'ramda';
+import { clamp, range } from 'ramda';
 import { animationFrames } from 'rxjs';
 import { render, For } from '@solidRender/CustomRender';
 import { createMemo, createSignal } from 'solid-js';
@@ -47,6 +47,7 @@ export function setupDomTest(view: HTMLCanvasElement, resolution: number) {
     resolution: devicePixelRatio,
     backgroundColor: 0xffffff,
   });
+  view.addEventListener('wheel', (event) => event.preventDefault());
   return render(() => {
     return <CreateTable></CreateTable>;
   }, app.stage);
@@ -58,24 +59,56 @@ function calcAge(date: Date) {
 
 function CreateTable() {
   createBitMapFonts(devicePixelRatio);
+  const [slice, setSlice] = createSignal([0, 10] as [number, number]);
+  function onScroll({ deltaY }: { deltaY: number }) {
+    const validateValues = ([begin, end]: [number, number]) => {
+      const beginClamp = clamp(0, Math.max(store.values.length - 10), begin);
+      const endClamp = clamp(
+        beginClamp + 10,
+        Math.max(store.values.length, beginClamp + 10),
+        end
+      );
+      console.log([beginClamp, endClamp]);
+      return [beginClamp, endClamp] as [number, number];
+    };
+    if (deltaY > 0) {
+      setSlice((prev) => validateValues([(prev[0] += 1), (prev[1] += 1)]));
+    } else {
+      setSlice((prev) => validateValues([(prev[0] -= 1), (prev[1] -= 1)]));
+    }
+  }
   const [columnsSize] = createSignal([0, 150, 280, 320, 450] as ColsSize);
   const oldest = createMemo(() => {
     const oldest = store.values.reduce((a, b) => (a < b.birth ? a : b.birth), new Date());
     return calcAge(oldest);
   });
   const sortedByAge = createMemo(() => {
-    return [...store.values].sort((a, b) => (a.birth > b.birth ? -1 : 1));
+    return [...store.values]
+      .sort((a, b) => (a.birth > b.birth ? -1 : 1))
+      .slice(...slice());
   });
   const median = createMemo(
     () => sortedByAge()[Math.floor(sortedByAge().length / 2)]?.birth ?? new Date()
   );
-  animationFrames().subscribe(() => {
-    const index = Math.floor(store.values.length * Math.random());
-    Object.assign(store.values[index], randomCat());
-    // store.values[index] = randomCat();
-  });
+  // animationFrames().subscribe(() => {
+  //   const index = Math.floor(store.values.length * Math.random());
+  //   Object.assign(store.values[index], randomCat());
+  //   // store.values[index] = randomCat();
+  // });
   return (
-    <cont x={10} y={100} cacheAsBitmap={false}>
+    <cont
+      x={10}
+      y={100}
+      cacheAsBitmap={false}
+      ref={(el) => {
+        el.interactive = true;
+        // requestAnimationFrame(() => console.log(el.width, el.height));
+        // el.interactiveChildren = false;
+        el.addListener('wheel', (event) => {
+          onScroll(event);
+        });
+      }}
+    >
       <Btn
         p_text="height +"
         withNode={(txt) => {

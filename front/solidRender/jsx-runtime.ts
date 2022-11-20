@@ -1,7 +1,11 @@
 import * as PIXI from 'pixi.js';
 
-interface Cont extends PIXI.Container {
+interface Cont extends PIXI.Container, CustomAttr<PIXI.Graphics> {
   children: any;
+}
+
+interface CustomAttr<T> {
+  ref?: T | ((e: T) => void);
 }
 
 export namespace JSX {
@@ -12,6 +16,10 @@ export namespace JSX {
   }
 
   export interface Element extends PIXI.Container {}
+
+  export interface IntrinsicAttributes {
+    ref?: unknown | ((e: unknown) => void);
+  }
 
   export interface ElementChildrenAttribute {
     children?: any;
