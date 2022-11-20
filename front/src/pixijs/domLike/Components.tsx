@@ -19,9 +19,13 @@ export function Btn(props: Essentials<PIXI.Text>) {
 }
 
 export function Graphic(
-  args: PosProps & { children: PIXI.IShape[] } & { color: number; alpha?: number }
+  args: { children: PIXI.IShape[] } & {
+    color: number;
+    alpha?: number;
+  } & Essentials<PIXI.Graphics>
 ) {
   const g = new PIXI.Graphics();
+  setupEssentials(args, g);
   createEffect(() => {
     g.clear();
     args.children.forEach((shape) => {
@@ -29,7 +33,6 @@ export function Graphic(
     });
     g.alpha = args.alpha || 1;
   });
-  posWatcher(g, args);
   return g;
 }
 

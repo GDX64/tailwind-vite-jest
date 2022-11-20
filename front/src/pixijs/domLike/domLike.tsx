@@ -68,7 +68,6 @@ function CreateTable() {
         Math.max(store.values.length, beginClamp + 10),
         end
       );
-      console.log([beginClamp, endClamp]);
       return [beginClamp, endClamp] as [number, number];
     };
     if (deltaY > 0) {
@@ -100,13 +99,9 @@ function CreateTable() {
       x={10}
       y={100}
       cacheAsBitmap={false}
+      interactive={true}
       ref={(el) => {
-        el.interactive = true;
-        // requestAnimationFrame(() => console.log(el.width, el.height));
-        // el.interactiveChildren = false;
-        el.addListener('wheel', (event) => {
-          onScroll(event);
-        });
+        el.addListener('wheel', (event) => onScroll(event));
       }}
     >
       <Btn
@@ -139,6 +134,8 @@ function CreateTable() {
               oldest={oldest()}
               median={median()}
               positions={columnsSize()}
+              height={store.height}
+              even={index() % 2 === 0}
             ></Row>
           )}
         </For>
@@ -166,11 +163,25 @@ function Row(args: {
   y: number;
   median: Date;
   positions: ColsSize;
+  height: number;
+  even: boolean;
 }) {
   const age = createMemo(() => calcAge(args.animal.birth));
   const proportion = createMemo(() => (100 * age()) / args.oldest);
+  const hitArea = createMemo(() => {
+    const area = new PIXI.Rectangle(
+      0,
+      0,
+      args.positions[4] - args.positions[0] + 50,
+      args.height
+    );
+    return area;
+  });
   return (
-    <cont y={args.y}>
+    <cont y={args.y} hitArea={hitArea()} ref={console.log}>
+      <Graphic p_x={0} color={args.even ? 0xaaaaaa : 0xcccccc}>
+        {[hitArea()]}
+      </Graphic>
       <NameCell p_text={args.animal.text} p_x={args.positions[0]}></NameCell>
       <NameCell
         p_text={args.animal.birth.toDateString()}
@@ -181,7 +192,7 @@ function Row(args: {
         p_x={args.positions[2]}
         p_fontName={args.animal.birth < args.median ? 'red' : 'black'}
       ></NameCell>
-      <Graphic x={args.positions[3]} color={Math.round((1 - proportion() / 100) * 255)}>
+      <Graphic p_x={args.positions[3]} color={Math.round((1 - proportion() / 100) * 255)}>
         {[new PIXI.Rectangle(0, 0, proportion(), 10)]}
       </Graphic>
       <text
