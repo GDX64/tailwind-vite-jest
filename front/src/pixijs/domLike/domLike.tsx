@@ -28,7 +28,7 @@ function dataGen(): TableData {
   return store;
 }
 
-function randomCat(): Animal {
+export function randomCat(): Animal {
   const breed = Math.random() > 0.5 ? 'dog' : 'cat';
   const text = breed === 'cat' ? faker.animal.cat() : faker.animal.dog();
   const birth = faker.date.birthdate();
@@ -59,7 +59,7 @@ function calcAge(date: Date) {
 
 function CreateTable() {
   createBitMapFonts(devicePixelRatio);
-  const sliceSize = 38;
+  const sliceSize = 50;
   const [slice, setSlice] = createSignal([0, sliceSize] as [number, number]);
   const scrollPercent = createMemo(() => {
     return Math.max(slice()[1] - sliceSize, 0) / (store.values.length - sliceSize) || 0;
@@ -96,7 +96,11 @@ function CreateTable() {
   animationFrames()
     // .pipe(bufferTime(100))
     .subscribe(() => {
-      store.values = [randomCat(), ...store.values].slice(0, 50);
+      const oldCat = store.values.pop();
+      if (oldCat) {
+        Object.assign(oldCat, randomCat());
+        store.values = [oldCat, ...store.values].slice(0, 50);
+      }
     });
   return (
     <cont
@@ -194,15 +198,7 @@ function Row(args: {
   });
   return (
     <cont y={args.y}>
-      <Graphic
-        p_x={0}
-        color={args.even ? 0xeeeeee : 0xdddddd}
-        p_interactive={true}
-        withNode={(g) => {
-          g.addListener('mouseover', (event) => (g.alpha = 0.1));
-          g.addListener('mouseout', (event) => (g.alpha = 1));
-        }}
-      >
+      <Graphic p_x={0} color={args.even ? 0xeeeeee : 0xdddddd}>
         {[hitArea()]}
       </Graphic>
       <NameCell p_text={args.animal.text} p_x={args.positions[0]}></NameCell>
