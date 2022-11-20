@@ -7,13 +7,14 @@ import { createMemo, createSignal } from 'solid-js';
 import { createMutable } from 'solid-js/store';
 import { NameCell, Btn, Graphic } from './Components';
 
-type Cat = {
+type Animal = {
   text: string;
   birth: Date;
+  breed: 'dog' | 'cat';
 };
 
 interface TableData {
-  values: Cat[];
+  values: Animal[];
   height: number;
 }
 
@@ -27,12 +28,14 @@ function dataGen(): TableData {
   return store;
 }
 
-function randomCat() {
-  const text = faker.animal.cat();
+function randomCat(): Animal {
+  const breed = Math.random() > 0.5 ? 'dog' : 'cat';
+  const text = breed === 'cat' ? faker.animal.cat() : faker.animal.dog();
   const birth = faker.date.birthdate();
   return {
-    text: text,
+    text,
     birth,
+    breed,
   };
 }
 
@@ -55,12 +58,7 @@ function calcAge(date: Date) {
 
 function CreateTable() {
   createBitMapFonts(devicePixelRatio);
-  const [columnsSize] = createSignal([0, 150, 280, 320] as [
-    number,
-    number,
-    number,
-    number
-  ]);
+  const [columnsSize] = createSignal([0, 150, 280, 320, 450] as ColsSize);
   const oldest = createMemo(() => {
     const oldest = store.values.reduce((a, b) => (a < b.birth ? a : b.birth), new Date());
     return calcAge(oldest);
@@ -73,7 +71,8 @@ function CreateTable() {
   );
   animationFrames().subscribe(() => {
     const index = Math.floor(store.values.length * Math.random());
-    store.values[index].birth = faker.date.birthdate();
+    Object.assign(store.values[index], randomCat());
+    // store.values[index] = randomCat();
   });
   return (
     <cont x={10} y={100} cacheAsBitmap={false}>
@@ -102,9 +101,8 @@ function CreateTable() {
         <For each={sortedByAge()}>
           {(item, index) => (
             <Row
-              text={item.text}
+              animal={item}
               y={index() * store.height}
-              birth={item.birth}
               oldest={oldest()}
               median={median()}
               positions={columnsSize()}
@@ -116,7 +114,9 @@ function CreateTable() {
   );
 }
 
-function Header(args: { pos: [number, number, number, number] }) {
+type ColsSize = [number, number, number, number, number];
+
+function Header(args: { pos: ColsSize }) {
   return (
     <cont>
       <NameCell p_x={args.pos[0]} p_text="Cat breed" p_fontName="bold-black"></NameCell>
@@ -128,27 +128,34 @@ function Header(args: { pos: [number, number, number, number] }) {
 }
 
 function Row(args: {
-  text: string;
-  birth: Date;
+  animal: Animal;
   oldest: number;
   y: number;
   median: Date;
-  positions: [number, number, number, number];
+  positions: ColsSize;
 }) {
-  const age = createMemo(() => calcAge(args.birth));
+  const age = createMemo(() => calcAge(args.animal.birth));
   const proportion = createMemo(() => (100 * age()) / args.oldest);
   return (
     <cont y={args.y}>
-      <NameCell p_text={args.text} p_x={args.positions[0]}></NameCell>
-      <NameCell p_text={args.birth.toDateString()} p_x={args.positions[1]}></NameCell>
+      <NameCell p_text={args.animal.text} p_x={args.positions[0]}></NameCell>
+      <NameCell
+        p_text={args.animal.birth.toDateString()}
+        p_x={args.positions[1]}
+      ></NameCell>
       <NameCell
         p_text={String(age())}
         p_x={args.positions[2]}
-        p_fontName={args.birth < args.median ? 'red' : 'black'}
+        p_fontName={args.animal.birth < args.median ? 'red' : 'black'}
       ></NameCell>
       <Graphic x={args.positions[3]} color={Math.round((1 - proportion() / 100) * 255)}>
         {[new PIXI.Rectangle(0, 0, proportion(), 10)]}
       </Graphic>
+      <text
+        text={args.animal.breed === 'cat' ? '🐱' : '🐶'}
+        style={{ fontSize: 11 }}
+        x={args.positions[4]}
+      ></text>
     </cont>
   );
 }

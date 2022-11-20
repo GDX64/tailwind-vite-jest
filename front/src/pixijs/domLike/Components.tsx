@@ -77,7 +77,6 @@ function nativeWatcher<T>(args: Pixed<T>, node: T) {
     })
     .join('');
   const func = eval(`()=>{${expression}}`);
-  console.log(func);
   createEffect(func);
 }
 
