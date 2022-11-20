@@ -136,6 +136,7 @@ function CreateTable() {
               positions={columnsSize()}
               height={store.height}
               even={index() % 2 === 0}
+              index={index()}
             ></Row>
           )}
         </For>
@@ -165,6 +166,7 @@ function Row(args: {
   positions: ColsSize;
   height: number;
   even: boolean;
+  index: number;
 }) {
   const age = createMemo(() => calcAge(args.animal.birth));
   const proportion = createMemo(() => (100 * age()) / args.oldest);
@@ -178,8 +180,8 @@ function Row(args: {
     return area;
   });
   return (
-    <cont y={args.y} hitArea={hitArea()} ref={console.log}>
-      <Graphic p_x={0} color={args.even ? 0xaaaaaa : 0xcccccc}>
+    <cont y={args.y} hitArea={hitArea()}>
+      <Graphic p_x={0} color={args.even ? 0xeeeeee : 0xdddddd}>
         {[hitArea()]}
       </Graphic>
       <NameCell p_text={args.animal.text} p_x={args.positions[0]}></NameCell>
@@ -188,7 +190,7 @@ function Row(args: {
         p_x={args.positions[1]}
       ></NameCell>
       <NameCell
-        p_text={String(age())}
+        p_text={String(args.index)}
         p_x={args.positions[2]}
         p_fontName={args.animal.birth < args.median ? 'red' : 'black'}
       ></NameCell>

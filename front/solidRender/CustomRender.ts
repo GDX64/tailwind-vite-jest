@@ -45,6 +45,13 @@ export const {
     // else node.setAttribute(name, value);
   },
   insertNode(parent, node, anchor) {
+    if (anchor) {
+      const index = parent.children.indexOf(anchor);
+      if (index !== -1) {
+        parent.addChildAt(node, index);
+      }
+      return;
+    }
     parent.addChild(node);
   },
   isTextNode(node) {
@@ -60,7 +67,10 @@ export const {
     return node.children[0] as PIXI.Container;
   },
   getNextSibling(node) {
-    return node.parent?.children[0] as PIXI.Container;
+    const index = node.parent.children.indexOf(node);
+    if (index) {
+      return node.parent?.children[index + 1] as PIXI.Container;
+    }
   },
 });
 
