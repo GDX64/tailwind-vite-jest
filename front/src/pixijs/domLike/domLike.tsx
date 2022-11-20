@@ -3,7 +3,7 @@ import * as PIXI from 'pixi.js';
 import { allPass, clamp, range, values } from 'ramda';
 import { animationFrames, bufferTime, mergeAll } from 'rxjs';
 import { render, For } from '@solidRender/CustomRender';
-import { createMemo, createSignal } from 'solid-js';
+import { batch, createMemo, createSignal } from 'solid-js';
 import { createMutable } from 'solid-js/store';
 import { NameCell, Btn, Graphic } from './Components';
 
@@ -21,7 +21,7 @@ interface TableData {
 const store = dataGen();
 
 function dataGen(): TableData {
-  const cats = range(0, 100).map(() => {
+  const cats = range(0, 300).map(() => {
     return randomCat();
   });
   const store = createMutable({ height: 20, values: cats });
@@ -59,7 +59,7 @@ function calcAge(date: Date) {
 
 function CreateTable() {
   createBitMapFonts(devicePixelRatio);
-  const sliceSize = 10;
+  const sliceSize = 30;
   const [slice, setSlice] = createSignal([0, sliceSize] as [number, number]);
   const scrollPercent = createMemo(() => {
     return Math.max(slice()[1] - sliceSize, 0) / (store.values.length - sliceSize) || 0;
@@ -82,18 +82,27 @@ function CreateTable() {
   }
   const [columnsSize] = createSignal([0, 200, 350, 450, 550] as ColsSize);
   const statistics = createMemo(() => {
-    const oldest = store.values.reduce((a, b) => (a < b.birth ? a : b.birth), new Date());
-    return calcAge(oldest);
+    let oldest = new Date();
+    let totalAge = 0;
+    store.values.forEach((item) => {
+      oldest = oldest < item.birth ? oldest : item.birth;
+      totalAge += calcAge(item.birth);
+    });
+    return { oldest: calcAge(oldest), avgAge: totalAge / store.values.length || 0 };
   });
-  const sortedByAge = createMemo(() => {
+  const sliced = createMemo(() => {
     return store.values.slice(...slice());
   });
   const median = createMemo(() => new Date(2000));
   animationFrames()
     .pipe(bufferTime(100), mergeAll())
     .subscribe(() => {
-      const index = Math.floor(store.values.length * Math.random());
-      Object.assign(store.values[index], randomCat());
+      batch(() => {
+        for (let i = 0; i < 10; i++) {
+          const index = Math.floor(store.values.length * Math.random());
+          Object.assign(store.values[index], randomCat());
+        }
+      });
       // store.values[index] = randomCat();
     });
   return (
@@ -138,13 +147,12 @@ function CreateTable() {
         <Header pos={columnsSize()}></Header>
       </cont>
       <cont y={80}>
-        <For each={sortedByAge()}>
+        <For each={sliced()}>
           {(item, index) => (
             <Row
               animal={item}
               y={index() * store.height}
-              oldest={statistics()}
-              median={median()}
+              stats={statistics()}
               positions={columnsSize()}
               height={store.height}
               even={index() % 2 === 0}
@@ -171,15 +179,17 @@ function Header(args: { pos: ColsSize }) {
 
 function Row(args: {
   animal: Animal;
-  oldest: number;
+  stats: {
+    oldest: number;
+    avgAge: number;
+  };
   y: number;
-  median: Date;
   positions: ColsSize;
   height: number;
   even: boolean;
 }) {
   const age = createMemo(() => calcAge(args.animal.birth));
-  const proportion = createMemo(() => (100 * age()) / args.oldest);
+  const proportion = createMemo(() => (100 * age()) / args.stats.oldest);
   const hitArea = createMemo(() => {
     const area = new PIXI.Rectangle(
       0,
@@ -210,7 +220,7 @@ function Row(args: {
       <NameCell
         p_text={String(age())}
         p_x={args.positions[2]}
-        p_fontName={args.animal.birth < args.median ? 'red' : 'black'}
+        p_fontName={age() < args.stats.avgAge ? 'red' : 'black'}
       ></NameCell>
       <Graphic p_x={args.positions[3]} color={Math.round((1 - proportion() / 100) * 255)}>
         {[new PIXI.Rectangle(0, 0, proportion(), 10)]}
