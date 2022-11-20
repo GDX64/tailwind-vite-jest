@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import * as PIXI from 'pixi.js';
-import { clamp, range } from 'ramda';
+import { allPass, clamp, range } from 'ramda';
 import { animationFrames } from 'rxjs';
 import { render, For } from '@solidRender/CustomRender';
 import { createMemo, createSignal } from 'solid-js';
@@ -136,7 +136,6 @@ function CreateTable() {
               positions={columnsSize()}
               height={store.height}
               even={index() % 2 === 0}
-              index={index()}
             ></Row>
           )}
         </For>
@@ -166,7 +165,6 @@ function Row(args: {
   positions: ColsSize;
   height: number;
   even: boolean;
-  index: number;
 }) {
   const age = createMemo(() => calcAge(args.animal.birth));
   const proportion = createMemo(() => (100 * age()) / args.oldest);
@@ -180,8 +178,16 @@ function Row(args: {
     return area;
   });
   return (
-    <cont y={args.y} hitArea={hitArea()}>
-      <Graphic p_x={0} color={args.even ? 0xeeeeee : 0xdddddd}>
+    <cont y={args.y}>
+      <Graphic
+        p_x={0}
+        color={args.even ? 0xeeeeee : 0xdddddd}
+        p_interactive={true}
+        withNode={(g) => {
+          g.addListener('mouseover', (event) => (g.alpha = 0.1));
+          g.addListener('mouseout', (event) => (g.alpha = 1));
+        }}
+      >
         {[hitArea()]}
       </Graphic>
       <NameCell p_text={args.animal.text} p_x={args.positions[0]}></NameCell>
@@ -190,7 +196,7 @@ function Row(args: {
         p_x={args.positions[1]}
       ></NameCell>
       <NameCell
-        p_text={String(args.index)}
+        p_text={String(age())}
         p_x={args.positions[2]}
         p_fontName={args.animal.birth < args.median ? 'red' : 'black'}
       ></NameCell>
