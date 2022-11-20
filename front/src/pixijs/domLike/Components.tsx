@@ -79,8 +79,8 @@ function nativeWatcher<T>(args: Pixed<T>, node: T) {
       return `(node['${key}']=args['${p_key}']);`;
     })
     .join('');
-  const func = eval(`()=>{${expression}}`);
-  createEffect(func);
+  const func = eval(`(node, args)=>{${expression}}`);
+  createEffect(() => func(node, args));
 }
 
 function setupEssentials<T extends { addListener(key: string, fn: any): any }>(
