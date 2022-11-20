@@ -2,8 +2,10 @@ import { JSX } from '@solidRender/CustomRender';
 import { createEffect, onCleanup } from 'solid-js';
 import * as PIXI from 'pixi.js';
 
-export function NameCell(props: Essentials<PIXI.BitmapText>) {
-  const txt = new PIXI.BitmapText(props.p_text ?? '', { fontName: 'black' });
+export function NameCell(props: Essentials<PIXI.BitmapText> & { fontName?: string }) {
+  const txt = new PIXI.BitmapText(props.p_text ?? '', {
+    fontName: props.fontName ?? 'black',
+  });
   setupEssentials(props, txt);
   return txt;
 }

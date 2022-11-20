@@ -59,9 +59,12 @@ function CreateTable() {
     const oldest = store.values.reduce((a, b) => (a < b.birth ? a : b.birth), new Date());
     return calcAge(oldest);
   });
-  function sortByAge(cats: Cat[]) {
-    return [...cats].sort((a, b) => (a.birth > b.birth ? -1 : 1));
-  }
+  const sortedByAge = createMemo(() => {
+    return [...store.values].sort((a, b) => (a.birth > b.birth ? -1 : 1));
+  });
+  const median = createMemo(
+    () => sortedByAge()[Math.floor(sortedByAge().length / 2)]?.birth ?? new Date()
+  );
   animationFrames().subscribe(() => {
     const index = Math.floor(store.values.length * Math.random());
     store.values[index].birth = faker.date.birthdate();
@@ -87,13 +90,14 @@ function CreateTable() {
         p_y={20}
       ></Btn>
       <cont y={40}>
-        <For each={sortByAge(store.values)}>
+        <For each={sortedByAge()}>
           {(item, index) => (
             <Row
               text={item.text}
               y={index() * store.height}
               birth={item.birth}
               oldest={oldest()}
+              median={median()}
             ></Row>
           )}
         </For>
@@ -102,14 +106,24 @@ function CreateTable() {
   );
 }
 
-function Row(args: { text: string; birth: Date; oldest: number; y: number }) {
+function Row(args: {
+  text: string;
+  birth: Date;
+  oldest: number;
+  y: number;
+  median: Date;
+}) {
   const age = createMemo(() => calcAge(args.birth));
   const proportion = createMemo(() => (100 * age()) / args.oldest);
   return (
     <cont y={args.y}>
       <NameCell p_text={args.text} p_x={0}></NameCell>
-      <NameCell p_text={args.birth.toUTCString()} p_x={100}></NameCell>
-      <NameCell p_text={String(age())} p_x={300}></NameCell>
+      <NameCell p_text={args.birth.toDateString()} p_x={150}></NameCell>
+      <NameCell
+        p_text={String(age())}
+        p_x={300}
+        p_fontName={args.birth < args.median ? 'red' : 'black'}
+      ></NameCell>
       <Graphic x={350} color={Math.round((1 - proportion() / 100) * 255)}>
         {[new PIXI.Rectangle(0, 0, proportion(), 10)]}
       </Graphic>
