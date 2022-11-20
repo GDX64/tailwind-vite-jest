@@ -59,7 +59,7 @@ function calcAge(date: Date) {
 
 function CreateTable() {
   createBitMapFonts(devicePixelRatio);
-  const sliceSize = 30;
+  const sliceSize = 38;
   const [slice, setSlice] = createSignal([0, sliceSize] as [number, number]);
   const scrollPercent = createMemo(() => {
     return Math.max(slice()[1] - sliceSize, 0) / (store.values.length - sliceSize) || 0;
@@ -93,17 +93,10 @@ function CreateTable() {
   const sliced = createMemo(() => {
     return store.values.slice(...slice());
   });
-  const median = createMemo(() => new Date(2000));
   animationFrames()
-    .pipe(bufferTime(100), mergeAll())
+    // .pipe(bufferTime(100))
     .subscribe(() => {
-      batch(() => {
-        for (let i = 0; i < 10; i++) {
-          const index = Math.floor(store.values.length * Math.random());
-          Object.assign(store.values[index], randomCat());
-        }
-      });
-      // store.values[index] = randomCat();
+      store.values = [randomCat(), ...store.values].slice(0, 50);
     });
   return (
     <cont
