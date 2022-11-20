@@ -1,7 +1,11 @@
 <template>
   <table class="table-fixed">
     <tbody>
-      <tr v-for="cat of cats" class="text-xs odd:bg-slate-100 even:bg-slate-200">
+      <tr
+        v-for="(cat, index) of cats"
+        class="text-xs odd:bg-slate-100 even:bg-slate-200"
+        style="height: 20px"
+      >
         <td style="width: 200px">{{ cat.text }}</td>
         <td style="width: 100px">{{ cat.birth.toDateString() }}</td>
         <td style="width: 50px">{{ calcAge(cat.birth) }}</td>
@@ -16,7 +20,8 @@
             }"
           ></div>
         </td>
-        <td style="width: 100px">{{ cat.breed === 'cat' ? '🐱' : '🐶' }}</td>
+        <td style="width: 50px">{{ cat.breed === 'cat' ? '🐱' : '🐶' }}</td>
+        <td>{{ index }}</td>
       </tr>
     </tbody>
   </table>
@@ -45,6 +50,10 @@ function calcAge(date: Date) {
 }
 
 animationFrames().subscribe(() => {
-  cats.value = [randomCat(), ...cats.value].slice(0, 50);
+  const old = cats.value.pop();
+  if (old) {
+    Object.assign(old, randomCat());
+    cats.value = [old, ...cats.value];
+  }
 });
 </script>

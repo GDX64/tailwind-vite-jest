@@ -3,7 +3,14 @@ import * as PIXI from 'pixi.js';
 import { allPass, clamp, memoizeWith, range, values } from 'ramda';
 import { animationFrames, bufferTime, mergeAll } from 'rxjs';
 import { render, For, JSX } from '@solidRender/CustomRender';
-import { batch, createEffect, createMemo, createSignal, onMount } from 'solid-js';
+import {
+  batch,
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+  onMount,
+} from 'solid-js';
 import { createMutable } from 'solid-js/store';
 import { NameCell, Btn, Graphic } from './Components';
 
@@ -42,7 +49,7 @@ export function randomCat(): Animal {
 export function setupDomTest(view: HTMLCanvasElement, resolution: number) {
   const app = new PIXI.Application({
     view,
-    height: 1000,
+    height: 1200,
     width: 650,
     resolution: devicePixelRatio,
     backgroundColor: 0xffffff,
@@ -93,20 +100,22 @@ function CreateTable() {
   const sliced = createMemo(() => {
     return store.values.slice(...slice());
   });
-  animationFrames().subscribe((frames) => {
+  const sub = animationFrames().subscribe((frames) => {
     const oldCat = store.values.pop();
     if (oldCat) {
+      Object.assign(oldCat, randomCat());
       store.values = [oldCat, ...store.values];
     }
   });
+  onCleanup(() => sub.unsubscribe());
   return (
     <cont
       x={10}
-      y={100}
+      y={0}
       cacheAsBitmap={false}
       interactive={true}
       ref={(el) => {
-        el.addListener('wheel', (event) => onScroll(event));
+        // el.addListener('wheel', (event) => onScroll(event));
       }}
     >
       <Graphic color={0x0000}>
@@ -127,20 +136,10 @@ function CreateTable() {
         listenTo={{ click: () => (store.height += 1) }}
         p_y={0}
       ></Btn>
-      <Btn
-        p_text="cat +"
-        p_style={{ fill: 'green', fontSize: 12 }}
-        withNode={(txt) => {
-          txt.addListener('click', () => {
-            store.values = [randomCat(), ...store.values];
-          });
-        }}
-        p_y={20}
-      ></Btn>
-      <cont y={55}>
+      <cont y={20}>
         <Header pos={columnsSize()}></Header>
       </cont>
-      <cont y={80}>
+      <cont y={40}>
         <Rotate each={sliced()}>
           {(item, index) => {
             return (
@@ -151,6 +150,7 @@ function CreateTable() {
                 positions={columnsSize()}
                 height={store.height}
                 even={index() % 2 === 0}
+                index={index()}
               ></Row>
             );
           }}
@@ -202,6 +202,7 @@ function Row(args: {
   positions: ColsSize;
   height: number;
   even: boolean;
+  index: number;
 }) {
   const age = createMemo(() => calcAge(args.animal.birth));
   const proportion = createMemo(() => (100 * age()) / args.stats.oldest);
@@ -237,6 +238,7 @@ function Row(args: {
         style={{ fontSize: 11 }}
         x={args.positions[4]}
       ></text>
+      <NameCell p_text={String(args.index)} p_x={args.positions[4] + 20}></NameCell>
     </cont>
   );
 }
