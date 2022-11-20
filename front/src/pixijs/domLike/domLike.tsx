@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker';
 import * as PIXI from 'pixi.js';
-import { allPass, clamp, range, values } from 'ramda';
+import { allPass, clamp, memoizeWith, range, values } from 'ramda';
 import { animationFrames, bufferTime, mergeAll } from 'rxjs';
-import { render, For } from '@solidRender/CustomRender';
-import { batch, createMemo, createSignal } from 'solid-js';
+import { render, For, JSX } from '@solidRender/CustomRender';
+import { batch, createEffect, createMemo, createSignal, onMount } from 'solid-js';
 import { createMutable } from 'solid-js/store';
 import { NameCell, Btn, Graphic } from './Components';
 
@@ -21,7 +21,7 @@ interface TableData {
 const store = dataGen();
 
 function dataGen(): TableData {
-  const cats = range(0, 300).map(() => {
+  const cats = range(0, 50).map(() => {
     return randomCat();
   });
   const store = createMutable({ height: 20, values: cats });
@@ -93,15 +93,12 @@ function CreateTable() {
   const sliced = createMemo(() => {
     return store.values.slice(...slice());
   });
-  animationFrames()
-    // .pipe(bufferTime(100))
-    .subscribe(() => {
-      const oldCat = store.values.pop();
-      if (oldCat) {
-        Object.assign(oldCat, randomCat());
-        store.values = [oldCat, ...store.values].slice(0, 50);
-      }
-    });
+  animationFrames().subscribe((frames) => {
+    const oldCat = store.values.pop();
+    if (oldCat) {
+      store.values = [oldCat, ...store.values];
+    }
+  });
   return (
     <cont
       x={10}
@@ -144,21 +141,42 @@ function CreateTable() {
         <Header pos={columnsSize()}></Header>
       </cont>
       <cont y={80}>
-        <For each={sliced()}>
-          {(item, index) => (
-            <Row
-              animal={item}
-              y={index() * store.height}
-              stats={statistics()}
-              positions={columnsSize()}
-              height={store.height}
-              even={index() % 2 === 0}
-            ></Row>
-          )}
-        </For>
+        <Rotate each={sliced()}>
+          {(item, index) => {
+            return (
+              <Row
+                animal={item}
+                y={index() * store.height}
+                stats={statistics()}
+                positions={columnsSize()}
+                height={store.height}
+                even={index() % 2 === 0}
+              ></Row>
+            );
+          }}
+        </Rotate>
       </cont>
     </cont>
   );
+}
+
+function Rotate<T, K extends JSX.Element>(props: {
+  each: T[];
+  children: (item: T, index: () => number) => K;
+}) {
+  const signals = new Map(
+    props.each.map((item, index) => [item, createSignal(index)] as const)
+  );
+  const items = props.each.map((item) => {
+    const sig = signals.get(item)!;
+    return props.children(item, sig[0]);
+  });
+  createEffect(() => {
+    props.each.forEach((item, index) => {
+      signals.get(item)?.[1](index);
+    });
+  });
+  return <>{items}</>;
 }
 
 type ColsSize = [number, number, number, number, number];
