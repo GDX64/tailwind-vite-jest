@@ -9,10 +9,11 @@ import { shadersTest } from './hello/shaders';
 import { shaderTexture } from './hello/shaderTexture';
 import { squaresTest } from './hello/Squares';
 import { setupDomTest } from './domLike/domLike';
+import { createChart } from './chartv2/ChartV2';
 const canvas = ref<HTMLCanvasElement>();
 watchEffect((clear) => {
   if (canvas.value) {
-    clear(setupDomTest(canvas.value, devicePixelRatio));
+    clear(createChart(canvas.value, devicePixelRatio));
   }
 });
 </script>

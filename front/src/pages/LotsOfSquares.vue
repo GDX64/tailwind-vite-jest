@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { range } from 'ramda';
-import { randomColor, randRange } from '../pixijs/hello/utils';
+import { randomColor, randRange } from '../utils/math';
 const el = ref<HTMLElement>();
 const els = range(0, 30_000).map(() => {
   return {
