@@ -1,5 +1,5 @@
 import { JSX } from '@solidRender/CustomRender';
-import { createEffect, onCleanup } from 'solid-js';
+import { children, createEffect, onCleanup } from 'solid-js';
 import * as PIXI from 'pixi.js';
 
 export function NameCell(props: Essentials<PIXI.BitmapText> & { fontName?: string }) {
@@ -10,8 +10,13 @@ export function NameCell(props: Essentials<PIXI.BitmapText> & { fontName?: strin
   return txt;
 }
 
-export function Btn(props: Essentials<PIXI.Text>) {
+export function Btn(props: Essentials<PIXI.Text> & { children?: string }) {
   const txt = new PIXI.Text(props.p_text);
+  createEffect(() => {
+    if (props.children) {
+      txt.text = props.children;
+    }
+  });
   txt.style.fontSize = 12;
   txt.interactive = true;
   setupEssentials(props, txt);
@@ -19,19 +24,21 @@ export function Btn(props: Essentials<PIXI.Text>) {
 }
 
 export function Graphic(
-  args: { children: PIXI.IShape[] } & {
-    color: number;
+  args: { children?: PIXI.IShape[] } & {
+    color?: number;
     alpha?: number;
   } & Essentials<PIXI.Graphics>
 ) {
   const g = new PIXI.Graphics();
   setupEssentials(args, g);
   createEffect(() => {
-    g.clear();
-    args.children.forEach((shape) => {
-      g.beginFill(args.color).drawShape(shape).endFill();
-    });
-    g.alpha = args.alpha || 1;
+    if (args.children) {
+      g.clear();
+      args.children.forEach((shape) => {
+        g.beginFill(args.color).drawShape(shape).endFill();
+      });
+      g.alpha = args.alpha || 1;
+    }
   });
   return g;
 }
