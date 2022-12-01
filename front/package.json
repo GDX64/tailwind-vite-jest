@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@pixi/webworker": "^7.1.0-alpha",
+    "@types/d3": "^7.4.0",
     "chart.js": "^3.9.1",
+    "d3": "^7.6.1",
     "gl-matrix": "^3.4.3",
     "mitt": "^3.0.0",
     "pixi.js": "^7.1.0-alpha",
