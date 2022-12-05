@@ -23,6 +23,8 @@ import PixiOff from './pages/PixiOff/PixiOff.vue';
 import Animation from './pages/Animation.vue';
 import Lots from './pages/LotsOfSquares.vue';
 import ScrollCompare from './pages/ScrollCompare.vue';
+import Scroll from './pages/Scroll.vue';
+
 const routes = [
   { path: '/', component: Home },
   { path: '/bg', component: BackGround },
@@ -42,6 +44,7 @@ const routes = [
   { path: '/offscreen', component: PixiOff },
   { path: '/lots', component: Lots },
   { path: '/scrollCompare', component: ScrollCompare },
+  { path: '/scroll', component: Scroll },
   // { path: '/set', component: Set },
   // { path: '/Wordle', component: Wordle },
   // { path: '/hilbert', component: Hilbert },
