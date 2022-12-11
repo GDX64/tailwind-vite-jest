@@ -7,8 +7,8 @@ use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, WheelEvent};
 #[component]
 pub fn SimpleCounter(cx: Scope) -> Element {
     // create a reactive signal with the initial value
-    let (range, set_range) = create_signal(cx, (0, 80_000));
-    let (data, _set_data) = create_signal(cx, LineChart::gen_data(100_000));
+    let (range, set_range) = create_signal(cx, (0, 500));
+    let (data, _set_data) = create_signal(cx, LineChart::gen_data(1_000));
     let (dims, _set_dims) = create_signal(cx, (1000.0, 400.0));
 
     // create event handlers for our buttons
