@@ -21,17 +21,18 @@ pub fn SimpleCounter(cx: Scope, initial_value: i32) -> Element {
         }
     };
     let draw = create_memo(cx, move |_| create_draw(cx, range, data, dims));
-
+    let canvas = NodeRef::new(cx);
     // this JSX is compiled to an HTML template string for performance
     let el = view! {
         cx,
         <div on:wheel=on_wheel>
             <span>"Value: " {move || range().1} "!"</span>
+            <canvas _ref=canvas></canvas>
         </div>
     };
 
     create_effect(cx, move |_| {
-        if let Some(ctx) = get_context2d() {
+        if let Some(ctx) = get_context2d(canvas) {
             draw.with(|chart| chart.draw(&ctx));
         }
     });
@@ -160,16 +161,13 @@ pub fn main() {
     });
 }
 
-fn get_context2d() -> Option<CanvasRenderingContext2d> {
-    let canvas = leptos::web_sys::window()?
-        .document()?
-        .query_selector(".my-canvas")
-        .ok()??
+fn get_context2d(canvas: NodeRef) -> Option<CanvasRenderingContext2d> {
+    canvas
+        .get()?
         .dyn_into::<HtmlCanvasElement>()
         .ok()?
         .get_context("2d")
         .ok()??
         .dyn_into::<CanvasRenderingContext2d>()
-        .ok();
-    canvas
+        .ok()
 }
