@@ -5,15 +5,16 @@ use wasm_bindgen::prelude::wasm_bindgen;
 use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, WheelEvent};
 
 #[component]
-pub fn SimpleCounter(cx: Scope, initial_value: i32) -> Element {
+pub fn SimpleCounter(cx: Scope) -> Element {
     // create a reactive signal with the initial value
-    let (range, set_range) = create_signal(cx, (0, 100));
-    let (data, set_data) = create_signal(cx, LineChart::gen_data(1_000));
-    let (dims, set_dims) = create_signal(cx, (300.0, 150.0));
+    let (range, set_range) = create_signal(cx, (0, 80_000));
+    let (data, _set_data) = create_signal(cx, LineChart::gen_data(100_000));
+    let (dims, _set_dims) = create_signal(cx, (1000.0, 400.0));
 
     // create event handlers for our buttons
     // note that `value` and `set_value` are `Copy`, so it's super easy to move them into closures
     let on_wheel = move |event: WheelEvent| {
+        log("wheel");
         if event.delta_y() > 0.0 {
             set_range.update(|(_, end)| *end = ((*end as f64) / 1.1) as usize);
         } else {
@@ -22,12 +23,18 @@ pub fn SimpleCounter(cx: Scope, initial_value: i32) -> Element {
     };
     let draw = create_memo(cx, move |_| create_draw(cx, range, data, dims));
     let canvas = NodeRef::new(cx);
+    let as_px = |v: f64| format!("{}px", v);
     // this JSX is compiled to an HTML template string for performance
     let el = view! {
         cx,
         <div on:wheel=on_wheel>
             <span>"Value: " {move || range().1} "!"</span>
-            <canvas _ref=canvas></canvas>
+            <canvas
+            _ref=canvas
+            style="display: block;"
+            width=move|| as_px(dims().0)
+            height=move|| as_px(dims().1)
+            ></canvas>
         </div>
     };
 
@@ -45,11 +52,13 @@ fn create_draw(
     data: ReadSignal<Vec<(f64, f64)>>,
     dims: ReadSignal<(f64, f64)>,
 ) -> LineChart {
-    let in_range = move || {
+    log("draw made");
+    let in_range = create_memo(cx, move |_| {
         let (begin, end) = range();
         begin.max(0)..end.min(data.with(|data| data.len()))
-    };
+    });
     let scales = create_memo(cx, move |_| {
+        log("recalc scale");
         if let Some(((x_min, x_max), (y_min, y_max))) =
             data.with(|data| LineChart::min_max(&data[in_range()]))
         {
@@ -61,6 +70,7 @@ fn create_draw(
         None
     });
     let scaled_data = create_memo(cx, move |_| -> Vec<(f64, f64)> {
+        log("scaled data");
         scales.with(|s| {
             if let Some((scale_x, scale_y)) = s {
                 let mapped = data.with(|data| {
@@ -74,12 +84,13 @@ fn create_draw(
             vec![]
         })
     });
-    LineChart { scaled_data }
+    LineChart { scaled_data, dims }
 }
 
 #[derive(Debug, PartialEq)]
 struct LineChart {
     scaled_data: Memo<Vec<(f64, f64)>>,
+    dims: ReadSignal<(f64, f64)>,
 }
 
 impl LineChart {
@@ -92,6 +103,7 @@ impl LineChart {
         v
     }
 
+    #[inline(never)]
     fn min_max(v: &[(f64, f64)]) -> Option<((f64, f64), (f64, f64))> {
         if v.len() < 1 {
             return None;
@@ -109,8 +121,11 @@ impl LineChart {
 }
 
 impl Drawable for LineChart {
+    #[inline(never)]
     fn draw(&self, ctx: &CanvasRenderingContext2d) {
-        ctx.clear_rect(0.0, 0.0, 300.0, 300.0);
+        log("draw");
+        let (w, h) = self.dims.get();
+        ctx.clear_rect(0.0, 0.0, w, h);
         ctx.begin_path();
         ctx.move_to(0.0, 0.0);
         self.scaled_data.with(|data| {
@@ -157,7 +172,7 @@ extern "C" {
 // Easy to use with Trunk (trunkrs.dev) or with a simple wasm-bindgen setup
 pub fn main() {
     mount_to_body(|cx| {
-        view! { cx,  <SimpleCounter initial_value=3 /> }
+        view! { cx,  <SimpleCounter /> }
     });
 }
 
