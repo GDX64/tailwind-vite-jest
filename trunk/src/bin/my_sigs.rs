@@ -7,41 +7,51 @@ fn main() {}
 
 struct InnerSignal<T> {
     value: T,
-    deps: Vec<Weak<dyn Waker>>,
+    deps: Vec<Weak<dyn Fn()>>,
 }
 
-trait Waker {
-    fn wake(&self);
-}
-
-struct InnerComputed<T, A1, F: Fn(&A1) -> T> {
+struct InnerComputed<T: 'static, F: Fn(Weak<dyn Fn()>) -> T + 'static> {
     value: Option<T>,
     f: F,
     awake: bool,
-    signal: Signal<A1>,
-    deps: Vec<Weak<dyn Waker>>,
+    deps: Vec<Weak<dyn Fn()>>,
 }
 
-struct Computed<T, A1, F: Fn(&A1) -> T> {
-    inner: Rc<RefCell<InnerComputed<T, A1, F>>>,
+struct Computed<T: 'static, F: Fn(Weak<dyn Fn()>) -> T + 'static> {
+    inner: Rc<RefCell<InnerComputed<T, F>>>,
 }
 
-impl<T, A1, F: Fn(&A1) -> T> Waker for Computed<T, A1, F> {
-    fn wake(&self) {
-        self.inner.borrow_mut().awake = true;
-    }
-}
-
-impl<T, A1, F: Fn(&A1) -> T> Computed<T, A1, F> {
+impl<T: 'static, F: Fn(Weak<dyn Fn()>) -> T + 'static> Computed<T, F> {
     fn with<K>(&self, f: impl Fn(&T) -> K) -> K {
         let mut inner = self.inner.borrow_mut();
         if inner.awake && inner.value.is_none() {
-            let v = inner.signal.with(|v| (inner.f)(v));
+            let c = self.clone();
+            let waker: Rc<dyn Fn()> = Rc::new(move || c.inner.borrow_mut().awake = true);
+            let v = (inner.f)(Rc::downgrade(&waker));
             inner.value = Some(v);
             inner.awake = false;
         }
         let v = inner.value.as_ref().unwrap();
         f(v)
+    }
+
+    fn new(f: F) -> Computed<T, F> {
+        Computed {
+            inner: Rc::new(RefCell::new(InnerComputed {
+                value: None,
+                f,
+                awake: true,
+                deps: vec![],
+            })),
+        }
+    }
+}
+
+impl<T: 'static, F: Fn(Weak<dyn Fn()>) -> T + 'static> Clone for Computed<T, F> {
+    fn clone(&self) -> Self {
+        Computed {
+            inner: self.inner.clone(),
+        }
     }
 }
 
@@ -72,37 +82,32 @@ impl<T> Signal<T> {
         f(v)
     }
 
+    fn with_track<K>(&self, waker: Weak<dyn Fn()>, f: impl Fn(&T) -> K) -> K {
+        {
+            self.inner.borrow_mut().deps.push(waker);
+        }
+        self.with(f)
+    }
+
     fn set(&self, value: T) {
         let mut inner = self.inner.borrow_mut();
         inner.value = value;
         inner.deps.iter().for_each(|waker| {
             if let Some(waker) = waker.upgrade() {
-                waker.wake()
+                waker()
             }
         });
-    }
-
-    fn map<K, F: Fn(&T) -> K>(&self, f: F) -> Computed<K, T, F> {
-        Computed {
-            inner: Rc::new(RefCell::new(InnerComputed {
-                value: None,
-                f,
-                awake: true,
-                signal: self.clone(),
-                deps: vec![],
-            })),
-        }
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::Signal;
+    use crate::{Computed, Signal};
 
     #[test]
     fn testzin() {
         let s = Signal::new(0);
-        let comp = s.map(|v| *v + 1);
+        let comp = Computed::new(move |waker| s.with_track(waker, |val| *val + 1));
         assert_eq!(comp.with(|v| *v), 1);
     }
 }
