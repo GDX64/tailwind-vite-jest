@@ -45,6 +45,13 @@ impl<T: 'static, F: Fn(Weak<dyn Fn()>) -> T + 'static> Computed<T, F> {
             })),
         }
     }
+
+    fn with_track<K>(&self, waker: Weak<dyn Fn()>, f: impl Fn(&T) -> K) -> K {
+        {
+            self.inner.borrow_mut().deps.push(waker);
+        }
+        self.with(f)
+    }
 }
 
 impl<T: 'static, F: Fn(Weak<dyn Fn()>) -> T + 'static> Clone for Computed<T, F> {
@@ -106,8 +113,13 @@ mod test {
 
     #[test]
     fn testzin() {
-        let s = Signal::new(0);
-        let comp = Computed::new(move |waker| s.with_track(waker, |val| *val + 1));
-        assert_eq!(comp.with(|v| *v), 1);
+        let s1 = Signal::new(3);
+        let s2 = Signal::new(2);
+        let comp = Computed::new(move |waker| {
+            s1.with_track(waker.clone(), |val| {
+                s2.with_track(waker.clone(), |val2| *val + *val2)
+            })
+        });
+        assert_eq!(comp.with(|v| *v), 5);
     }
 }
