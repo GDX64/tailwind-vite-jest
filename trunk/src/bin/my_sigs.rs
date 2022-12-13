@@ -12,17 +12,6 @@ trait SignalLike<T>: Clone {
 
     // fn and<K, U>(&self, other: impl SignalLike<K>, f: impl Fn(&T, &K) -> U) -> U;
     fn get_ref(&self) -> Ref<T>;
-
-    fn and<K, U>(&self, other: &impl SignalLike<K>, f: impl Fn(&T, &K) -> U) -> impl SignalLike<U> {
-        let s1 = self.clone();
-        let s2 = other.clone();
-        let c = Computed::new(|waker| {
-            let s1 = *s1.get_ref();
-            let s2 = *s2.get_ref();
-            f(&s1, &s2)
-        });
-        c
-    }
 }
 
 struct InnerSignal<T> {
@@ -43,6 +32,13 @@ struct Computed<T: 'static, F: Fn(Weak<dyn Fn()>) -> T + 'static> {
 
 impl<T: 'static, F: Fn(Weak<dyn Fn()>) -> T + 'static> Computed<T, F> {
     fn with<K>(&self, f: impl Fn(&T) -> K) -> K {
+        self.update_value_if_needed();
+        let inner = self.inner.borrow_mut();
+        let v = inner.value.as_ref().unwrap();
+        f(v)
+    }
+
+    fn update_value_if_needed(&self) {
         let mut inner = self.inner.borrow_mut();
         if inner.awake && inner.value.is_none() {
             let c = self.clone();
@@ -51,8 +47,6 @@ impl<T: 'static, F: Fn(Weak<dyn Fn()>) -> T + 'static> Computed<T, F> {
             inner.value = Some(v);
             inner.awake = false;
         }
-        let v = inner.value.as_ref().unwrap();
-        f(v)
     }
 
     fn new(f: F) -> Computed<T, F> {
@@ -76,13 +70,14 @@ impl<T: 'static, F: Fn(Weak<dyn Fn()>) -> T + 'static> SignalLike<T> for Compute
     }
 
     fn get_ref(&self) -> Ref<T> {
-        let r = self.inner.borrow();
+        self.update_value_if_needed();
+        let r = RefCell::borrow(&self.inner);
         let v = Ref::map(r, |v| v.value.as_ref().unwrap());
         v
     }
 }
 
-impl<T> SignalLike<T> for Signal<T> {
+impl<T: 'static> SignalLike<T> for Signal<T> {
     fn with_track<K>(&self, waker: Weak<dyn Fn()>, f: impl Fn(&T) -> K) -> K {
         {
             self.inner.borrow_mut().deps.push(waker);
@@ -91,7 +86,7 @@ impl<T> SignalLike<T> for Signal<T> {
     }
 
     fn get_ref(&self) -> Ref<T> {
-        let r = self.inner.borrow();
+        let r = RefCell::borrow(&self.inner);
         let v = Ref::map(r, |v| &v.value);
         v
     }
@@ -117,7 +112,7 @@ impl<T> Clone for Signal<T> {
     }
 }
 
-impl<T> Signal<T> {
+impl<T: 'static> Signal<T> {
     fn new(value: T) -> Signal<T> {
         Signal {
             inner: Rc::new(RefCell::new(InnerSignal {
@@ -128,7 +123,7 @@ impl<T> Signal<T> {
     }
 
     fn with<K>(&self, f: impl Fn(&T) -> K) -> K {
-        let v = &self.inner.borrow().value;
+        let v = &RefCell::borrow(&self.inner).value;
         f(v)
     }
 
@@ -141,17 +136,33 @@ impl<T> Signal<T> {
             }
         });
     }
+
+    fn and<K, U: 'static>(
+        &self,
+        other: &(impl SignalLike<K> + 'static),
+        f: impl Fn(Ref<T>, Ref<K>) -> U + 'static,
+    ) -> impl SignalLike<U> + 'static {
+        let s1 = self.clone();
+        let s2 = other.clone();
+        Computed::new(move |waker| {
+            let s1 = s1.get_ref();
+            let s2 = s2.get_ref();
+            f(s1, s2)
+        })
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::{Computed, Signal, SignalLike};
+    use crate::{Signal, SignalLike};
 
     #[test]
     fn testzin() {
         let s1 = Signal::new(3);
         let s2 = Signal::new(2);
-        let comp = Computed::new(move |waker| *s1.get_ref() + *s2.get_ref());
-        assert_eq!(comp.with(|v| *v), 5);
+        let c = s1.and(&s2, |v1, v2| *v1 + *v2);
+        let c2 = s1.and(&s2, |v1, v2| *v1 + *v2 + 1);
+        assert_eq!(*c.get_ref(), 5);
+        assert_eq!(*c2.get_ref(), 6);
     }
 }
