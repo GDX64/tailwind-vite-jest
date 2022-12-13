@@ -1,9 +1,29 @@
 use std::{
-    cell::RefCell,
+    borrow::Borrow,
+    cell::{Ref, RefCell},
     rc::{Rc, Weak},
 };
 
 fn main() {}
+
+trait SignalLike<T>: Clone {
+    // fn with<K>(&self, f: impl Fn(&T) -> K) -> K;
+    fn with_track<K>(&self, waker: Weak<dyn Fn()>, f: impl Fn(&T) -> K) -> K;
+
+    // fn and<K, U>(&self, other: impl SignalLike<K>, f: impl Fn(&T, &K) -> U) -> U;
+    fn get_ref(&self) -> Ref<T>;
+
+    fn and<K, U>(&self, other: &impl SignalLike<K>, f: impl Fn(&T, &K) -> U) -> impl SignalLike<U> {
+        let s1 = self.clone();
+        let s2 = other.clone();
+        let c = Computed::new(|waker| {
+            let s1 = *s1.get_ref();
+            let s2 = *s2.get_ref();
+            f(&s1, &s2)
+        });
+        c
+    }
+}
 
 struct InnerSignal<T> {
     value: T,
@@ -45,12 +65,35 @@ impl<T: 'static, F: Fn(Weak<dyn Fn()>) -> T + 'static> Computed<T, F> {
             })),
         }
     }
+}
 
+impl<T: 'static, F: Fn(Weak<dyn Fn()>) -> T + 'static> SignalLike<T> for Computed<T, F> {
     fn with_track<K>(&self, waker: Weak<dyn Fn()>, f: impl Fn(&T) -> K) -> K {
         {
             self.inner.borrow_mut().deps.push(waker);
         }
         self.with(f)
+    }
+
+    fn get_ref(&self) -> Ref<T> {
+        let r = self.inner.borrow();
+        let v = Ref::map(r, |v| v.value.as_ref().unwrap());
+        v
+    }
+}
+
+impl<T> SignalLike<T> for Signal<T> {
+    fn with_track<K>(&self, waker: Weak<dyn Fn()>, f: impl Fn(&T) -> K) -> K {
+        {
+            self.inner.borrow_mut().deps.push(waker);
+        }
+        self.with(f)
+    }
+
+    fn get_ref(&self) -> Ref<T> {
+        let r = self.inner.borrow();
+        let v = Ref::map(r, |v| &v.value);
+        v
     }
 }
 
@@ -89,13 +132,6 @@ impl<T> Signal<T> {
         f(v)
     }
 
-    fn with_track<K>(&self, waker: Weak<dyn Fn()>, f: impl Fn(&T) -> K) -> K {
-        {
-            self.inner.borrow_mut().deps.push(waker);
-        }
-        self.with(f)
-    }
-
     fn set(&self, value: T) {
         let mut inner = self.inner.borrow_mut();
         inner.value = value;
@@ -109,17 +145,13 @@ impl<T> Signal<T> {
 
 #[cfg(test)]
 mod test {
-    use crate::{Computed, Signal};
+    use crate::{Computed, Signal, SignalLike};
 
     #[test]
     fn testzin() {
         let s1 = Signal::new(3);
         let s2 = Signal::new(2);
-        let comp = Computed::new(move |waker| {
-            s1.with_track(waker.clone(), |val| {
-                s2.with_track(waker.clone(), |val2| *val + *val2)
-            })
-        });
+        let comp = Computed::new(move |waker| *s1.get_ref() + *s2.get_ref());
         assert_eq!(comp.with(|v| *v), 5);
     }
 }
