@@ -142,11 +142,19 @@ impl<T: 'static> Signal<T> {
     fn set(&self, value: T) {
         let mut inner = self.inner.borrow_mut();
         inner.value = value;
-        inner.deps.iter().for_each(|waker| {
-            if let Some(waker) = waker.upgrade() {
-                waker()
-            }
-        });
+        inner.deps = inner
+            .deps
+            .iter()
+            .filter_map(|waker| {
+                let waker_option = waker.upgrade();
+                if let Some(waker_fn) = waker_option.as_ref() {
+                    waker_fn();
+                    Some(waker.clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
     }
 }
 
