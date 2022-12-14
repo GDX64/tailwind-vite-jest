@@ -17,4 +17,4 @@ channel = "nightly"
 
 [package.metadata.wasm-pack.profile.release]
 # previously had just ['-O4']
-wasm-opt = ['-O4', '-g']
+# wasm-opt = ['-O4', '-g']

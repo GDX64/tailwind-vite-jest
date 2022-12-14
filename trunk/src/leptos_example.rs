@@ -90,14 +90,15 @@ fn create_draw(
         },
     );
     move |ctx: &CanvasRenderingContext2d| {
-        let scaled_data = scaled_data.get_ref();
+        let scaled_data: &Vec<(f64, f64)> = &scaled_data.get_ref();
         let dims = dims.get_ref();
         // log("draw");
         let (w, h) = *dims;
         ctx.clear_rect(0.0, 0.0, w, h);
         ctx.begin_path();
         ctx.move_to(0.0, 0.0);
-        scaled_data.iter().for_each(|(x, y)| {
+        let step = (scaled_data.len() / (1_000)).max(1);
+        scaled_data.iter().step_by(step).for_each(|(x, y)| {
             ctx.line_to(*x, *y);
         });
         ctx.stroke();
@@ -121,15 +122,12 @@ impl LineChart {
         if v.len() < 1 {
             return None;
         }
-        let result = v.iter().copied().fold(
-            ((v[0].0, v[0].0), (v[0].1, v[0].1)),
-            |(acc_x, acc_y), item| {
-                let x_min = (acc_x.0.min(item.0), acc_x.1.max(item.0));
-                let y_min = (acc_y.0.min(item.1), acc_y.1.max(item.1));
-                (x_min, y_min)
-            },
-        );
-        Some(result)
+        let (mut acc_x, mut acc_y) = ((v[0].0, v[0].0), (v[0].1, v[0].1));
+        v.iter().for_each(|item| {
+            acc_x = (acc_x.0.min(item.0), acc_x.1.max(item.0));
+            acc_y = (acc_y.0.min(item.1), acc_y.1.max(item.1));
+        });
+        Some((acc_x, acc_y))
     }
 }
 
