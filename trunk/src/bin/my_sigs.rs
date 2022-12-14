@@ -5,13 +5,21 @@ use std::{
 
 fn main() {}
 
-type Waker = Weak<dyn Fn()>;
+type Waker = Weak<dyn InnerWaker>;
+
+trait InnerWaker {
+    fn wakeup(&self);
+}
+
+impl<T: 'static, F: Fn(&Waker) -> T + 'static> InnerWaker for RefCell<InnerComputed<T, F>> {
+    fn wakeup(&self) {
+        self.borrow_mut().awake = true
+    }
+}
 
 trait SignalLike<T>: Clone {
-    // fn with<K>(&self, f: impl Fn(&T) -> K) -> K;
     fn with_track<K>(&self, waker: &Waker, f: impl Fn(&T) -> K) -> K;
 
-    // fn and<K, U>(&self, other: impl SignalLike<K>, f: impl Fn(&T, &K) -> U) -> U;
     fn get_ref(&self) -> Ref<T>;
 
     fn get(&self, waker: &Waker) -> Ref<T> {
@@ -35,7 +43,7 @@ trait SignalLike<T>: Clone {
             .filter_map(|waker| {
                 let waker_option = waker.upgrade();
                 if let Some(waker_fn) = waker_option.as_ref() {
-                    waker_fn();
+                    waker_fn.wakeup();
                     Some(waker.clone())
                 } else {
                     None
@@ -72,9 +80,8 @@ impl<T: 'static, F: Fn(&Waker) -> T + 'static> Computed<T, F> {
     fn update_value_if_needed(&self) {
         let mut inner = self.inner.borrow_mut();
         if inner.awake {
-            let c = self.clone();
-            let waker: Rc<dyn Fn()> = Rc::new(move || c.wakeup());
-            let v = (inner.f)(&Rc::downgrade(&waker));
+            let waker: Waker = Rc::downgrade(&(self.inner.clone() as Rc<dyn InnerWaker>));
+            let v = (inner.f)(&waker);
             inner.value = Some(v);
             inner.awake = false;
         }
@@ -130,10 +137,6 @@ impl<T: 'static> SignalLike<T> for Signal<T> {
         let r = RefCell::borrow(&self.inner);
         let v = Ref::map(r, |v| &v.value);
         v
-    }
-
-    fn track(&self, waker: &Waker) {
-        self.inner.borrow_mut().deps.push(waker.clone());
     }
 }
 
@@ -208,11 +211,24 @@ mod test {
         {
             assert_eq!(*c.get_ref(), 2);
             assert_eq!(*c2.get_ref(), 3);
+            assert_eq!(s1.get_deps().len(), 2);
         }
         s1.set(10);
         {
-            assert_eq!(*c.get_ref(), 12);
-            assert_eq!(*c2.get_ref(), 13);
+            assert_eq!(*c.get_ref(), 11);
+            assert_eq!(*c2.get_ref(), 12);
+            assert_eq!(s1.get_deps().len(), 2);
+        }
+        s1.set(2);
+        {
+            assert_eq!(*c.get_ref(), 3);
+            assert_eq!(*c2.get_ref(), 4);
+            assert_eq!(s1.get_deps().len(), 2);
+            assert_eq!(s2.get_deps().len(), 2);
+        }
+        {
+            let c_deps = c.get_deps();
+            assert_eq!(c_deps.len(), 0);
         }
     }
 }
