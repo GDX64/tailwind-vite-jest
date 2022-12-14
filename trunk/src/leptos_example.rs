@@ -23,7 +23,7 @@ pub fn SimpleCounter(cx: Scope) -> Element {
         }
     };
     let range = gsig::Signal::new(lep_range.get());
-    let data = gsig::Signal::new(LineChart::gen_data(100_000));
+    let data = gsig::Signal::new(LineChart::gen_data(500_000));
     let dims = gsig::Signal::new(lep_dims.get());
     let draw = create_draw(range.clone(), data, dims);
     let canvas = NodeRef::new(cx);
