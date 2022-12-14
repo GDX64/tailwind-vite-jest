@@ -1,5 +1,5 @@
 use std::{
-    cell::{Ref, RefCell},
+    cell::{Ref, RefCell, RefMut},
     rc::{Rc, Weak},
 };
 
@@ -19,7 +19,30 @@ trait SignalLike<T>: Clone {
         self.get_ref()
     }
 
-    fn track(&self, waker: &Waker);
+    fn get_deps<'a>(&'a self) -> RefMut<'a, Vec<Waker>>;
+
+    fn track(&self, waker: &Waker) {
+        let mut deps = self.get_deps();
+        if !deps.iter().any(|item| Weak::ptr_eq(waker, item)) {
+            deps.push(waker.clone());
+        }
+    }
+
+    fn notify(&self) {
+        let mut deps = self.get_deps();
+        *deps = deps
+            .iter()
+            .filter_map(|waker| {
+                let waker_option = waker.upgrade();
+                if let Some(waker_fn) = waker_option.as_ref() {
+                    waker_fn();
+                    Some(waker.clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
+    }
 }
 
 struct InnerSignal<T> {
@@ -48,13 +71,19 @@ impl<T: 'static, F: Fn(&Waker) -> T + 'static> Computed<T, F> {
 
     fn update_value_if_needed(&self) {
         let mut inner = self.inner.borrow_mut();
-        if inner.awake && inner.value.is_none() {
+        if inner.awake {
             let c = self.clone();
-            let waker: Rc<dyn Fn()> = Rc::new(move || c.inner.borrow_mut().awake = true);
+            let waker: Rc<dyn Fn()> = Rc::new(move || c.wakeup());
             let v = (inner.f)(&Rc::downgrade(&waker));
             inner.value = Some(v);
             inner.awake = false;
         }
+    }
+
+    fn wakeup(&self) {
+        let mut inner = self.inner.borrow_mut();
+        inner.awake = true;
+        self.notify();
     }
 
     fn new(f: F) -> Computed<T, F> {
@@ -75,15 +104,15 @@ impl<T: 'static, F: Fn(&Waker) -> T + 'static> SignalLike<T> for Computed<T, F> 
         self.with(f)
     }
 
+    fn get_deps<'a>(&'a self) -> RefMut<'a, Vec<Waker>> {
+        RefMut::map(self.inner.borrow_mut(), |r| &mut r.deps)
+    }
+
     fn get_ref(&self) -> Ref<T> {
         self.update_value_if_needed();
         let r = RefCell::borrow(&self.inner);
         let v = Ref::map(r, |v| v.value.as_ref().unwrap());
         v
-    }
-
-    fn track(&self, waker: &Waker) {
-        self.inner.borrow_mut().deps.push(waker.clone());
     }
 }
 
@@ -91,6 +120,10 @@ impl<T: 'static> SignalLike<T> for Signal<T> {
     fn with_track<K>(&self, waker: &Waker, f: impl Fn(&T) -> K) -> K {
         self.track(waker);
         self.with(f)
+    }
+
+    fn get_deps<'a>(&'a self) -> RefMut<'a, Vec<Waker>> {
+        RefMut::map(self.inner.borrow_mut(), |r| &mut r.deps)
     }
 
     fn get_ref(&self) -> Ref<T> {
@@ -140,21 +173,11 @@ impl<T: 'static> Signal<T> {
     }
 
     fn set(&self, value: T) {
-        let mut inner = self.inner.borrow_mut();
-        inner.value = value;
-        inner.deps = inner
-            .deps
-            .iter()
-            .filter_map(|waker| {
-                let waker_option = waker.upgrade();
-                if let Some(waker_fn) = waker_option.as_ref() {
-                    waker_fn();
-                    Some(waker.clone())
-                } else {
-                    None
-                }
-            })
-            .collect();
+        {
+            let mut inner = self.inner.borrow_mut();
+            inner.value = value;
+        }
+        self.notify();
     }
 }
 
@@ -178,12 +201,18 @@ mod test {
 
     #[test]
     fn testzin() {
-        let s1 = Signal::new(3);
-        let s2 = Signal::new(2);
+        let s1 = Signal::new(1);
+        let s2 = Signal::new(1);
         let c = and_2(&s1, &s2, |v1, v2| *v1 + *v2);
-        assert_eq!(*c.get_ref(), 5);
-
         let c2 = and_2(&s1, &s2, |v1, v2| *v1 + *v2 + 1);
-        assert_eq!(*c2.get_ref(), 6);
+        {
+            assert_eq!(*c.get_ref(), 2);
+            assert_eq!(*c2.get_ref(), 3);
+        }
+        s1.set(10);
+        {
+            assert_eq!(*c.get_ref(), 12);
+            assert_eq!(*c2.get_ref(), 13);
+        }
     }
 }
