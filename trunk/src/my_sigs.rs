@@ -19,7 +19,7 @@ impl<T: 'static, F: Fn(&Waker) -> T + 'static> InnerWaker for RefCell<InnerCompu
     }
 }
 
-trait SignalLike<T>: Clone {
+pub trait SignalLike<T>: Clone {
     fn with_track<K>(&self, waker: &Waker, f: impl Fn(&T) -> K) -> K;
 
     fn get_ref(&self) -> Ref<T>;
@@ -70,7 +70,7 @@ struct InnerComputed<T: 'static, F: Fn(&Waker) -> T + 'static> {
     deps: Vec<Waker>,
 }
 
-struct Computed<T: 'static, F: Fn(&Waker) -> T + 'static> {
+pub struct Computed<T: 'static, F: Fn(&Waker) -> T + 'static> {
     inner: Rc<RefCell<InnerComputed<T, F>>>,
 }
 
@@ -147,7 +147,7 @@ impl<T: 'static, F: Fn(&Waker) -> T + 'static> Clone for Computed<T, F> {
     }
 }
 
-struct Signal<T> {
+pub struct Signal<T> {
     inner: Rc<RefCell<InnerSignal<T>>>,
 }
 
@@ -160,7 +160,7 @@ impl<T> Clone for Signal<T> {
 }
 
 impl<T: 'static> Signal<T> {
-    fn new(value: T) -> Signal<T> {
+    pub fn new(value: T) -> Signal<T> {
         Signal {
             inner: Rc::new(RefCell::new(InnerSignal {
                 value,
@@ -174,7 +174,7 @@ impl<T: 'static> Signal<T> {
         f(v)
     }
 
-    fn set(&self, value: T) {
+    pub fn set(&self, value: T) {
         {
             let mut inner = self.inner.borrow_mut();
             inner.value = value;
@@ -183,7 +183,7 @@ impl<T: 'static> Signal<T> {
     }
 }
 
-fn and_2<T: 'static, K: 'static, U: 'static>(
+pub fn and_2<T: 'static, K: 'static, U: 'static>(
     one: &(impl SignalLike<T> + 'static),
     other: &(impl SignalLike<K> + 'static),
     f: impl Fn(&T, &K) -> U + 'static,
@@ -196,10 +196,26 @@ fn and_2<T: 'static, K: 'static, U: 'static>(
         f(&s1, &s2)
     })
 }
+pub fn and_3<T: 'static, K: 'static, G: 'static, U: 'static>(
+    one: &(impl SignalLike<T> + 'static),
+    two: &(impl SignalLike<K> + 'static),
+    three: &(impl SignalLike<G> + 'static),
+    f: impl Fn(&T, &K, &G) -> U + 'static,
+) -> impl SignalLike<U> + 'static {
+    let s1 = one.clone();
+    let s2 = two.clone();
+    let s3 = three.clone();
+    Computed::new(move |waker| {
+        let s1 = s1.get(waker);
+        let s2 = s2.get(waker);
+        let s3 = s3.get(waker);
+        f(&s1, &s2, &s3)
+    })
+}
 
 #[cfg(test)]
 mod test {
-    use crate::{and_2, Signal, SignalLike};
+    use super::{and_2, Signal, SignalLike};
 
     #[test]
     fn testzin() {

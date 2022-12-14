@@ -1,15 +1,16 @@
-use std::fmt::Debug;
+use crate::my_sigs::{and_3, SignalLike};
 
+use super::my_sigs as gsig;
 use leptos::*;
+use std::fmt::Debug;
 use wasm_bindgen::prelude::wasm_bindgen;
 use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, WheelEvent};
 
 #[component]
 pub fn SimpleCounter(cx: Scope) -> Element {
     // create a reactive signal with the initial value
-    let (range, set_range) = create_signal(cx, (0, 500));
-    let (data, _set_data) = create_signal(cx, LineChart::gen_data(1_000));
-    let (dims, _set_dims) = create_signal(cx, (1000.0, 400.0));
+    let (lep_range, set_range) = create_signal(cx, (0, 50_000));
+    let (lep_dims, _set_dims) = create_signal(cx, (1000.0, 400.0));
 
     // create event handlers for our buttons
     // note that `value` and `set_value` are `Copy`, so it's super easy to move them into closures
@@ -21,77 +22,89 @@ pub fn SimpleCounter(cx: Scope) -> Element {
             set_range.update(|(_, end)| *end = ((*end as f64) * 1.1) as usize);
         }
     };
-    let draw = create_memo(cx, move |_| create_draw(cx, range, data, dims));
+    let range = gsig::Signal::new(lep_range.get());
+    let data = gsig::Signal::new(LineChart::gen_data(100_000));
+    let dims = gsig::Signal::new(lep_dims.get());
+    let draw = create_draw(range.clone(), data, dims);
     let canvas = NodeRef::new(cx);
     let as_px = |v: f64| format!("{}px", v);
     // this JSX is compiled to an HTML template string for performance
     let el = view! {
         cx,
         <div on:wheel=on_wheel>
-            <span>"Value: " {move || range().1} "!"</span>
+            <span>"Value: " {move || lep_range().1} "!"</span>
             <canvas
             _ref=canvas
             style="display: block;"
-            width=move|| as_px(dims().0)
-            height=move|| as_px(dims().1)
+            width=move|| as_px(lep_dims().0)
+            height=move|| as_px(lep_dims().1)
             ></canvas>
         </div>
     };
 
     create_effect(cx, move |_| {
         if let Some(ctx) = get_context2d(canvas) {
-            draw.with(|chart| chart.draw(&ctx));
+            range.set(lep_range.get());
+            draw(&ctx);
         }
     });
     el
 }
 
 fn create_draw(
-    cx: Scope,
-    range: ReadSignal<(usize, usize)>,
-    data: ReadSignal<Vec<(f64, f64)>>,
-    dims: ReadSignal<(f64, f64)>,
-) -> LineChart {
-    log("draw made");
-    let in_range = create_memo(cx, move |_| {
-        let (begin, end) = range();
-        begin.max(0)..end.min(data.with(|data| data.len()))
+    range: gsig::Signal<(usize, usize)>,
+    data: gsig::Signal<Vec<(f64, f64)>>,
+    dims: gsig::Signal<(f64, f64)>,
+) -> impl Fn(&CanvasRenderingContext2d) {
+    // log("draw made");
+    let in_range = gsig::and_2(&range, &data, |range, data| {
+        let &(begin, end) = range;
+        begin.max(0)..end.min(data.len())
     });
-    let scales = create_memo(cx, move |_| {
-        log("recalc scale");
-        if let Some(((x_min, x_max), (y_min, y_max))) =
-            data.with(|data| LineChart::min_max(&data[in_range()]))
+    let scales = and_3(&in_range, &data, &dims, |in_range, data, dims| {
+        // log("recalc scale");
+        if let Some(((x_min, x_max), (y_min, y_max))) = LineChart::min_max(&data[in_range.clone()])
         {
-            let (w, h) = dims();
+            let &(w, h) = dims;
             let scale_x = Scale::from((x_min, x_max), (0.0, w));
             let scale_y = Scale::from((y_min, y_max), (0.0, h));
             return Some((scale_x, scale_y));
         }
         None
     });
-    let scaled_data = create_memo(cx, move |_| -> Vec<(f64, f64)> {
-        log("scaled data");
-        scales.with(|s| {
-            if let Some((scale_x, scale_y)) = s {
-                let mapped = data.with(|data| {
-                    data[in_range()]
-                        .iter()
-                        .map(|point| (scale_x.apply(point.0), scale_y.apply(point.1)))
-                        .collect::<Vec<_>>()
-                });
+    let scaled_data = and_3(
+        &scales,
+        &data,
+        &in_range,
+        |scales, data, in_range| -> Vec<(f64, f64)> {
+            // log("scaled data");
+            if let Some((scale_x, scale_y)) = scales {
+                let mapped = data[in_range.clone()]
+                    .iter()
+                    .map(|point| (scale_x.apply(point.0), scale_y.apply(point.1)))
+                    .collect::<Vec<_>>();
+
                 return mapped;
             }
             vec![]
-        })
-    });
-    LineChart { scaled_data, dims }
+        },
+    );
+    move |ctx: &CanvasRenderingContext2d| {
+        let scaled_data = scaled_data.get_ref();
+        let dims = dims.get_ref();
+        // log("draw");
+        let (w, h) = *dims;
+        ctx.clear_rect(0.0, 0.0, w, h);
+        ctx.begin_path();
+        ctx.move_to(0.0, 0.0);
+        scaled_data.iter().for_each(|(x, y)| {
+            ctx.line_to(*x, *y);
+        });
+        ctx.stroke();
+    }
 }
 
-#[derive(Debug, PartialEq)]
-struct LineChart {
-    scaled_data: Memo<Vec<(f64, f64)>>,
-    dims: ReadSignal<(f64, f64)>,
-}
+struct LineChart {}
 
 impl LineChart {
     fn gen_data(n: usize) -> Vec<(f64, f64)> {
@@ -117,23 +130,6 @@ impl LineChart {
             },
         );
         Some(result)
-    }
-}
-
-impl Drawable for LineChart {
-    #[inline(never)]
-    fn draw(&self, ctx: &CanvasRenderingContext2d) {
-        log("draw");
-        let (w, h) = self.dims.get();
-        ctx.clear_rect(0.0, 0.0, w, h);
-        ctx.begin_path();
-        ctx.move_to(0.0, 0.0);
-        self.scaled_data.with(|data| {
-            data.iter().for_each(|(x, y)| {
-                ctx.line_to(*x, *y);
-            })
-        });
-        ctx.stroke();
     }
 }
 
