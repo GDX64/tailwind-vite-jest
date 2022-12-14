@@ -3,11 +3,9 @@ use std::{
     rc::{Rc, Weak},
 };
 
-fn main() {}
-
 type Waker = Weak<dyn InnerWaker>;
 
-trait InnerWaker {
+pub trait InnerWaker {
     fn wakeup(&self);
 }
 
@@ -19,7 +17,7 @@ impl<T: 'static, F: Fn(&Waker) -> T + 'static> InnerWaker for RefCell<InnerCompu
     }
 }
 
-pub trait SignalLike<T>: Clone {
+pub trait SignalLike<T>: Clone + 'static {
     fn with_track<K>(&self, waker: &Waker, f: impl Fn(&T) -> K) -> K;
 
     fn get_ref(&self) -> Ref<T>;
@@ -183,11 +181,11 @@ impl<T: 'static> Signal<T> {
     }
 }
 
-pub fn and_2<T: 'static, K: 'static, U: 'static>(
-    one: &(impl SignalLike<T> + 'static),
-    other: &(impl SignalLike<K> + 'static),
+pub fn and_2<T, K, U: 'static>(
+    one: &impl SignalLike<T>,
+    other: &impl SignalLike<K>,
     f: impl Fn(&T, &K) -> U + 'static,
-) -> impl SignalLike<U> + 'static {
+) -> impl SignalLike<U> {
     let s1 = one.clone();
     let s2 = other.clone();
     Computed::new(move |waker| {
@@ -196,12 +194,12 @@ pub fn and_2<T: 'static, K: 'static, U: 'static>(
         f(&s1, &s2)
     })
 }
-pub fn and_3<T: 'static, K: 'static, G: 'static, U: 'static>(
-    one: &(impl SignalLike<T> + 'static),
-    two: &(impl SignalLike<K> + 'static),
-    three: &(impl SignalLike<G> + 'static),
+pub fn and_3<T, K, G, U: 'static>(
+    one: &impl SignalLike<T>,
+    two: &impl SignalLike<K>,
+    three: &impl SignalLike<G>,
     f: impl Fn(&T, &K, &G) -> U + 'static,
-) -> impl SignalLike<U> + 'static {
+) -> impl SignalLike<U> {
     let s1 = one.clone();
     let s2 = two.clone();
     let s3 = three.clone();
