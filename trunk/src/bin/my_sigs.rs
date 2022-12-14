@@ -13,7 +13,9 @@ trait InnerWaker {
 
 impl<T: 'static, F: Fn(&Waker) -> T + 'static> InnerWaker for RefCell<InnerComputed<T, F>> {
     fn wakeup(&self) {
-        self.borrow_mut().awake = true
+        let mut mutable = self.borrow_mut();
+        mutable.awake = true;
+        notify(&mut mutable.deps);
     }
 }
 
@@ -37,20 +39,23 @@ trait SignalLike<T>: Clone {
     }
 
     fn notify(&self) {
-        let mut deps = self.get_deps();
-        *deps = deps
-            .iter()
-            .filter_map(|waker| {
-                let waker_option = waker.upgrade();
-                if let Some(waker_fn) = waker_option.as_ref() {
-                    waker_fn.wakeup();
-                    Some(waker.clone())
-                } else {
-                    None
-                }
-            })
-            .collect();
+        notify(self.get_deps().as_mut());
     }
+}
+
+fn notify(deps: &mut Vec<Waker>) {
+    *deps = deps
+        .iter()
+        .filter_map(|waker| {
+            let waker_option = waker.upgrade();
+            if let Some(waker_fn) = waker_option.as_ref() {
+                waker_fn.wakeup();
+                Some(waker.clone())
+            } else {
+                None
+            }
+        })
+        .collect();
 }
 
 struct InnerSignal<T> {
@@ -85,12 +90,6 @@ impl<T: 'static, F: Fn(&Waker) -> T + 'static> Computed<T, F> {
             inner.value = Some(v);
             inner.awake = false;
         }
-    }
-
-    fn wakeup(&self) {
-        let mut inner = self.inner.borrow_mut();
-        inner.awake = true;
-        self.notify();
     }
 
     fn new(f: F) -> Computed<T, F> {
@@ -229,6 +228,26 @@ mod test {
         {
             let c_deps = c.get_deps();
             assert_eq!(c_deps.len(), 0);
+        }
+    }
+
+    #[test]
+    fn comps_of_comps() {
+        let s1 = Signal::new(1);
+        let s2 = Signal::new(1);
+        let left = and_2(&s1, &s2, |v1, v2| *v1 + *v2);
+        let right = and_2(&s1, &s2, |v1, v2| *v1 + *v2);
+        let result = and_2(&left, &right, |l, r| *l + *r);
+        {
+            assert_eq!(*result.get_ref(), 4);
+        }
+        s1.set(2);
+        {
+            assert_eq!(*result.get_ref(), 6);
+        }
+        s2.set(2);
+        {
+            assert_eq!(*result.get_ref(), 8);
         }
     }
 }
