@@ -17,12 +17,13 @@ impl<T: 'static, F: Fn(&Waker) -> T + 'static> InnerWaker for RefCell<InnerCompu
     }
 }
 
-pub trait SignalLike<T>: Clone + 'static {
-    fn with_track<K>(&self, waker: &Waker, f: impl Fn(&T) -> K) -> K;
+pub trait SignalLike: Clone + 'static {
+    type Value;
+    fn with_track<K>(&self, waker: &Waker, f: impl Fn(&Self::Value) -> K) -> K;
 
-    fn get_ref(&self) -> Ref<T>;
+    fn get_ref(&self) -> Ref<Self::Value>;
 
-    fn get(&self, waker: &Waker) -> Ref<T> {
+    fn get(&self, waker: &Waker) -> Ref<Self::Value> {
         self.track(waker);
         self.get_ref()
     }
@@ -102,7 +103,8 @@ impl<T: 'static, F: Fn(&Waker) -> T + 'static> Computed<T, F> {
     }
 }
 
-impl<T: 'static, F: Fn(&Waker) -> T + 'static> SignalLike<T> for Computed<T, F> {
+impl<T: 'static, F: Fn(&Waker) -> T + 'static> SignalLike for Computed<T, F> {
+    type Value = T;
     fn with_track<K>(&self, waker: &Waker, f: impl Fn(&T) -> K) -> K {
         self.track(waker);
         self.with(f)
@@ -120,7 +122,8 @@ impl<T: 'static, F: Fn(&Waker) -> T + 'static> SignalLike<T> for Computed<T, F> 
     }
 }
 
-impl<T: 'static> SignalLike<T> for Signal<T> {
+impl<T: 'static> SignalLike for Signal<T> {
+    type Value = T;
     fn with_track<K>(&self, waker: &Waker, f: impl Fn(&T) -> K) -> K {
         self.track(waker);
         self.with(f)
@@ -181,11 +184,11 @@ impl<T: 'static> Signal<T> {
     }
 }
 
-pub fn and_2<T, K, U: 'static>(
-    one: &impl SignalLike<T>,
-    other: &impl SignalLike<K>,
-    f: impl Fn(&T, &K) -> U + 'static,
-) -> impl SignalLike<U> {
+pub fn and_2<One: SignalLike, Two: SignalLike, U: 'static>(
+    one: &One,
+    other: &Two,
+    f: impl Fn(&One::Value, &Two::Value) -> U + 'static,
+) -> impl SignalLike<Value = U> {
     let s1 = one.clone();
     let s2 = other.clone();
     Computed::new(move |waker| {
@@ -194,12 +197,12 @@ pub fn and_2<T, K, U: 'static>(
         f(&s1, &s2)
     })
 }
-pub fn and_3<T, K, G, U: 'static>(
-    one: &impl SignalLike<T>,
-    two: &impl SignalLike<K>,
-    three: &impl SignalLike<G>,
-    f: impl Fn(&T, &K, &G) -> U + 'static,
-) -> impl SignalLike<U> {
+pub fn and_3<One: SignalLike, Two: SignalLike, Three: SignalLike, U: 'static>(
+    one: &One,
+    two: &Two,
+    three: &Three,
+    f: impl Fn(&One::Value, &Two::Value, &Three::Value) -> U + 'static,
+) -> impl SignalLike<Value = U> {
     let s1 = one.clone();
     let s2 = two.clone();
     let s3 = three.clone();

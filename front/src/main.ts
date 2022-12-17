@@ -24,6 +24,7 @@ import Animation from './pages/Animation.vue';
 import Lots from './pages/LotsOfSquares.vue';
 import ScrollCompare from './pages/ScrollCompare.vue';
 import Scroll from './pages/Scroll.vue';
+import LuaEmb from './pages/LuaEmb.vue';
 
 const routes = [
   { path: '/', component: Home },
@@ -45,6 +46,7 @@ const routes = [
   { path: '/lots', component: Lots },
   { path: '/scrollCompare', component: ScrollCompare },
   { path: '/scroll', component: Scroll },
+  { path: '/lua', component: LuaEmb },
   // { path: '/set', component: Set },
   // { path: '/Wordle', component: Wordle },
   // { path: '/hilbert', component: Hilbert },
