@@ -51,11 +51,10 @@ pub fn SimpleCounter(cx: Scope) -> Element {
     el
 }
 
-fn gen_data(n: usize) -> Vec<(f64, f64)> {
-    let mut v = vec![(0.0, 0.0); n];
+fn gen_data(n: usize) -> Vec<f64> {
+    let mut v = vec![0.0; n];
     for i in 1..n {
-        v[i].0 = (i * 10usize) as f64;
-        v[i].1 = random() + v[i - 1].1 - 0.5;
+        v[i] = random() + v[i - 1] - 0.5;
     }
     v
 }
