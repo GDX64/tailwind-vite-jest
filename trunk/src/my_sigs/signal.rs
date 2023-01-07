@@ -98,6 +98,8 @@ pub fn and_3<T, K, G, U: 'static>(
 
 #[cfg(test)]
 mod test {
+    use crate::my_sigs::Computed;
+
     use super::{and_2, Signal, SignalLike};
 
     #[test]
@@ -147,6 +149,32 @@ mod test {
         s2.set(2);
         {
             assert_eq!(*result.get_ref(), 8);
+        }
+    }
+
+    #[test]
+    fn test_trigger() {
+        let s1 = Signal::new(1);
+        let s2 = Signal::new(1);
+        let s1_clone = s1.clone();
+        let s2_clone = s2.clone();
+        let comp = Computed::new(move |waker| *s1_clone.get(waker) + 1);
+        {
+            let v = comp.get_ref();
+            assert_eq!(*v, 2);
+        }
+        comp.on_trigger(move || {
+            s2_clone.set(10);
+            true
+        });
+        {
+            let v = s2.get_ref();
+            assert_eq!(*v, 1)
+        }
+        {
+            s1.set(4);
+            let v = s2.get_ref();
+            assert_eq!(*v, 10)
         }
     }
 }

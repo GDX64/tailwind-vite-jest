@@ -22,6 +22,11 @@ pub trait SignalLike<T>: Clone + 'static {
         }
     }
 
+    fn on_trigger(&self, f: impl Fn() -> bool + 'static) {
+        let waker: Waker = Rc::new(f);
+        self.track(&waker);
+    }
+
     fn notify(&self) {
         notify(self.get_deps().as_mut());
     }
