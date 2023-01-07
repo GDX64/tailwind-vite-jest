@@ -51,12 +51,12 @@ pub fn SimpleCounter(cx: Scope) -> Element {
     el
 }
 
-fn gen_data(n: usize) -> Vec<f64> {
+fn gen_data(n: usize) -> Vec<gsig::Signal<f64>> {
     let mut v = vec![0.0; n];
     for i in 1..n {
         v[i] = random() + v[i - 1] - 0.5;
     }
-    v
+    v.iter().map(|v| gsig::Signal::new(*v)).collect()
 }
 
 #[wasm_bindgen]
