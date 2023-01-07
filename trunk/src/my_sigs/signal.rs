@@ -5,7 +5,7 @@ use std::{
 
 use super::{
     computed::Computed,
-    sig_traits::{notify, InnerWaker, SignalLike, Waker},
+    sig_traits::{SignalLike, Waker},
 };
 
 struct InnerSignal<T> {
