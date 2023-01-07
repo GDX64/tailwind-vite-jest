@@ -54,7 +54,8 @@ struct InnerComputed<T: 'static, F: Fn(&Waker) -> T + 'static> {
     deps: Vec<Waker>,
 }
 
-impl<T: 'static, F: Fn(&Waker) -> T + 'static> SignalLike<T> for Computed<T, F> {
+impl<T: 'static, F: Fn(&Waker) -> T + 'static> SignalLike for Computed<T, F> {
+    type Value = T;
     fn with_track<K>(&self, waker: &Waker, f: impl Fn(&T) -> K) -> K {
         self.track(waker);
         self.with(f)

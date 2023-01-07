@@ -13,7 +13,8 @@ struct InnerSignal<T> {
     deps: Vec<Waker>,
 }
 
-impl<T: 'static> SignalLike<T> for Signal<T> {
+impl<T: 'static> SignalLike for Signal<T> {
+    type Value = T;
     fn with_track<K>(&self, waker: &Waker, f: impl Fn(&T) -> K) -> K {
         self.track(waker);
         self.with(f)
@@ -66,11 +67,11 @@ impl<T: 'static> Signal<T> {
     }
 }
 
-pub fn and_2<T, K, U: 'static>(
-    one: &impl SignalLike<T>,
-    other: &impl SignalLike<K>,
-    f: impl Fn(&T, &K) -> U + 'static,
-) -> impl SignalLike<U> {
+pub fn and_2<T: SignalLike, K: SignalLike, U: 'static>(
+    one: &T,
+    other: &K,
+    f: impl Fn(&T::Value, &K::Value) -> U + 'static,
+) -> impl SignalLike<Value = U> {
     let s1 = one.clone();
     let s2 = other.clone();
     Computed::new(move |waker| {
@@ -79,12 +80,12 @@ pub fn and_2<T, K, U: 'static>(
         f(&s1, &s2)
     })
 }
-pub fn and_3<T, K, G, U: 'static>(
-    one: &impl SignalLike<T>,
-    two: &impl SignalLike<K>,
-    three: &impl SignalLike<G>,
-    f: impl Fn(&T, &K, &G) -> U + 'static,
-) -> impl SignalLike<U> {
+pub fn and_3<T: SignalLike, K: SignalLike, G: SignalLike, U: 'static>(
+    one: &T,
+    two: &K,
+    three: &G,
+    f: impl Fn(&T::Value, &K::Value, &G::Value) -> U + 'static,
+) -> impl SignalLike<Value = U> {
     let s1 = one.clone();
     let s2 = two.clone();
     let s3 = three.clone();

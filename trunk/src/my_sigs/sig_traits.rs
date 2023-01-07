@@ -1,14 +1,16 @@
 use std::{
     cell::{Ref, RefMut},
+    future::Future,
     rc::Rc,
 };
 
-pub trait SignalLike<T>: Clone + 'static {
-    fn with_track<K>(&self, waker: &Waker, f: impl Fn(&T) -> K) -> K;
+pub trait SignalLike: Clone + 'static {
+    type Value;
+    fn with_track<K>(&self, waker: &Waker, f: impl Fn(&Self::Value) -> K) -> K;
 
-    fn get_ref(&self) -> Ref<T>;
+    fn get_ref(&self) -> Ref<Self::Value>;
 
-    fn get(&self, waker: &Waker) -> Ref<T> {
+    fn get(&self, waker: &Waker) -> Ref<Self::Value> {
         self.track(waker);
         self.get_ref()
     }
