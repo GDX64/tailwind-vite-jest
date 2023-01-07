@@ -1,4 +1,4 @@
-use crate::my_sigs::SignalLike;
+use crate::my_sigs::{Computed, SignalLike};
 
 use super::my_sigs as gsig;
 use leptos::*;
@@ -14,7 +14,6 @@ pub fn SimpleCounter(cx: Scope) -> Element {
     // create event handlers for our buttons
     // note that `value` and `set_value` are `Copy`, so it's super easy to move them into closures
     let on_wheel = move |event: WheelEvent| {
-        log("wheel");
         if event.delta_y() > 0.0 {
             set_range.update(|(_, end)| *end = ((*end as f64) / 1.1) as usize);
         } else {
@@ -40,13 +39,16 @@ pub fn SimpleCounter(cx: Scope) -> Element {
             ></canvas>
         </div>
     };
-
     create_effect(cx, move |_| {
+        range.set(lep_range.get());
+    });
+    let draw_comp = Computed::new(move |waker| {
+        let v = draw.get(waker);
         if let Some(ctx) = get_context2d(canvas) {
-            range.set(lep_range.get());
-            (draw.get_ref())(&ctx);
+            (v)(&ctx);
         }
     });
+    wasm_bindgen_futures::spawn_local(draw_comp.block_on());
     el
 }
 
@@ -69,6 +71,7 @@ extern "C" {
 
 // Easy to use with Trunk (trunkrs.dev) or with a simple wasm-bindgen setup
 pub fn main() {
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     mount_to_body(|cx| {
         view! { cx,  <SimpleCounter /> }
     });
