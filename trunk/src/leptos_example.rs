@@ -1,6 +1,5 @@
-use crate::my_sigs::{and_3, SignalLike};
-
 use super::my_sigs as gsig;
+use crate::my_sigs::{and_3, SignalLike};
 use leptos::*;
 use std::fmt::Debug;
 use wasm_bindgen::prelude::wasm_bindgen;
