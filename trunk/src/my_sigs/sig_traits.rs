@@ -30,8 +30,8 @@ pub trait SignalLike: Clone + 'static {
         self.track(&waker);
     }
 
-    fn block_on(self) -> SigBlocker<Self> {
-        SigBlocker { s: self }
+    fn block_on<F: Fn(&Self::Value) -> bool>(self, f: F) -> SigBlocker<Self, F> {
+        SigBlocker { s: self, f }
     }
 
     fn notify(&self) {
@@ -39,18 +39,25 @@ pub trait SignalLike: Clone + 'static {
     }
 }
 
-pub struct SigBlocker<S: SignalLike> {
+pub struct SigBlocker<S: SignalLike, F: Fn(&S::Value) -> bool> {
     s: S,
+    f: F,
 }
 
-impl<S: SignalLike> Future for SigBlocker<S> {
+impl<S: SignalLike, F: Fn(&S::Value) -> bool> Future for SigBlocker<S, F> {
     type Output = ();
     fn poll(
         self: std::pin::Pin<&mut Self>,
         cx: &mut std::task::Context<'_>,
     ) -> std::task::Poll<Self::Output> {
         let b = self.borrow();
-        let _ = b.s.get_ref();
+        let finish = {
+            let r = b.s.get_ref();
+            (b.f)(&r)
+        };
+        if finish {
+            return std::task::Poll::Ready(());
+        }
         let my_waker = cx.waker().clone();
         b.s.on_trigger(move || {
             my_waker.wake_by_ref();

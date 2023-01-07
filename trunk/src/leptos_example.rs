@@ -1,4 +1,4 @@
-use crate::my_sigs::{Computed, SignalLike};
+use crate::my_sigs::SignalLike;
 
 use super::my_sigs as gsig;
 use leptos::*;
@@ -42,13 +42,12 @@ pub fn SimpleCounter(cx: Scope) -> Element {
     create_effect(cx, move |_| {
         range.set(lep_range.get());
     });
-    let draw_comp = Computed::new(move |waker| {
-        let v = draw.get(waker);
+    wasm_bindgen_futures::spawn_local(draw.block_on(move |drawable| {
         if let Some(ctx) = get_context2d(canvas) {
-            (v)(&ctx);
+            drawable(&ctx);
         }
-    });
-    wasm_bindgen_futures::spawn_local(draw_comp.block_on());
+        false
+    }));
     el
 }
 
