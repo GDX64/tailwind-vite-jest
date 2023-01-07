@@ -1,5 +1,5 @@
 use std::{
-    borrow::{Borrow, BorrowMut},
+    borrow::Borrow,
     cell::{Ref, RefMut},
     future::Future,
     rc::Rc,
