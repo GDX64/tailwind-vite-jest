@@ -15,17 +15,23 @@ pub fn create_draw(
         let &(begin, end) = range;
         begin.max(0)..end.min(data.len())
     });
-    let scales = gsig::and_3(&in_range, &data, &dims, |in_range, data, dims| {
-        // log("recalc scale");
-        if let Some(((x_min, x_max), (y_min, y_max))) = LineChart::min_max(&data[in_range.clone()])
-        {
-            let &(w, h) = dims;
-            let scale_x = Scale::from((x_min, x_max), (0.0, w));
-            let scale_y = Scale::from((y_min, y_max), (0.0, h));
-            return Some((scale_x, scale_y));
-        }
-        None
-    });
+    let scales = {
+        let (in_range, data, dims) = (in_range.clone(), data.clone(), dims.clone());
+        gsig::Computed::new(move |waker| {
+            let data = data.get(waker);
+            let dims = dims.get(waker);
+            let in_range = in_range.get(waker);
+            if let Some(((x_min, x_max), (y_min, y_max))) =
+                LineChart::min_max(&data[in_range.clone()])
+            {
+                let (w, h) = *dims;
+                let scale_x = Scale::from((x_min, x_max), (0.0, w));
+                let scale_y = Scale::from((y_min, y_max), (0.0, h));
+                return Some((scale_x, scale_y));
+            }
+            None
+        })
+    };
     let scaled_data = gsig::and_3(&scales, &data, &in_range, |scales, data, in_range| {
         // log("scaled data");
         if let Some((scale_x, scale_y)) = scales {

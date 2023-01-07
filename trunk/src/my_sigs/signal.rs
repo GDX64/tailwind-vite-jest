@@ -9,8 +9,8 @@ use super::{
 };
 
 struct InnerSignal<T> {
-    value: T,
-    deps: Vec<Waker>,
+    value: RefCell<T>,
+    deps: RefCell<Vec<Waker>>,
 }
 
 impl<T: 'static> SignalLike for Signal<T> {
@@ -21,18 +21,16 @@ impl<T: 'static> SignalLike for Signal<T> {
     }
 
     fn get_deps<'a>(&'a self) -> RefMut<'a, Vec<Waker>> {
-        RefMut::map(self.inner.borrow_mut(), |r| &mut r.deps)
+        self.inner.deps.borrow_mut()
     }
 
     fn get_ref(&self) -> Ref<T> {
-        let r = RefCell::borrow(&self.inner);
-        let v = Ref::map(r, |v| &v.value);
-        v
+        self.inner.value.borrow()
     }
 }
 
 pub struct Signal<T> {
-    inner: Rc<RefCell<InnerSignal<T>>>,
+    inner: Rc<InnerSignal<T>>,
 }
 
 impl<T> Clone for Signal<T> {
@@ -46,29 +44,28 @@ impl<T> Clone for Signal<T> {
 impl<T: 'static> Signal<T> {
     pub fn new(value: T) -> Signal<T> {
         Signal {
-            inner: Rc::new(RefCell::new(InnerSignal {
-                value,
-                deps: vec![],
-            })),
+            inner: Rc::new(InnerSignal {
+                value: RefCell::new(value),
+                deps: RefCell::new(vec![]),
+            }),
         }
     }
 
     fn with<K>(&self, f: impl Fn(&T) -> K) -> K {
-        let v = &RefCell::borrow(&self.inner).value;
+        let v = &self.inner.value.borrow();
         f(v)
     }
 
     pub fn set(&self, value: T) {
         {
-            let mut inner = self.inner.borrow_mut();
-            inner.value = value;
+            self.inner.value.replace(value);
         }
         self.notify();
     }
 
     pub fn update(&self, f: impl Fn(&mut T)) {
         {
-            let val = &mut self.inner.borrow_mut().value;
+            let val = &mut self.inner.value.borrow_mut();
             f(val);
         }
         self.notify();
