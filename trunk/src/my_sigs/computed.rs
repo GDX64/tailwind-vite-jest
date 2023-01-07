@@ -1,5 +1,5 @@
 use super::sig_traits::notify;
-use super::sig_traits::{InnerWaker, SignalLike, Waker};
+use super::sig_traits::{SignalLike, Waker};
 use std::{
     cell::{Ref, RefCell, RefMut},
     rc::Rc,
@@ -7,6 +7,7 @@ use std::{
 
 pub struct Computed<T: 'static, F: Fn(&Waker) -> T + 'static> {
     inner: Rc<RefCell<InnerComputed<T, F>>>,
+    waker: Waker,
 }
 
 impl<T: 'static, F: Fn(&Waker) -> T + 'static> Computed<T, F> {
@@ -20,22 +21,29 @@ impl<T: 'static, F: Fn(&Waker) -> T + 'static> Computed<T, F> {
     fn update_value_if_needed(&self) {
         let mut inner = self.inner.borrow_mut();
         if inner.awake {
-            let waker: Waker = Rc::downgrade(&(self.inner.clone() as Rc<dyn InnerWaker>));
-            let v = (inner.f)(&waker);
+            let v = (inner.f)(&self.waker);
             inner.value = Some(v);
             inner.awake = false;
         }
     }
 
     pub fn new(f: F) -> Computed<T, F> {
-        Computed {
-            inner: Rc::new(RefCell::new(InnerComputed {
-                value: None,
-                f,
-                awake: true,
-                deps: vec![],
-            })),
-        }
+        let inner = Rc::new(RefCell::new(InnerComputed {
+            value: None,
+            f,
+            awake: true,
+            deps: vec![],
+        }));
+        let weak_inner = Rc::downgrade(&inner);
+        let waker = Rc::new(move || {
+            weak_inner
+                .upgrade()
+                .map(|inner| {
+                    inner.borrow_mut().wakeup();
+                })
+                .is_some()
+        });
+        Computed { inner, waker }
     }
 }
 
@@ -68,14 +76,14 @@ impl<T: 'static, F: Fn(&Waker) -> T + 'static> Clone for Computed<T, F> {
     fn clone(&self) -> Self {
         Computed {
             inner: self.inner.clone(),
+            waker: self.waker.clone(),
         }
     }
 }
 
-impl<T: 'static, F: Fn(&Waker) -> T + 'static> InnerWaker for RefCell<InnerComputed<T, F>> {
-    fn wakeup(&self) {
-        let mut mutable = self.borrow_mut();
-        mutable.awake = true;
-        notify(&mut mutable.deps);
+impl<T: 'static, F: Fn(&Waker) -> T + 'static> InnerComputed<T, F> {
+    fn wakeup(&mut self) {
+        self.awake = true;
+        notify(&mut self.deps);
     }
 }

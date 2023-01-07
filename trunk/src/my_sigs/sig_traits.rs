@@ -1,6 +1,6 @@
 use std::{
     cell::{Ref, RefMut},
-    rc::Weak,
+    rc::Rc,
 };
 
 pub trait SignalLike<T>: Clone + 'static {
@@ -17,7 +17,7 @@ pub trait SignalLike<T>: Clone + 'static {
 
     fn track(&self, waker: &Waker) {
         let mut deps = self.get_deps();
-        if !deps.iter().any(|item| Weak::ptr_eq(waker, item)) {
+        if !deps.iter().any(|item| Rc::ptr_eq(item, &waker)) {
             deps.push(waker.clone());
         }
     }
@@ -28,22 +28,20 @@ pub trait SignalLike<T>: Clone + 'static {
 }
 
 pub trait InnerWaker {
-    fn wakeup(&self);
+    fn wakeup(&self) -> bool;
 }
 
-pub type Waker = Weak<dyn InnerWaker>;
+pub type Waker = Rc<dyn InnerWaker>;
+
+impl<F> InnerWaker for F
+where
+    F: Fn() -> bool,
+{
+    fn wakeup(&self) -> bool {
+        (self)()
+    }
+}
 
 pub fn notify(deps: &mut Vec<Waker>) {
-    *deps = deps
-        .iter()
-        .filter_map(|waker| {
-            let waker_option = waker.upgrade();
-            if let Some(waker_fn) = waker_option.as_ref() {
-                waker_fn.wakeup();
-                Some(waker.clone())
-            } else {
-                None
-            }
-        })
-        .collect();
+    deps.retain(|waker| waker.wakeup());
 }
