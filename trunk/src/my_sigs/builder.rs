@@ -58,7 +58,6 @@ pub fn create_draw(
 struct LineChart {}
 
 impl LineChart {
-    #[inline(never)]
     fn min_max(v: &[(f64, f64)]) -> Option<((f64, f64), (f64, f64))> {
         if v.len() < 1 {
             return None;
