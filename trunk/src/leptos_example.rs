@@ -1,7 +1,7 @@
+use crate::my_sigs::SignalLike;
+
 use super::my_sigs as gsig;
-use crate::my_sigs::{and_3, SignalLike};
 use leptos::*;
-use std::fmt::Debug;
 use wasm_bindgen::prelude::wasm_bindgen;
 use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, WheelEvent};
 
@@ -22,9 +22,9 @@ pub fn SimpleCounter(cx: Scope) -> Element {
         }
     };
     let range = gsig::Signal::new(lep_range.get());
-    let data = gsig::Signal::new(LineChart::gen_data(500_000));
+    let data = gsig::Signal::new(gen_data(500_000));
     let dims = gsig::Signal::new(lep_dims.get());
-    let draw = create_draw(range.clone(), data, dims);
+    let draw = gsig::create_draw(range.clone(), data, dims);
     let canvas = NodeRef::new(cx);
     let as_px = |v: f64| format!("{}px", v);
     // this JSX is compiled to an HTML template string for performance
@@ -44,114 +44,19 @@ pub fn SimpleCounter(cx: Scope) -> Element {
     create_effect(cx, move |_| {
         if let Some(ctx) = get_context2d(canvas) {
             range.set(lep_range.get());
-            draw(&ctx);
+            (draw.get_ref())(&ctx);
         }
     });
     el
 }
 
-fn create_draw(
-    range: gsig::Signal<(usize, usize)>,
-    data: gsig::Signal<Vec<(f64, f64)>>,
-    dims: gsig::Signal<(f64, f64)>,
-) -> impl Fn(&CanvasRenderingContext2d) {
-    // log("draw made");
-    let in_range = gsig::and_2(&range, &data, |range, data| {
-        let &(begin, end) = range;
-        begin.max(0)..end.min(data.len())
-    });
-    let scales = and_3(&in_range, &data, &dims, |in_range, data, dims| {
-        // log("recalc scale");
-        if let Some(((x_min, x_max), (y_min, y_max))) = LineChart::min_max(&data[in_range.clone()])
-        {
-            let &(w, h) = dims;
-            let scale_x = Scale::from((x_min, x_max), (0.0, w));
-            let scale_y = Scale::from((y_min, y_max), (0.0, h));
-            return Some((scale_x, scale_y));
-        }
-        None
-    });
-    let scaled_data = and_3(
-        &scales,
-        &data,
-        &in_range,
-        |scales, data, in_range| -> Vec<(f64, f64)> {
-            // log("scaled data");
-            if let Some((scale_x, scale_y)) = scales {
-                let mapped = data[in_range.clone()]
-                    .iter()
-                    .map(|point| (scale_x.apply(point.0), scale_y.apply(point.1)))
-                    .collect::<Vec<_>>();
-
-                return mapped;
-            }
-            vec![]
-        },
-    );
-    move |ctx: &CanvasRenderingContext2d| {
-        let scaled_data: &Vec<(f64, f64)> = &scaled_data.get_ref();
-        let dims = dims.get_ref();
-        // log("draw");
-        let (w, h) = *dims;
-        ctx.clear_rect(0.0, 0.0, w, h);
-        ctx.begin_path();
-        ctx.move_to(0.0, 0.0);
-        let step = (scaled_data.len() / (1_000)).max(1);
-        scaled_data.iter().step_by(step).for_each(|(x, y)| {
-            ctx.line_to(*x, *y);
-        });
-        ctx.stroke();
+fn gen_data(n: usize) -> Vec<(f64, f64)> {
+    let mut v = vec![(0.0, 0.0); n];
+    for i in 1..n {
+        v[i].0 = (i * 10usize) as f64;
+        v[i].1 = random() + v[i - 1].1 - 0.5;
     }
-}
-
-struct LineChart {}
-
-impl LineChart {
-    fn gen_data(n: usize) -> Vec<(f64, f64)> {
-        let mut v = vec![(0.0, 0.0); n];
-        for i in 1..n {
-            v[i].0 = (i * 10usize) as f64;
-            v[i].1 = random() + v[i - 1].1 - 0.5;
-        }
-        v
-    }
-
-    #[inline(never)]
-    fn min_max(v: &[(f64, f64)]) -> Option<((f64, f64), (f64, f64))> {
-        if v.len() < 1 {
-            return None;
-        }
-        let (mut acc_x, mut acc_y) = ((v[0].0, v[0].0), (v[0].1, v[0].1));
-        v.iter().for_each(|item| {
-            acc_x = (acc_x.0.min(item.0), acc_x.1.max(item.0));
-            acc_y = (acc_y.0.min(item.1), acc_y.1.max(item.1));
-        });
-        Some((acc_x, acc_y))
-    }
-}
-
-#[derive(Debug, PartialEq)]
-struct Scale {
-    alpha: f64,
-    k: f64,
-}
-
-impl Scale {
-    fn apply(&self, x: f64) -> f64 {
-        self.alpha * x + self.k
-    }
-
-    fn from(domain: (f64, f64), image: (f64, f64)) -> Scale {
-        let alpha = (image.1 - image.0) / (domain.1 - domain.0);
-        Scale {
-            alpha,
-            k: image.0 - domain.0 * alpha,
-        }
-    }
-}
-
-trait Drawable: PartialEq + Debug + 'static {
-    fn draw(&self, ctx: &CanvasRenderingContext2d);
+    v
 }
 
 #[wasm_bindgen]

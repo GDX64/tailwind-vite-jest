@@ -65,6 +65,14 @@ impl<T: 'static> Signal<T> {
         }
         self.notify();
     }
+
+    pub fn update(&self, f: impl Fn(&mut T)) {
+        {
+            let val = &mut self.inner.borrow_mut().value;
+            f(val);
+        }
+        self.notify();
+    }
 }
 
 pub fn and_2<T: SignalLike, K: SignalLike, U: 'static>(
