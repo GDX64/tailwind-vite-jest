@@ -1,4 +1,5 @@
 use std::{
+    borrow::{Borrow, BorrowMut},
     cell::{Ref, RefMut},
     future::Future,
     rc::Rc,
@@ -29,8 +30,33 @@ pub trait SignalLike: Clone + 'static {
         self.track(&waker);
     }
 
+    fn block_on(self) -> SigBlocker<Self> {
+        SigBlocker { s: self }
+    }
+
     fn notify(&self) {
         notify(self.get_deps().as_mut());
+    }
+}
+
+pub struct SigBlocker<S: SignalLike> {
+    s: S,
+}
+
+impl<S: SignalLike> Future for SigBlocker<S> {
+    type Output = ();
+    fn poll(
+        self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<Self::Output> {
+        let b = self.borrow();
+        let _ = b.s.get_ref();
+        let my_waker = cx.waker().clone();
+        b.s.on_trigger(move || {
+            my_waker.wake_by_ref();
+            false
+        });
+        std::task::Poll::Pending
     }
 }
 

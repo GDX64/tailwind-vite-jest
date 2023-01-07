@@ -99,9 +99,9 @@ pub fn and_3<T: SignalLike, K: SignalLike, G: SignalLike, U: 'static>(
 
 #[cfg(test)]
 mod test {
-    use crate::my_sigs::Computed;
 
     use super::{and_2, Signal, SignalLike};
+    use crate::my_sigs::Computed;
 
     #[test]
     fn testzin() {
