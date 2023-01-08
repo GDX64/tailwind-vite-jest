@@ -51,7 +51,7 @@ impl<T: 'static> Signal<T> {
         }
     }
 
-    fn with<K>(&self, f: impl Fn(&T) -> K) -> K {
+    pub fn with<K>(&self, f: impl Fn(&T) -> K) -> K {
         let v = &self.inner.value.borrow();
         f(v)
     }

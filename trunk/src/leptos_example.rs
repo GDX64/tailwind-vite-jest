@@ -8,7 +8,7 @@ use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, WheelEvent};
 #[component]
 pub fn SimpleCounter(cx: Scope) -> Element {
     // create a reactive signal with the initial value
-    let (lep_range, set_range) = create_signal(cx, (0, 50_000));
+    let (lep_range, set_range) = create_signal(cx, (0, 100));
     let (lep_dims, _set_dims) = create_signal(cx, (1000.0, 400.0));
 
     // create event handlers for our buttons
@@ -21,10 +21,25 @@ pub fn SimpleCounter(cx: Scope) -> Element {
         }
     };
     let range = gsig::Signal::new(lep_range.get());
-    let data = gsig::Signal::new(gen_data(500_000));
+    let data = gsig::Signal::new(gen_data(500));
     let dims = gsig::Signal::new(lep_dims.get());
+    let data_clone = data.clone();
     let draw = gsig::create_draw(range.clone(), data, dims);
     let canvas = NodeRef::new(cx);
+    let (input_text, set_text) = create_signal(cx, "".to_string());
+    let on_input = move |event: web_sys::InputEvent| {
+        set_text.update(|value| {
+            let v = event_target_value(&event);
+            *value = v;
+        });
+    };
+    let on_keyup = move |event: web_sys::KeyboardEvent| {
+        log!("{}", event.key_code());
+        if event.key_code() == 13 {
+            let (value, index) = get_index_and_value(&input_text());
+            data_clone.with(|v| v[index].set(value));
+        }
+    };
     let as_px = |v: f64| format!("{}px", v);
     // this JSX is compiled to an HTML template string for performance
     let el = view! {
@@ -37,6 +52,7 @@ pub fn SimpleCounter(cx: Scope) -> Element {
             width=move|| as_px(lep_dims().0)
             height=move|| as_px(lep_dims().1)
             ></canvas>
+            <input value = move||input_text() on:input=on_input on:keyup=on_keyup></input>
         </div>
     };
     create_effect(cx, move |_| {
@@ -84,4 +100,14 @@ fn get_context2d(canvas: NodeRef) -> Option<CanvasRenderingContext2d> {
         .ok()??
         .dyn_into::<CanvasRenderingContext2d>()
         .ok()
+}
+
+fn get_index_and_value(s: &str) -> (f64, usize) {
+    let mut iter = s.split(" ");
+    if let (Some(index), Some(value)) = (iter.next(), iter.next()) {
+        let index: usize = index.parse().unwrap();
+        let value: usize = value.parse().unwrap();
+        return (value as f64, index);
+    };
+    (0.0, 0)
 }
