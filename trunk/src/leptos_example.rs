@@ -107,7 +107,7 @@ fn get_index_and_value(s: &str) -> (f64, usize) {
     if let (Some(index), Some(value)) = (iter.next(), iter.next()) {
         let index: usize = index.parse().unwrap();
         let value: usize = value.parse().unwrap();
-        return (value as f64, index);
+        return (value as f64 / 100.0, index);
     };
     (0.0, 0)
 }

@@ -1,5 +1,4 @@
 use std::{fmt::Debug, rc::Rc};
-
 use web_sys::CanvasRenderingContext2d;
 
 use super::{Computed, SignalLike};
@@ -15,29 +14,50 @@ pub fn create_draw(
         let &(begin, end) = range;
         (begin.max(0), end.min(data.len()))
     });
-    let scales = {
-        let (in_range, data, dims) = (in_range.clone(), data.clone(), dims.clone());
+    let agregated_data = {
+        // let in_range = in_range.clone();
+        let data = data.clone();
         gsig::Computed::new(move |waker| {
+            // let (begin, end) = *in_range.get(waker);
             let data = data.get(waker);
+            let comps: Vec<_> = data
+                .windows(10)
+                .map(|window| {
+                    let sigs = window.to_vec();
+                    let comp = gsig::Computed::new(move |waker| {
+                        sigs.iter().fold(0.0, |acc, now| acc + *now.get(waker)) / 10.0
+                    });
+                    comp
+                })
+                .collect();
+            comps
+        })
+    };
+    let scales = {
+        let (in_range, agregated_data, dims) =
+            (in_range.clone(), agregated_data.clone(), dims.clone());
+        gsig::Computed::new(move |waker| {
+            let agregated_data = agregated_data.get(waker);
             let dims = dims.get(waker);
             let (begin, end) = *in_range.get(waker);
-            if let Some((y_min, y_max)) = LineChart::min_max(&data[begin..end], waker) {
+            if let Some((y_min, y_max)) = LineChart::min_max(&agregated_data[begin..end], waker) {
                 let (w, h) = *dims;
                 let scale_x = Scale::from((begin as f64, end as f64), (0.0, w));
-                let scale_y = Scale::from((y_min, y_max), (0.0, h));
+                let scale_y = Scale::from((y_min, y_max), (h, 0.0));
                 return Some((scale_x, scale_y));
             }
             None
         })
     };
     let scaled_data = {
-        let (data, scales, in_range) = (data.clone(), scales.clone(), in_range.clone());
+        let (agregated_data, scales, in_range) =
+            (agregated_data.clone(), scales.clone(), in_range.clone());
         gsig::Computed::new(move |waker| {
             let scales: &Option<_> = &scales.get(waker);
-            let data: &Vec<_> = &data.get(waker);
+            let agregated_data: &Vec<_> = &agregated_data.get(waker);
             let (begin, end) = *in_range.get(waker);
             if let Some((scale_x, scale_y)) = scales {
-                let mapped = data[begin..end]
+                let mapped = agregated_data[begin..end]
                     .iter()
                     .enumerate()
                     .map(|(index, point)| {
@@ -59,10 +79,13 @@ pub fn create_draw(
         let (w, h) = *dims;
         Box::new(move |ctx: &CanvasRenderingContext2d| {
             ctx.clear_rect(0.0, 0.0, w, h);
+            if scaled_data.len() == 0 {
+                return;
+            }
             ctx.begin_path();
-            ctx.move_to(0.0, 0.0);
+            ctx.move_to(scaled_data[0].0, scaled_data[0].1);
             let step = (scaled_data.len() / (1_000)).max(1);
-            scaled_data.iter().step_by(step).for_each(|(x, y)| {
+            scaled_data.iter().skip(1).step_by(step).for_each(|(x, y)| {
                 ctx.line_to(*x, *y);
             });
             ctx.stroke();
@@ -73,7 +96,10 @@ pub fn create_draw(
 struct LineChart {}
 
 impl LineChart {
-    fn min_max(v: &[gsig::Signal<f64>], waker: &gsig::Waker) -> Option<(f64, f64)> {
+    fn min_max<S: gsig::SignalLike<Value = f64>>(
+        v: &[S],
+        waker: &gsig::Waker,
+    ) -> Option<(f64, f64)> {
         if v.len() < 1 {
             return None;
         }

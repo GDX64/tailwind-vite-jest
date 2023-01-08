@@ -6,40 +6,40 @@ use std::{
 };
 
 pub struct Computed<T: 'static, F: Fn(&Waker) -> T + 'static> {
-    inner: Rc<RefCell<InnerComputed<T, F>>>,
+    inner: Rc<InnerComputed<T, F>>,
     waker: Waker,
 }
 
 impl<T: 'static, F: Fn(&Waker) -> T + 'static> Computed<T, F> {
     fn with<K>(&self, f: impl Fn(&T) -> K) -> K {
         self.update_value_if_needed();
-        let inner = self.inner.borrow_mut();
-        let v = inner.value.as_ref().unwrap();
+        let v = self.inner.value.borrow();
+        let v = v.as_ref().unwrap();
         f(v)
     }
 
     fn update_value_if_needed(&self) {
-        let mut inner = self.inner.borrow_mut();
-        if inner.awake {
-            let v = (inner.f)(&self.waker);
-            inner.value = Some(v);
-            inner.awake = false;
+        let mut awake = self.inner.awake.borrow_mut();
+        if *awake {
+            let v = (self.inner.f)(&self.waker);
+            self.inner.value.replace(Some(v));
+            *awake = false;
         }
     }
 
     pub fn new(f: F) -> Computed<T, F> {
-        let inner = Rc::new(RefCell::new(InnerComputed {
-            value: None,
+        let inner = Rc::new(InnerComputed {
+            value: RefCell::new(None),
             f,
-            awake: true,
-            deps: vec![],
-        }));
+            awake: RefCell::new(true),
+            deps: RefCell::new(vec![]),
+        });
         let weak_inner = Rc::downgrade(&inner);
         let waker = Rc::new(move || {
             weak_inner
                 .upgrade()
                 .map(|inner| {
-                    inner.borrow_mut().wakeup();
+                    inner.wakeup();
                 })
                 .is_some()
         });
@@ -48,10 +48,10 @@ impl<T: 'static, F: Fn(&Waker) -> T + 'static> Computed<T, F> {
 }
 
 struct InnerComputed<T: 'static, F: Fn(&Waker) -> T + 'static> {
-    value: Option<T>,
+    value: RefCell<Option<T>>,
     f: F,
-    awake: bool,
-    deps: Vec<Waker>,
+    awake: RefCell<bool>,
+    deps: RefCell<Vec<Waker>>,
 }
 
 impl<T: 'static, F: Fn(&Waker) -> T + 'static> SignalLike for Computed<T, F> {
@@ -62,14 +62,12 @@ impl<T: 'static, F: Fn(&Waker) -> T + 'static> SignalLike for Computed<T, F> {
     }
 
     fn get_deps<'a>(&'a self) -> RefMut<'a, Vec<Waker>> {
-        RefMut::map(self.inner.borrow_mut(), |r| &mut r.deps)
+        self.inner.deps.borrow_mut()
     }
 
     fn get_ref(&self) -> Ref<T> {
         self.update_value_if_needed();
-        let r = RefCell::borrow(&self.inner);
-        let v = Ref::map(r, |v| v.value.as_ref().unwrap());
-        v
+        Ref::map(self.inner.value.borrow(), |v| v.as_ref().unwrap())
     }
 }
 
@@ -83,8 +81,8 @@ impl<T: 'static, F: Fn(&Waker) -> T + 'static> Clone for Computed<T, F> {
 }
 
 impl<T: 'static, F: Fn(&Waker) -> T + 'static> InnerComputed<T, F> {
-    fn wakeup(&mut self) {
-        self.awake = true;
-        notify(&mut self.deps);
+    fn wakeup(&self) {
+        self.awake.replace(true);
+        notify(&mut self.deps.borrow_mut());
     }
 }
