@@ -80,6 +80,12 @@ impl<T: 'static, F: Fn(&Waker) -> T + 'static> Clone for Computed<T, F> {
     }
 }
 
+// impl<T: 'static, F: Fn(&Waker) -> T + 'static> Drop for Computed<T, F> {
+//     fn drop(&mut self) {
+//         // leptos::log!("dropped");
+//     }
+// }
+
 impl<T: 'static, F: Fn(&Waker) -> T + 'static> InnerComputed<T, F> {
     fn wakeup(&self) {
         self.awake.replace(true);

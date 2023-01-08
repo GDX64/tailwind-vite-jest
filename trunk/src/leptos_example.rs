@@ -8,7 +8,7 @@ use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, WheelEvent};
 #[component]
 pub fn SimpleCounter(cx: Scope) -> Element {
     // create a reactive signal with the initial value
-    let (lep_range, set_range) = create_signal(cx, (0, 100));
+    let (lep_range, set_range) = create_signal(cx, (0, 10));
     let (lep_dims, _set_dims) = create_signal(cx, (1000.0, 400.0));
 
     // create event handlers for our buttons
@@ -21,9 +21,9 @@ pub fn SimpleCounter(cx: Scope) -> Element {
         }
     };
     let range = gsig::Signal::new(lep_range.get());
-    let data = gsig::Signal::new(gen_data(10_000));
+    let data = gsig::Signal::new(gen_data(20));
     let dims = gsig::Signal::new(lep_dims.get());
-    let average_samples = gsig::Signal::new(10);
+    let average_samples = gsig::Signal::new(5);
     let avg_clone = average_samples.clone();
     let data_clone = data.clone();
     let draw = gsig::create_draw(range.clone(), data, dims, average_samples);

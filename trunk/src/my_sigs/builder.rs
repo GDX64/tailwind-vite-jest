@@ -11,15 +11,9 @@ pub fn create_draw(
     average_size: gsig::Signal<i32>,
 ) -> impl SignalLike<Value = Drawable> {
     // log("draw made");
-    let in_range = gsig::and_2(&range, &data, |range, data| {
-        let &(begin, end) = range;
-        (begin.max(0), end.min(data.len()))
-    });
     let agregated_data = {
-        // let in_range = in_range.clone();
         let data = data.clone();
         gsig::Computed::new(move |waker| {
-            // let (begin, end) = *in_range.get(waker);
             let data = data.get(waker);
             let average_size = *average_size.get(waker);
             let comps: Vec<_> = data
@@ -35,6 +29,12 @@ pub fn create_draw(
             comps
         })
     };
+
+    let in_range = gsig::and_2(&range, &agregated_data, |range, data| {
+        let &(begin, end) = range;
+        (begin.max(0).min(data.len()), end.min(data.len()).max(0))
+    });
+
     let scales = {
         let (in_range, agregated_data, dims) =
             (in_range.clone(), agregated_data.clone(), dims.clone());
