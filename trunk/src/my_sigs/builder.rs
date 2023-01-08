@@ -8,6 +8,7 @@ pub fn create_draw(
     range: gsig::Signal<(usize, usize)>,
     data: gsig::Signal<Vec<gsig::Signal<f64>>>,
     dims: gsig::Signal<(f64, f64)>,
+    average_size: gsig::Signal<i32>,
 ) -> impl SignalLike<Value = Drawable> {
     // log("draw made");
     let in_range = gsig::and_2(&range, &data, |range, data| {
@@ -20,12 +21,13 @@ pub fn create_draw(
         gsig::Computed::new(move |waker| {
             // let (begin, end) = *in_range.get(waker);
             let data = data.get(waker);
+            let average_size = *average_size.get(waker);
             let comps: Vec<_> = data
-                .windows(10)
+                .windows(average_size as usize)
                 .map(|window| {
                     let sigs = window.to_vec();
                     let comp = gsig::Computed::new(move |waker| {
-                        sigs.iter().fold(0.0, |acc, now| acc + *now.get(waker)) / 10.0
+                        sigs.iter().fold(0.0, |acc, now| acc + *now.get(waker))
                     });
                     comp
                 })

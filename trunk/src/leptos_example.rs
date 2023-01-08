@@ -21,10 +21,12 @@ pub fn SimpleCounter(cx: Scope) -> Element {
         }
     };
     let range = gsig::Signal::new(lep_range.get());
-    let data = gsig::Signal::new(gen_data(500));
+    let data = gsig::Signal::new(gen_data(10_000));
     let dims = gsig::Signal::new(lep_dims.get());
+    let average_samples = gsig::Signal::new(10);
+    let avg_clone = average_samples.clone();
     let data_clone = data.clone();
-    let draw = gsig::create_draw(range.clone(), data, dims);
+    let draw = gsig::create_draw(range.clone(), data, dims, average_samples);
     let canvas = NodeRef::new(cx);
     let (input_text, set_text) = create_signal(cx, "".to_string());
     let on_input = move |event: web_sys::InputEvent| {
@@ -36,8 +38,7 @@ pub fn SimpleCounter(cx: Scope) -> Element {
     let on_keyup = move |event: web_sys::KeyboardEvent| {
         log!("{}", event.key_code());
         if event.key_code() == 13 {
-            let (value, index) = get_index_and_value(&input_text());
-            data_clone.with(|v| v[index].set(value));
+            parse_command(&input_text(), &data_clone, &avg_clone);
         }
     };
     let as_px = |v: f64| format!("{}px", v);
@@ -102,12 +103,15 @@ fn get_context2d(canvas: NodeRef) -> Option<CanvasRenderingContext2d> {
         .ok()
 }
 
-fn get_index_and_value(s: &str) -> (f64, usize) {
+fn parse_command(s: &str, data: &gsig::Signal<Vec<gsig::Signal<f64>>>, avg: &gsig::Signal<i32>) {
     let mut iter = s.split(" ");
-    if let (Some(index), Some(value)) = (iter.next(), iter.next()) {
-        let index: usize = index.parse().unwrap();
-        let value: usize = value.parse().unwrap();
-        return (value as f64 / 100.0, index);
-    };
-    (0.0, 0)
+    match (iter.next(), iter.next(), iter.next()) {
+        (Some("change"), Some(index), Some(value)) => {
+            let index: usize = index.parse().unwrap();
+            let value: usize = value.parse().unwrap();
+            data.with(|v| v[index].set(value as f64));
+        }
+        (Some("average"), Some(value), _) => avg.set(value.parse().unwrap()),
+        _ => (),
+    }
 }
