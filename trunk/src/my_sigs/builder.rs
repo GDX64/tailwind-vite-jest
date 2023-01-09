@@ -42,10 +42,11 @@ pub fn create_draw(
             let agregated_data = agregated_data.get(waker);
             let dims = dims.get(waker);
             let (begin, end) = *in_range.get(waker);
-            if let Some((y_min, y_max)) = LineChart::min_max(&agregated_data[begin..end], waker) {
+            let mut line_iter = agregated_data[begin..end].iter().map(|sig| *sig.get(waker));
+            if let Some(data) = LineChart::min_max(&mut line_iter) {
                 let (w, h) = *dims;
                 let scale_x = Scale::from((begin as f64, end as f64), (0.0, w));
-                let scale_y = Scale::from((y_min, y_max), (h, 0.0));
+                let scale_y = Scale::from((data.min.1, data.max.1), (h, 0.0));
                 return Some((scale_x, scale_y));
             }
             None
@@ -87,9 +88,17 @@ pub fn create_draw(
             ctx.begin_path();
             ctx.move_to(scaled_data[0].0, scaled_data[0].1);
             let step = (scaled_data.len() / (1_000)).max(1);
-            scaled_data.iter().skip(1).step_by(step).for_each(|(x, y)| {
-                ctx.line_to(*x, *y);
-            });
+            if step > 1 {
+                scaled_data.chunks(step).for_each(|slice| {
+                    let mut iter = slice.iter().map(|xy| xy.1);
+                    if let Some(data) = LineChart::min_max(&mut iter) {
+                        ctx.line_to(slice[data.min.0].0, data.min.1);
+                        ctx.line_to(slice[data.max.0].0, data.max.1);
+                    }
+                });
+            } else {
+                scaled_data.iter().for_each(|&(x, y)| ctx.line_to(x, y))
+            }
             ctx.stroke();
         })
     })
@@ -98,20 +107,31 @@ pub fn create_draw(
 struct LineChart {}
 
 impl LineChart {
-    fn min_max<S: gsig::SignalLike<Value = f64>>(
-        v: &[S],
-        waker: &gsig::Waker,
-    ) -> Option<(f64, f64)> {
-        if v.len() < 1 {
-            return None;
+    fn min_max(v: &mut impl Iterator<Item = f64>) -> Option<MinMaxData> {
+        if let Some(init) = v.next() {
+            let mut data = MinMaxData {
+                min: (0, init),
+                max: (0, init),
+            };
+            v.enumerate().for_each(|(index, item)| {
+                if item < data.min.1 {
+                    data.min.1 = item;
+                    data.min.0 = index + 1;
+                }
+                if item > data.max.1 {
+                    data.max.1 = item;
+                    data.max.0 = index + 1;
+                }
+            });
+            return Some(data);
         }
-        let mut acc_y = (*v[0].get(waker), *v[0].get(waker));
-        v.iter().for_each(|item| {
-            let item = *item.get(waker);
-            acc_y = (acc_y.0.min(item), acc_y.1.max(item));
-        });
-        Some(acc_y)
+        return None;
     }
+}
+
+struct MinMaxData {
+    min: (usize, f64),
+    max: (usize, f64),
 }
 
 #[derive(Debug, PartialEq)]
