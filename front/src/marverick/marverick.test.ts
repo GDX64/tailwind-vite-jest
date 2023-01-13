@@ -25,6 +25,16 @@ describe('tree sum', () => {
     //6,null
     expect(tree.sliceValue(6, 7)).toBe(6);
   });
+  test('random slice', () => {
+    const N = 5000;
+    const arr = [...Array(N)].map((_, v) => v);
+    const tree = Tree.fromArr(arr, sumTreeFn);
+    const rand = () => Math.floor(Math.random() * N);
+    const [begin, end] = [rand(), rand()].sort((a, b) => a - b);
+    expect(tree.sliceValue(begin, end)).toBe(
+      arr.slice(begin, end).reduce((a, b) => a + b)
+    );
+  });
 });
 
 function sumTreeFn(left: number | null, right: number | null) {
