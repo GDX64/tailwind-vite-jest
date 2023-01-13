@@ -1,86 +1,56 @@
 import { signal, computed, root } from '@maverick-js/signals';
-import { memoizeWith } from 'ramda';
+import { range } from 'ramda';
 
 describe('tree sum', () => {
   test('simple sum', () => {
     root((dispose) => {
-      const arr = [...Array(15)].map((_, v) => signal(v));
-      const { tree, searchSlice } = makeFrom(arr);
-      expect(tree.value()).toBe(105);
-      arr[0].set(10);
-      expect(tree.value()).toBe(115);
-      const slice = searchSlice([2, 4], tree);
-      console.log(slice);
-      expect(slice).toBeTruthy();
+      const arr = [...Array(15)].map((_, v) => v);
+      const tree = Tree.fromArr(arr, sumTreeFn);
+      expect(tree.value).toBe(105);
       dispose();
     });
   });
 });
 
-type Fn<T> = () => T;
-function sumTreeFn(left?: Fn<number>, right?: Fn<number>) {
-  return computed(() => {
-    return (left?.() ?? 0) + (right?.() ?? 0);
-  });
+function sumTreeFn(left: number | null, right: number | null) {
+  return (left ?? 0) + (right ?? 0);
 }
 
-interface Tree {
-  value: Fn<number>;
-  range: [number, number];
-  left?: Tree;
-  right?: Tree;
-}
+type Agregator<T> = (x: T | null, y: T | null) => T;
 
-function makeFrom(arr: Fn<number>[]) {
-  function searchSlice(range: [number, number], tree?: Tree): Tree | undefined {
-    if (!tree) {
-      return undefined;
-    }
-    if (tree.range[0] === range[0] && tree.range[1] === range[1]) {
-      return tree;
-    }
-    if (range[0] < tree.range[0]) {
-      return undefined;
-    }
-    if (range[0] === tree.range[0]) {
-      return searchSlice(range, tree.left);
-    }
-    return searchSlice(range, tree.right);
+class Tree<T> {
+  constructor(
+    public left: Tree<T> | null,
+    public right: Tree<T> | null,
+    public value: T,
+    public agregator: Agregator<T>,
+    public size: number
+  ) {}
+
+  sliceValue(begin: number, end: number) {}
+
+  static value<T>(x: T, agregator: Agregator<T>) {
+    return new Tree(null, null, x, agregator, 0);
   }
 
-  function buildTree(range: [number, number]): Tree {
-    const elements = range[1] - range[0];
-    if (elements === 1) {
-      const value = sumTreeFn(arr[range[0]]);
-      return {
-        value,
-        range,
-      };
+  static fromArr<T>(arr: T[], agregator: (x: T | null, y: T | null) => T) {
+    const powerOf2 = Math.ceil(Math.log2(arr.length));
+    const diff = 2 ** powerOf2 - arr.length;
+    const completedArr: (T | null)[] = [...arr, ...Array(diff).fill(null)];
+    function buildTree(arr: (T | null)[]): Tree<T> {
+      if (arr.length <= 2) {
+        return Tree.value(agregator(arr[0], arr[1]), agregator);
+      }
+      const left = buildTree(arr.slice(0, Math.floor(arr.length / 2)));
+      const right = buildTree(arr.slice(Math.floor(arr.length / 2)));
+      return new Tree(
+        left,
+        right,
+        agregator(left.value, right.value),
+        agregator,
+        arr.length
+      );
     }
-    const toRealRange = (virtual: number[]): [number, number] => [
-      virtual[0] + range[0],
-      virtual[1] + range[0],
-    ];
-    const twoPower = Math.log2(elements);
-    let virtualRange1, virtualRange2;
-    if (Number.isInteger(twoPower)) {
-      virtualRange1 = [0, elements / 2];
-      virtualRange2 = [elements / 2, elements];
-    } else {
-      const divider = 2 ** Math.floor(twoPower);
-      virtualRange1 = [0, divider];
-      virtualRange2 = [divider, elements];
-    }
-    const left = buildTree(toRealRange(virtualRange1));
-    const right = buildTree(toRealRange(virtualRange2));
-    return {
-      value: sumTreeFn(left.value, right.value),
-      range,
-      left,
-      right,
-    };
+    return buildTree(completedArr);
   }
-
-  const tree = buildTree([0, arr.length]);
-  return { tree, searchSlice };
 }
