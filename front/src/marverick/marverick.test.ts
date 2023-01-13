@@ -40,10 +40,10 @@ describe('tree sum', () => {
     const rand = () => Math.floor(Math.random() * N);
     const arr = [...Array(N)].map(rand).map((v) => ({ min: v, max: v }));
     const tree = Tree.fromArr(arr, (v1, v2) => {
-      return {
-        min: Math.min(v1?.min ?? Infinity, v2?.min ?? Infinity),
-        max: Math.max(v2?.max ?? -Infinity, v1?.max ?? -Infinity),
-      };
+      if (!v1 || !v2) {
+        return v1 ?? v2 ?? { min: Infinity, max: -Infinity };
+      }
+      return { min: Math.min(v1.min, v2.min), max: Math.max(v2.max, v1.max) };
     });
     const [begin, end] = [rand(), rand()].sort((a, b) => a - b);
     const result = tree.sliceValue(begin, end);
@@ -106,7 +106,7 @@ class Tree<T> {
     return new Tree(null, null, x, agregator, 0);
   }
 
-  static fromArr<T>(arr: T[], agregator: (x: T | null, y: T | null) => T) {
+  static fromArr<T>(arr: T[], agregator: Agregator<T>) {
     const powerOf2 = Math.ceil(Math.log2(arr.length));
     const diff = 2 ** powerOf2 - arr.length;
     const completedArr: (T | null)[] = [...arr, ...Array(diff).fill(null)];
