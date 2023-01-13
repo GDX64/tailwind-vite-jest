@@ -41,7 +41,7 @@ describe('tree sum', () => {
     const arr = [...Array(N)].map(rand).map((v) => ({ min: v, max: v, sum: v }));
     const tree = Tree.fromArr(arr, (v1, v2) => {
       if (!v1 || !v2) {
-        return v1 ?? v2 ?? { min: Infinity, max: -Infinity, sum: 0 };
+        return v1 ?? v2;
       }
       return {
         min: Math.min(v1.min, v2.min),
@@ -52,7 +52,9 @@ describe('tree sum', () => {
     const [begin, end] = [rand(), rand()].sort((a, b) => a - b);
     const result = tree.sliceValue(begin, end);
     console.log(result, { begin, end });
-    expect(result).toEqual(arr.slice(begin, end).reduce(tree.agregator));
+    expect(result).toMatchObject(
+      arr.slice(begin, end).reduce((a, b) => tree.agregator(a, b), null as any)
+    );
   });
 });
 
@@ -60,13 +62,13 @@ function sumTreeFn(left: number | null, right: number | null) {
   return (left ?? 0) + (right ?? 0);
 }
 
-type Agregator<T> = (x: T | null, y: T | null) => T;
+type Agregator<T> = (x: T | null, y: T | null) => T | null;
 
 class Tree<T> {
   constructor(
     public left: Tree<T> | null,
     public right: Tree<T> | null,
-    public value: T,
+    public value: T | null,
     public agregator: Agregator<T>,
     public size: number
   ) {}
@@ -116,8 +118,8 @@ class Tree<T> {
     const completedArr: (T | null)[] = [...arr, ...Array(diff).fill(null)];
     function buildTree(arr: (T | null)[]): Tree<T> {
       if (arr.length <= 2) {
-        const left = Tree.value(agregator(arr[0], null), agregator);
-        const right = Tree.value(agregator(null, arr[1]), agregator);
+        const left = Tree.value(arr[0]!, agregator);
+        const right = Tree.value(arr[1]!, agregator);
         return left.asLeft(right, 2);
       }
       const left = buildTree(arr.slice(0, Math.floor(arr.length / 2)));
