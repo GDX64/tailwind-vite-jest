@@ -38,12 +38,16 @@ describe('tree sum', () => {
   test('minmax slice', () => {
     const N = 100;
     const rand = () => Math.floor(Math.random() * N);
-    const arr = [...Array(N)].map(rand).map((v) => ({ min: v, max: v }));
+    const arr = [...Array(N)].map(rand).map((v) => ({ min: v, max: v, sum: v }));
     const tree = Tree.fromArr(arr, (v1, v2) => {
       if (!v1 || !v2) {
-        return v1 ?? v2 ?? { min: Infinity, max: -Infinity };
+        return v1 ?? v2 ?? { min: Infinity, max: -Infinity, sum: 0 };
       }
-      return { min: Math.min(v1.min, v2.min), max: Math.max(v2.max, v1.max) };
+      return {
+        min: Math.min(v1.min, v2.min),
+        max: Math.max(v2.max, v1.max),
+        sum: v1.sum + v2.sum,
+      };
     });
     const [begin, end] = [rand(), rand()].sort((a, b) => a - b);
     const result = tree.sliceValue(begin, end);
