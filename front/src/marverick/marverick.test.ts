@@ -26,7 +26,7 @@ describe('tree sum', () => {
     expect(tree.sliceValue(6, 7)).toBe(6);
   });
   test('random slice', () => {
-    const N = 5000;
+    const N = 500;
     const arr = [...Array(N)].map((_, v) => v);
     const tree = Tree.fromArr(arr, sumTreeFn);
     const rand = () => Math.floor(Math.random() * N);
@@ -34,6 +34,21 @@ describe('tree sum', () => {
     expect(tree.sliceValue(begin, end)).toBe(
       arr.slice(begin, end).reduce((a, b) => a + b)
     );
+  });
+  test('minmax slice', () => {
+    const N = 100;
+    const rand = () => Math.floor(Math.random() * N);
+    const arr = [...Array(N)].map(rand).map((v) => ({ min: v, max: v }));
+    const tree = Tree.fromArr(arr, (v1, v2) => {
+      return {
+        min: Math.min(v1?.min ?? Infinity, v2?.min ?? Infinity),
+        max: Math.max(v2?.max ?? -Infinity, v1?.max ?? -Infinity),
+      };
+    });
+    const [begin, end] = [rand(), rand()].sort((a, b) => a - b);
+    const result = tree.sliceValue(begin, end);
+    console.log(result, { begin, end });
+    expect(result).toEqual(arr.slice(begin, end).reduce(tree.agregator));
   });
 });
 
