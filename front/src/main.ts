@@ -25,6 +25,7 @@ import Lots from './pages/LotsOfSquares.vue';
 import ScrollCompare from './pages/ScrollCompare.vue';
 import Scroll from './pages/Scroll.vue';
 import LuaEmb from './pages/LuaEmb.vue';
+import Marverick from './pages/Marverick.vue';
 
 const routes = [
   { path: '/', component: Home },
@@ -47,6 +48,7 @@ const routes = [
   { path: '/scrollCompare', component: ScrollCompare },
   { path: '/scroll', component: Scroll },
   { path: '/lua', component: LuaEmb },
+  { path: '/marverick', component: Marverick },
   // { path: '/set', component: Set },
   // { path: '/Wordle', component: Wordle },
   // { path: '/hilbert', component: Hilbert },

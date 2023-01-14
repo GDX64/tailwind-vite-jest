@@ -12,7 +12,13 @@ import path from 'path';
 export default defineConfig((args) => {
   return {
     plugins: [
-      vue() /*checker({ typescript: true }) */,
+      vue({
+        template: {
+          compilerOptions: {
+            isCustomElement: (el) => el === 'txt' || el === 'container',
+          },
+        },
+      }) /*checker({ typescript: true }) */,
       glsl(),
       svgLoader(),
       solidPlugin({
