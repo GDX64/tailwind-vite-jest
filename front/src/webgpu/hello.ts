@@ -224,7 +224,7 @@ export async function start(ctx: CanvasRenderingContext2D) {
     passEncoder.setPipeline(pipeline);
     passEncoder.setBindGroup(0, bindGroup);
     const dispatchSize = Math.ceil(NUM_BALLS / 64);
-    passEncoder.dispatch(dispatchSize);
+    passEncoder.dispatchWorkgroups(dispatchSize);
     passEncoder.end();
     commandEncoder.copyBufferToBuffer(output, 0, stagingBuffer, 0, BUFFER_SIZE);
     const commands = commandEncoder.finish();
