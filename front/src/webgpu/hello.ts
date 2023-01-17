@@ -55,6 +55,7 @@ export async function start(ctx: CanvasRenderingContext2D) {
 
     const PI: f32 = 3.14159;
     const TIME_STEP: f32 = 0.016;
+    const G: f32 = 1000000000.0;
 
     @compute @workgroup_size(64)
     fn main(
@@ -66,7 +67,9 @@ export async function start(ctx: CanvasRenderingContext2D) {
         return;
       }
       var src_ball = input[global_id.x];
+      let src_mass = pow(src_ball.radius, 2.0) * PI;
       let dst_ball = &output[global_id.x];
+      var gravity = vec2(0.0);
 
       (*dst_ball) = src_ball;
 
@@ -76,7 +79,11 @@ export async function start(ctx: CanvasRenderingContext2D) {
           continue;
         }
         var other_ball = input[i];
+        let other_mass = pow(other_ball.radius, 2.0) * PI;
+        //gravity calc
         let n = src_ball.position - other_ball.position;
+        gravity += n  / (pow(length(n), 3.0) * other_mass);
+        
         let distance = length(n);
         if(distance >= src_ball.radius + other_ball.radius) {
           continue;
@@ -86,13 +93,16 @@ export async function start(ctx: CanvasRenderingContext2D) {
 
         // Details on the physics here:
         // https://physics.stackexchange.com/questions/599278/how-can-i-calculate-the-final-velocities-of-two-spheres-after-an-elastic-collisi
-        let src_mass = pow(src_ball.radius, 2.0) * PI;
-        let other_mass = pow(other_ball.radius, 2.0) * PI;
         let c = 2.*dot(n, (other_ball.velocity - src_ball.velocity)) / (dot(n, n) * (1./src_mass + 1./other_mass));
         (*dst_ball).velocity = src_ball.velocity + c/src_mass * n;
+
       }
 
       // Apply velocity
+      gravity*=G;
+      let damping_factor = -(*dst_ball).velocity*10;
+      gravity+=damping_factor;
+      (*dst_ball).velocity += gravity/src_mass*TIME_STEP;
       (*dst_ball).position = (*dst_ball).position + (*dst_ball).velocity * TIME_STEP;
 
       // Ball/Wall collision
@@ -112,6 +122,7 @@ export async function start(ctx: CanvasRenderingContext2D) {
         (*dst_ball).position.y = scene.height - (*dst_ball).radius;
         (*dst_ball).velocity.y = -(*dst_ball).velocity.y;
       }
+
     }
   `,
   });
