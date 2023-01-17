@@ -5,14 +5,13 @@ function parameter(name: string, def: number) {
   return parseFloat(params.get(name)!);
 }
 
-export async function start() {
+export async function start(ctx: CanvasRenderingContext2D) {
   const NUM_BALLS = parameter('balls', 100);
   const BUFFER_SIZE = NUM_BALLS * 6 * Float32Array.BYTES_PER_ELEMENT;
   const minRadius = parameter('min_radius', 2);
   const maxRadius = parameter('max_radius', 10);
   const render = parameter('render', 1);
 
-  const ctx = document.querySelector('canvas')!.getContext('2d')!;
   ctx.canvas.width = parameter('width', 500);
   ctx.canvas.height = parameter('height', 500);
 
@@ -33,31 +32,31 @@ export async function start() {
   if (!device) fatal('Couldn’t request WebGPU device.');
 
   const module = device.createShaderModule({
-    code: `
+    code: /*wgsl*/ `
     struct Ball {
-      radius: f32;
-      position: vec2<f32>;
-      velocity: vec2<f32>;
-    }
+      radius: f32,
+      position: vec2<f32>,
+      velocity: vec2<f32>,
+    };
 
     @group(0) @binding(0)
     var<storage, read> input: array<Ball>;
 
     @group(0) @binding(1)
-    var<storage, write> output: array<Ball>;
+    var<storage, read_write> output: array<Ball>;
 
     struct Scene {
-      width: f32;
-      height: f32;
-    }
+      width: f32,
+      height: f32,
+    };
 
     @group(0) @binding(2)
     var<storage, read> scene: Scene;
 
-    let PI: f32 = 3.14159;
-    let TIME_STEP: f32 = 0.016;
+    const PI: f32 = 3.14159;
+    const TIME_STEP: f32 = 0.016;
 
-    @stage(compute) @workgroup_size(64)
+    @compute @workgroup_size(64)
     fn main(
       @builtin(global_invocation_id)
       global_id : vec3<u32>,
