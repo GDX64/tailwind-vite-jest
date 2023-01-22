@@ -14,10 +14,11 @@ const triangleVertWGSL = /*wgsl*/ `
 fn main(
   @builtin(vertex_index) VertexIndex : u32
 ) -> @builtin(position) vec4<f32> {
-  var pos = array<vec2<f32>, 3>(
-    vec2(0.0, 0.5),
+  var pos = array<vec2<f32>, 4>(
     vec2(-0.5, -0.5),
-    vec2(0.5, -0.5)
+    vec2(-0.5, 0.5),
+    vec2(0.5, -0.5),
+    vec2(0.5, 0.5)
   );
 
   return vec4<f32>(pos[VertexIndex], 0.0, 1.0);
@@ -46,7 +47,7 @@ function draw(device: GPUDevice, context: GPUCanvasContext, pipeline: GPURenderP
   };
   const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
   passEncoder.setPipeline(pipeline);
-  passEncoder.draw(3, 1, 0, 0);
+  passEncoder.draw(4, 1, 0, 0);
   passEncoder.end();
   device.queue.submit([commandEncoder.finish()]);
 }
@@ -72,7 +73,7 @@ function createPipeline(device: GPUDevice, presentationFormat: GPUTextureFormat)
       ],
     },
     primitive: {
-      topology: 'triangle-list',
+      topology: 'triangle-strip',
     },
   });
 }
