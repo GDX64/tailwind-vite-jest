@@ -1,5 +1,5 @@
 <template>
-  <canvas ref="canvas"></canvas>
+  <canvas ref="canvas" width="800" height="800"></canvas>
 </template>
 
 <script lang="ts" setup>
@@ -11,11 +11,13 @@ import { squaresTest } from './hello/Squares';
 import { setupDomTest } from './domLike/domLike';
 import { createChart } from './chartv2/ChartV2';
 import { start } from '../webgpu/hello';
+import { webgpuTriangle } from '../webgpu/triangle';
 const canvas = ref<HTMLCanvasElement>();
 watchEffect((clear) => {
   if (canvas.value) {
     // clear(createChart(canvas.value, devicePixelRatio));
-    start(canvas.value.getContext('2d')!);
+    // start(canvas.value.getContext('2d')!);
+    webgpuTriangle(canvas.value);
   }
 });
 </script>
