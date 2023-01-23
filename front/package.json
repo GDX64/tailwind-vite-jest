@@ -9,7 +9,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@maverick-js/signals": "^5.6.5",
+    "@maverick-js/signals": "^5.9.0",
     "@pixi/webworker": "^7.1.0-alpha",
     "@types/d3": "^7.4.0",
     "chart.js": "^3.9.1",
