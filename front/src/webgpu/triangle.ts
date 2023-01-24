@@ -1,13 +1,14 @@
-import { animationFrames } from 'rxjs';
+import { animationFrames, combineLatest, defer, switchAll, switchMap } from 'rxjs';
 
-export const webgpuTriangle = async (canvas: HTMLCanvasElement) => {
-  const { device, presentationFormat, context } = await initDevice(canvas);
-  const pipeline = createPipeline(device, presentationFormat);
-  const sub = animationFrames().subscribe(() => {
-    draw(device, context, pipeline);
+export function webgpuTriangle(canvas: HTMLCanvasElement) {
+  const obs = defer(async () => {
+    const { device, presentationFormat, context } = await initDevice(canvas);
+    const pipeline = createPipeline(device, presentationFormat);
+    return () => draw(device, context, pipeline);
   });
+  const sub = combineLatest([obs, animationFrames()]).subscribe(([draw]) => draw());
   return () => sub.unsubscribe();
-};
+}
 
 const triangleVertWGSL = /*wgsl*/ `
 @vertex
@@ -41,11 +42,11 @@ function draw(device: GPUDevice, context: GPUCanvasContext, pipeData: PipelineDa
     ],
   };
   const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
-  // device.queue.writeBuffer(
-  //   pipeData.colorBuffer,
-  //   0,
-  //   new Float32Array([1, Math.sin(((Date.now() % 10_000) / 10_000) * 2 * Math.PI), 0, 1])
-  // );
+  device.queue.writeBuffer(
+    pipeData.colorBuffer,
+    0,
+    new Float32Array([1, Math.sin(((Date.now() % 10_000) / 10_000) * 2 * Math.PI), 0, 1])
+  );
   passEncoder.setPipeline(pipeData.pipeline);
   passEncoder.setVertexBuffer(0, pipeData.vertexBuffer);
   passEncoder.setBindGroup(0, pipeData.group);
