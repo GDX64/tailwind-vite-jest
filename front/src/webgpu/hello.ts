@@ -10,8 +10,8 @@ function parameter(name: string, def: number) {
 export async function start(ctx: CanvasRenderingContext2D) {
   const NUM_BALLS = parameter('balls', 100);
   const BUFFER_SIZE = NUM_BALLS * 6 * Float32Array.BYTES_PER_ELEMENT;
-  const minRadius = parameter('min_radius', 2);
-  const maxRadius = parameter('max_radius', 10);
+  const minRadius = parameter('min_radius', 4);
+  const maxRadius = parameter('max_radius', 4);
   const render = parameter('render', 1);
 
   ctx.canvas.width = parameter('width', 1000);
@@ -157,7 +157,7 @@ export async function start(ctx: CanvasRenderingContext2D) {
 
   ctx.canvas.addEventListener('mousemove', (event) => {
     mousePos[0] = event.offsetX;
-    mousePos[1] = 800 - event.offsetY;
+    mousePos[1] = ctx.canvas.height - event.offsetY;
     // console.log(mousePos);
   });
   while (true) {
@@ -167,7 +167,7 @@ export async function start(ctx: CanvasRenderingContext2D) {
     const passEncoder = commandEncoder.beginComputePass();
     passEncoder.setPipeline(pipeline);
     passEncoder.setBindGroup(0, bindGroup);
-    const dispatchSize = Math.ceil(NUM_BALLS / 64);
+    const dispatchSize = Math.ceil(NUM_BALLS / 256);
     passEncoder.dispatchWorkgroups(dispatchSize);
     passEncoder.end();
     commandEncoder.copyBufferToBuffer(output, 0, stagingBuffer, 0, BUFFER_SIZE);
@@ -201,6 +201,8 @@ function drawScene(balls: Float32Array, ctx: CanvasRenderingContext2D) {
   ctx.translate(0, -ctx.canvas.height);
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   ctx.fillStyle = 'red';
+  ctx.globalAlpha = 0.5;
+  ctx.beginPath();
   for (let i = 0; i < balls.length; i += 6) {
     const r = balls[i + 0];
     const px = balls[i + 2];
@@ -210,16 +212,17 @@ function drawScene(balls: Float32Array, ctx: CanvasRenderingContext2D) {
     let angle = Math.atan(vy / (vx === 0 ? Number.EPSILON : vx));
     // Correct for Math.atan() assuming the angle is [-PI/2;PI/2].
     if (vx < 0) angle += Math.PI;
-    const ex = px + Math.cos(angle) * Math.sqrt(2) * r;
-    const ey = py + Math.sin(angle) * Math.sqrt(2) * r;
-    ctx.beginPath();
-    ctx.arc(px, py, r, 0, 2 * Math.PI, true);
-    ctx.moveTo(ex, ey);
-    ctx.arc(px, py, r, angle - Math.PI / 4, angle + Math.PI / 4, true);
-    ctx.lineTo(ex, ey);
-    ctx.closePath();
-    ctx.fill();
+    // const ex = px + Math.cos(angle) * Math.sqrt(2) * r;
+    // const ey = py + Math.sin(angle) * Math.sqrt(2) * r;
+    // ctx.arc(px, py, r, 0, 2 * Math.PI, true);
+    // ctx.moveTo(ex, ey);
+    // ctx.arc(px, py, r, angle - Math.PI / 4, angle + Math.PI / 4, true);
+    // ctx.arc(px, py, r, 0, Math.PI * 2);
+    ctx.rect(px - r, py - r, r * 2, r * 2);
+    // ctx.lineTo(ex, ey);
   }
+  ctx.closePath();
+  ctx.fill();
   ctx.restore();
 }
 
@@ -253,7 +256,7 @@ const computeCode = /*wgsl*/ `
 
     const PI: f32 = 3.14159;
     const TIME_STEP: f32 = 0.016;
-    const G: f32 = 1000000.0;
+    const G: f32 = 350000.0;
 
     fn calcForce(src_ball: Ball, other_ball: Ball, min_dist: f32)-> vec2<f32>{
       let other_mass = pow(other_ball.radius, 2.0) * PI;
@@ -262,7 +265,12 @@ const computeCode = /*wgsl*/ `
       return  other_mass*dist  / pow(max(length(dist), min_dist), 3.0);
     }
 
-    @compute @workgroup_size(64)
+    fn constForce(src_ball: Ball, pos: vec2<f32>)-> vec2<f32>{
+      let dist = src_ball.position - pos;
+      return normalize(dist);
+    }
+
+    @compute @workgroup_size(256)
     fn main(
       @builtin(global_invocation_id)
       global_id : vec3<u32>,
@@ -274,8 +282,8 @@ const computeCode = /*wgsl*/ `
       var src_ball = input[global_id.x];
       let src_mass = pow(src_ball.radius, 2.0) * PI;
       let dst_ball = &output[global_id.x];
-      let mouse_ball = Ball(50.0, mouse, vec2(100, 100));
-      var gravity = -calcForce(src_ball, mouse_ball, 60.0);
+      let mouse_ball = Ball(500.0, mouse, vec2(100, 100));
+      var gravity = -constForce(src_ball, mouse)*3.0;
 
       (*dst_ball) = src_ball;
 
