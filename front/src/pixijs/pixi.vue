@@ -11,13 +11,13 @@ import { squaresTest } from './hello/Squares';
 import { setupDomTest } from './domLike/domLike';
 import { createChart } from './chartv2/ChartV2';
 import { start } from '../webgpu/hello';
-import { webgpuTriangle } from '../webgpu/triangle';
+// import { webgpuTriangle } from '../webgpu/triangle';
 const canvas = ref<HTMLCanvasElement>();
 watchEffect((clear) => {
   if (canvas.value) {
     // clear(createChart(canvas.value, devicePixelRatio));
-    // start(canvas.value.getContext('2d')!);
-    clear(webgpuTriangle(canvas.value));
+    start(canvas.value.getContext('2d')!);
+    // clear(webgpuTriangle(canvas.value));
   }
 });
 </script>
