@@ -1,5 +1,7 @@
 import { animationFrames, combineLatest, fromEvent, startWith } from 'rxjs';
 
+const workGroupSize = 256;
+
 let i = 0;
 const params = new URLSearchParams(location.search);
 function parameter(name: string, def: number) {
@@ -10,8 +12,8 @@ function parameter(name: string, def: number) {
 export async function start(ctx: CanvasRenderingContext2D) {
   const NUM_BALLS = parameter('balls', 100);
   const BUFFER_SIZE = NUM_BALLS * 6 * Float32Array.BYTES_PER_ELEMENT;
-  const minRadius = parameter('min_radius', 4);
-  const maxRadius = parameter('max_radius', 4);
+  const minRadius = parameter('min_radius', 2);
+  const maxRadius = parameter('max_radius', 2);
   const render = parameter('render', 1);
 
   ctx.canvas.width = parameter('width', 1000);
@@ -167,7 +169,7 @@ export async function start(ctx: CanvasRenderingContext2D) {
     const passEncoder = commandEncoder.beginComputePass();
     passEncoder.setPipeline(pipeline);
     passEncoder.setBindGroup(0, bindGroup);
-    const dispatchSize = Math.ceil(NUM_BALLS / 256);
+    const dispatchSize = Math.ceil(NUM_BALLS / workGroupSize);
     passEncoder.dispatchWorkgroups(dispatchSize);
     passEncoder.end();
     commandEncoder.copyBufferToBuffer(output, 0, stagingBuffer, 0, BUFFER_SIZE);
@@ -256,7 +258,7 @@ const computeCode = /*wgsl*/ `
 
     const PI: f32 = 3.14159;
     const TIME_STEP: f32 = 0.016;
-    const G: f32 = 350000.0;
+    const G: f32 = 100000.0;
 
     fn calcForce(src_ball: Ball, other_ball: Ball, min_dist: f32)-> vec2<f32>{
       let other_mass = pow(other_ball.radius, 2.0) * PI;
@@ -270,7 +272,7 @@ const computeCode = /*wgsl*/ `
       return normalize(dist);
     }
 
-    @compute @workgroup_size(256)
+    @compute @workgroup_size(${workGroupSize})
     fn main(
       @builtin(global_invocation_id)
       global_id : vec3<u32>,
@@ -283,7 +285,7 @@ const computeCode = /*wgsl*/ `
       let src_mass = pow(src_ball.radius, 2.0) * PI;
       let dst_ball = &output[global_id.x];
       let mouse_ball = Ball(500.0, mouse, vec2(100, 100));
-      var gravity = -constForce(src_ball, mouse)*3.0;
+      var gravity = -constForce(src_ball, mouse)*1.0;
 
       (*dst_ball) = src_ball;
 
@@ -294,7 +296,7 @@ const computeCode = /*wgsl*/ `
         }
         let other_ball = input[i];
         //gravity calc
-        gravity += calcForce(src_ball, other_ball, 10.0);
+        gravity += calcForce(src_ball, other_ball, 5.0);
       }
 
       // Apply velocity
