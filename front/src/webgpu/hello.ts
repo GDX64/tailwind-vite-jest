@@ -1,4 +1,3 @@
-import { animationFrames, combineLatest, fromEvent, startWith } from 'rxjs';
 import {
   createComputePipeline,
   createDrawPipeline,
@@ -27,7 +26,7 @@ export async function start(canvas: HTMLCanvasElement) {
   canvas.height = parameter('height', 1000);
 
   const { device, context, presentationFormat } = await initDevice(canvas);
-  const pipelineData = createDrawPipeline(device, presentationFormat, VERTEX_SIZE);
+  const pipelineData = createDrawPipeline(device, presentationFormat);
   const {
     scene,
     input,

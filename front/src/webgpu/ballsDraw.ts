@@ -26,13 +26,6 @@ export function drawBalls(
   drawData: { vertexData: GPUBuffer; elements: number }
 ) {
   const commandEncoder = device.createCommandEncoder();
-  commandEncoder.copyBufferToBuffer(
-    drawData.vertexData,
-    0,
-    pipeData.vertexBuffer,
-    0,
-    pipeData.vertexBuffer.size
-  );
   const textureView = context.getCurrentTexture().createView();
   const renderPassDescriptor: GPURenderPassDescriptor = {
     colorAttachments: [
@@ -46,7 +39,7 @@ export function drawBalls(
   };
   const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
   passEncoder.setPipeline(pipeData.pipeline);
-  passEncoder.setVertexBuffer(0, pipeData.vertexBuffer);
+  passEncoder.setVertexBuffer(0, drawData.vertexData);
   passEncoder.draw(drawData.elements, 1, 0, 0);
   passEncoder.end();
   device.queue.submit([commandEncoder.finish()]);
@@ -54,24 +47,13 @@ export function drawBalls(
 }
 
 interface PipelineData {
-  vertexBuffer: GPUBuffer;
   pipeline: GPURenderPipeline;
 }
 
 export function createDrawPipeline(
   device: GPUDevice,
-  presentationFormat: GPUTextureFormat,
-  vertexSize: number
+  presentationFormat: GPUTextureFormat
 ): PipelineData {
-  const vertex = new Float32Array(vertexSize / 4);
-
-  const vertexBuffer = device.createBuffer({
-    size: vertex.byteLength,
-    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-  });
-
-  device.queue.writeBuffer(vertexBuffer, 0, vertex);
-
   const pipeline = device.createRenderPipeline({
     layout: 'auto',
     vertex: {
@@ -108,7 +90,7 @@ export function createDrawPipeline(
     },
   });
 
-  return { pipeline, vertexBuffer };
+  return { pipeline };
 }
 
 export async function initDevice(canvas: HTMLCanvasElement) {
@@ -210,7 +192,7 @@ export function createComputePipeline(
 
   const vertexData = device.createBuffer({
     size: VERTEX_SIZE,
-    usage: GPUBufferUsage.COPY_SRC | GPUBufferUsage.STORAGE,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.STORAGE,
   });
 
   const bindGroup = device.createBindGroup({
