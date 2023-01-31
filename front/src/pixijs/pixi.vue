@@ -16,7 +16,7 @@ const canvas = ref<HTMLCanvasElement>();
 watchEffect((clear) => {
   if (canvas.value) {
     // clear(createChart(canvas.value, devicePixelRatio));
-    start(canvas.value.getContext('2d')!);
+    start(canvas.value);
     // clear(webgpuTriangle(canvas.value));
   }
 });
