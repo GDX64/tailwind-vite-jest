@@ -1,4 +1,3 @@
-import { animationFrames, combineLatest, defer, switchAll, switchMap } from 'rxjs';
 import { computeCode } from './ComputeShader';
 
 const triangleVertWGSL = /*wgsl*/ `

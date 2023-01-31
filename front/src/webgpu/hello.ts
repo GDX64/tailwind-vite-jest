@@ -20,7 +20,6 @@ export async function start(canvas: HTMLCanvasElement) {
 
   const minRadius = parameter('min_radius', 2);
   const maxRadius = parameter('max_radius', 2);
-  // const render = parameter('render', 1);
 
   canvas.width = parameter('width', 1000);
   canvas.height = parameter('height', 1000);
@@ -88,37 +87,6 @@ export async function start(canvas: HTMLCanvasElement) {
     // console.log(result.duration);
     await raf();
   }
-}
-
-function drawScene(balls: Float32Array, ctx: CanvasRenderingContext2D) {
-  ctx.save();
-  ctx.scale(1, -1);
-  ctx.translate(0, -ctx.canvas.height);
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  ctx.fillStyle = 'red';
-  ctx.globalAlpha = 0.5;
-  ctx.beginPath();
-  for (let i = 0; i < balls.length; i += 6) {
-    const r = balls[i + 0];
-    const px = balls[i + 2];
-    const py = balls[i + 3];
-    const vx = balls[i + 4];
-    const vy = balls[i + 5];
-    let angle = Math.atan(vy / (vx === 0 ? Number.EPSILON : vx));
-    // Correct for Math.atan() assuming the angle is [-PI/2;PI/2].
-    if (vx < 0) angle += Math.PI;
-    // const ex = px + Math.cos(angle) * Math.sqrt(2) * r;
-    // const ey = py + Math.sin(angle) * Math.sqrt(2) * r;
-    // ctx.arc(px, py, r, 0, 2 * Math.PI, true);
-    // ctx.moveTo(ex, ey);
-    // ctx.arc(px, py, r, angle - Math.PI / 4, angle + Math.PI / 4, true);
-    // ctx.arc(px, py, r, 0, Math.PI * 2);
-    ctx.rect(px - r, py - r, r * 2, r * 2);
-    // ctx.lineTo(ex, ey);
-  }
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
 }
 
 function random(a: number, b: number) {
