@@ -32,7 +32,7 @@ export async function start(canvas: HTMLCanvasElement) {
     stagingBuffer,
     vertexData,
   } = createComputePipeline(device, BUFFER_SIZE, VERTEX_SIZE);
-  const pipelineData = createDrawPipeline(device, presentationFormat, output);
+  const pipeData = createDrawPipeline(device, presentationFormat, output);
 
   function raf() {
     return new Promise((resolve) => requestAnimationFrame(resolve));
@@ -70,10 +70,9 @@ export async function start(canvas: HTMLCanvasElement) {
     passEncoder.end();
     commandEncoder.copyBufferToBuffer(output, 0, stagingBuffer, 0, BUFFER_SIZE);
     commandEncoder.copyBufferToBuffer(output, 0, input, 0, BUFFER_SIZE);
+    drawBalls({ commandEncoder, context, pipeData }, { vertexData, elements: NUM_BALLS });
     const commands = commandEncoder.finish();
     device.queue.submit([commands]);
-    device.queue.onSubmittedWorkDone();
-    drawBalls(device, context, pipelineData, { vertexData, elements: NUM_BALLS });
     // await stagingBuffer.mapAsync(GPUMapMode.READ, 0, BUFFER_SIZE);
     // const copyArrayBuffer = stagingBuffer.getMappedRange(0, BUFFER_SIZE);
     // const data = copyArrayBuffer.slice(0);

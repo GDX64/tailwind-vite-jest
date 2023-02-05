@@ -12,12 +12,17 @@ const rectData = new Float32Array(
 );
 
 export function drawBalls(
-  device: GPUDevice,
-  context: GPUCanvasContext,
-  pipeData: PipelineData,
+  {
+    commandEncoder,
+    context,
+    pipeData,
+  }: {
+    commandEncoder: GPUCommandEncoder;
+    context: GPUCanvasContext;
+    pipeData: PipelineData;
+  },
   drawData: { vertexData: GPUBuffer; elements: number }
 ) {
-  const commandEncoder = device.createCommandEncoder();
   const textureView = context.getCurrentTexture().createView();
   const renderPassDescriptor: GPURenderPassDescriptor = {
     colorAttachments: [
@@ -36,8 +41,6 @@ export function drawBalls(
   passEncoder.draw(4, drawData.elements, 0, 0);
   // passEncoder.draw(3, 1, 0, 0);
   passEncoder.end();
-  device.queue.submit([commandEncoder.finish()]);
-  return device.queue.onSubmittedWorkDone();
 }
 
 interface PipelineData {
