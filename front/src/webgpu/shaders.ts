@@ -28,14 +28,14 @@ export const computeCode = /*wgsl*/ `
     var<uniform> mouse: vec2<f32>;
 
     const PI: f32 = 3.14159;
-    const TIME_STEP: f32 = 0.016;
-    const G: f32 = 20000.0;
+    const TIME_STEP: f32 = 0.16;
+    const G: f32 = 10;
 
     fn calcForce(src_ball: Ball, other_ball: Ball, min_dist: f32)-> vec2<f32>{
       let other_mass = pow(other_ball.radius, 2.0) * PI;
-      let src_mass = pow(src_ball.radius, 2.0) * PI;
+      let src_mass = 1.0;
       let dist = src_ball.position - other_ball.position;
-      return  other_mass*dist  / pow(max(length(dist), min_dist), 3.0);
+      return  other_mass*dist  / pow(max(length(dist), min_dist), 3);
     }
 
     fn constForce(src_ball: Ball, pos: vec2<f32>)-> vec2<f32>{
@@ -53,10 +53,10 @@ export const computeCode = /*wgsl*/ `
         return;
       }
       var src_ball = input[global_id.x];
-      let src_mass = pow(src_ball.radius, 2.0) * PI;
+      let src_mass = 1.0;
       let dst_ball = &output[global_id.x];
       let mouse_ball = Ball(500.0, mouse, vec2(100, 100));
-      var gravity = -constForce(src_ball, mouse)*3.0;
+      var gravity = -constForce(src_ball, mouse)*0.05;
 
       (*dst_ball) = src_ball;
 
@@ -67,23 +67,22 @@ export const computeCode = /*wgsl*/ `
         }
         let other_ball = input[i];
         //gravity calc
-        gravity += calcForce(src_ball, other_ball, 1.0);
+        gravity += calcForce(src_ball, other_ball, 0.01)*G;
       }
 
       // Apply velocity
-      gravity*=G;
-      let damping_factor = -(*dst_ball).velocity*1000;
-      gravity+=damping_factor;
+      let damping = -src_ball.velocity/2;
+      gravity+=damping;
       (*dst_ball).velocity += gravity/src_mass*TIME_STEP;
       (*dst_ball).position = (*dst_ball).position + (*dst_ball).velocity * TIME_STEP;
 
       // Ball/Wall collision
-      if((*dst_ball).position.x - (*dst_ball).radius < 0.) {
-        (*dst_ball).position.x = (*dst_ball).radius;
+      if((*dst_ball).position.x - (*dst_ball).radius < -scene.width) {
+        (*dst_ball).position.x = -scene.width + (*dst_ball).radius;
         (*dst_ball).velocity.x = -(*dst_ball).velocity.x;
       }
-      if((*dst_ball).position.y - (*dst_ball).radius < 0.) {
-        (*dst_ball).position.y = (*dst_ball).radius;
+      if((*dst_ball).position.y - (*dst_ball).radius < -scene.height) {
+        (*dst_ball).position.y = -scene.height + (*dst_ball).radius;
         (*dst_ball).velocity.y = -(*dst_ball).velocity.y;
       }
       if((*dst_ball).position.x + (*dst_ball).radius >= scene.width) {
@@ -101,20 +100,20 @@ export const computeCode = /*wgsl*/ `
 
 export const triangleVertWGSL = /*wgsl*/ `
 
-// @binding(0) @group(0) var<storage> centers : array<vec2<f32>>;
+@binding(0) @group(0) var<storage> centers : array<vec2<f32>>;
 
 @vertex
 fn main(
+   @builtin(instance_index) instanceIdx : u32,
   @builtin(vertex_index) VertexIndex : u32,
   @location(0) pos: vec2<f32>
   ) -> @builtin(position) vec4<f32> {
-    return vec4<f32>(pos, 0.0, 1.0);
+    let final_pos = pos + centers[instanceIdx];
+    return vec4<f32>(final_pos, 0.0, 1.0);
   }
   `;
 
 export const redFragWGSL = /*wgsl*/ `
-
-@group(0) @binding(0) var<uniform> color: vec4<f32>;
 
 @fragment
 fn main() -> @location(0) vec4<f32> {

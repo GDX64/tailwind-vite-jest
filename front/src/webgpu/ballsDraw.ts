@@ -2,10 +2,13 @@ import { computeCode, redFragWGSL, triangleVertWGSL } from './shaders';
 
 const rectData = new Float32Array(
   [
-    [-0.5, 0],
-    [0, 0.5],
-    [0.5, 0],
-  ].flat()
+    [-1, -1],
+    [-1, 1],
+    [1, -1],
+    [1, 1],
+  ]
+    .flat()
+    .map((item) => item / 100)
 );
 
 export function drawBalls(
@@ -30,8 +33,8 @@ export function drawBalls(
   passEncoder.setPipeline(pipeData.pipeline);
   passEncoder.setVertexBuffer(0, pipeData.vertex);
   passEncoder.setBindGroup(0, pipeData.bindGroup);
-  // passEncoder.draw(3, drawData.elements, 0, 0);
-  passEncoder.draw(3, 1, 0, 0);
+  passEncoder.draw(4, drawData.elements, 0, 0);
+  // passEncoder.draw(3, 1, 0, 0);
   passEncoder.end();
   device.queue.submit([commandEncoder.finish()]);
   return device.queue.onSubmittedWorkDone();
@@ -80,18 +83,13 @@ export function createDrawPipeline(
       ],
     },
     primitive: {
-      topology: 'triangle-list',
+      topology: 'triangle-strip',
     },
-  });
-
-  const testBuff = device.createBuffer({
-    size: 4 * 4,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
-    entries: [{ binding: 0, resource: { buffer: testBuff } }],
+    entries: [{ binding: 0, resource: { buffer: positionsBuffer } }],
   });
 
   const vertex = device.createBuffer({

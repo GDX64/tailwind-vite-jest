@@ -14,12 +14,9 @@ function parameter(name: string, def: number) {
 }
 
 export async function start(canvas: HTMLCanvasElement) {
-  const NUM_BALLS = parameter('balls', 100);
+  const NUM_BALLS = parameter('balls', 10);
   const BUFFER_SIZE = NUM_BALLS * 6 * Float32Array.BYTES_PER_ELEMENT;
   const VERTEX_SIZE = NUM_BALLS * 2 * Float32Array.BYTES_PER_ELEMENT;
-
-  const minRadius = parameter('min_radius', 2);
-  const maxRadius = parameter('max_radius', 2);
 
   canvas.width = parameter('width', 500);
   canvas.height = parameter('height', 500);
@@ -42,22 +39,23 @@ export async function start(canvas: HTMLCanvasElement) {
   }
 
   let inputBalls = new Float32Array(new ArrayBuffer(BUFFER_SIZE));
+  const rand = () => random(-100, 100) / 100;
   for (let i = 0; i < NUM_BALLS; i++) {
-    inputBalls[i * 6 + 0] = random(minRadius, maxRadius);
-    inputBalls[i * 6 + 2] = random(0, canvas.width);
-    inputBalls[i * 6 + 3] = random(0, canvas.height);
-    inputBalls[i * 6 + 4] = random(-100, 100);
-    inputBalls[i * 6 + 5] = random(-100, 100);
+    inputBalls[i * 6 + 0] = random(0.001, 0.001);
+    inputBalls[i * 6 + 2] = rand();
+    inputBalls[i * 6 + 3] = rand();
+    inputBalls[i * 6 + 4] = random(-100, 100) / 10000;
+    inputBalls[i * 6 + 5] = random(-100, 100) / 10000;
   }
 
-  device.queue.writeBuffer(scene, 0, new Float32Array([canvas.width, canvas.height]));
+  device.queue.writeBuffer(scene, 0, new Float32Array([1, 1]));
 
   device.queue.writeBuffer(input, 0, inputBalls);
   const mousePos = new Float32Array([300, 300]);
 
   canvas.addEventListener('mousemove', (event) => {
-    mousePos[0] = event.offsetX;
-    mousePos[1] = canvas.height - event.offsetY;
+    mousePos[0] = (event.offsetX / canvas.width) * 2 - 1;
+    mousePos[1] = ((canvas.height - event.offsetY) / canvas.height) * 2 - 1;
     // console.log(mousePos);
   });
   while (true) {
@@ -74,8 +72,8 @@ export async function start(canvas: HTMLCanvasElement) {
     commandEncoder.copyBufferToBuffer(output, 0, input, 0, BUFFER_SIZE);
     const commands = commandEncoder.finish();
     device.queue.submit([commands]);
-    await device.queue.onSubmittedWorkDone();
-    await drawBalls(device, context, pipelineData, { vertexData, elements: NUM_BALLS });
+    device.queue.onSubmittedWorkDone();
+    drawBalls(device, context, pipelineData, { vertexData, elements: NUM_BALLS });
     // await stagingBuffer.mapAsync(GPUMapMode.READ, 0, BUFFER_SIZE);
     // const copyArrayBuffer = stagingBuffer.getMappedRange(0, BUFFER_SIZE);
     // const data = copyArrayBuffer.slice(0);
