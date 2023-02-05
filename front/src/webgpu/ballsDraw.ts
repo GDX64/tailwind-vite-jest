@@ -1,22 +1,12 @@
-import { computeCode } from './ComputeShader';
+import { computeCode, redFragWGSL, triangleVertWGSL } from './shaders';
 
-const triangleVertWGSL = /*wgsl*/ `
-@vertex
-fn main(
-  @builtin(vertex_index) VertexIndex : u32,
-  @location(0) pos: vec3<f32>
-) -> @builtin(position) vec4<f32> {
-  let norm_pos = pos/500.0;
-  return vec4<f32>(norm_pos.x-1, norm_pos.y-1, 0.0, 1.0);
-}
-`;
-
-const redFragWGSL = /*wgsl*/ `
-@fragment
-fn main() -> @location(0) vec4<f32> {
-  return vec4(1.0, 0.0, 0.0, 1.0);
-}
-`;
+const rectData = new Float32Array(
+  [
+    [-0.5, 0],
+    [0, 0.5],
+    [0.5, 0],
+  ].flat()
+);
 
 export function drawBalls(
   device: GPUDevice,
@@ -38,8 +28,10 @@ export function drawBalls(
   };
   const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
   passEncoder.setPipeline(pipeData.pipeline);
-  passEncoder.setVertexBuffer(0, drawData.vertexData);
-  passEncoder.draw(drawData.elements, 1, 0, 0);
+  passEncoder.setVertexBuffer(0, pipeData.vertex);
+  passEncoder.setBindGroup(0, pipeData.bindGroup);
+  // passEncoder.draw(3, drawData.elements, 0, 0);
+  passEncoder.draw(3, 1, 0, 0);
   passEncoder.end();
   device.queue.submit([commandEncoder.finish()]);
   return device.queue.onSubmittedWorkDone();
@@ -47,11 +39,14 @@ export function drawBalls(
 
 interface PipelineData {
   pipeline: GPURenderPipeline;
+  vertex: GPUBuffer;
+  bindGroup: GPUBindGroup;
 }
 
 export function createDrawPipeline(
   device: GPUDevice,
-  presentationFormat: GPUTextureFormat
+  presentationFormat: GPUTextureFormat,
+  positionsBuffer: GPUBuffer
 ): PipelineData {
   const pipeline = device.createRenderPipeline({
     layout: 'auto',
@@ -85,11 +80,28 @@ export function createDrawPipeline(
       ],
     },
     primitive: {
-      topology: 'point-list',
+      topology: 'triangle-list',
     },
   });
 
-  return { pipeline };
+  const testBuff = device.createBuffer({
+    size: 4 * 4,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+
+  const bindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [{ binding: 0, resource: { buffer: testBuff } }],
+  });
+
+  const vertex = device.createBuffer({
+    size: rectData.byteLength,
+    usage: GPUBufferUsage.VERTEX,
+    mappedAtCreation: true,
+  });
+  new Float32Array(vertex.getMappedRange()).set(rectData);
+  vertex.unmap();
+  return { pipeline, vertex, bindGroup };
 }
 
 export async function initDevice(canvas: HTMLCanvasElement) {
@@ -191,7 +203,7 @@ export function createComputePipeline(
 
   const vertexData = device.createBuffer({
     size: VERTEX_SIZE,
-    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.STORAGE,
+    usage: GPUBufferUsage.STORAGE,
   });
 
   const bindGroup = device.createBindGroup({

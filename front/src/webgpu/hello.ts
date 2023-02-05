@@ -4,7 +4,7 @@ import {
   drawBalls,
   initDevice,
 } from './ballsDraw';
-import { workGroupSize } from './ComputeShader';
+import { workGroupSize } from './shaders';
 
 let i = 0;
 const params = new URLSearchParams(location.search);
@@ -21,11 +21,10 @@ export async function start(canvas: HTMLCanvasElement) {
   const minRadius = parameter('min_radius', 2);
   const maxRadius = parameter('max_radius', 2);
 
-  canvas.width = parameter('width', 1000);
-  canvas.height = parameter('height', 1000);
+  canvas.width = parameter('width', 500);
+  canvas.height = parameter('height', 500);
 
   const { device, context, presentationFormat } = await initDevice(canvas);
-  const pipelineData = createDrawPipeline(device, presentationFormat);
   const {
     scene,
     input,
@@ -36,6 +35,7 @@ export async function start(canvas: HTMLCanvasElement) {
     stagingBuffer,
     vertexData,
   } = createComputePipeline(device, BUFFER_SIZE, VERTEX_SIZE);
+  const pipelineData = createDrawPipeline(device, presentationFormat, vertexData);
 
   function raf() {
     return new Promise((resolve) => requestAnimationFrame(resolve));

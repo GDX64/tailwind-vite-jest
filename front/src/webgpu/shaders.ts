@@ -98,3 +98,26 @@ export const computeCode = /*wgsl*/ `
       vertex_data[global_id.x] = (*dst_ball).position;
     }
   `;
+
+export const triangleVertWGSL = /*wgsl*/ `
+
+// @binding(0) @group(0) var<storage> centers : array<vec2<f32>>;
+
+@vertex
+fn main(
+  @builtin(vertex_index) VertexIndex : u32,
+  @location(0) pos: vec2<f32>
+  ) -> @builtin(position) vec4<f32> {
+    return vec4<f32>(pos, 0.0, 1.0);
+  }
+  `;
+
+export const redFragWGSL = /*wgsl*/ `
+
+@group(0) @binding(0) var<uniform> color: vec4<f32>;
+
+@fragment
+fn main() -> @location(0) vec4<f32> {
+  return vec4(1.0, 0.0, 0.0, 1.0);
+}
+`;
