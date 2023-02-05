@@ -10,7 +10,7 @@ import { shaderTexture } from './hello/shaderTexture';
 import { squaresTest } from './hello/Squares';
 import { setupDomTest } from './domLike/domLike';
 import { createChart } from './chartv2/ChartV2';
-import { start } from '../webgpu/hello';
+import { start } from '../webgpu/BallsSimulation';
 // import { webgpuTriangle } from '../webgpu/triangle';
 const canvas = ref<HTMLCanvasElement>();
 watchEffect((clear) => {
