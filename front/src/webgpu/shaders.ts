@@ -98,25 +98,38 @@ export const computeCode = /*wgsl*/ `
     }
   `;
 
-export const triangleVertWGSL = /*wgsl*/ `
+export const renderShaders = /*wgsl*/ `
 
-@binding(0) @group(0) var<storage> centers : array<vec2<f32>>;
+struct Ball {
+      radius: f32,
+      position: vec2<f32>,
+      velocity: vec2<f32>,
+};
+
+struct VertexOutput {
+  @builtin(position) position : vec4<f32>,
+  @location(0) color : vec4<f32>,
+}
+
+@group(0) @binding(0)
+var<storage> balls: array<Ball>;
 
 @vertex
-fn main(
-   @builtin(instance_index) instanceIdx : u32,
+fn mainVert(
+  @builtin(instance_index) instanceIdx : u32,
   @builtin(vertex_index) VertexIndex : u32,
   @location(0) pos: vec2<f32>
-  ) -> @builtin(position) vec4<f32> {
-    let final_pos = pos + centers[instanceIdx];
-    return vec4<f32>(final_pos, 0.0, 1.0);
+  ) -> VertexOutput {
+    var out: VertexOutput;
+    let ball = balls[instanceIdx];
+    out.position = vec4(pos + ball.position, 0.0, 1.0);
+    let intensity = max(length(ball.velocity)*10, 0.1);
+    out.color = vec4(intensity, intensity, intensity, 1.0);
+    return out;
   }
-  `;
-
-export const redFragWGSL = /*wgsl*/ `
 
 @fragment
-fn main() -> @location(0) vec4<f32> {
-  return vec4(1.0, 0.0, 0.0, 1.0);
+fn mainFrag(in: VertexOutput) -> @location(0) vec4<f32> {
+  return in.color;
 }
 `;

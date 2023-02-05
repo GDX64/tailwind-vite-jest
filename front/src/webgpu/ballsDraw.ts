@@ -1,4 +1,4 @@
-import { computeCode, redFragWGSL, triangleVertWGSL } from './shaders';
+import { computeCode, renderShaders } from './shaders';
 
 const rectData = new Float32Array(
   [
@@ -55,9 +55,9 @@ export function createDrawPipeline(
     layout: 'auto',
     vertex: {
       module: device.createShaderModule({
-        code: triangleVertWGSL,
+        code: renderShaders,
       }),
-      entryPoint: 'main',
+      entryPoint: 'mainVert',
       buffers: [
         {
           arrayStride: 2 * 4,
@@ -73,9 +73,9 @@ export function createDrawPipeline(
     },
     fragment: {
       module: device.createShaderModule({
-        code: redFragWGSL,
+        code: renderShaders,
       }),
-      entryPoint: 'main',
+      entryPoint: 'mainFrag',
       targets: [
         {
           format: presentationFormat,

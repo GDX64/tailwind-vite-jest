@@ -32,7 +32,7 @@ export async function start(canvas: HTMLCanvasElement) {
     stagingBuffer,
     vertexData,
   } = createComputePipeline(device, BUFFER_SIZE, VERTEX_SIZE);
-  const pipelineData = createDrawPipeline(device, presentationFormat, vertexData);
+  const pipelineData = createDrawPipeline(device, presentationFormat, output);
 
   function raf() {
     return new Promise((resolve) => requestAnimationFrame(resolve));
