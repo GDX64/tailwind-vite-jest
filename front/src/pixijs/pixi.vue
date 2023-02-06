@@ -11,13 +11,15 @@ import { squaresTest } from './hello/Squares';
 import { setupDomTest } from './domLike/domLike';
 import { createChart } from './chartv2/ChartV2';
 import { start } from '../webgpu/BallsSimulation';
+import { makeHistogram } from '../webgpu/histogram/HistogramGPU';
 // import { webgpuTriangle } from '../webgpu/triangle';
 const canvas = ref<HTMLCanvasElement>();
 watchEffect((clear) => {
   if (canvas.value) {
     // clear(createChart(canvas.value, devicePixelRatio));
-    start(canvas.value);
+    // start(canvas.value);
     // clear(webgpuTriangle(canvas.value));
+    makeHistogram(canvas.value);
   }
 });
 </script>
