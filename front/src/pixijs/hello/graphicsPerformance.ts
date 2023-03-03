@@ -1,7 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { randomColor, randRange } from './utils';
-import { faker } from '@faker-js/faker';
-import { autoDetectRenderer } from 'pixi.js';
+import { randomColor, randRange } from '../../utils/math';
 
 export function graphicsPerf(el: HTMLCanvasElement, resolution: number) {
   const app = new PIXI.Application({

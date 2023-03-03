@@ -1,54 +1,24 @@
 import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import App from './App.vue';
-import './index.css';
 import Home from './pages/Home.vue';
 import BackGround from './pages/BackGround.vue';
-import Test from './pages/QuickTest.vue';
-import Pixi from './pixijs/pixi.vue';
-import Grid from './components/Grid.vue';
-import CV from './pages/CV.vue';
-import Wordle from './wordle/Wordle.vue';
-import TickerPage from './rxjs/tickerformDemo/TickerPage.vue';
-import Rough from './pages/Rough.vue';
-import Set from './pages/Set.vue';
-import Hilbert from './pages/Hilbert.vue';
-import BallAnimation from './pages/BallAnimation.vue';
-import TippyTest from './pages/TippyTest.vue';
-import GPGPU from './pages/GPGPU.vue';
-import Performance from './pages/Performance.vue';
-import Layers from './pages/Layers.vue';
-import Solid from './pages/Solid.vue';
-import PixiOff from './pages/PixiOff/PixiOff.vue';
-import Animation from './pages/Animation.vue';
-import Lots from './pages/LotsOfSquares.vue';
-import ScrollCompare from './pages/ScrollCompare.vue';
-import Scroll from './pages/Scroll.vue';
-import LuaEmb from './pages/LuaEmb.vue';
-import Marverick from './pages/Marverick.vue';
+import './index.css';
 
 const routes = [
   { path: '/', component: Home },
   { path: '/bg', component: BackGround },
-  { path: '/test', component: Test },
-  { path: '/pixi', component: Pixi, name: 'pixi' },
-  { path: '/animation', component: Pixi },
-  { path: '/ani', component: Animation },
-  { path: '/grid', component: Grid },
-  { path: '/cv', component: CV },
-  { path: '/ticker', component: TickerPage },
-  { path: '/plot', component: Rough },
-  { path: '/tippy', component: TippyTest },
-  { path: '/gpgpu', component: GPGPU },
-  { path: '/perf', component: Performance },
-  { path: '/layers', component: Layers },
-  { path: '/solid', component: Solid },
-  { path: '/offscreen', component: PixiOff },
-  { path: '/lots', component: Lots },
-  { path: '/scrollCompare', component: ScrollCompare },
-  { path: '/scroll', component: Scroll },
-  { path: '/lua', component: LuaEmb },
-  { path: '/marverick', component: Marverick },
+  { path: '/pixi', component: () => import('./pixijs/Pixi.vue'), name: 'pixi' },
+  { path: '/grid', component: () => import('./components/Grid.vue') },
+  { path: '/cv', component: () => import('./pages/CV.vue') },
+  { path: '/plot', component: () => import('./pages/Rough.vue') },
+  { path: '/tippy', component: () => import('./pages/TippyTest.vue') },
+  { path: '/gpgpu', component: () => import('./pages/GPGPU.vue') },
+  { path: '/perf', component: () => import('./pages/Performance.vue') },
+  { path: '/layers', component: () => import('./pages/Layers.vue') },
+  { path: '/solid', component: () => import('./pages/Solid.vue') },
+  { path: '/lua', component: () => import('./pages/LuaEmb.vue') },
+  { path: '/marverick', component: () => import('./pages/Marverick.vue') },
   // { path: '/set', component: Set },
   // { path: '/Wordle', component: Wordle },
   // { path: '/hilbert', component: Hilbert },
