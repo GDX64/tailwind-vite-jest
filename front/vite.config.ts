@@ -43,7 +43,7 @@ export default defineConfig((args) => {
       host: true,
     },
     build: {
-      sourcemap: true,
+      sourcemap: false,
     },
     resolve: {
       alias: {
