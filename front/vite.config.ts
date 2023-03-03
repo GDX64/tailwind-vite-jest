@@ -40,6 +40,7 @@ export default defineConfig((args) => {
         // Allow serving files from one level up to the project root
         allow: ['..'],
       },
+      host: true,
     },
     build: {
       sourcemap: true,
