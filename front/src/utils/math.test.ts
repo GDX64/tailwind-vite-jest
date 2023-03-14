@@ -11,8 +11,8 @@ describe('tests math utils', () => {
     );
 
     expect(bil(0, 0)).toBe(0);
-    expect(bil(0, 1)).toBe(3);
-    expect(bil(1, 0)).toBe(4);
+    expect(bil(1, 0)).toBe(3);
+    expect(bil(0, 1)).toBe(4);
     expect(bil(1, 1)).toBe(5);
   });
 });
