@@ -45,13 +45,14 @@ export function renderRough(stage: Stage) {
 
   function draw(node: ChartNode, scale: ScalePair) {
     if (node.type === ChartType.LINE) {
-      rCanvas.curve(
+      const d = rCanvas.curve(
         node.data.points.map((points) => [scale.x(points[0]), scale.y(points[1])]),
         {
           stroke: node.data.color,
           seed: 1,
         }
       );
+      console.log(d);
     }
     if (node.type === ChartType.RECT) {
       const { width, height, x, y, color } = node.data;
