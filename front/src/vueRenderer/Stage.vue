@@ -20,6 +20,7 @@ watchEffect(() => {
     canvas: canvasRef.value,
     root,
   };
+  console.log(stage.root.children);
   renderRough(stage);
 });
 </script>

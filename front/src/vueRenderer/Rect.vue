@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, watch, onMounted, reactive, onUnmounted, computed } from 'vue';
+import { inject, watch, getCurrentInstance, reactive, onUnmounted, computed } from 'vue';
 import { ChartNode, RectNode, ChartType } from './CartesianCharts';
 
 const props = defineProps<{
@@ -15,7 +15,7 @@ const props = defineProps<{
 }>();
 
 const parentNode = inject('parentNode') as ChartNode;
-
+console.log(parentNode);
 function currentNode(): RectNode {
   return {
     data: {
