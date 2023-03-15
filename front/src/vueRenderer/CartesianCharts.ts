@@ -76,6 +76,18 @@ export function renderRough(stage: Stage) {
     if (node.type === ChartType.SCALE) {
       const x = d3.scaleLinear(node.data.x.domain, node.data.x.image);
       const y = d3.scaleLinear(node.data.y.domain, node.data.y.image);
+      {
+        const [initX, finalX] = node.data.x.domain;
+        const [initY, finalY] = node.data.y.domain;
+        rCanvas.line(x(initX), y(0), x(finalX), y(0), { seed: 1 });
+        rCanvas.line(x(0), y(initY), x(0), y(finalY), { seed: 1 });
+        x.ticks(5).forEach((num) => {
+          rCanvas.line(x(num), y(0) - 3, x(num), y(0) + 3, { seed: 1 });
+        });
+        y.ticks(5).forEach((num) => {
+          rCanvas.line(x(0) + 3, y(num), x(0) - 3, y(num), { seed: 1 });
+        });
+      }
       node.children?.forEach((shape) => draw(shape, { x, y }));
     }
     if (node.children) {

@@ -1,11 +1,11 @@
 <template>
-  <input type="range" min="0" max="45" v-model.number="range" />
+  <input type="range" min="-10" max="10" v-model.number="range" />
   <Stage>
     <ScaleComp
-      :x="{ domain: [0, 1], image: [10, 100] }"
-      :y="{ domain: [1, 0], image: [10, 100] }"
+      :x="{ domain: [-1, 1], image: [0, 500] }"
+      :y="{ domain: [-1, 1], image: [500, 0] }"
     >
-      <Rect :width="range / 10" :height="0.5" :x="0" :color="'red'"></Rect>
+      <Rect :width="0.5" :height="0.5" :x="0" :y="range / 10" :color="'red'"></Rect>
     </ScaleComp>
   </Stage>
 </template>
