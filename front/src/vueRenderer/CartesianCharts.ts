@@ -45,7 +45,7 @@ export function renderRough(stage: Stage) {
 
   function draw(node: ChartNode, scale: ScalePair) {
     if (node.type === ChartType.LINE) {
-      rCanvas.linearPath(
+      rCanvas.curve(
         node.data.points.map((points) => [scale.x(points[0]), scale.y(points[1])]),
         {
           stroke: node.data.color,
