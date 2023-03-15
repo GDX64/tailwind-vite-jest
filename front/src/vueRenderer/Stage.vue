@@ -4,7 +4,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect, reactive, provide } from 'vue';
+import { ref, watchEffect, reactive, provide, getCurrentInstance } from 'vue';
 import { ChartType, renderRough, Stage, GroupNode } from './CartesianCharts';
 const canvasRef = ref<HTMLCanvasElement>();
 const root: GroupNode = reactive({
@@ -14,14 +14,12 @@ const root: GroupNode = reactive({
 });
 
 provide('parentNode', root);
-
 watchEffect(() => {
   if (!canvasRef.value) return;
   const stage: Stage = {
     canvas: canvasRef.value,
     root,
   };
-  console.log(stage);
   renderRough(stage);
 });
 </script>

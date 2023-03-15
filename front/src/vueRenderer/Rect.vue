@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, watchEffect, onMounted, reactive, onUnmounted } from 'vue';
+import { inject, watch, onMounted, reactive, onUnmounted, computed } from 'vue';
 import { ChartNode, RectNode, ChartType } from './CartesianCharts';
 
 const props = defineProps<{
@@ -28,18 +28,17 @@ function currentNode(): RectNode {
     type: ChartType.RECT,
   };
 }
-const node = reactive(currentNode());
 
-onMounted(() => {
-  console.log('push');
-  parentNode.children?.push(node);
-});
+const node = computed(() => reactive(currentNode()));
 
-onUnmounted(() => {
-  parentNode.children = parentNode.children?.filter((item) => item !== node);
-});
-
-watchEffect(() => {
-  Object.assign(node, currentNode());
-});
+watch(
+  node,
+  (current, _old, clear) => {
+    parentNode.children?.push(current);
+    clear(() => {
+      parentNode.children = parentNode.children?.filter((item) => item !== current);
+    });
+  },
+  { immediate: true }
+);
 </script>

@@ -10,6 +10,7 @@ interface NodeBase<Type extends ChartType = ChartType, Data = any> {
   type: Type;
   data: Data;
   children?: ChartNode[];
+  cacheDraw?: any;
 }
 
 export type LineNode = NodeBase<
@@ -36,11 +37,14 @@ export function renderRough(stage: Stage) {
 
   function draw(node: ChartNode) {
     if (node.type === ChartType.LINE) {
-      rCanvas.linearPath(node.data.points, { stroke: node.data.color });
+      rCanvas.linearPath(node.data.points, {
+        stroke: node.data.color,
+        seed: 1,
+      });
     }
     if (node.type === ChartType.RECT) {
       const { width, height, x, y, color } = node.data;
-      rCanvas.rectangle(x, y, width, height, { fill: color });
+      rCanvas.rectangle(x, y, width, height, { fill: color, seed: 1 });
     }
     if (node.type === ChartType.GROUP && node.children) {
       ctx.save();
