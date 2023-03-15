@@ -21,6 +21,7 @@ const routes = [
   { path: '/marverick', component: () => import('./pages/Marverick.vue') },
   { path: '/noise', component: () => import('./pages/Noise/PerlinNoise.vue') },
   { path: '/bench', component: () => import('./pages/Benchmark.vue') },
+  { path: '/rough', component: () => import('./pages/RoughRender.vue') },
   // { path: '/set', component: Set },
   // { path: '/Wordle', component: Wordle },
   // { path: '/hilbert', component: Hilbert },
