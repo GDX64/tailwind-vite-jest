@@ -26,6 +26,7 @@ function currentNode(): LineNode {
       color: props.color,
     },
     type: ChartType.LINE,
+    events: {},
   };
 }
 

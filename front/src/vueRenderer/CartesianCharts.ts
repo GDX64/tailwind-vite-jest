@@ -1,41 +1,12 @@
 import Rough from 'roughjs';
 import * as d3 from 'd3';
-export enum ChartType {
-  GROUP,
-  LINE,
-  RECT,
-  SCALE,
-}
+export * from './interfaces';
+import { ChartNode, ChartType, Stage } from './interfaces';
 
-interface NodeBase<Type extends ChartType = ChartType, Data = any> {
-  type: Type;
-  data: Data;
-  children?: ChartNode[];
-  cacheDraw?: any;
-}
-
-export type LineNode = NodeBase<
-  ChartType.LINE,
-  { color: string; points: [number, number][] }
->;
-export type ScaleNode = NodeBase<
-  ChartType.SCALE,
-  {
-    y: { domain: [number, number]; image: [number, number] };
-    x: { domain: [number, number]; image: [number, number] };
-  }
->;
-export type RectNode = NodeBase<
-  ChartType.RECT,
-  { color: string; x: number; y: number; width: number; height: number }
->;
-export type GroupNode = NodeBase<ChartType.GROUP, { matrix: DOMMatrix }>;
-
-export type ChartNode = RectNode | LineNode | GroupNode | ScaleNode;
-
-export interface Stage {
-  canvas: HTMLCanvasElement;
-  root: ChartNode;
+export interface Geometry {
+  path?: Path2D;
+  children: Geometry[];
+  events?: Record<string, Function>;
 }
 
 export function renderRough(stage: Stage) {
@@ -43,36 +14,36 @@ export function renderRough(stage: Stage) {
   const ctx = stage.canvas.getContext('2d')!;
   ctx.clearRect(0, 0, stage.canvas.width, stage.canvas.height);
 
-  function draw(node: ChartNode, scale: ScalePair) {
+  function draw(node: ChartNode, scale: ScalePair): Geometry {
     if (node.type === ChartType.LINE) {
-      const d = rCanvas.curve(
+      rCanvas.curve(
         node.data.points.map((points) => [scale.x(points[0]), scale.y(points[1])]),
         {
           stroke: node.data.color,
           seed: 1,
         }
       );
-      console.log(d);
     }
     if (node.type === ChartType.RECT) {
       const { width, height, x, y, color } = node.data;
-      rCanvas.rectangle(
-        scale.x(x),
-        scale.y(y),
-        scaleAlpha(scale.x) * width,
-        scaleAlpha(scale.y) * height,
-        {
-          fill: color,
-          seed: 1,
-        }
-      );
+      const finalX = scale.x(x);
+      const finalY = scale.y(y);
+      const finalWidth = scaleAlpha(scale.x) * width;
+      const finalHeight = scaleAlpha(scale.y) * height;
+      rCanvas.rectangle(finalX, finalY, finalWidth, finalHeight, {
+        stroke: color,
+        seed: 1,
+      });
+      const path = new Path2D();
+      path.rect(finalX, finalY, finalWidth, finalHeight);
+      return { path, events: node.events, children: [] };
     }
     if (node.type === ChartType.GROUP && node.children) {
       ctx.save();
       ctx.setTransform(ctx.getTransform().multiply(node.data.matrix));
-      node.children.forEach((shape) => draw(shape, scale));
+      const children = node.children.map((shape) => draw(shape, scale));
       ctx.restore();
-      return;
+      return { children };
     }
     if (node.type === ChartType.SCALE) {
       const x = d3.scaleLinear(node.data.x.domain, node.data.x.image);
@@ -94,10 +65,11 @@ export function renderRough(stage: Stage) {
     if (node.children) {
       node.children.forEach((shape) => draw(shape, scale));
     }
+    return { children: [] };
   }
 
   const identity = d3.scaleLinear();
-  draw(stage.root, { x: identity, y: identity });
+  return draw(stage.root, { x: identity, y: identity });
 }
 
 interface ScalePair {

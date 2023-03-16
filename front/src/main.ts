@@ -22,6 +22,7 @@ const routes = [
   { path: '/noise', component: () => import('./pages/Noise/PerlinNoise.vue') },
   { path: '/bench', component: () => import('./pages/Benchmark.vue') },
   { path: '/rough', component: () => import('./pages/RoughRender.vue') },
+  { path: '/roughSimple', component: () => import('./pages/SimpleRenderer.vue') },
   // { path: '/set', component: Set },
   // { path: '/Wordle', component: Wordle },
   // { path: '/hilbert', component: Hilbert },
