@@ -1,6 +1,8 @@
+import { Options } from 'roughjs/bin/core';
+
 export enum ChartType {
   GROUP = 'group',
-  LINE = 'line',
+  LINE = 'gline',
   RECT = 'rect',
   SCALE = 'scale',
   TEXT = 'text',
@@ -50,12 +52,7 @@ export interface Stage {
   root: ChartNode;
 }
 
-export type BasicDrawOptions = {
-  color?: string;
-  seed?: number;
-  fill?: string;
-  stroke?: string;
-};
+export type BasicDrawOptions = Options;
 
 export interface Drawer {
   line(x: number, y: number, x2: number, y2: number, options?: BasicDrawOptions): Path2D;

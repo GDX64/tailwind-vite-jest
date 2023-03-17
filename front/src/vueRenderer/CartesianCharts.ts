@@ -9,7 +9,7 @@ export function renderRough(stage: Stage) {
   ctx.clearRect(0, 0, stage.canvas.width, stage.canvas.height);
 
   function draw(node: ChartNode, scale: ScalePair) {
-    if (node.type === ChartType.LINE) {
+    if (node.type === ChartType.LINE && node.data.points.length >= 2) {
       node.path = drawer.curve(
         node.data.points.map((points) => [scale.x(points[0]), scale.y(points[1])]),
         {
@@ -19,7 +19,7 @@ export function renderRough(stage: Stage) {
       );
     }
     if (node.type === ChartType.RECT) {
-      const { width, height, x, y, color } = node.data;
+      const { width, height, x, y } = node.data;
       const finalX = scale.x(x);
       const finalY = scale.y(y);
       const finalWidth = scaleAlpha(scale.x) * width;
@@ -43,8 +43,8 @@ export function renderRough(stage: Stage) {
       {
         const [initX, finalX] = node.data.x.domain;
         const [initY, finalY] = node.data.y.domain;
-        drawer.line(x(initX), y(0), x(finalX), y(0), { seed: 1 });
-        drawer.line(x(0), y(initY), x(0), y(finalY), { seed: 1 });
+        drawer.line(x(initX), y(0), x(finalX), y(0), { seed: 1, ...node.data });
+        drawer.line(x(0), y(initY), x(0), y(finalY), { seed: 1, ...node.data });
         x.ticks(5).forEach((num) => {
           drawer.line(x(num), y(0) - 3, x(num), y(0) + 3, { seed: 1 });
         });
@@ -53,11 +53,8 @@ export function renderRough(stage: Stage) {
         });
       }
       node.children?.forEach((shape) => draw(shape, { x, y }));
+      return;
     }
-    if (node.children) {
-      node.children.forEach((shape) => draw(shape, scale));
-    }
-    return { children: [] };
   }
 
   const identity = d3.scaleLinear();
@@ -100,6 +97,7 @@ class RoughDrawer implements Drawer {
     options?: BasicDrawOptions | undefined
   ): Path2D {
     this.rCanvas.rectangle(x, y, width, height, options);
+    console.log(x);
     const path = new Path2D();
     path.rect(x, y, width, height);
     return path;

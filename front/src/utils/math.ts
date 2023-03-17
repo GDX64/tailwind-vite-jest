@@ -1,3 +1,4 @@
+import { NumberColorFormat } from '@faker-js/faker';
 import { mat2, vec2 } from 'gl-matrix';
 
 export function randomColor() {
@@ -7,6 +8,14 @@ export function randomColor() {
 
 export function randRange(start: number, finish: number): number {
   return Math.random() * (finish - start) + start;
+}
+
+export function stepRange(start: number, step: number, end: number) {
+  if (start > end || step < 0) throw Error('argumentos inválidos');
+  console.log;
+  const arr: number[] = [];
+  for (let i = start; i <= end; i += step) arr.push(i);
+  return arr;
 }
 
 export interface Point2D {

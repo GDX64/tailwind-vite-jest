@@ -15,7 +15,7 @@ export default defineConfig((args) => {
       vue({
         template: {
           compilerOptions: {
-            isCustomElement: (el) => el === 'txt' || el === 'container',
+            isCustomElement: (el) => ['scale', 'rect', 'group', 'gline'].includes(el),
           },
         },
       }) /*checker({ typescript: true }) */,
