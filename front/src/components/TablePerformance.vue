@@ -52,7 +52,7 @@ function createWorker() {
     });
   }
   if (canvas.value) {
-    return makeFallback(createOffCanvasInst(canvas.value));
+    return makeFallback(createOffCanvasInst(canvas.value as any));
   }
   return null;
 }

@@ -11,6 +11,7 @@ const root: GroupNode = reactive({
   type: ChartType.GROUP,
   children: [],
   data: { matrix: new DOMMatrix() },
+  events: {},
 });
 
 provide('parentNode', root);

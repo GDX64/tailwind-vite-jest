@@ -10,7 +10,7 @@ const CountingComponent = () => {
     <cont>
       <cont x={100} y={100}>
         <cont x={200}>
-          <text style={{ fill: color[0]() }} text="hello"></text>
+          <text style={{ fill: color[0]() } as any} text="hello"></text>
         </cont>
       </cont>
       {alpha[0]() > 0.5 ? (

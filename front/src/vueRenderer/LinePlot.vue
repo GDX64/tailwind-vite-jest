@@ -23,7 +23,6 @@ function currentNode(): LineNode {
   return {
     data: {
       points: pairs.value,
-      color: props.color,
     },
     type: ChartType.LINE,
     events: {},

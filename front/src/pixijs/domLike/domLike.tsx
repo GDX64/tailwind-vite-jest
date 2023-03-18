@@ -235,7 +235,7 @@ function Row(args: {
       </Graphic>
       <text
         text={args.animal.breed === 'cat' ? '🐱' : '🐶'}
-        style={{ fontSize: 11 }}
+        style={{ fontSize: 11 } as any}
         x={args.positions[4]}
       ></text>
       <NameCell p_text={String(args.index)} p_x={args.positions[4] + 20}></NameCell>

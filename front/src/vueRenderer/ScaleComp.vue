@@ -32,6 +32,7 @@ function currentNode(): ScaleNode {
       x: props.x,
       y: props.y,
     },
+    events: {},
     children: [],
     type: ChartType.SCALE,
   };

@@ -21,10 +21,10 @@ function currentNode(): RectNode {
     data: {
       x: props.x ?? 0,
       y: props.y ?? 0,
-      color: props.color ?? 'black',
       width: props.width,
       height: props.height,
     },
+    events: {},
     type: ChartType.RECT,
   };
 }
