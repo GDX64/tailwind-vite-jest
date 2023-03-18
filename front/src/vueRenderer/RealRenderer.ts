@@ -1,73 +1,36 @@
-import { createRenderer, Component, reactive, watchEffect } from 'vue';
-import { renderRough } from './CartesianCharts';
-import {
-  ChartNode,
-  ChartType,
-  GroupNode,
-  TextNode,
-  RectNode,
-  Stage,
-  ScaleNode,
-  LineNode,
-} from './interfaces';
-
-function createText(txt: string): TextNode {
-  return { type: ChartType.TEXT, data: { text: txt }, events: {} };
-}
-
-function createLine(): LineNode {
-  return { type: ChartType.LINE, data: { points: [] }, events: {} };
-}
-
-function createGroup(): GroupNode {
-  return {
-    type: ChartType.GROUP,
-    data: { matrix: new DOMMatrix() },
-    children: [],
-    events: {},
-  };
-}
-
-function createScale(): ScaleNode {
-  return {
-    type: ChartType.SCALE,
-    events: {},
-    data: {
-      x: { domain: [0, 1], image: [0, 100] },
-      y: { domain: [1, 0], image: [0, 100] },
-    },
-    children: [],
-  };
-}
-
-function createSquare(): RectNode {
-  return {
-    type: ChartType.RECT,
-    data: { height: 100, width: 100, x: 0, y: 0 },
-    events: {},
-  };
-}
+import { createRenderer, Component, reactive, watchEffect, effectScope } from 'vue';
+import * as PIXI from 'pixi.js';
+import { ChartType } from './interfaces';
+import Rough from 'roughjs';
+import { RoughGenerator } from 'roughjs/bin/generator';
+import { Drawable, Options } from 'roughjs/bin/core';
+import * as d3 from 'd3';
 
 function appRenderer(canvas: HTMLCanvasElement) {
-  const ctx = canvas.getContext('2d');
-  const { createApp } = createRenderer<ChartNode, ChartNode>({
+  const shapes = new WeakMap<any, Rect>();
+  const generator = Rough.generator();
+
+  const { createApp } = createRenderer<PIXI.Container, PIXI.Container>({
     createComment(text) {
-      return createText(text);
+      return new PIXI.Text(text);
     },
     createElement(type, isSVG, isCustomizedBuiltIn, vnodeProps) {
+      console.log('creating element');
       // console.log('create', type);
-      if (type === ChartType.TEXT) return createText('txt');
-      if (type === ChartType.RECT) return createSquare();
-      if (type === ChartType.SCALE) return createScale();
-      if (type === ChartType.LINE) return createLine();
-      return createGroup();
+      if (type === ChartType.TEXT) return new PIXI.Text();
+      if (type === ChartType.RECT) {
+        const rect = new Rect(generator);
+        shapes.set(rect.g, rect);
+        return rect.g;
+      }
+      return new PIXI.Container();
     },
     createText(text) {
       // console.log('create text');
-      return createText(text);
+      return new PIXI.Text(text);
     },
     insert(el, parent, anchor) {
-      parent.children?.push(el);
+      parent.addChild(el);
     },
     nextSibling(node) {
       return null;
@@ -86,39 +49,23 @@ function appRenderer(canvas: HTMLCanvasElement) {
       parentSuspense,
       unmountChildren
     ) {
-      const el = reactive(_el);
-      if (key.startsWith('on')) {
-        const eventName = key.slice(2).toLowerCase();
-        canvas.removeEventListener(eventName, prevValue);
-        console.log(eventName);
-        canvas.addEventListener(eventName, (event) => {
-          if (
-            event instanceof MouseEvent &&
-            el.path &&
-            ctx?.isPointInPath(el.path, event.offsetX, event.offsetY)
-          ) {
-            nextValue(event);
-          }
-        });
-        (el.events as any)[key] = nextValue;
-      } else {
-        console.log(key, nextValue);
-        (el.data as any)[key] = nextValue;
-      }
+      const el = shapes.get(_el);
+      if (!el) return;
+      el.patch(key, nextValue);
     },
     remove(el) {
-      if (el.parent?.children) {
-        el.parent.children = el.parent.children.filter((item) => item !== el);
-      }
+      el.parent?.removeChild(el);
+      shapes.get(el)?.scope.stop();
+      el.destroy();
     },
     setElementText(node, text) {
-      if (node.type === ChartType.TEXT) {
-        node.data.text = text;
+      if (node instanceof PIXI.Text) {
+        node.text = text;
       }
     },
     setText(node, text) {
-      if (node.type === ChartType.TEXT) {
-        node.data.text = text;
+      if (node instanceof PIXI.Text) {
+        node.text = text;
       }
     },
   });
@@ -126,16 +73,93 @@ function appRenderer(canvas: HTMLCanvasElement) {
 }
 
 export function createRoot(canvas: HTMLCanvasElement, comp: Component, props: any) {
-  const root = reactive(createGroup());
-  const stage: Stage = { canvas, root };
-  const app = appRenderer(canvas).createApp(comp, { props });
-  app.mount(root);
-  const handler = watchEffect(() => {
-    console.log(root);
-    renderRough(stage);
+  const pApp = new PIXI.Application({
+    view: canvas,
+    backgroundColor: 0xaaffff,
+    antialias: true,
   });
+  const app = appRenderer(canvas).createApp(comp, { props });
+  app.mount(pApp.stage);
   return () => {
     app.unmount();
-    handler();
+    pApp.destroy();
   };
+}
+
+type PRotation = { rotation?: number };
+
+class Rect {
+  g = new PIXI.Graphics();
+  data: { x: number; y: number; w: number; h: number } & Options & PRotation = reactive({
+    x: 0,
+    y: 0,
+    w: 100,
+    h: 100,
+  });
+  scope;
+
+  constructor(private gen: RoughGenerator) {
+    this.scope = effectScope();
+    this.scope.run(() => {
+      watchEffect(() => {
+        this.draw();
+      });
+      watchEffect(() => {
+        this.g.rotation = this.data.rotation ?? 0;
+      });
+    });
+  }
+
+  patch(_key: string, value: any) {
+    const isEvent = _key.startsWith('on');
+    const key = isEvent ? _key.toLocaleLowerCase() : _key;
+    if (isEvent) {
+      console.log('event patch', key);
+      this.g.eventMode = 'static';
+      this.g.interactive = true;
+      this.g.onclick = value;
+    } else {
+      (this.data as any)[key] = value;
+    }
+  }
+
+  draw() {
+    const { x, y, w, h } = this.data;
+    const rGen = this.gen.rectangle(x, y, w, h, {
+      fill: 'green',
+      stroke: 'red',
+      fillWeight: 3,
+      hachureGap: 10,
+    });
+    console.log(rGen);
+    this.g.clear();
+    toPixiGraphic(rGen, this.g);
+  }
+}
+
+function toPixiGraphic(d: Drawable, g: PIXI.Graphics) {
+  d.sets.forEach((set) => {
+    if (set.type === 'path' || set.type === 'fillSketch') {
+      if (set.type === 'fillSketch') {
+        // g.beginFill(0x000);
+        g.lineStyle(d.options.fillWeight, d.options.fill);
+      } else {
+        g.lineStyle(d.options.strokeWidth, d.options.stroke);
+      }
+      set.ops.forEach((op) => {
+        if (op.op === 'bcurveTo') {
+          g.bezierCurveTo(
+            ...(op.data as [number, number, number, number, number, number])
+          );
+        } else if (op.op === 'lineTo') {
+          g.lineTo(op.data[0], op.data[1]);
+        } else if (op.op === 'move') {
+          g.moveTo(op.data[0], op.data[1]);
+        }
+      });
+      if (set.type === 'fillSketch') {
+        // g.endFill();
+      }
+    }
+  });
 }
