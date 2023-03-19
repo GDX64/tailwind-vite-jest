@@ -103,7 +103,13 @@ interface BasicShape {
 
 class Line {
   g = new PIXI.Graphics();
-  data: { points: [number, number][]; curve?: boolean } & Options & PRotation = reactive({
+  data: {
+    points: [number, number][];
+    curve?: boolean;
+    y?: number;
+    x?: number;
+  } & Options &
+    PRotation = reactive({
     points: [],
     seed: Math.random() * 1000,
   });
@@ -117,6 +123,8 @@ class Line {
       });
       watchEffect(() => {
         this.g.rotation = this.data.rotation ?? 0;
+        this.g.x = this.data.x ?? 0;
+        this.g.y = this.data.y ?? 0;
       });
     });
   }
