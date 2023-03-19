@@ -160,7 +160,8 @@ class Line {
 class Rect {
   id = Math.random() * 1000;
   g = new PIXI.Graphics();
-  data: { x: number; y: number; w: number; h: number } & Options & PRotation = reactive({
+  data: { x: number; y: number; w: number; h: number; cache?: boolean } & Options &
+    PRotation = reactive({
     x: 0,
     y: 0,
     w: 100,
@@ -199,11 +200,13 @@ class Rect {
   }
 
   draw() {
-    const { w, h } = this.data;
+    const { w, h, cache } = this.data;
     const rGen = this.gen.rectangle(0, 0, w, h, extractOptions(this.data));
     this.g.clear();
     this.g.hitArea = new PIXI.Rectangle(0, 0, w, h);
     toPixiGraphic(rGen, this.g);
+    this.g.cacheAsBitmap = cache ?? false;
+    console.log('draw');
   }
 }
 

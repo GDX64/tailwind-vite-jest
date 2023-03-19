@@ -1,4 +1,4 @@
-import { fromEvent, Observable, scan, switchMap, takeUntil } from 'rxjs';
+import { animationFrames, fromEvent, Observable, scan, switchMap, takeUntil } from 'rxjs';
 import { onUnmounted, ref } from 'vue';
 
 export function useDrag(start: Observable<void>, pos = ref([0, 0] as [number, number])) {
@@ -21,4 +21,12 @@ export function useDrag(start: Observable<void>, pos = ref([0, 0] as [number, nu
     });
   onUnmounted(() => sub.unsubscribe());
   return pos;
+}
+
+export function useElapsed(time = ref(0)) {
+  const sub = animationFrames().subscribe(({ elapsed }) => {
+    time.value = elapsed;
+  });
+  onUnmounted(() => sub.unsubscribe());
+  return time;
 }
