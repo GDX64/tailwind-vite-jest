@@ -106,6 +106,8 @@ class Rect {
       });
       watchEffect(() => {
         this.g.rotation = this.data.rotation ?? 0;
+        this.g.x = this.data.x;
+        this.g.y = this.data.y;
       });
     });
   }
@@ -116,25 +118,30 @@ class Rect {
     if (isEvent) {
       console.log('event patch', key);
       this.g.eventMode = 'static';
-      this.g.interactive = true;
-      this.g.onclick = value;
+      (this.g as any)[key] = value;
     } else {
       (this.data as any)[key] = value;
     }
   }
 
   draw() {
-    const { x, y, w, h } = this.data;
-    const rGen = this.gen.rectangle(x, y, w, h, {
-      fill: 'green',
-      stroke: 'red',
-      fillWeight: 3,
-      hachureGap: 10,
-    });
+    const { w, h } = this.data;
+    const rGen = this.gen.rectangle(0, 0, w, h, extractOptions(this.data));
     console.log(rGen);
     this.g.clear();
+    this.g.hitArea = new PIXI.Rectangle(0, 0, w, h);
     toPixiGraphic(rGen, this.g);
   }
+}
+
+function extractOptions(ops: Options): Options {
+  return {
+    fill: ops.fill ?? 'black',
+    roughness: ops.roughness ?? 0.5,
+    fillWeight: ops.fillWeight ?? 1,
+    stroke: ops.stroke ?? 'black',
+    fillStyle: ops.fillStyle,
+  };
 }
 
 function toPixiGraphic(d: Drawable, g: PIXI.Graphics) {
