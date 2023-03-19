@@ -1,5 +1,6 @@
 <template>
   <rect :x="pos[0]" :y="pos[1]" :w="200" @mousedown="onMouseDown" fill="green"></rect>
+  <gline :curve="true" :points="[[0, 100], [100, 50], [200, 200], pos]"></gline>
 </template>
 
 <script setup lang="ts">

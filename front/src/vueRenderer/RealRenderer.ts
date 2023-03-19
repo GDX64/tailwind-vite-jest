@@ -1,4 +1,11 @@
-import { createRenderer, Component, reactive, watchEffect, effectScope } from 'vue';
+import {
+  createRenderer,
+  Component,
+  reactive,
+  watchEffect,
+  effectScope,
+  EffectScope,
+} from 'vue';
 import * as PIXI from 'pixi.js';
 import { ChartType } from './interfaces';
 import Rough from 'roughjs';
@@ -7,7 +14,7 @@ import { Drawable, Options } from 'roughjs/bin/core';
 import * as d3 from 'd3';
 
 function appRenderer(canvas: HTMLCanvasElement) {
-  const shapes = new WeakMap<any, Rect>();
+  const shapes = new WeakMap<any, BasicShape>();
   const generator = Rough.generator();
 
   const { createApp } = createRenderer<PIXI.Container, PIXI.Container>({
@@ -15,18 +22,20 @@ function appRenderer(canvas: HTMLCanvasElement) {
       return new PIXI.Text(text);
     },
     createElement(type, isSVG, isCustomizedBuiltIn, vnodeProps) {
-      console.log('creating element');
-      // console.log('create', type);
       if (type === ChartType.TEXT) return new PIXI.Text();
       if (type === ChartType.RECT) {
         const rect = new Rect(generator);
         shapes.set(rect.g, rect);
         return rect.g;
       }
+      if (type === ChartType.LINE) {
+        const shape = new Line(generator);
+        shapes.set(shape.g, shape);
+        return shape.g;
+      }
       return new PIXI.Container();
     },
     createText(text) {
-      // console.log('create text');
       return new PIXI.Text(text);
     },
     insert(el, parent, anchor) {
@@ -55,8 +64,7 @@ function appRenderer(canvas: HTMLCanvasElement) {
     },
     remove(el) {
       el.parent?.removeChild(el);
-      shapes.get(el)?.scope.stop();
-      el.destroy();
+      shapes.get(el)?.destroy();
     },
     setElementText(node, text) {
       if (node instanceof PIXI.Text) {
@@ -88,7 +96,61 @@ export function createRoot(canvas: HTMLCanvasElement, comp: Component, props: an
 
 type PRotation = { rotation?: number };
 
+interface BasicShape {
+  patch(key: string, value: any): void;
+  destroy(): void;
+}
+
+class Line {
+  g = new PIXI.Graphics();
+  data: { points: [number, number][]; curve?: boolean } & Options & PRotation = reactive({
+    points: [],
+    seed: Math.random() * 1000,
+  });
+  scope;
+
+  constructor(private gen: RoughGenerator) {
+    this.scope = effectScope();
+    this.scope.run(() => {
+      watchEffect(() => {
+        this.draw();
+      });
+      watchEffect(() => {
+        this.g.rotation = this.data.rotation ?? 0;
+      });
+    });
+  }
+
+  destroy() {
+    this.scope.stop();
+    this.g.destroy();
+  }
+
+  patch(_key: string, value: any) {
+    const isEvent = _key.startsWith('on');
+    const key = isEvent ? _key.toLocaleLowerCase() : _key;
+    if (isEvent) {
+      this.g.eventMode = 'static';
+      (this.g as any)[key] = value;
+    } else {
+      (this.data as any)[key] = value;
+    }
+  }
+
+  draw() {
+    const { points, curve } = this.data;
+    if (points.length < 2) return;
+
+    const rGen = curve
+      ? this.gen.curve(points, extractOptions(this.data))
+      : this.gen.linearPath(points, extractOptions(this.data));
+    this.g.clear();
+    toPixiGraphic(rGen, this.g);
+  }
+}
+
 class Rect {
+  id = Math.random() * 1000;
   g = new PIXI.Graphics();
   data: { x: number; y: number; w: number; h: number } & Options & PRotation = reactive({
     x: 0,
@@ -112,11 +174,15 @@ class Rect {
     });
   }
 
+  destroy() {
+    this.scope.stop();
+    this.g.destroy();
+  }
+
   patch(_key: string, value: any) {
     const isEvent = _key.startsWith('on');
     const key = isEvent ? _key.toLocaleLowerCase() : _key;
     if (isEvent) {
-      console.log('event patch', key);
       this.g.eventMode = 'static';
       (this.g as any)[key] = value;
     } else {
@@ -127,7 +193,6 @@ class Rect {
   draw() {
     const { w, h } = this.data;
     const rGen = this.gen.rectangle(0, 0, w, h, extractOptions(this.data));
-    console.log(rGen);
     this.g.clear();
     this.g.hitArea = new PIXI.Rectangle(0, 0, w, h);
     toPixiGraphic(rGen, this.g);
@@ -136,11 +201,13 @@ class Rect {
 
 function extractOptions(ops: Options): Options {
   return {
-    fill: ops.fill ?? 'black',
-    roughness: ops.roughness ?? 0.5,
+    fill: ops.fill,
+    roughness: ops.roughness ?? 1,
+    bowing: ops.bowing ?? 1,
     fillWeight: ops.fillWeight ?? 1,
     stroke: ops.stroke ?? 'black',
     fillStyle: ops.fillStyle,
+    seed: ops.seed,
   };
 }
 
