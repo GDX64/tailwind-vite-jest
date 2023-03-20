@@ -7,7 +7,7 @@ import {
   EffectScope,
 } from 'vue';
 import * as PIXI from 'pixi.js';
-import { ChartType } from './interfaces';
+import { ChartType, ScaleXY } from './interfaces';
 import Rough from 'roughjs';
 import { RoughGenerator } from 'roughjs/bin/generator';
 import { Drawable, Options } from 'roughjs/bin/core';
@@ -33,7 +33,9 @@ function appRenderer(canvas: HTMLCanvasElement) {
         shapes.set(shape.g, shape);
         return shape.g;
       }
-      return new PIXI.Container();
+      const group = new Group();
+      shapes.set(group.container, group);
+      return group.container;
     },
     createText(text) {
       return new PIXI.Text(text);
@@ -101,13 +103,14 @@ interface BasicShape {
   destroy(): void;
 }
 
-class Line {
+class Line implements BasicShape {
   g = new PIXI.Graphics();
   data: {
     points: [number, number][];
     curve?: boolean;
     y?: number;
     x?: number;
+    scaleXY?: ScaleXY;
   } & Options &
     PRotation = reactive({
     points: [],
@@ -123,8 +126,13 @@ class Line {
       });
       watchEffect(() => {
         this.g.rotation = this.data.rotation ?? 0;
-        this.g.x = this.data.x ?? 0;
-        this.g.y = this.data.y ?? 0;
+        if (this.data.scaleXY) {
+          this.g.x = this.data.scaleXY.alphaX * (this.data.x ?? 0);
+          this.g.y = this.data.scaleXY.alphaY * (this.data.y ?? 0);
+        } else {
+          this.g.x = this.data.x ?? 0;
+          this.g.y = this.data.y ?? 0;
+        }
       });
     });
   }
@@ -146,9 +154,13 @@ class Line {
   }
 
   draw() {
-    const { points, curve } = this.data;
+    let { points, curve } = this.data;
     if (points.length < 2) return;
-
+    const scale = this.data.scaleXY;
+    if (scale) {
+      points = points.map((p) => [scale.x(p[0]), scale.y(p[1])]);
+    }
+    console.log('line draw', points);
     const rGen = curve
       ? this.gen.curve(points, extractOptions(this.data))
       : this.gen.linearPath(points, extractOptions(this.data));
@@ -157,10 +169,67 @@ class Line {
   }
 }
 
-class Rect {
+class Group implements BasicShape {
+  id = Math.random() * 1000;
+  container = new PIXI.Container();
+  data: {
+    x: number;
+    y: number;
+    cache?: boolean;
+    scaleXY?: ScaleXY;
+  } & Options &
+    PRotation = reactive({
+    x: 0,
+    y: 0,
+    w: 100,
+    h: 100,
+  });
+  scope;
+
+  constructor() {
+    this.scope = effectScope();
+    this.scope.run(() => {
+      watchEffect(() => {
+        this.container.rotation = this.data.rotation ?? 0;
+        if (this.data.scaleXY) {
+          this.container.x = this.data.scaleXY.alphaX * (this.data.x ?? 0);
+          this.container.y = this.data.scaleXY.alphaY * (this.data.y ?? 0);
+        } else {
+          this.container.x = this.data.x ?? 0;
+          this.container.y = this.data.y ?? 0;
+        }
+      });
+    });
+  }
+
+  destroy() {
+    this.scope.stop();
+    this.container.destroy();
+  }
+
+  patch(_key: string, value: any) {
+    const isEvent = _key.startsWith('on');
+    const key = isEvent ? _key.toLocaleLowerCase() : _key;
+    if (isEvent) {
+      this.container.eventMode = 'static';
+      (this.container as any)[key] = value;
+    } else {
+      (this.data as any)[key] = value;
+    }
+  }
+}
+
+class Rect implements BasicShape {
   id = Math.random() * 1000;
   g = new PIXI.Graphics();
-  data: { x: number; y: number; w: number; h: number; cache?: boolean } & Options &
+  data: {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    cache?: boolean;
+    scaleXY?: ScaleXY;
+  } & Options &
     PRotation = reactive({
     x: 0,
     y: 0,
@@ -177,8 +246,13 @@ class Rect {
       });
       watchEffect(() => {
         this.g.rotation = this.data.rotation ?? 0;
-        this.g.x = this.data.x;
-        this.g.y = this.data.y;
+        if (this.data.scaleXY) {
+          this.g.x = this.data.scaleXY.alphaX * (this.data.x ?? 0);
+          this.g.y = this.data.scaleXY.alphaY * (this.data.y ?? 0);
+        } else {
+          this.g.x = this.data.x ?? 0;
+          this.g.y = this.data.y ?? 0;
+        }
       });
     });
   }
@@ -200,7 +274,9 @@ class Rect {
   }
 
   draw() {
-    const { w, h, cache } = this.data;
+    let { w, h, cache } = this.data;
+    w *= this.data.scaleXY?.alphaX ?? 1;
+    h *= this.data.scaleXY?.alphaY ?? 1;
     const rGen = this.gen.rectangle(0, 0, w, h, extractOptions(this.data));
     this.g.clear();
     this.g.hitArea = new PIXI.Rectangle(0, 0, w, h);
@@ -226,7 +302,6 @@ function toPixiGraphic(d: Drawable, g: PIXI.Graphics) {
   d.sets.forEach((set) => {
     if (set.type === 'path' || set.type === 'fillSketch') {
       if (set.type === 'fillSketch') {
-        // g.beginFill(0x000);
         g.lineStyle(d.options.fillWeight, d.options.fill);
       } else {
         g.lineStyle(d.options.strokeWidth, d.options.stroke);
@@ -242,9 +317,6 @@ function toPixiGraphic(d: Drawable, g: PIXI.Graphics) {
           g.moveTo(op.data[0], op.data[1]);
         }
       });
-      if (set.type === 'fillSketch') {
-        // g.endFill();
-      }
     }
   });
 }

@@ -65,3 +65,10 @@ export interface Drawer {
   ): Path2D;
   curve(points: [number, number][], options?: BasicDrawOptions): Path2D;
 }
+
+export interface ScaleXY {
+  x(n: number): number;
+  y(n: number): number;
+  alphaX: number;
+  alphaY: number;
+}
