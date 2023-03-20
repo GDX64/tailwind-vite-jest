@@ -1,6 +1,6 @@
 <template>
   <group :x="10" :y="10">
-    <slot :scaleXY="scaleData.scaleXY"></slot>
+    <slot :scaleXY="scaleData.scaleXY" :arrDomain="scaleData.arrDomain"></slot>
     <gline
       v-for="line of scaleData.allLines"
       :points="[line.from, line.to]"
@@ -11,6 +11,7 @@
 
 <script setup lang="ts">
 import * as d3 from 'd3';
+import { range } from 'ramda';
 import { computed } from 'vue';
 import { ScaleXY } from './interfaces';
 
@@ -19,7 +20,12 @@ type ScaleData = {
   image: [number, number];
 };
 
-const props = defineProps<{ x: ScaleData; y: ScaleData; ticks: number }>();
+const props = defineProps<{
+  x: ScaleData;
+  y: ScaleData;
+  ticks?: number;
+  nDomain?: number;
+}>();
 const scaleData = computed(() => {
   const x = d3.scaleLinear(props.x.domain, props.x.image);
   const y = d3.scaleLinear(props.y.domain, props.y.image);
@@ -34,12 +40,15 @@ const scaleData = computed(() => {
   const [initY, finalY] = props.y.domain;
   const xLine = { from: [x(initX), y(0)], to: [x(finalX), y(0)] };
   const yLine = { from: [x(0), y(initY)], to: [x(0), y(finalY)] };
-  const xTicks = x.ticks(5).map((num) => {
+  const xTicks = x.ticks(props.ticks ?? 5).map((num) => {
     return { from: [x(num), y(0) - 3], to: [x(num), y(0) + 3] };
   });
-  const yTicks = y.ticks(5).map((num) => {
+  const yTicks = y.ticks(props.ticks ?? 5).map((num) => {
     return { from: [x(0) + 3, y(num)], to: [x(0) - 3, y(num)] };
   });
+
+  const nDomain = props.nDomain ?? 10;
+  const arrDomain = x.ticks(nDomain);
   return {
     xLine,
     yLine,
@@ -47,6 +56,7 @@ const scaleData = computed(() => {
     yTicks,
     scaleXY,
     allLines: [xLine, yLine, ...xTicks, ...yTicks],
+    arrDomain,
   };
 });
 

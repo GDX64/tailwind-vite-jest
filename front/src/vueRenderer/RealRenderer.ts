@@ -160,7 +160,6 @@ class Line implements BasicShape {
     if (scale) {
       points = points.map((p) => [scale.x(p[0]), scale.y(p[1])]);
     }
-    console.log('line draw', points);
     const rGen = curve
       ? this.gen.curve(points, extractOptions(this.data))
       : this.gen.linearPath(points, extractOptions(this.data));
@@ -282,7 +281,6 @@ class Rect implements BasicShape {
     this.g.hitArea = new PIXI.Rectangle(0, 0, w, h);
     toPixiGraphic(rGen, this.g);
     this.g.cacheAsBitmap = cache ?? false;
-    console.log('draw');
   }
 }
 
@@ -295,6 +293,8 @@ function extractOptions(ops: Options): Options {
     stroke: ops.stroke ?? 'black',
     fillStyle: ops.fillStyle,
     seed: ops.seed,
+    strokeWidth: ops.strokeWidth ?? 1,
+    disableMultiStroke: ops.disableMultiStroke ?? false,
   };
 }
 

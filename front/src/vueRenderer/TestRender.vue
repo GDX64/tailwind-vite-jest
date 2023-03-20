@@ -1,24 +1,23 @@
 <template>
-  <rect
-    v-for="[x, y, rate] of arrows"
-    :x="x"
-    :w="20"
-    :h="20"
-    :y="250 + Math.sin(time / rate / 1000) * 200"
-    :fill="'red'"
-  ></rect>
   <GScale
-    :x="{ domain: [-10, 10], image: [0, 500] }"
+    :x="{ domain: [-10, 10], image: [0, 700] }"
     :y="{ domain: [-10, 10], image: [500, 0] }"
     :ticks="5"
+    :nDomain="30"
   >
-    <template #default="{ scaleXY }">
+    <template #default="{ scaleXY, arrDomain }">
+      <rect
+        v-for="x of arrDomain"
+        :x="scaleXY.x(x)"
+        :w="5"
+        :h="5"
+        :y="scaleXY.y(Math.sin(x + time / 1000) * 5)"
+        :fill="'red'"
+      ></rect>
       <gline
-        :points="[
-          [1, 1],
-          [2, 1],
-          [3, -3],
-        ]"
+        :curve="true"
+        :roughness="1"
+        :points="arrDomain.map((x) => [x, Math.sin(x + time / 1000) * 5])"
         :scaleXY="scaleXY"
       ></gline>
     </template>
@@ -34,11 +33,7 @@ import Arrow from './Arrow.vue';
 import GScale from './GScale.vue';
 
 const { props } = defineProps<{ props: { range: number } }>();
-const arrows = range(0, 10).map(() => [
-  Math.random() * 500,
-  Math.random() * 500,
-  Math.random() * 2 + 1,
-]);
+
 const clickObs = new Subject<void>();
 const pos = useDrag(clickObs);
 function onMouseDown() {
