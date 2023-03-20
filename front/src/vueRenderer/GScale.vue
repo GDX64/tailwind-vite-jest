@@ -1,5 +1,5 @@
 <template>
-  <group :x="10" :y="10">
+  <group>
     <slot :scaleXY="scaleData.scaleXY" :arrDomain="scaleData.arrDomain"></slot>
     <gline
       v-for="line of scaleData.allLines"
