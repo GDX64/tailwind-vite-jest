@@ -26,7 +26,6 @@
         :centerPivot="true"
       ></rect>
       <gline
-        :curve-details="10"
         :curve="true"
         :roughness="1"
         :points="arrDomain.map((x) => [x, sinFunc(x)])"

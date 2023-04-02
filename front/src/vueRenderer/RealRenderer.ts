@@ -111,7 +111,7 @@ interface BasicShape {
   destroy(): void;
 }
 
-class Line implements BasicShape {
+export class Line implements BasicShape {
   g = new PIXI.Graphics();
   data: {
     points: [number, number][];

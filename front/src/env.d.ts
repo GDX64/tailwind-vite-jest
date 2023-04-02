@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 /// <reference types="vite-svg-loader" />
 
-import GLine from './vueRenderer/GLineComp.vue';
+import { GLineType } from './vueRenderer/componentTypes';
 declare module '*.vue' {
   import { DefineComponent } from 'vue';
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
@@ -23,6 +23,6 @@ declare module '*.glsl' {
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
-    gline: typeof GLine;
+    gline: GLineType;
   }
 }
