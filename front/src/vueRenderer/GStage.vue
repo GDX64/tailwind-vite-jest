@@ -1,5 +1,5 @@
 <template>
-  <canvas ref="canvasEl" width="500" height="500"></canvas>
+  <canvas ref="canvasEl"></canvas>
 </template>
 
 <script setup lang="ts">
@@ -22,8 +22,8 @@ const drawData = reactive({
 
 const obs = new ResizeObserver(() => {
   if (canvasEl.value) {
-    drawData.height = canvasEl.value.height;
-    drawData.width = canvasEl.value.width;
+    drawData.height = canvasEl.value.offsetHeight;
+    drawData.width = canvasEl.value.offsetWidth;
   }
 });
 onMounted(() => {

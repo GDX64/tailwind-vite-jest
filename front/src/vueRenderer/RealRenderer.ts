@@ -92,6 +92,8 @@ export function createRoot(
     view: canvas,
     backgroundColor: 0xffffff,
     antialias: true,
+    resolution: devicePixelRatio,
+    resizeTo: canvas,
   });
   const app = appRenderer(canvas).createApp(comp, { props });
   app.provide('drawData', injected);

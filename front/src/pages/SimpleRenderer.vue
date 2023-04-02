@@ -1,6 +1,6 @@
 <template>
   <input type="range" :min="0" :max="2" step="0.1" v-model="props.range" />
-  <GStage :comp="TestRender" :props="props"></GStage>
+  <GStage :comp="TestRender" class="w-full aspect-auto" :props="props"></GStage>
 </template>
 
 <script lang="ts" setup>
