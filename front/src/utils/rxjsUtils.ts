@@ -1,5 +1,6 @@
 import { animationFrames, fromEvent, Observable, scan, switchMap, takeUntil } from 'rxjs';
 import { onUnmounted, ref } from 'vue';
+import { useDrawData } from '../vueRenderer/UseDraw';
 
 export function useDrag(start: Observable<void>, pos = ref([0, 0] as [number, number])) {
   const sub = start
@@ -24,8 +25,11 @@ export function useDrag(start: Observable<void>, pos = ref([0, 0] as [number, nu
 }
 
 export function useElapsed(time = ref(0)) {
+  const data = useDrawData();
   const sub = animationFrames().subscribe(({ elapsed }) => {
-    time.value = elapsed;
+    if (data.isVisible) {
+      time.value = elapsed;
+    }
   });
   onUnmounted(() => sub.unsubscribe());
   return time;

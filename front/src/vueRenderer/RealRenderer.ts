@@ -98,9 +98,12 @@ export function createRoot(
   const app = appRenderer(canvas).createApp(comp, { props });
   app.provide('drawData', injected);
   app.mount(pApp.stage);
-  return () => {
-    app.unmount();
-    pApp.destroy();
+  return {
+    destroy: () => {
+      app.unmount();
+      pApp.destroy();
+    },
+    pApp,
   };
 }
 
