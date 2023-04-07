@@ -9,3 +9,8 @@ interface OffscreenCanvasRenderingContext2D extends CanvasRenderingContext2D {
 interface OffscreenCanvas extends HTMLCanvasElement {}
 
 interface Something {}
+
+declare module '*.glsl' {
+  const code: string;
+  export default code;
+}
