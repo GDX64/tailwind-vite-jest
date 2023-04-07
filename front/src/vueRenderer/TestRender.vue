@@ -13,7 +13,7 @@
     :x="{ domain: [-10, 10], image: [10, drawData.width - 10] }"
     :y="{ domain: [-10, 10], image: [drawData.height - 10, 10] }"
     :ticks="5"
-    :nDomain="30"
+    :nDomain="range"
   >
     <template #default="{ scaleXY, arrDomain }">
       <rect
@@ -43,8 +43,7 @@ import Arrow from './Arrow.vue';
 import GScale from './GScale.vue';
 import { useDrawData } from './UseDraw';
 
-const { props } = defineProps<{ props: { range: number } }>();
-
+const props = defineProps<{ range: number }>();
 const drawData = useDrawData();
 const clickObs = new Subject<void>();
 const pos = useDrag(clickObs);

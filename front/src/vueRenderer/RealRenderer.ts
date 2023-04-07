@@ -1,11 +1,4 @@
-import {
-  createRenderer,
-  Component,
-  reactive,
-  watchEffect,
-  effectScope,
-  EffectScope,
-} from 'vue';
+import { createRenderer, Component, reactive, watchEffect, effectScope, h } from 'vue';
 import * as PIXI from 'pixi.js';
 import { ChartType, ScaleXY } from './interfaces';
 import Rough from 'roughjs';
@@ -101,7 +94,7 @@ export function createRoot(
     resolution: devicePixelRatio,
     resizeTo: canvas,
   });
-  const app = appRenderer(canvas).createApp(comp, { props });
+  const app = appRenderer(canvas).createApp(() => h(comp, props));
   app.provide('drawData', injected);
   app.mount(pApp.stage);
   return {
