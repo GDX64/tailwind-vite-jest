@@ -41,10 +41,16 @@ function appRenderer(canvas: HTMLCanvasElement) {
       return new PIXI.Text(text);
     },
     insert(el, parent, anchor) {
-      parent.addChild(el);
+      const index = parent.children.findIndex((item) => item === anchor);
+      if (index === -1) {
+        parent.addChild(el);
+      } else {
+        parent.addChildAt(el, index + 1);
+      }
     },
     nextSibling(node) {
-      return null;
+      const index = node.parent.children.findIndex((item) => item === node);
+      return node.parent.children[index + 1] as PIXI.Container;
     },
     parentNode(node) {
       return node?.parent ?? null;
