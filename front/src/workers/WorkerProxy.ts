@@ -1,5 +1,9 @@
 import { Subject, firstValueFrom } from 'rxjs';
 
+export const transferSymbol = Symbol('tranfer');
+
+const transferMap = new WeakMap<any, Transferable[]>();
+
 type WorkerExpose = Record<string | symbol, (...args: any) => any>;
 
 type PromiseFn<F extends (...args: any) => any> = (
@@ -77,10 +81,16 @@ export function exposeToWorker<W extends WorkerExpose>(
 ) {
   worker.onmessage = async (event: MessageEvent<WorkerEventData>) => {
     const result = await messages[event.data.method](...event.data.args);
-    const transferable = result?.__transferables__ ?? [];
+    const transferable = transferMap.get(result) ?? [];
+    transferMap.delete(transferable);
     const eventData: MainEventData = { id: event.data.id, value: result };
     worker.postMessage(eventData, transferable);
   };
+}
+
+export function transfer<T>(val: T, t: Transferable[]) {
+  transferMap.set(val, t);
+  return val;
 }
 
 export function fakeWorkerTalk<W extends WorkerExpose>(expose: W) {

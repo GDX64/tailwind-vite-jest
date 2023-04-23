@@ -1,4 +1,4 @@
-import { fakeWorkerTalk } from './WorkerProxy';
+import { fakeWorkerTalk, transfer, transferSymbol } from './WorkerProxy';
 
 describe('simple send', () => {
   test('echo send', async () => {
@@ -14,7 +14,7 @@ describe('simple send', () => {
   test('echo send transfer', async () => {
     const proxy = fakeWorkerTalk({
       hello(message: Uint8Array) {
-        return message;
+        return transfer(message, [message]);
       },
     });
     const buff = new Uint8Array([1, 2, 3]);
