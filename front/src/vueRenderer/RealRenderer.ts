@@ -92,13 +92,18 @@ export function createRoot(
     view: canvas,
     backgroundColor: 0xffffff,
     antialias: true,
+    resolution: devicePixelRatio,
+    resizeTo: canvas,
   });
   const app = appRenderer(canvas).createApp(comp, { props });
   app.provide('drawData', injected);
   app.mount(pApp.stage);
-  return () => {
-    app.unmount();
-    pApp.destroy();
+  return {
+    destroy: () => {
+      app.unmount();
+      pApp.destroy();
+    },
+    pApp,
   };
 }
 
@@ -109,7 +114,7 @@ interface BasicShape {
   destroy(): void;
 }
 
-class Line implements BasicShape {
+export class Line implements BasicShape {
   g = new PIXI.Graphics();
   data: {
     points: [number, number][];

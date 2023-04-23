@@ -11,7 +11,6 @@
 
 <script setup lang="ts">
 import * as d3 from 'd3';
-import { range } from 'ramda';
 import { computed } from 'vue';
 import { ScaleXY } from './interfaces';
 
@@ -19,6 +18,8 @@ type ScaleData = {
   domain: [number, number];
   image: [number, number];
 };
+
+type Point2D = [number, number];
 
 const props = defineProps<{
   x: ScaleData;
@@ -38,13 +39,13 @@ const scaleData = computed(() => {
 
   const [initX, finalX] = props.x.domain;
   const [initY, finalY] = props.y.domain;
-  const xLine = { from: [x(initX), y(0)], to: [x(finalX), y(0)] };
-  const yLine = { from: [x(0), y(initY)], to: [x(0), y(finalY)] };
+  const xLine = { from: [x(initX), y(0)] as Point2D, to: [x(finalX), y(0)] as Point2D };
+  const yLine = { from: [x(0), y(initY)] as Point2D, to: [x(0), y(finalY)] as Point2D };
   const xTicks = x.ticks(props.ticks ?? 5).map((num) => {
-    return { from: [x(num), y(0) - 3], to: [x(num), y(0) + 3] };
+    return { from: [x(num), y(0) - 3] as Point2D, to: [x(num), y(0) + 3] as Point2D };
   });
   const yTicks = y.ticks(props.ticks ?? 5).map((num) => {
-    return { from: [x(0) + 3, y(num)], to: [x(0) - 3, y(num)] };
+    return { from: [x(0) + 3, y(num)] as Point2D, to: [x(0) - 3, y(num)] as Point2D };
   });
 
   const nDomain = props.nDomain ?? 10;
