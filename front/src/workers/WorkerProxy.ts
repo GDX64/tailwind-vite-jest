@@ -77,8 +77,9 @@ export function exposeToWorker<W extends WorkerExpose>(
 ) {
   worker.onmessage = async (event: MessageEvent<WorkerEventData>) => {
     const result = await messages[event.data.method](...event.data.args);
+    const transferable = result?.__transferables__ ?? [];
     const eventData: MainEventData = { id: event.data.id, value: result };
-    worker.postMessage(eventData);
+    worker.postMessage(eventData, transferable);
   };
 }
 
