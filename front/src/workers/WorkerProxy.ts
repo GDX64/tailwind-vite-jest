@@ -8,15 +8,24 @@ type WorkerExpose = Record<string | symbol, (...args: any) => any>;
 
 type PromiseFn<F extends (...args: any) => any> = (
   ...args: Parameters<F>
-) => ReturnType<F> extends Promise<any> ? ReturnType<F> : Promise<ReturnType<F>>;
+) => Promise<Awaited<ReturnType<F>>>;
+
+type PromiseFnProxy<F extends (...args: any) => any> = (
+  ...args: Parameters<F>
+) => Promise<PWorkerTransferable<Awaited<ReturnType<F>>>>;
 
 type PWorker<W extends WorkerExpose> = {
   [K in keyof W]: PromiseFn<W[K]>;
 };
 
+type PWorkerProxy<W extends WorkerExpose> = {
+  [K in keyof W]: PromiseFnProxy<W[K]>;
+};
+
 type PWorkerTransferable<W extends WorkerExpose> = PWorker<W> & {
-  t(transfer: Transferable[]): PWorker<W>;
-  terminateWorker(): void;
+  $t(transfer: Transferable[]): PWorker<W>;
+  $terminateWorker(): void;
+  $link: PWorkerProxy<W>;
 };
 
 type PromiseMap = Map<number, Subject<any>>;
@@ -30,6 +39,8 @@ type WorkerEventData = {
   args: any[];
   id: number;
   method: string | symbol;
+  link?: boolean;
+  linkID: number;
 };
 
 type NeededWorkerInterface = Pick<Worker, 'postMessage' | 'onmessage' | 'terminate'>;
@@ -39,7 +50,14 @@ export function createProxyWorker<W extends WorkerExpose>(
   {
     transferable = [],
     _promiseMap,
-  }: { transferable?: Transferable[]; _promiseMap?: PromiseMap } = {}
+    link,
+    linkID = 0,
+  }: {
+    transferable?: Transferable[];
+    _promiseMap?: PromiseMap;
+    link?: boolean;
+    linkID?: number;
+  } = {}
 ): PWorkerTransferable<W> {
   const promiseMap: PromiseMap = _promiseMap ? _promiseMap : new Map();
   if (!_promiseMap) {
@@ -51,21 +69,50 @@ export function createProxyWorker<W extends WorkerExpose>(
   return new Proxy(
     {},
     {
+      has(target, key) {
+        if (key === 'then') return false;
+        return true;
+      },
       get(_target, key) {
-        if (key === 'terminateWorker') {
+        if (key === '$terminateWorker') {
           return () => worker.terminate();
         }
-        if (key === 't') {
-          return (transferable: Transferable[]) =>
-            createProxyWorker(worker, { transferable, _promiseMap: promiseMap });
+
+        if (key === 'then') {
+          return undefined;
         }
-        return (...args: any[]) => {
+
+        if (key === '$t') {
+          return (transferable: Transferable[]) =>
+            createProxyWorker(worker, {
+              transferable,
+              _promiseMap: promiseMap,
+              linkID,
+              link,
+            });
+        }
+        if (key === '$link') {
+          return createProxyWorker(worker, {
+            _promiseMap: promiseMap,
+            transferable,
+            link: true,
+          });
+        }
+        return async (...args: any[]) => {
           const id = Math.random();
-          const message: WorkerEventData = { args, id, method: key };
+          const message: WorkerEventData = { args, id, method: key, link, linkID };
           worker.postMessage(message, transferable);
           const subject = new Subject<any>();
           promiseMap.set(id, subject);
-          return firstValueFrom(subject);
+          const result = await firstValueFrom(subject);
+          if (link) {
+            return createProxyWorker(worker, {
+              transferable,
+              _promiseMap: promiseMap,
+              linkID: result,
+            });
+          }
+          return result;
         };
       },
       set() {
@@ -79,12 +126,21 @@ export function exposeToWorker<W extends WorkerExpose>(
   messages: W,
   worker: NeededWorkerInterface = self as any
 ) {
+  const linkMap = new Map<number, any>();
   worker.onmessage = async (event: MessageEvent<WorkerEventData>) => {
-    const result = await messages[event.data.method](...event.data.args);
+    const linkObject = event.data.linkID ? linkMap.get(event.data.linkID) : messages;
+    const result = await linkObject[event.data.method](...event.data.args);
     const transferable = transferMap.get(result) ?? [];
     transferMap.delete(transferable);
-    const eventData: MainEventData = { id: event.data.id, value: result };
-    worker.postMessage(eventData, transferable);
+    if (event.data.link) {
+      const linkID = Math.random();
+      linkMap.set(linkID, result);
+      const eventData: MainEventData = { id: event.data.id, value: linkID };
+      worker.postMessage(eventData, transferable);
+    } else {
+      const eventData: MainEventData = { id: event.data.id, value: result };
+      worker.postMessage(eventData, transferable);
+    }
   };
 }
 

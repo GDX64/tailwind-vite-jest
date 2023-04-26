@@ -18,7 +18,7 @@ describe('simple send', () => {
       },
     });
     const buff = new Uint8Array([1, 2, 3]);
-    const result = await proxy.t([buff]).hello(buff);
+    const result = await proxy.$t([buff]).hello(buff);
     expect(buff).toBe(result);
   });
   test('echo async', async () => {
@@ -30,5 +30,21 @@ describe('simple send', () => {
     const sentMessage = 'a test';
     const result = await proxy.hello(sentMessage);
     expect(result, sentMessage);
+  });
+
+  test('link obj', async () => {
+    const proxy = fakeWorkerTalk({
+      hello(message: string) {
+        return {
+          say() {
+            return message;
+          },
+        };
+      },
+    });
+
+    const result = await proxy.$link.hello('what');
+    const say = await result.say();
+    expect(say).toBe('what');
   });
 });
