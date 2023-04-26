@@ -175,10 +175,10 @@ export function fakeWorkerTalk<W extends WorkerExpose>(expose: W) {
   exposeToWorker(expose, worker);
 
   const workerSub = mainSend$.subscribe((message) => {
-    (worker as any).onmessage?.(message);
+    (worker as Worker).onmessage?.(message);
   });
   const mainSub = workerSend$.subscribe((message) => {
-    (main as any).onmessage?.(message);
+    (main as Worker).onmessage?.(message);
   });
 
   main.terminate = () => {
