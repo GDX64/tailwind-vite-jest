@@ -17,3 +17,11 @@ channel = "nightly"
 [package.metadata.wasm-pack.profile.release]
 # previously had just ['-O4']
 # wasm-opt = ['-O4', '-g']
+
+[dev-dependencies]
+criterion = "0.4"
+rand = "0.8.5"
+
+[[bench]]
+harness = false
+name = "my_bench"

@@ -1,5 +1,6 @@
 #![recursion_limit = "100"]
 use leptos::*;
+pub mod book_things;
 
 #[component]
 pub fn SimpleCounter(cx: Scope, initial_value: i32) -> impl IntoView {
