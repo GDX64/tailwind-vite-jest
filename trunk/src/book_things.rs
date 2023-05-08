@@ -37,9 +37,9 @@ pub struct ArrBook {
 }
 
 impl ArrBook {
-    pub fn new() -> ArrBook {
+    pub fn new(size: usize) -> ArrBook {
         ArrBook {
-            offers: vec![Offer { index: 0 }; 16_000],
+            offers: vec![Offer { index: 0 }; size],
         }
     }
 }
@@ -54,7 +54,7 @@ impl BookBuilder for ArrBook {
         }
     }
     fn remove_offer(&mut self, offer: Offer) {
-        self.offers.remove(offer.index);
+        self.offers.remove(offer.index.min(self.offers.len() - 1));
     }
     fn to_vec(self) -> Vec<Offer> {
         self.offers
@@ -66,9 +66,9 @@ pub struct MapBook {
 }
 
 impl MapBook {
-    pub fn new() -> MapBook {
+    pub fn new(size: usize) -> MapBook {
         MapBook {
-            offers: BTreeSet::from_iter((0..16_000).map(|i| Offer { index: i })),
+            offers: BTreeSet::from_iter((0..size).map(|i| Offer { index: i })),
         }
     }
 }
@@ -91,8 +91,8 @@ mod test {
 
     #[test]
     fn test_ordering() {
-        let mut mb = MapBook::new();
-        [1, 4, 5, 3 as usize].into_iter().for_each(|v| {
+        let mut mb = MapBook::new(0);
+        [1, 4, 5, 3 as usize, 4].into_iter().for_each(|v| {
             mb.add_offer(Offer { index: v });
         });
         let values = mb
