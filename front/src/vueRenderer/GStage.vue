@@ -33,10 +33,8 @@ watch(rootApp, (app, __, clear) => {
 
 watchEffect(() => {
   if (drawData.isVisible) {
-    console.log('start');
     rootApp.value?.pApp.start();
   } else {
-    console.log('stop');
     rootApp.value?.pApp.stop();
   }
 });

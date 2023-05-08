@@ -1,11 +1,4 @@
-import {
-  createRenderer,
-  Component,
-  reactive,
-  watchEffect,
-  effectScope,
-  EffectScope,
-} from 'vue';
+import { createRenderer, Component, reactive, watchEffect, effectScope, h } from 'vue';
 import * as PIXI from 'pixi.js';
 import { ChartType, ScaleXY } from './interfaces';
 import Rough from 'roughjs';
@@ -41,10 +34,16 @@ function appRenderer(canvas: HTMLCanvasElement) {
       return new PIXI.Text(text);
     },
     insert(el, parent, anchor) {
-      parent.addChild(el);
+      const index = parent.children.findIndex((item) => item === anchor);
+      if (index === -1) {
+        parent.addChild(el);
+      } else {
+        parent.addChildAt(el, index + 1);
+      }
     },
     nextSibling(node) {
-      return null;
+      const index = node.parent.children.findIndex((item) => item === node);
+      return node.parent.children[index + 1] as PIXI.Container;
     },
     parentNode(node) {
       return node?.parent ?? null;
@@ -95,7 +94,7 @@ export function createRoot(
     resolution: devicePixelRatio,
     resizeTo: canvas,
   });
-  const app = appRenderer(canvas).createApp(comp, { props });
+  const app = appRenderer(canvas).createApp(() => h(comp, props));
   app.provide('drawData', injected);
   app.mount(pApp.stage);
   return {
