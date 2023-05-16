@@ -8,6 +8,12 @@ export enum ChartType {
   TEXT = 'text',
 }
 
+export enum PIXIEL {
+  CONTAINER = 'pcontainer',
+  GRAPHICS = 'pgraphics',
+  TEXT = 'ptext',
+}
+
 interface NodeBase<
   Type extends ChartType = ChartType,
   Data extends Record<string, any> = Record<string, any>

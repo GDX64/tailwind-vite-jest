@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 /// <reference types="vite-svg-loader" />
 
-import { GLineType } from './vueRenderer/componentTypes';
+import { GLineType, PGraphics } from './vueRenderer/componentTypes';
 
 declare module '*.vue' {
   import { DefineComponent } from 'vue';
@@ -20,5 +20,6 @@ declare module '*.svg' {
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     gline: GLineType;
+    pgraphics: PGraphics;
   }
 }

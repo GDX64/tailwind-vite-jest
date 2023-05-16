@@ -14,7 +14,7 @@ import {
   watchEffect,
   useSlots,
 } from 'vue';
-import { createRoot } from './RealRenderer';
+import { createRoot } from './PIXIRender';
 const canvasEl = ref<HTMLCanvasElement>();
 const slots = useSlots();
 const rootApp = computed(() =>
