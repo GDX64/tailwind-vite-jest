@@ -81,12 +81,7 @@ function appRenderer(canvas: HTMLCanvasElement) {
   return { createApp };
 }
 
-export function createRoot(
-  canvas: HTMLCanvasElement,
-  comp: Component,
-  props: any,
-  injected: any
-) {
+export function createRoot(canvas: HTMLCanvasElement, comp: Component, injected: any) {
   const pApp = new PIXI.Application({
     view: canvas,
     backgroundColor: 0xffffff,
@@ -94,7 +89,7 @@ export function createRoot(
     resolution: devicePixelRatio,
     resizeTo: canvas,
   });
-  const app = appRenderer(canvas).createApp(() => h(comp, props));
+  const app = appRenderer(canvas).createApp(() => h(comp));
   app.provide('drawData', injected);
   app.mount(pApp.stage);
   return {

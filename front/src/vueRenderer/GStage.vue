@@ -12,13 +12,13 @@ import {
   onMounted,
   computed,
   watchEffect,
+  useSlots,
 } from 'vue';
 import { createRoot } from './RealRenderer';
 const canvasEl = ref<HTMLCanvasElement>();
-const props = defineProps<{ comp: Component; props: any }>();
-
+const slots = useSlots();
 const rootApp = computed(() =>
-  canvasEl.value ? createRoot(canvasEl.value, props.comp, props.props, drawData) : null
+  canvasEl.value ? createRoot(canvasEl.value, slots.default!, drawData) : null
 );
 
 const drawData = reactive({
