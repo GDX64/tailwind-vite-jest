@@ -14,7 +14,6 @@ const routes = [
   { path: '/plot', component: () => import('./pages/Rough.vue') },
   { path: '/tippy', component: () => import('./pages/TippyTest.vue') },
   { path: '/gpgpu', component: () => import('./pages/GPGPU.vue') },
-  { path: '/perf', component: () => import('./pages/Performance.vue') },
   { path: '/layers', component: () => import('./pages/Layers.vue') },
   { path: '/solid', component: () => import('./pages/Solid.vue') },
   { path: '/lua', component: () => import('./pages/LuaEmb.vue') },
