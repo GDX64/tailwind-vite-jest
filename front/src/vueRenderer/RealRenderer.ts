@@ -4,7 +4,6 @@ import { ChartType, ScaleXY } from './interfaces';
 import Rough from 'roughjs';
 import { RoughGenerator } from 'roughjs/bin/generator';
 import { Drawable, Op, Options } from 'roughjs/bin/core';
-import * as d3 from 'd3';
 
 function appRenderer(canvas: HTMLCanvasElement) {
   const shapes = new WeakMap<any, BasicShape>();
