@@ -7,19 +7,19 @@ import { Graphics } from 'pixi.js';
 import { shallowRef, watchEffect } from 'vue';
 import { rgen, toPixiGraphic } from './RoughInterop';
 const props = defineProps<{
-  width: number;
-  height: number;
-  fill?: string;
+  x0: number;
+  x1: number;
+  y0: number;
+  y1: number;
   stroke?: string;
 }>();
 const g = shallowRef<Graphics>();
 
 watchEffect(() => {
   if (!g.value) return;
-  const data = rgen.rectangle(0, 0, props.width, props.height, {
-    fill: props.fill,
+  const { x0, x1, y0, y1 } = props;
+  const data = rgen.line(x0, y0, x1, y1, {
     stroke: props.stroke,
-    fillWeight: 2,
   });
   g.value.clear();
   toPixiGraphic(data, g.value);

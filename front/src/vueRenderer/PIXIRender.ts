@@ -1,6 +1,6 @@
-import { createRenderer, Component, reactive, watchEffect, effectScope, h } from 'vue';
+import { createRenderer, Component } from 'vue';
 import * as PIXI from 'pixi.js';
-import { PIXIEL, ScaleXY } from './interfaces';
+import { PIXIEL } from './interfaces';
 
 function appRenderer(canvas: HTMLCanvasElement) {
   const { createApp } = createRenderer<PIXI.Container, PIXI.Container>({
@@ -75,8 +75,8 @@ export function createRoot(canvas: HTMLCanvasElement, comp: Component, injected:
     resolution: devicePixelRatio,
     resizeTo: canvas,
   });
-  const app = appRenderer(canvas).createApp(() => h(comp));
-  app.provide('drawData', injected);
+
+  const app = appRenderer(canvas).createApp(comp).provide('drawData', injected);
   app.mount(pApp.stage);
   return {
     destroy: () => {

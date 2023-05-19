@@ -1,23 +1,31 @@
 <template>
-  <group>
+  <pcontainer>
     <slot :scaleXY="scaleData.scaleXY" :arrDomain="scaleData.arrDomain"></slot>
-    <gline
+    <PixiLine
       v-for="line of scaleData.allLines"
-      :points="[line.from, line.to]"
+      :x0="line.from[0]"
+      :y0="line.from[1]"
+      :x1="line.to[0]"
+      :y1="line.to[1]"
       stroke="black"
-    ></gline>
-  </group>
+    ></PixiLine>
+  </pcontainer>
 </template>
 
 <script setup lang="ts">
 import * as d3 from 'd3';
-import { computed } from 'vue';
+import { computed, watchEffect } from 'vue';
 import { ScaleXY } from './interfaces';
+import PixiLine from './BaseComponents/PixiLine.vue';
+import { useDrawData } from './UseDraw';
 
 type ScaleData = {
-  domain: [number, number];
-  image: [number, number];
+  domain: readonly [number, number];
+  image: readonly [number, number];
 };
+
+const data = useDrawData();
+watchEffect(() => console.log(data.width));
 
 type Point2D = [number, number];
 

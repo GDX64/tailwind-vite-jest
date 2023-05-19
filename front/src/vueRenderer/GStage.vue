@@ -15,6 +15,7 @@ import {
   useSlots,
 } from 'vue';
 import { createRoot } from './PIXIRender';
+
 const canvasEl = ref<HTMLCanvasElement>();
 const slots = useSlots();
 const rootApp = computed(() =>
@@ -26,6 +27,8 @@ const drawData = reactive({
   height: 0,
   isVisible: true,
 });
+
+defineExpose({ drawData });
 
 watch(rootApp, (app, __, clear) => {
   clear(() => app?.destroy());
