@@ -22,11 +22,15 @@ function appRenderer(canvas: HTMLCanvasElement) {
       return new PIXI.Text(text);
     },
     insert(el, parent, anchor) {
-      const index = parent.children.findIndex((item) => item === anchor);
-      if (index === -1) {
-        parent.addChild(el);
+      if (anchor) {
+        const index = parent.getChildIndex(anchor);
+        if (index === -1) {
+          throw Error('tem coisa errada ai, irmão');
+        } else {
+          parent.addChildAt(el, index);
+        }
       } else {
-        parent.addChildAt(el, index + 1);
+        parent.addChild(el);
       }
     },
     nextSibling(node) {
