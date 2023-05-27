@@ -2,12 +2,10 @@ import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import App from './App.vue';
 import Home from './pages/Home.vue';
-import BackGround from './pages/BackGround.vue';
 import './index.css';
 
 const routes = [
   { path: '/', component: Home },
-  { path: '/bg', component: BackGround },
   { path: '/pixi', component: () => import('./pixijs/pixi.vue'), name: 'pixi' },
   { path: '/grid', component: () => import('./components/Grid.vue') },
   { path: '/cv', component: () => import('./pages/CV.vue') },
