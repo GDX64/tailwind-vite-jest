@@ -14,7 +14,7 @@
         v-model.number="phase"
       />
     </div>
-    <div class="flex flex-col">
+    <div class="flex flex-col mb-2">
       <div class="w-max whitespace-nowrap mr-2">frequency: {{ frequency }}Hz</div>
       <input
         type="range"
@@ -25,8 +25,8 @@
         v-model.number="frequency"
       />
     </div>
-    <GStage ref="stage" class="w-full aspect-auto">
-      <template #default>
+    <GStage ref="stage" class="w-full aspect-auto border border-black h-64">
+      <template #default="{}">
         <GScale :x-data="scaleData.x" :y-data="scaleData.y">
           <template #default="{ scaleXY: { x, y, alphaX } }">
             <PixiSquare
@@ -44,7 +44,7 @@
     </GStage>
 
     <p class="py-5">{{ text }}</p>
-    <GStage ref="stage" class="w-full aspect-square">
+    <GStage ref="stage" class="w-full aspect-square border border-black">
       <template #default>
         <GScale :x-data="scaleData.x" :y-data="scaleData.y" :no-lines="true">
           <template #default="{ scaleXY: { x, y, alphaX, alphaY } }">
