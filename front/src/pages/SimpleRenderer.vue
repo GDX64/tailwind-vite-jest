@@ -25,7 +25,7 @@
         v-model.number="frequency"
       />
     </div>
-    <GStage ref="stage" class="w-full aspect-auto border border-black h-64">
+    <GStage class="w-full aspect-auto border border-black h-64" v-if="false">
       <template #default="{}">
         <GScale :x-data="scaleData.x" :y-data="scaleData.y">
           <template #default="{ scaleXY: { x, y, alphaX } }">
@@ -54,7 +54,7 @@
       step="1"
       v-model.number="balls"
     />
-    <GStage ref="stage" class="w-full aspect-square border border-black">
+    <GStage class="w-full aspect-square border border-black">
       <template #default>
         <GScale :x-data="scaleData.x" :y-data="scaleData.y" :no-lines="true">
           <template #default="{ scaleXY: { x, y, alphaX, alphaY } }">
@@ -94,10 +94,9 @@ import { faker } from '@faker-js/faker';
 import { range } from 'd3';
 const phase = ref(0.2);
 const time = useElapsed();
-const stage = ref<InstanceType<typeof GStage>>();
 const frequency = ref(0.2);
 
-const text = faker.lorem.paragraph();
+const text = faker.lorem.paragraphs(3);
 const header = faker.lorem.word();
 
 const elements = 20;

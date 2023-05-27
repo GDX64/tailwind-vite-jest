@@ -5,15 +5,16 @@
       :arrDomain="scaleData.arrDomain"
       v-if="$slots.default"
     ></slot>
-    <PixiLine
-      v-if="!noLines"
-      v-for="line of scaleData.allLines"
-      :x0="line.from[0]"
-      :y0="line.from[1]"
-      :x1="line.to[0]"
-      :y1="line.to[1]"
-      stroke="black"
-    />
+    <template v-if="!noLines">
+      <PixiLine
+        v-for="line of scaleData.allLines"
+        :x0="line.from[0]"
+        :y0="line.from[1]"
+        :x1="line.to[0]"
+        :y1="line.to[1]"
+        stroke="black"
+      />
+    </template>
   </pcontainer>
 </template>
 

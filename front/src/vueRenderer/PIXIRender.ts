@@ -1,4 +1,4 @@
-import { createRenderer, Component } from 'vue';
+import { createRenderer, Component, Slot, h } from 'vue';
 import * as PIXI from 'pixi.js';
 import { PIXIEL } from './interfaces';
 
@@ -18,6 +18,7 @@ function appRenderer(canvas: HTMLCanvasElement) {
       }
     },
     createText(text) {
+      console.log('text');
       return new PIXI.Text(text);
     },
     insert(el, parent, anchor) {
@@ -30,7 +31,11 @@ function appRenderer(canvas: HTMLCanvasElement) {
     },
     nextSibling(node) {
       const index = node.parent.children.findIndex((item) => item === node);
-      return node.parent.children[index + 1] as PIXI.Container;
+      const sibling = node.parent.children[index + 1];
+      if (sibling instanceof PIXI.Container) {
+        return sibling;
+      }
+      return null;
     },
     parentNode(node) {
       return node?.parent ?? null;
@@ -66,7 +71,7 @@ function appRenderer(canvas: HTMLCanvasElement) {
   return { createApp };
 }
 
-export function createRoot(canvas: HTMLCanvasElement, comp: Component, injected: any) {
+export function createRoot(canvas: HTMLCanvasElement, comp: Slot, injected: any) {
   const pApp = new PIXI.Application({
     view: canvas,
     backgroundColor: 0xffffff,
@@ -76,7 +81,9 @@ export function createRoot(canvas: HTMLCanvasElement, comp: Component, injected:
   });
 
   injected.app = pApp;
-  const app = appRenderer(canvas).createApp(comp).provide('drawData', injected);
+  const app = appRenderer(canvas)
+    .createApp(() => h(PIXIEL.CONTAINER, comp({ ...injected })))
+    .provide('drawData', injected);
   app.mount(pApp.stage);
   return {
     destroy: () => {
