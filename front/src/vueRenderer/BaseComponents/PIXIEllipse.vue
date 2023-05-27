@@ -14,6 +14,7 @@ const props = defineProps<{
   height: number;
   fill?: string;
   stroke?: string;
+  fillStyle?: 'solid' | 'hachure' | 'zigzag';
 }>();
 const g = shallowRef<Graphics>();
 
@@ -31,6 +32,7 @@ watchEffect(() => {
     fill: props.fill,
     stroke: props.stroke,
     fillWeight: 2,
+    fillStyle: props.fillStyle,
     roughness: drawData.roughness,
   });
   g.value.clear();

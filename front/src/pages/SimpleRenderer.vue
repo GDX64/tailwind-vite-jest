@@ -44,18 +44,38 @@
     </GStage>
 
     <p class="py-5">{{ text }}</p>
+
+    <div class="w-max whitespace-nowrap mr-2">balls: {{ balls }}</div>
+    <input
+      type="range"
+      class="w-full"
+      :min="0"
+      :max="16"
+      step="1"
+      v-model.number="balls"
+    />
     <GStage ref="stage" class="w-full aspect-square border border-black">
       <template #default>
         <GScale :x-data="scaleData.x" :y-data="scaleData.y" :no-lines="true">
           <template #default="{ scaleXY: { x, y, alphaX, alphaY } }">
             <PIXIEllipse
-              :rotation="time / 1000"
               :x="x(0)"
               :y="y(0)"
               :height="alphaX * 20"
               :width="alphaY * 20"
               stroke="#000000"
-            />
+            >
+              <PIXIEllipse
+                v-for="[x, y] of ballsPos"
+                :x="alphaX * x * 10"
+                :y="alphaY * y * 10"
+                :height="alphaX"
+                :width="alphaY"
+                stroke="#000000"
+                fill-style="solid"
+                fill="#2b6083"
+              />
+            </PIXIEllipse>
           </template>
         </GScale>
       </template>
@@ -71,6 +91,7 @@ import GScale from '../vueRenderer/GScale.vue';
 import PixiSquare from '../vueRenderer/BaseComponents/PixiSquare.vue';
 import PIXIEllipse from '../vueRenderer/BaseComponents/PIXIEllipse.vue';
 import { faker } from '@faker-js/faker';
+import { range } from 'd3';
 const phase = ref(0.2);
 const time = useElapsed();
 const stage = ref<InstanceType<typeof GStage>>();
@@ -86,5 +107,21 @@ const scaleData = computed(() => {
     x: { domain: [-elements / 2, elements / 2], padding: 20 },
     y: { domain: [elements / 2, -elements / 2], padding: 20 },
   } as const;
+});
+
+const balls = ref(5);
+const ballsPos = computed(() => {
+  if (!balls.value) return [];
+  const isEven = balls.value % 2 === 0;
+  const ballsBaseCalc = isEven ? balls.value * 2 : balls.value;
+  const omegaStep = (Math.PI * 2) / ballsBaseCalc;
+
+  return range(balls.value).map((index) => {
+    const angle = index * omegaStep;
+    const xProjection = Math.cos(angle);
+    const yProjection = Math.sin(angle);
+    const ballRad = Math.sin(time.value / 1000 + angle);
+    return [xProjection * ballRad, yProjection * ballRad] as const;
+  });
 });
 </script>
