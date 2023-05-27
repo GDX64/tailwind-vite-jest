@@ -76,6 +76,7 @@ export function createRoot(canvas: HTMLCanvasElement, comp: Component, injected:
     resizeTo: canvas,
   });
 
+  injected.app = pApp;
   const app = appRenderer(canvas).createApp(comp).provide('drawData', injected);
   app.mount(pApp.stage);
   return {

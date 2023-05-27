@@ -6,7 +6,6 @@
 import {
   ref,
   watch,
-  Component,
   reactive,
   onUnmounted,
   onMounted,
@@ -15,6 +14,7 @@ import {
   useSlots,
 } from 'vue';
 import { createRoot } from './PIXIRender';
+import { createDrawData } from './UseDraw';
 
 const canvasEl = ref<HTMLCanvasElement>();
 const slots = useSlots();
@@ -22,11 +22,7 @@ const rootApp = computed(() =>
   canvasEl.value ? createRoot(canvasEl.value, slots.default!, drawData) : null
 );
 
-const drawData = reactive({
-  width: 0,
-  height: 0,
-  isVisible: true,
-});
+const drawData = reactive(createDrawData());
 
 defineExpose({ drawData });
 
@@ -44,6 +40,8 @@ watchEffect(() => {
 
 const obs = new ResizeObserver(() => {
   if (canvasEl.value) {
+    drawData.realWidth = canvasEl.value.width;
+    drawData.realHeight = canvasEl.value.height;
     drawData.height = canvasEl.value.offsetHeight;
     drawData.width = canvasEl.value.offsetWidth;
   }

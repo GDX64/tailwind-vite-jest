@@ -2,7 +2,7 @@ import { animationFrames, fromEvent, Observable, scan, switchMap, takeUntil } fr
 import { onUnmounted, ref } from 'vue';
 import { useDrawData } from '../vueRenderer/UseDraw';
 
-export function useDrag(start: Observable<void>, pos = ref([0, 0] as [number, number])) {
+export function useDrag(start: Observable<any>, pos = ref([0, 0] as [number, number])) {
   const sub = start
     .pipe(
       switchMap(() => {
