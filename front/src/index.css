@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -27,5 +27,6 @@
 
 #app{
   overflow: hidden;
-  font-family: 'Architects Daughter', cursive;
+  color: black;
+  font-family: sans-serif;
 }

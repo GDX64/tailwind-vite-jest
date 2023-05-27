@@ -1,5 +1,8 @@
 <template>
-  <div class="w-full px-4 flex flex-col text-base font-bold">
+  <div class="w-full px-4 flex flex-col text-base">
+    <h2 class="text-4xl my-2">
+      {{ header }}
+    </h2>
     <div class="flex flex-col">
       <div class="whitespace-nowrap mr-2">phase: {{ phase }}</div>
       <input
@@ -17,29 +20,31 @@
         type="range"
         class="w-full"
         :min="0"
-        :max="5"
-        step="0.1"
+        :max="2"
+        step="0.02"
         v-model.number="frequency"
       />
     </div>
+    <GStage ref="stage" class="w-full aspect-auto">
+      <template #default>
+        <GScale :x-data="scaleData.x" :y-data="scaleData.y">
+          <template #default="{ scaleXY: { x, y, alphaX, alphaY } }">
+            <PixiSquare
+              v-for="el of elements"
+              :x="x(el - 11)"
+              :y="y(10 * Math.sin((time * frequency * 2 * Math.PI) / 1000 + el * phase))"
+              :height="alphaX"
+              :width="alphaX"
+              fill="#00ffff"
+              stroke="#ff0000"
+            />
+          </template>
+        </GScale>
+      </template>
+    </GStage>
+
+    <p>{{ text }}</p>
   </div>
-  <GStage ref="stage" class="w-full aspect-auto">
-    <template #default>
-      <GScale :x-data="scaleData.x" :y-data="scaleData.y">
-        <template #default="{ scaleXY: { x, y } }">
-          <PixiSquare
-            v-for="el of elements"
-            :x="x(el - 11)"
-            :y="y(10 * Math.sin((time * frequency * 2 * Math.PI) / 1000 + el * phase))"
-            :height="20"
-            :width="20"
-            fill="#00ffff"
-            stroke="#ff0000"
-          />
-        </template>
-      </GScale>
-    </template>
-  </GStage>
 </template>
 
 <script lang="ts" setup>
@@ -48,10 +53,14 @@ import GStage from '../vueRenderer/GStage.vue';
 import { useElapsed } from '../utils/rxjsUtils';
 import GScale from '../vueRenderer/GScale.vue';
 import PixiSquare from '../vueRenderer/BaseComponents/PixiSquare.vue';
-const phase = ref(0);
+import { faker } from '@faker-js/faker';
+const phase = ref(0.2);
 const time = useElapsed();
 const stage = ref<InstanceType<typeof GStage>>();
-const frequency = ref(1);
+const frequency = ref(0.2);
+
+const text = faker.lorem.paragraph();
+const header = faker.lorem.word();
 
 const elements = 20;
 
