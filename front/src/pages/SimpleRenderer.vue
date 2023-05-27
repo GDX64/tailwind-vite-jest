@@ -28,7 +28,7 @@
     <GStage ref="stage" class="w-full aspect-auto">
       <template #default>
         <GScale :x-data="scaleData.x" :y-data="scaleData.y">
-          <template #default="{ scaleXY: { x, y, alphaX, alphaY } }">
+          <template #default="{ scaleXY: { x, y, alphaX } }">
             <PixiSquare
               v-for="el of elements"
               :x="x(el - 11)"
@@ -43,7 +43,23 @@
       </template>
     </GStage>
 
-    <p>{{ text }}</p>
+    <p class="py-5">{{ text }}</p>
+    <GStage ref="stage" class="w-full aspect-square">
+      <template #default>
+        <GScale :x-data="scaleData.x" :y-data="scaleData.y" :no-lines="true">
+          <template #default="{ scaleXY: { x, y, alphaX, alphaY } }">
+            <PIXIEllipse
+              :rotation="time / 1000"
+              :x="x(0)"
+              :y="y(0)"
+              :height="alphaX * 20"
+              :width="alphaY * 20"
+              stroke="#000000"
+            />
+          </template>
+        </GScale>
+      </template>
+    </GStage>
   </div>
 </template>
 
@@ -53,6 +69,7 @@ import GStage from '../vueRenderer/GStage.vue';
 import { useElapsed } from '../utils/rxjsUtils';
 import GScale from '../vueRenderer/GScale.vue';
 import PixiSquare from '../vueRenderer/BaseComponents/PixiSquare.vue';
+import PIXIEllipse from '../vueRenderer/BaseComponents/PIXIEllipse.vue';
 import { faker } from '@faker-js/faker';
 const phase = ref(0.2);
 const time = useElapsed();
@@ -66,8 +83,8 @@ const elements = 20;
 
 const scaleData = computed(() => {
   return {
-    x: { domain: [-elements / 2, elements / 2], padding: 10 },
-    y: { domain: [-elements / 2, elements / 2], padding: 20 },
+    x: { domain: [-elements / 2, elements / 2], padding: 20 },
+    y: { domain: [elements / 2, -elements / 2], padding: 20 },
   } as const;
 });
 </script>

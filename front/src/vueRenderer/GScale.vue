@@ -6,6 +6,7 @@
       v-if="$slots.default"
     ></slot>
     <PixiLine
+      v-if="!noLines"
       v-for="line of scaleData.allLines"
       :x0="line.from[0]"
       :y0="line.from[1]"
@@ -38,7 +39,9 @@ const props = defineProps<{
   yData: ScaleData;
   ticks?: number;
   nDomain?: number;
+  noLines?: boolean;
 }>();
+
 const scaleData = computed(() => {
   const yPadding = props.yData.padding ?? 0;
   const xPadding = props.xData.padding ?? 0;
@@ -76,8 +79,6 @@ const scaleData = computed(() => {
     arrDomain,
   };
 });
-
-watchEffect(() => console.log(scaleData.value.scaleXY));
 
 function scaleAlpha(s: d3.ScaleLinear<number, number>) {
   const [d1, d2] = s.domain();
