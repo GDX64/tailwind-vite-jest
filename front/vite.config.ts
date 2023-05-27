@@ -51,7 +51,7 @@ export default (args) => {
       host: true,
     },
     build: {
-      sourcemap: false,
+      sourcemap: true,
     },
     resolve: {
       alias: {

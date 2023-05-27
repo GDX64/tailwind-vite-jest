@@ -1,6 +1,6 @@
 <template>
   <pgraphics ref="g">
-    <slot></slot>
+    <slot v-if="$slots.default"></slot>
   </pgraphics>
 </template>
 

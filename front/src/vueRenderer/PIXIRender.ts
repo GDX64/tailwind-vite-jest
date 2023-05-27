@@ -4,11 +4,10 @@ import { PIXIEL } from './interfaces';
 
 function appRenderer(canvas: HTMLCanvasElement) {
   const { createApp } = createRenderer<PIXI.Container, PIXI.Container>({
-    createComment(text) {
-      return new PIXI.Text(text);
+    createComment() {
+      return new PIXI.Container();
     },
     createElement(type, isSVG, isCustomizedBuiltIn, vnodeProps) {
-      console.log(type);
       switch (type) {
         case PIXIEL.GRAPHICS:
           return new PIXI.Graphics();
@@ -19,6 +18,7 @@ function appRenderer(canvas: HTMLCanvasElement) {
       }
     },
     createText(text) {
+      console.log('create text');
       return new PIXI.Text(text);
     },
     insert(el, parent, anchor) {

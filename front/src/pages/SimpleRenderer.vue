@@ -1,61 +1,64 @@
 <template>
-  <div class="w-full px-4">
-    <input
-      type="range"
-      class="w-full"
-      :min="0"
-      :max="50"
-      step="1"
-      v-model.number="range"
-    />
+  <div class="w-full px-4 flex flex-col text-base font-bold">
+    <div class="flex flex-col">
+      <div class="whitespace-nowrap mr-2">phase: {{ phase }}</div>
+      <input
+        type="range"
+        class="w-full"
+        :min="0"
+        :max="1"
+        step="0.01"
+        v-model.number="phase"
+      />
+    </div>
+    <div class="flex flex-col">
+      <div class="w-max whitespace-nowrap mr-2">frequency: {{ frequency }}Hz</div>
+      <input
+        type="range"
+        class="w-full"
+        :min="0"
+        :max="5"
+        step="0.1"
+        v-model.number="frequency"
+      />
+    </div>
   </div>
   <GStage ref="stage" class="w-full aspect-auto">
-    <template>
-      <pcontainer>
-        <GScale :x="scaleData.x" :y="scaleData.y"></GScale>
-        <PixiLine
-          :x0="0"
-          :y0="0"
-          :x1="200"
-          :y1="200"
-          :to="[300, 300]"
-          stroke="#ff0000"
-        ></PixiLine>
-        <PixiSquare
-          v-for="el of range"
-          :x="el * 4"
-          :y="Math.sin(time / 1000 + el) * 200 + 200"
-          :height="20"
-          :width="20"
-          fill="#00ffff"
-          stroke="#ff0000"
-        ></PixiSquare>
-      </pcontainer>
+    <template #default>
+      <GScale :x-data="scaleData.x" :y-data="scaleData.y">
+        <template #default="{ scaleXY: { x, y } }">
+          <PixiSquare
+            v-for="el of elements"
+            :x="x(el - 11)"
+            :y="y(10 * Math.sin((time * frequency * 2 * Math.PI) / 1000 + el * phase))"
+            :height="20"
+            :width="20"
+            fill="#00ffff"
+            stroke="#ff0000"
+          />
+        </template>
+      </GScale>
     </template>
   </GStage>
-  <div class="text-black">
-    {{ text }}
-  </div>
 </template>
 
 <script lang="ts" setup>
-import { faker } from '@faker-js/faker';
 import { computed, ref } from 'vue';
 import GStage from '../vueRenderer/GStage.vue';
-import PixiSquare from '../vueRenderer/BaseComponents/PixiSquare.vue';
 import { useElapsed } from '../utils/rxjsUtils';
-import PixiLine from '../vueRenderer/BaseComponents/PixiLine.vue';
 import GScale from '../vueRenderer/GScale.vue';
-const range = ref(0);
-const text = faker.lorem.paragraphs(10);
+import PixiSquare from '../vueRenderer/BaseComponents/PixiSquare.vue';
+const phase = ref(0);
 const time = useElapsed();
 const stage = ref<InstanceType<typeof GStage>>();
+const frequency = ref(1);
+
+const elements = 20;
 
 const scaleData = computed(() => {
-  const data = stage.value?.drawData;
   return {
-    x: { domain: [-10, 10], image: [0, data?.width ?? 100] },
-    y: { domain: [-10, 10], image: [0, data?.height ?? 100] },
+    x: { domain: [-elements / 2, elements / 2], padding: 10 },
+    y: { domain: [-elements / 2, elements / 2], padding: 20 },
   } as const;
 });
 </script>

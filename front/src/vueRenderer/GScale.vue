@@ -1,6 +1,10 @@
 <template>
   <pcontainer>
-    <slot :scaleXY="scaleData.scaleXY" :arrDomain="scaleData.arrDomain"></slot>
+    <slot
+      :scaleXY="scaleData.scaleXY"
+      :arrDomain="scaleData.arrDomain"
+      v-if="$slots.default"
+    ></slot>
     <PixiLine
       v-for="line of scaleData.allLines"
       :x0="line.from[0]"
@@ -8,7 +12,7 @@
       :x1="line.to[0]"
       :y1="line.to[1]"
       stroke="black"
-    ></PixiLine>
+    />
   </pcontainer>
 </template>
 
@@ -21,23 +25,27 @@ import { useDrawData } from './UseDraw';
 
 type ScaleData = {
   domain: readonly [number, number];
-  image: readonly [number, number];
+  image?: readonly [number, number];
+  padding?: number;
 };
 
 const data = useDrawData();
-watchEffect(() => console.log(data.width));
 
 type Point2D = [number, number];
 
 const props = defineProps<{
-  x: ScaleData;
-  y: ScaleData;
+  xData: ScaleData;
+  yData: ScaleData;
   ticks?: number;
   nDomain?: number;
 }>();
 const scaleData = computed(() => {
-  const x = d3.scaleLinear(props.x.domain, props.x.image);
-  const y = d3.scaleLinear(props.y.domain, props.y.image);
+  const yPadding = props.yData.padding ?? 0;
+  const xPadding = props.xData.padding ?? 0;
+  const xImage = props.xData?.image ?? [xPadding, data.width - xPadding];
+  const yImage = props.yData?.image ?? [yPadding, data.height - yPadding];
+  const x = d3.scaleLinear(props.xData.domain, xImage);
+  const y = d3.scaleLinear(props.yData.domain, yImage);
   const scaleXY: ScaleXY = {
     x,
     y,
@@ -45,8 +53,8 @@ const scaleData = computed(() => {
     alphaY: scaleAlpha(y),
   };
 
-  const [initX, finalX] = props.x.domain;
-  const [initY, finalY] = props.y.domain;
+  const [initX, finalX] = props.xData.domain;
+  const [initY, finalY] = props.yData.domain;
   const xLine = { from: [x(initX), y(0)] as Point2D, to: [x(finalX), y(0)] as Point2D };
   const yLine = { from: [x(0), y(initY)] as Point2D, to: [x(0), y(finalY)] as Point2D };
   const xTicks = x.ticks(props.ticks ?? 5).map((num) => {
@@ -68,6 +76,8 @@ const scaleData = computed(() => {
     arrDomain,
   };
 });
+
+watchEffect(() => console.log(scaleData.value.scaleXY));
 
 function scaleAlpha(s: d3.ScaleLinear<number, number>) {
   const [d1, d2] = s.domain();

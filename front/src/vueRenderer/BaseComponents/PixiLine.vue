@@ -1,5 +1,5 @@
 <template>
-  <pgraphics ref="g"> </pgraphics>
+  <pgraphics ref="g" />
 </template>
 
 <script setup lang="ts">

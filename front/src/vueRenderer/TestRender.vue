@@ -10,8 +10,8 @@
   >
   </rect>
   <GScale
-    :x="{ domain: [-10, 10], image: [10, drawData.width - 10] }"
-    :y="{ domain: [-10, 10], image: [drawData.height - 10, 10] }"
+    :x-data="{ domain: [-10, 10], image: [10, drawData.width - 10] }"
+    :y-data="{ domain: [-10, 10], image: [drawData.height - 10, 10] }"
     :ticks="5"
     :nDomain="range"
   >
