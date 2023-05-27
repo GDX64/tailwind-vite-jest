@@ -1,24 +1,32 @@
-import { configDefaults } from 'vitest/config';
+import { UserConfig, configDefaults } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
 import glsl from 'vite-plugin-glsl';
 import svgLoader from 'vite-svg-loader';
-import { defineConfig } from 'vite';
 import auto from 'autoprefixer';
 import tailwind from 'tailwindcss';
 import solidPlugin from 'vite-plugin-solid';
 import path from 'path';
 
 // https://vitejs.dev/config/
-export default defineConfig((args) => {
-  return {
+export default (args) => {
+  const conifg: UserConfig = {
     plugins: [
       vue({
         template: {
           compilerOptions: {
-            isCustomElement: (el) => ['scale', 'rect', 'group', 'gline'].includes(el),
+            isCustomElement: (el) =>
+              [
+                'scale',
+                'rect',
+                'group',
+                'gline',
+                'pgraphics',
+                'pcontainer',
+                'ptext',
+              ].includes(el),
           },
         },
-      }) /*checker({ typescript: true }) */,
+      }),
       glsl(),
       svgLoader(),
       solidPlugin({
@@ -52,7 +60,9 @@ export default defineConfig((args) => {
       },
     },
   };
-});
+
+  return conifg;
+};
 
 function getCssConfig(mode: string) {
   if (mode === 'test') {

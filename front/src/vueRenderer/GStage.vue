@@ -12,13 +12,14 @@ import {
   onMounted,
   computed,
   watchEffect,
+  useSlots,
 } from 'vue';
-import { createRoot } from './RealRenderer';
-const canvasEl = ref<HTMLCanvasElement>();
-const props = defineProps<{ comp: Component; props: any }>();
+import { createRoot } from './PIXIRender';
 
+const canvasEl = ref<HTMLCanvasElement>();
+const slots = useSlots();
 const rootApp = computed(() =>
-  canvasEl.value ? createRoot(canvasEl.value, props.comp, props.props, drawData) : null
+  canvasEl.value ? createRoot(canvasEl.value, slots.default!, drawData) : null
 );
 
 const drawData = reactive({
@@ -26,6 +27,8 @@ const drawData = reactive({
   height: 0,
   isVisible: true,
 });
+
+defineExpose({ drawData });
 
 watch(rootApp, (app, __, clear) => {
   clear(() => app?.destroy());

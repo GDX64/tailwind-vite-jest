@@ -4,7 +4,6 @@ import { ChartType, ScaleXY } from './interfaces';
 import Rough from 'roughjs';
 import { RoughGenerator } from 'roughjs/bin/generator';
 import { Drawable, Op, Options } from 'roughjs/bin/core';
-import * as d3 from 'd3';
 
 function appRenderer(canvas: HTMLCanvasElement) {
   const shapes = new WeakMap<any, BasicShape>();
@@ -81,12 +80,7 @@ function appRenderer(canvas: HTMLCanvasElement) {
   return { createApp };
 }
 
-export function createRoot(
-  canvas: HTMLCanvasElement,
-  comp: Component,
-  props: any,
-  injected: any
-) {
+export function createRoot(canvas: HTMLCanvasElement, comp: Component, injected: any) {
   const pApp = new PIXI.Application({
     view: canvas,
     backgroundColor: 0xffffff,
@@ -94,7 +88,7 @@ export function createRoot(
     resolution: devicePixelRatio,
     resizeTo: canvas,
   });
-  const app = appRenderer(canvas).createApp(() => h(comp, props));
+  const app = appRenderer(canvas).createApp(() => h(comp));
   app.provide('drawData', injected);
   app.mount(pApp.stage);
   return {
