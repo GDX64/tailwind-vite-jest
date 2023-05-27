@@ -15,7 +15,6 @@ const routes = [
   { path: '/layers', component: () => import('./pages/Layers.vue') },
   { path: '/solid', component: () => import('./pages/Solid.vue') },
   { path: '/lua', component: () => import('./pages/LuaEmb.vue') },
-  { path: '/marverick', component: () => import('./pages/Marverick.vue') },
   { path: '/noise', component: () => import('./pages/Noise/PerlinNoise.vue') },
   { path: '/bench', component: () => import('./pages/Benchmark.vue') },
   { path: '/roughSimple', component: () => import('./pages/SimpleRenderer.vue') },
