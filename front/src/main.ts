@@ -16,7 +16,6 @@ const routes = [
   { path: '/solid', component: () => import('./pages/Solid.vue') },
   { path: '/lua', component: () => import('./pages/LuaEmb.vue') },
   { path: '/noise', component: () => import('./pages/Noise/PerlinNoise.vue') },
-  { path: '/bench', component: () => import('./pages/Benchmark.vue') },
   { path: '/roughSimple', component: () => import('./pages/SimpleRenderer.vue') },
   { path: '/dom', component: () => import('./pages/PixiDOM/PixiDOM.vue') },
   { path: '/workerdraw', component: () => import('./pages/WorkerDraw/WorkerDraw.vue') },

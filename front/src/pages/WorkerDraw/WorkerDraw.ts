@@ -1,4 +1,4 @@
-import PixiSquare from '../../vueRenderer/BaseComponents/PixiSquare.vue';
 import { exposeComponent } from '../../vueRenderer/WorkerExpose';
+import DrawExample from './DrawExample.vue';
 
-exposeComponent(PixiSquare);
+exposeComponent(DrawExample);

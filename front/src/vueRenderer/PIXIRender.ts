@@ -1,4 +1,4 @@
-import { createRenderer, Component } from 'vue';
+import { createRenderer, Component, markRaw } from 'vue';
 import * as MainPIXI from 'pixi.js';
 import * as OffPixi from '@pixi/webworker';
 import { PIXIEL } from './interfaces';
@@ -94,7 +94,7 @@ export function createRoot(
     resizeTo: isWorker ? undefined : canvas,
   });
 
-  injected.app = pApp;
+  injected.app = markRaw(pApp);
   const app = appRenderer(canvas).createApp(comp).provide('drawData', injected);
   const instance = app.mount(pApp.stage);
   return {

@@ -1,6 +1,7 @@
 import { animationFrames, fromEvent, Observable, scan, switchMap, takeUntil } from 'rxjs';
 import { onUnmounted, ref } from 'vue';
 import { useDrawData } from '../vueRenderer/UseDraw';
+import { Ticker } from 'pixi.js';
 
 export function useDrag(start: Observable<any>, pos = ref([0, 0] as [number, number])) {
   const sub = start
@@ -33,4 +34,14 @@ export function useElapsed(time = ref(0)) {
   });
   onUnmounted(() => sub.unsubscribe());
   return time;
+}
+
+export function useAnimation(fn: (ticker: Ticker) => void) {
+  const data = useDrawData();
+  const ticker = data.app?.ticker;
+  if (ticker) {
+    const cb = () => fn(ticker as Ticker);
+    ticker.add(cb);
+    onUnmounted(() => ticker.remove(cb));
+  }
 }
