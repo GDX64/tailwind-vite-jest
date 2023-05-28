@@ -18,7 +18,6 @@ function appRenderer(canvas: HTMLCanvasElement) {
       }
     },
     createText(text) {
-      console.log('text');
       return new PIXI.Text(text);
     },
     insert(el, parent, anchor) {

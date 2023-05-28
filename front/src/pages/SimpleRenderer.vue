@@ -25,7 +25,7 @@
         v-model.number="frequency"
       />
     </div>
-    <GStage class="w-full aspect-auto border border-black h-64" v-if="false">
+    <GStage class="w-full aspect-auto border border-black h-64">
       <template #default="{}">
         <GScale :x-data="scaleData.x" :y-data="scaleData.y">
           <template #default="{ scaleXY: { x, y, alphaX } }">
