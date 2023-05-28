@@ -17,7 +17,7 @@ export function createDrawData() {
     height: 0,
     isVisible: true,
     roughness: 1,
-    app: null as any as Application,
+    app: null as null | Application,
   };
 }
 

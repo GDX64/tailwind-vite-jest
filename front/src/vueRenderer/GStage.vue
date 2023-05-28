@@ -15,6 +15,7 @@ import {
 } from 'vue';
 import { createRoot } from './PIXIRender';
 import { createDrawData } from './UseDraw';
+import PixiSquare from './BaseComponents/PixiSquare.vue';
 
 const canvasEl = ref<HTMLCanvasElement>();
 const slots = useSlots();

@@ -19,6 +19,7 @@ const routes = [
   { path: '/bench', component: () => import('./pages/Benchmark.vue') },
   { path: '/roughSimple', component: () => import('./pages/SimpleRenderer.vue') },
   { path: '/dom', component: () => import('./pages/PixiDOM/PixiDOM.vue') },
+  { path: '/workerdraw', component: () => import('./pages/WorkerDraw/WorkerDraw.vue') },
   // { path: '/set', component: Set },
   // { path: '/Wordle', component: Wordle },
   // { path: '/hilbert', component: Hilbert },

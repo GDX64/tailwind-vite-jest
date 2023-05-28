@@ -1,7 +1,4 @@
-<script setup lang="ts">
-import { faker } from '@faker-js/faker';
-import BackGroundVue from './BackGround.vue';
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <div class="px-4 py-4">
@@ -12,6 +9,9 @@ import BackGroundVue from './BackGround.vue';
       </li>
       <li>
         <a class="text-sky-700 underline" href="/dom">Table draw</a>
+      </li>
+      <li>
+        <a class="text-sky-700 underline" href="/workerdraw">Worker draw</a>
       </li>
     </ul>
   </div>
