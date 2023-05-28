@@ -57,10 +57,10 @@ export function transformWorkerRoot<D extends { new (): Component; props?: any }
       const drawData = createDrawData();
       const obs = new ResizeObserver(() => {
         if (canvasEl.value) {
-          drawData.realWidth = canvasEl.value.width;
-          drawData.realHeight = canvasEl.value.height;
-          drawData.height = canvasEl.value.offsetHeight;
+          drawData.realHeight = canvasEl.value.offsetHeight * devicePixelRatio;
+          drawData.realWidth = canvasEl.value.offsetWidth * devicePixelRatio;
           drawData.width = canvasEl.value.offsetWidth;
+          drawData.height = canvasEl.value.offsetHeight;
           drawData.devicePixelRatio = devicePixelRatio;
         }
       });
@@ -80,7 +80,7 @@ export function transformWorkerRoot<D extends { new (): Component; props?: any }
       });
 
       watchPostEffect(() => {
-        sendMessages({ type: 'drawData', value: drawData });
+        sendMessages({ type: 'drawData', value: { ...drawData } });
       });
 
       return () => h('canvas', { ref: canvasEl });

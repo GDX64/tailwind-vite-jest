@@ -1,5 +1,5 @@
 import { Application } from 'pixi.js';
-import { inject, provide } from 'vue';
+import { inject, provide, reactive } from 'vue';
 
 export function provideData(drawData: {
   width: number;
@@ -10,7 +10,7 @@ export function provideData(drawData: {
 }
 
 export function createDrawData() {
-  return {
+  return reactive({
     realWidth: 0,
     realHeight: 0,
     width: 0,
@@ -19,7 +19,7 @@ export function createDrawData() {
     isVisible: true,
     roughness: 1,
     app: null as null | Application,
-  };
+  });
 }
 
 export function useDrawData() {

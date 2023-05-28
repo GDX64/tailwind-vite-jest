@@ -90,6 +90,9 @@ export function createRoot(
     backgroundColor: 0xffffff,
     antialias: true,
     resolution: injected.devicePixelRatio,
+    width: injected.width,
+    height: injected.height,
+    resizeTo: isWorker ? undefined : canvas,
   });
 
   injected.app = pApp;
