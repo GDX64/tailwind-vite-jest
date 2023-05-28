@@ -11,15 +11,6 @@ import {
 import GStage from './GStage.vue';
 import { DrawData, createDrawData } from './UseDraw';
 
-export function transformDrawRoot<D extends { new (): Component; props?: any }>(c: D): D {
-  return defineComponent({
-    props: c.props,
-    setup: (props) => {
-      return () => h(GStage, { comp: c, props });
-    },
-  }) as any;
-}
-
 export function transformWorkerRoot<D extends { new (): Component; props?: any }>(
   comp: D,
   WorkerConstructor: { new (): Worker },
