@@ -84,7 +84,6 @@ export function createRoot(
   comp: Component,
   injected: DrawData
 ) {
-  console.log(canvas);
   const pApp = new PIXI.Application({
     view: canvas,
     backgroundColor: 0xffffff,

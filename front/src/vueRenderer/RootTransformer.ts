@@ -38,7 +38,6 @@ export function transformWorkerRoot<D extends { new (): Component; props?: any }
         watch(
           () => propsRecord[key],
           (now) => {
-            console.log('sending message');
             sendMessages({ type: 'props', key, value: now });
           },
           { immediate: true }
