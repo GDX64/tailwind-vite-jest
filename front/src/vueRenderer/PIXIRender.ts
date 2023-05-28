@@ -1,14 +1,19 @@
 import { createRenderer, Component, markRaw } from 'vue';
-import * as MainPIXI from 'pixi.js';
-import * as OffPixi from '@pixi/webworker';
+import type { Application, Container, Graphics, Text } from 'pixi.js';
 import { PIXIEL } from './interfaces';
 import { DrawData } from './UseDraw';
 
 const isWorker = !self.devicePixelRatio;
-const PIXI = OffPixi;
 
-function appRenderer() {
-  const { createApp } = createRenderer<MainPIXI.Container, MainPIXI.Container>({
+type Pixi = {
+  Container: typeof Container;
+  Text: typeof Text;
+  Graphics: typeof Graphics;
+  Application: typeof Application;
+};
+
+function appRenderer(PIXI: Pixi) {
+  const { createApp } = createRenderer<Container, Container>({
     createComment() {
       return new PIXI.Container();
     },
@@ -83,7 +88,8 @@ function appRenderer() {
 export function createRoot(
   canvas: HTMLCanvasElement | OffscreenCanvas,
   comp: Component,
-  injected: DrawData
+  injected: DrawData,
+  PIXI: Pixi
 ) {
   const pApp = new PIXI.Application({
     view: canvas,
@@ -96,7 +102,7 @@ export function createRoot(
   });
 
   injected.app = markRaw(pApp);
-  const app = appRenderer().createApp(comp).provide('drawData', injected);
+  const app = appRenderer(PIXI).createApp(comp).provide('drawData', injected);
   const instance = app.mount(pApp.stage);
   return {
     destroy: () => {

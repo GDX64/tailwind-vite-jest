@@ -15,11 +15,12 @@ import {
 } from 'vue';
 import { createRoot } from './PIXIRender';
 import { createDrawData } from './UseDraw';
+import * as PIXI from 'pixi.js';
 
 const canvasEl = ref<HTMLCanvasElement>();
 const slots = useSlots();
 const rootApp = computed(() =>
-  canvasEl.value ? createRoot(canvasEl.value, slots.default!, drawData) : null
+  canvasEl.value ? createRoot(canvasEl.value, slots.default!, drawData, PIXI) : null
 );
 
 const drawData = reactive(createDrawData());
