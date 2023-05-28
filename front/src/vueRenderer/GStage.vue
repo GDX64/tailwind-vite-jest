@@ -5,11 +5,10 @@
 <script setup lang="ts">
 import {
   ref,
-  watch,
+  shallowRef,
   reactive,
   onUnmounted,
   onMounted,
-  computed,
   watchEffect,
   useSlots,
 } from 'vue';
@@ -19,17 +18,21 @@ import * as PIXI from 'pixi.js';
 
 const canvasEl = ref<HTMLCanvasElement>();
 const slots = useSlots();
-const rootApp = computed(() =>
-  canvasEl.value ? createRoot(canvasEl.value, slots.default!, drawData, PIXI) : null
-);
+const rootApp = shallowRef(makeApp());
+onMounted(() => {
+  rootApp.value = makeApp();
+});
+onUnmounted(() => rootApp.value?.destroy());
+
+function makeApp() {
+  return canvasEl.value
+    ? createRoot(canvasEl.value, slots.default!, drawData, PIXI)
+    : null;
+}
 
 const drawData = reactive(createDrawData());
 
 defineExpose({ drawData });
-
-watch(rootApp, (app, __, clear) => {
-  clear(() => app?.destroy());
-});
 
 watchEffect(() => {
   if (drawData.isVisible) {
