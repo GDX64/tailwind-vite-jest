@@ -2,6 +2,7 @@ import { createRenderer, Component } from 'vue';
 import * as MainPIXI from 'pixi.js';
 import * as OffPixi from '@pixi/webworker';
 import { PIXIEL } from './interfaces';
+import { DrawData } from './UseDraw';
 
 const isWorker = !self.devicePixelRatio;
 const PIXI = OffPixi;
@@ -81,27 +82,26 @@ function appRenderer(canvas: HTMLCanvasElement) {
 export function createRoot(
   canvas: HTMLCanvasElement | OffscreenCanvas,
   comp: Component,
-  injected: any
+  injected: DrawData
 ) {
   console.log(canvas);
   const pApp = new PIXI.Application({
     view: canvas,
-    height: 500,
-    width: 500,
     backgroundColor: 0xffffff,
     antialias: true,
-    resolution: self.devicePixelRatio ?? 1,
-    // resizeTo: canvas,
+    resolution: injected.devicePixelRatio,
   });
 
   injected.app = pApp;
   const app = appRenderer(canvas).createApp(comp).provide('drawData', injected);
-  app.mount(pApp.stage);
+  const instance = app.mount(pApp.stage);
   return {
     destroy: () => {
       app.unmount();
       pApp.destroy();
     },
     pApp,
+    app,
+    instance,
   };
 }

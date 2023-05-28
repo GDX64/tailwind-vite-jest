@@ -14,6 +14,7 @@ export function createDrawData() {
     realWidth: 0,
     realHeight: 0,
     width: 0,
+    devicePixelRatio: self.devicePixelRatio ?? 1,
     height: 0,
     isVisible: true,
     roughness: 1,
@@ -24,3 +25,5 @@ export function createDrawData() {
 export function useDrawData() {
   return inject('drawData', createDrawData());
 }
+
+export type DrawData = ReturnType<typeof createDrawData>;

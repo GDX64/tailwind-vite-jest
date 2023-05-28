@@ -1,5 +1,16 @@
-import { defineComponent, h, Component, watchEffect, watch, ref, onMounted } from 'vue';
+import {
+  defineComponent,
+  h,
+  Component,
+  watchEffect,
+  watch,
+  ref,
+  onMounted,
+  onUnmounted,
+  watchPostEffect,
+} from 'vue';
 import GStage from './GStage.vue';
+import { DrawData, createDrawData } from './UseDraw';
 
 export function transformDrawRoot<D extends { new (): Component; props?: any }>(c: D): D {
   return defineComponent({
@@ -21,27 +32,58 @@ export function transformWorkerRoot<D extends { new (): Component; props?: any }
       const sendMessages = (message: FromMainMessageKinds, transfer?: Transferable[]) =>
         worker.postMessage(message, transfer ?? []);
       const propsRecord = props as any;
-      const canvasRef = ref<HTMLCanvasElement>();
+      const canvasEl = ref<HTMLCanvasElement>();
 
       Object.keys(props).forEach((key) => {
         watch(
-          () => [propsRecord[key], canvasRef.value] as const,
-          ([now]) => {
+          () => propsRecord[key],
+          (now) => {
             console.log('sending message');
             sendMessages({ type: 'props', key, value: now });
           },
-          { flush: 'post' }
+          { immediate: true }
         );
       });
 
       onMounted(() => {
-        const offCanvas = canvasRef.value?.transferControlToOffscreen?.();
+        const offCanvas = canvasEl.value?.transferControlToOffscreen?.();
         if (offCanvas) {
-          sendMessages({ type: 'canvas', value: offCanvas }, [offCanvas]);
+          sendMessages({ type: 'canvas', value: offCanvas, devicePixelRatio }, [
+            offCanvas,
+          ]);
         }
       });
 
-      return () => h('canvas', { ref: canvasRef });
+      const drawData = createDrawData();
+      const obs = new ResizeObserver(() => {
+        if (canvasEl.value) {
+          drawData.realWidth = canvasEl.value.width;
+          drawData.realHeight = canvasEl.value.height;
+          drawData.height = canvasEl.value.offsetHeight;
+          drawData.width = canvasEl.value.offsetWidth;
+          drawData.devicePixelRatio = devicePixelRatio;
+        }
+      });
+
+      const intersect = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => (drawData.isVisible = entry.isIntersecting));
+      });
+
+      onMounted(() => {
+        intersect.observe(canvasEl.value!);
+        obs.observe(canvasEl.value!);
+      });
+
+      onUnmounted(() => {
+        obs.disconnect();
+        intersect.disconnect();
+      });
+
+      watchPostEffect(() => {
+        sendMessages({ type: 'drawData', value: drawData });
+      });
+
+      return () => h('canvas', { ref: canvasEl });
     },
   }) as any;
 }
@@ -55,4 +97,9 @@ export type FromMainMessageKinds =
   | {
       type: 'canvas';
       value: OffscreenCanvas;
+      devicePixelRatio: number;
+    }
+  | {
+      type: 'drawData';
+      value: DrawData;
     };
