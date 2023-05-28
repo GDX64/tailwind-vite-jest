@@ -7,7 +7,7 @@ import { DrawData } from './UseDraw';
 const isWorker = !self.devicePixelRatio;
 const PIXI = OffPixi;
 
-function appRenderer(canvas: HTMLCanvasElement) {
+function appRenderer() {
   const { createApp } = createRenderer<MainPIXI.Container, MainPIXI.Container>({
     createComment() {
       return new PIXI.Container();
@@ -64,6 +64,7 @@ function appRenderer(canvas: HTMLCanvasElement) {
     },
     remove(el) {
       el.parent?.removeChild(el);
+      el.destroy();
     },
     setElementText(node, text) {
       if (node instanceof PIXI.Text) {
@@ -95,7 +96,7 @@ export function createRoot(
   });
 
   injected.app = markRaw(pApp);
-  const app = appRenderer(canvas).createApp(comp).provide('drawData', injected);
+  const app = appRenderer().createApp(comp).provide('drawData', injected);
   const instance = app.mount(pApp.stage);
   return {
     destroy: () => {

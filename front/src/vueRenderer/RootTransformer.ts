@@ -2,7 +2,6 @@ import {
   defineComponent,
   h,
   Component,
-  watchEffect,
   watch,
   ref,
   onMounted,
@@ -22,11 +21,24 @@ export function transformDrawRoot<D extends { new (): Component; props?: any }>(
 }
 
 export function transformWorkerRoot<D extends { new (): Component; props?: any }>(
-  c: D,
-  WorkerConstructor: { new (): Worker }
+  comp: D,
+  WorkerConstructor: { new (): Worker },
+  main = false
 ): D {
+  if (main) {
+    return defineComponent({
+      props: comp.props,
+      setup: (props, ctx) => {
+        return () =>
+          h(GStage, null, {
+            default: () => h(comp, props),
+          });
+      },
+    }) as any;
+  }
+
   return defineComponent({
-    props: c.props,
+    props: comp.props,
     setup: (props, ctx) => {
       const worker = new WorkerConstructor();
       const sendMessages = (message: FromMainMessageKinds, transfer?: Transferable[]) =>

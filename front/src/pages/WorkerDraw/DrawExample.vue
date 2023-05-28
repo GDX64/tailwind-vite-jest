@@ -8,7 +8,7 @@
       :key="index"
       :x="x"
       :y="y"
-      fill="#ff0000"
+      fill="#ffff00"
     />
     <ptext :text="drawData.app?.ticker.FPS.toFixed(2)"></ptext>
   </pcontainer>
