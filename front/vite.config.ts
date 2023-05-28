@@ -10,23 +10,11 @@ import path from 'path';
 // https://vitejs.dev/config/
 export default (args) => {
   const conifg: UserConfig = {
+    worker: {
+      plugins: [makeVuePlugin()],
+    },
     plugins: [
-      vue({
-        template: {
-          compilerOptions: {
-            isCustomElement: (el) =>
-              [
-                'scale',
-                'rect',
-                'group',
-                'gline',
-                'pgraphics',
-                'pcontainer',
-                'ptext',
-              ].includes(el),
-          },
-        },
-      }),
+      makeVuePlugin(),
       glsl(),
       svgLoader(),
       solidPlugin({
@@ -69,4 +57,23 @@ function getCssConfig(mode: string) {
     return {};
   }
   return { postcss: { plugins: [auto(), tailwind()] } };
+}
+
+function makeVuePlugin() {
+  return vue({
+    template: {
+      compilerOptions: {
+        isCustomElement: (el) =>
+          [
+            'scale',
+            'rect',
+            'group',
+            'gline',
+            'pgraphics',
+            'pcontainer',
+            'ptext',
+          ].includes(el),
+      },
+    },
+  });
 }

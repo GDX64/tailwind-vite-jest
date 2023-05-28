@@ -1,16 +1,17 @@
 <template>
-  <PixiSquare
-    :cacheAsBitmap="true"
-    :height="20"
-    :width="20"
-    v-for="{ x, y, index } of squaresPos"
-    :key="index"
-    :x="x"
-    :y="y"
-    fill="#ff0000"
-  >
-  </PixiSquare>
-  <ptext :text="drawData.app?.ticker.FPS.toFixed(2)"></ptext>
+  <pcontainer>
+    <PixiSquare
+      :cacheAsBitmap="true"
+      :height="20"
+      :width="20"
+      v-for="{ x, y, index } of squaresPos"
+      :key="index"
+      :x="x"
+      :y="y"
+      fill="#ff0000"
+    />
+    <ptext :text="drawData.app?.ticker.FPS.toFixed(2)"></ptext>
+  </pcontainer>
 </template>
 
 <script setup lang="ts">
