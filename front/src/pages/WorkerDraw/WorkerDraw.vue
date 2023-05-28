@@ -8,6 +8,6 @@ import { ref } from 'vue';
 import { transformWorkerRoot } from '../../vueRenderer/RootTransformer';
 import Worker from './WorkerDraw?worker';
 import DrawExample from './DrawExample.vue';
-const Root = transformWorkerRoot(DrawExample, Worker, true);
-const range = ref(0);
+const Root = transformWorkerRoot(DrawExample, Worker, false);
+const range = ref(100);
 </script>
