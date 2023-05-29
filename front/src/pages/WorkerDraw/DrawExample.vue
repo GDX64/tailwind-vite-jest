@@ -2,8 +2,8 @@
   <pcontainer>
     <PixiSquare
       :cacheAsBitmap="true"
-      :height="20"
-      :width="20"
+      :height="size"
+      :width="size"
       v-for="{ x, y, index } of squaresPos"
       :key="index"
       :x="x"
@@ -21,7 +21,8 @@ import PixiSquare from '../../vueRenderer/BaseComponents/PixiSquare.vue';
 import { useDrawData } from '../../vueRenderer/UseDraw';
 
 const props = defineProps<{ squares: number }>();
-const time = useElapsed();
+
+const size = 20;
 const drawData = useDrawData();
 const squaresPos = computed(() => {
   return [...Array(props.squares)].map((_, index) => {
@@ -34,12 +35,13 @@ const squaresPos = computed(() => {
     });
   });
 });
+
 useAnimation((ticker) => {
   const dt = ticker.deltaMS / 1000;
   squaresPos.value.forEach((square) => {
-    if (square.x > drawData.width) {
+    if (square.x > drawData.width - size) {
       square.vx *= -1;
-      square.x = drawData.width;
+      square.x = drawData.width - size;
     }
     if (square.x < 0) {
       square.vx *= -1;
@@ -49,9 +51,9 @@ useAnimation((ticker) => {
       square.vy *= -1;
       square.y = 0;
     }
-    if (square.y > drawData.height) {
+    if (square.y > drawData.height - size) {
       square.vy *= -1;
-      square.y = drawData.height;
+      square.y = drawData.height - size;
     }
     square.x += square.vx * dt;
     square.y += square.vy * dt;
