@@ -17,6 +17,7 @@ export function createDrawData() {
     devicePixelRatio: self.devicePixelRatio ?? 1,
     height: 0,
     isVisible: true,
+    isPageActive: true,
     roughness: 1,
     app: null as null | Application,
   });

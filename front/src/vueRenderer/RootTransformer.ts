@@ -67,8 +67,16 @@ export function transformWorkerRoot<D extends { new (): Component; props?: any }
         }
       });
 
+      const pageActive = () => {
+        drawData.isPageActive = document.visibilityState === 'visible';
+      };
+      document.addEventListener('visibilitychange', pageActive);
+      onUnmounted(() => document.removeEventListener('visibilitychange', pageActive));
+
       const intersect = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => (drawData.isVisible = entry.isIntersecting));
+        entries.forEach((entry) => {
+          drawData.isVisible = entry.isIntersecting;
+        });
       });
 
       onMounted(() => {

@@ -34,6 +34,13 @@ export function exposeComponent(comp: Component) {
                   );
                 }
               });
+              watchEffect(() => {
+                if (drawData.isVisible && drawData.isPageActive) {
+                  drawData.app?.ticker.start();
+                } else {
+                  drawData.app?.ticker.stop();
+                }
+              });
               return () => h(comp, props);
             },
           }),
