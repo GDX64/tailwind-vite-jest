@@ -65,7 +65,14 @@ function appRenderer(PIXI: Pixi) {
       unmountChildren
     ) {
       if (!el) return;
-      (el as any)[key] = nextValue;
+      if (key.startsWith('on')) {
+        console.log(key, nextValue);
+        el.interactive = true;
+        el.eventMode = 'static';
+        (el as any)[key.toLocaleLowerCase()] = nextValue;
+      } else {
+        (el as any)[key] = nextValue;
+      }
     },
     remove(el) {
       el.parent?.removeChild(el);

@@ -6,14 +6,14 @@
 import {
   ref,
   shallowRef,
-  reactive,
   onUnmounted,
   onMounted,
   watchEffect,
   useSlots,
+  PropType,
 } from 'vue';
 import { createRoot } from './PIXIRender';
-import { createDrawData } from './UseDraw';
+import { DrawData, createDrawData } from './UseDraw';
 import * as PIXI from 'pixi.js';
 
 const canvasEl = ref<HTMLCanvasElement>();
@@ -24,15 +24,17 @@ onMounted(() => {
 });
 onUnmounted(() => rootApp.value?.destroy());
 
+const props = defineProps({
+  drawData: { type: Object as PropType<DrawData>, default: () => createDrawData() },
+});
+
 function makeApp() {
   return canvasEl.value
-    ? createRoot(canvasEl.value, slots.default!, drawData, PIXI)
+    ? createRoot(canvasEl.value, slots.default!, props.drawData, PIXI)
     : null;
 }
 
-const drawData = reactive(createDrawData());
-
-defineExpose({ drawData });
+const drawData = props.drawData;
 
 watchEffect(() => {
   if (drawData.isVisible) {

@@ -13,6 +13,9 @@
       <li>
         <a class="text-sky-700 underline" href="/workerdraw">Worker draw</a>
       </li>
+      <li>
+        <a class="text-sky-700 underline" href="/dsp">dsp</a>
+      </li>
     </ul>
   </div>
 </template>

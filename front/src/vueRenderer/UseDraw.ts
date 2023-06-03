@@ -1,5 +1,6 @@
 import { Application } from 'pixi.js';
 import { inject, provide, reactive } from 'vue';
+import { ScaleXY } from './interfaces';
 
 export function provideData(drawData: {
   width: number;
@@ -7,6 +8,22 @@ export function provideData(drawData: {
   isVisible: boolean;
 }) {
   provide('drawData', drawData);
+}
+
+export function provideScale(scaleData: { scale: ScaleXY }) {
+  provide('scaleData', scaleData);
+}
+
+export function useScaleData() {
+  const scaleData: { scale: ScaleXY } = {
+    scale: {
+      alphaX: 1,
+      alphaY: 1,
+      x: (value) => value,
+      y: (value) => value,
+    },
+  };
+  return inject('scaleData', scaleData);
 }
 
 export function createDrawData() {
