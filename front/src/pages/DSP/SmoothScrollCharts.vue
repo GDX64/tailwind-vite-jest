@@ -22,7 +22,7 @@ import { Subject } from 'rxjs';
 import { FederatedPointerEvent } from 'pixi.js';
 import { useAnimation, useDrag } from '../../utils/rxjsUtils';
 
-const points = ref(Array<number>(60).fill(0));
+const points = ref([] as number[]);
 
 const pointerDown$ = new Subject<FederatedPointerEvent>();
 
