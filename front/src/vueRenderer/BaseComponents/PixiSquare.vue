@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { Graphics } from 'pixi.js';
+import { Graphics, Rectangle } from 'pixi.js';
 import { shallowRef, watchEffect } from 'vue';
 import { rgen, toPixiGraphic } from './RoughInterop';
 import { useDrawData } from '../UseDraw';
@@ -35,5 +35,6 @@ watchEffect(() => {
   });
   g.value.clear();
   toPixiGraphic(data, g.value);
+  g.value.hitArea = new Rectangle(0, 0, props.width, props.height);
 });
 </script>

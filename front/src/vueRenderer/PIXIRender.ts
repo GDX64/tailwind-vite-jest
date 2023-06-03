@@ -66,7 +66,6 @@ function appRenderer(PIXI: Pixi) {
     ) {
       if (!el) return;
       if (key.startsWith('on')) {
-        console.log(key, nextValue);
         el.interactive = true;
         el.eventMode = 'static';
         (el as any)[key.toLocaleLowerCase()] = nextValue;

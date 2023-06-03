@@ -1,14 +1,30 @@
-import { animationFrames, fromEvent, Observable, scan, switchMap, takeUntil } from 'rxjs';
+import {
+  animationFrames,
+  fromEvent,
+  Observable,
+  scan,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs';
 import { onUnmounted, ref } from 'vue';
-import { useDrawData } from '../vueRenderer/UseDraw';
+import { DrawData, useDrawData } from '../vueRenderer/UseDraw';
 import { Ticker } from 'pixi.js';
 
 export function useDrag(start: Observable<any>, pos = ref([0, 0] as [number, number])) {
+  const isDragging = ref(false);
   const sub = start
     .pipe(
       switchMap(() => {
-        console.log('down');
         return fromEvent<PointerEvent>(window, 'pointermove').pipe(
+          tap({
+            subscribe() {
+              isDragging.value = true;
+            },
+            finalize() {
+              isDragging.value = false;
+            },
+          }),
           scan(
             (acc, value) =>
               [acc[0] + value.movementX, acc[1] + value.movementY] as [number, number],
@@ -22,7 +38,7 @@ export function useDrag(start: Observable<any>, pos = ref([0, 0] as [number, num
       pos.value = value;
     });
   onUnmounted(() => sub.unsubscribe());
-  return pos;
+  return { pos, isDragging };
 }
 
 export function useElapsed(time = ref(0)) {
@@ -36,8 +52,8 @@ export function useElapsed(time = ref(0)) {
   return time;
 }
 
-export function useAnimation(fn: (ticker: Ticker) => void) {
-  const data = useDrawData();
+export function useAnimation(fn: (ticker: Ticker) => void, drawData?: DrawData) {
+  const data = drawData ?? useDrawData();
   const ticker = data.app?.ticker;
   if (ticker) {
     const cb = () => fn(ticker as Ticker);

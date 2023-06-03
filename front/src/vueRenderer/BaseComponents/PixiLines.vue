@@ -20,8 +20,9 @@ watchEffect(() => {
   const scaledPoints = props.points.map(
     ([xPoint, yPoint]) => [x(xPoint), y(yPoint)] as [number, number]
   );
-  const data = rgen.curve(scaledPoints, {
+  const data = rgen.linearPath(scaledPoints, {
     stroke: props.stroke,
+    roughness: 0,
   });
   g.value.clear();
   toPixiGraphic(data, g.value);

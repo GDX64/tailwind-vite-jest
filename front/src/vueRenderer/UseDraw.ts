@@ -2,11 +2,7 @@ import { Application } from 'pixi.js';
 import { inject, provide, reactive } from 'vue';
 import { ScaleXY } from './interfaces';
 
-export function provideData(drawData: {
-  width: number;
-  height: number;
-  isVisible: boolean;
-}) {
+export function provideData(drawData: DrawData) {
   provide('drawData', drawData);
 }
 
