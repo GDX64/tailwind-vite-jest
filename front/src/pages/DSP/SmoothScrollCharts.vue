@@ -22,20 +22,32 @@ import { Subject } from 'rxjs';
 import { FederatedPointerEvent } from 'pixi.js';
 import { useAnimation, useDrag } from '../../utils/rxjsUtils';
 
+const props = defineProps<{
+  estimatorConst?: {
+    new (): {
+      onPositionChange(pos: number, deltaT: number): void;
+      getSpeed(): number;
+    };
+  };
+}>();
+
+const estimator = computed(() => {
+  return props.estimatorConst ? new props.estimatorConst() : null;
+});
+
 const points = ref([] as number[]);
-
 const pointerDown$ = new Subject<FederatedPointerEvent>();
-
 const { pos, isDragging } = useDrag(pointerDown$);
 const speed = ref([] as number[]);
 
 const drawData = useDrawData();
 useAnimation((ticker) => {
-  if (isDragging.value) {
+  if (isDragging.value && estimator.value) {
+    estimator.value.onPositionChange(pos.value[0], ticker.deltaMS);
+    speed.value.push(estimator.value.getSpeed());
     points.value.push(pos.value[0]);
-    points.value = points.value.slice(-60);
-    speed.value.push(differentiateSignal(points.value, speed.value));
     speed.value = speed.value.slice(-60);
+    points.value = points.value.slice(-60);
   }
 });
 
@@ -47,20 +59,6 @@ function indexedPoints(x: number[]) {
   return x.map((x, i) => [i, x] as [number, number]);
 }
 
-function differentiateSignal(position: number[], speed: number[]): number {
-  const b = [0.1];
-  const a = [0.9];
-  const i = position.length - 1;
-  let result = 0;
-  b.forEach((coef, coefIndex) => {
-    result += coef * (position[i - coefIndex] ?? 0);
-  });
-  a.forEach((coef, coefIndex) => {
-    result += coef * (speed[i - coefIndex] ?? 0);
-  });
-  return result;
-}
-
 const scaleParams = computed(() => {
   return {
     x: { padding: 10, domain: [-5, 60] as const },
@@ -70,4 +68,18 @@ const scaleParams = computed(() => {
     },
   };
 });
+
+// function differentiateSignal(position: number[], speed: number[]): number {
+//   const b = [0.1];
+//   const a = [0.9];
+//   const i = position.length - 1;
+//   let result = 0;
+//   b.forEach((coef, coefIndex) => {
+//     result += coef * (position[i - coefIndex] ?? 0);
+//   });
+//   a.forEach((coef, coefIndex) => {
+//     result += coef * (speed[i - coefIndex] ?? 0);
+//   });
+//   return result;
+// }
 </script>
