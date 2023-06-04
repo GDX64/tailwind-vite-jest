@@ -25,7 +25,7 @@ const drawData = useDrawData();
 drawData.roughness = 1;
 const graphics = ref<Graphics>();
 const height = 50;
-const pos = useDrag(fromEvent(window, 'pointerdown'));
+const { pos } = useDrag(fromEvent(window, 'pointerdown'));
 const colsize = computed(() => (drawData.width - 10) / 3);
 const time = useElapsed();
 
