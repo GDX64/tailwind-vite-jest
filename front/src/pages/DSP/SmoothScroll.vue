@@ -1,8 +1,6 @@
 <template>
-  <div
-    class="flex flex-wrap px-4 overflow-y-scroll overflow-x-hidden h-full w-full justify-center"
-  >
-    <div class="grow shrink-0 basis-[400px]">
+  <div class="flex flex-wrap px-4 overflow-y-scroll overflow-x-hidden h-full w-full">
+    <div class="grow shrink-0 basis-[300px] overflow-hidden">
       <div ref="editorRef" class="w-full"></div>
       <button
         class="bg-green-300 rounded-md h-6 px-2 active:bg-green-200 my-2"

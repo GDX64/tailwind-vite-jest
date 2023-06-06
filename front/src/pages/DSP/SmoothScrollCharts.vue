@@ -48,7 +48,7 @@ const props = defineProps<{
   estimatorConst?: EstimatorConstructor;
 }>();
 const drawData = useDrawData();
-const squareSize = 30;
+const squareSize = 40;
 const maxSamples = 120;
 const estimator = computed(() => {
   if (props.estimatorConst) {
