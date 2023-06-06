@@ -8,7 +8,7 @@
         :x="scaleXY.x(maxSamples) - 20"
         :ref="speedScale"
       ></ptext>
-      <PixiLines :points="estimatedSpeed" stroke="#ff0000" />
+      <PixiLines :points="indexedPoints(speed)" stroke="#ff0000" />
     </template>
   </GScale>
   <GScale :x-data="scaleParams.x" :y-data="scaleParams.yPos">
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watchEffect } from 'vue';
+import { computed, onUpdated, ref, watchEffect } from 'vue';
 import PixiLines from '../../vueRenderer/BaseComponents/PixiLines.vue';
 import GScale from '../../vueRenderer/GScale.vue';
 import { useDrawData } from '../../vueRenderer/UseDraw';
@@ -78,12 +78,13 @@ useAnimation((ticker) => {
   }
 });
 
-const estimatedSpeed = computed(() => {
-  return indexedPoints(speed.value);
-});
-
 function indexedPoints(x: number[]) {
-  return x.map((x, i) => [i, x] as [number, number]);
+  return function* () {
+    const N = x.length;
+    for (let i = 0; i < N; i++) {
+      yield [i, x[i]] as [number, number];
+    }
+  };
 }
 
 const scaleParams = computed(() => {

@@ -7,24 +7,28 @@ import { Graphics } from 'pixi.js';
 import { shallowRef, watchEffect } from 'vue';
 import { rgen, toPixiGraphic } from './RoughInterop';
 import { useScaleData } from '../UseDraw';
+
 const props = defineProps<{
-  points: [number, number][];
+  points: () => Generator<[number, number]>;
   stroke?: string;
 }>();
 const g = shallowRef<Graphics>();
 const scaleData = useScaleData();
 
 watchEffect(() => {
-  if (!g.value || props.points.length < 2) return;
+  const points = [...props.points()];
+  if (!g.value || points.length < 2) return;
   const { x, y } = scaleData.scale;
-  const scaledPoints = props.points.map(
+  const scaledPoints = points.map(
     ([xPoint, yPoint]) => [x(xPoint), y(yPoint)] as [number, number]
   );
-  const data = rgen.linearPath(scaledPoints, {
-    stroke: props.stroke,
-    roughness: 0,
-  });
   g.value.clear();
-  toPixiGraphic(data, g.value);
+  const first = scaledPoints[0];
+  const N = scaledPoints.length;
+  g.value.lineStyle({ color: props.stroke, width: 1 });
+  g.value.moveTo(first[0], first[1]);
+  for (let i = 1; i < N; i++) {
+    g.value.lineTo(scaledPoints[i][0], scaledPoints[i][1]);
+  }
 });
 </script>
