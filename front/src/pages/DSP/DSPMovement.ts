@@ -1,8 +1,8 @@
 import { clamp } from 'ramda';
 
-export function speedMomentum(target: number, deltaT: number, speedNow: number) {
+export function speedMomentum(target: number, speedNow: number, damping: number) {
   const error = target - speedNow;
-  return target - error * 0.95;
+  return target - error * damping;
 }
 
 export enum SquareStates {
@@ -14,6 +14,7 @@ export type EstimatorConstructor = {
   new (): {
     onPositionChange(pos: number, deltaT: number): void;
     getSpeed(): number;
+    getDamping(): number;
   };
 };
 
@@ -48,7 +49,7 @@ export class DragSquare {
   }
 
   onTick(dt: number) {
-    this.speedNow = speedMomentum(0, dt, this.speedNow);
+    this.speedNow = speedMomentum(0, this.speedNow, this.estimator.getDamping());
     this.position = this.speedNow * dt + this.position;
     this.reflectSpeed();
     this.clampPosition();

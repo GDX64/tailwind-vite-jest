@@ -17,7 +17,7 @@
         :text="tick.toFixed(0)"
         v-for="tick of ticks.y"
         :y="scaleXY.y(tick)"
-        :x="scaleXY.x(0)"
+        :x="scaleXY.x(0) + 5"
         :ref="blackScale"
       ></ptext>
       <PixiLines :points="indexedPoints(points)" />
@@ -28,6 +28,7 @@
     :width="squareSize"
     :height="squareSize"
     :x="pos[0]"
+    :y="3"
     fill="#ff0000"
   ></PixiSquare>
 </template>
@@ -105,6 +106,7 @@ function blackScale(_text: any) {
   if (!_text) return;
   const text = _text as Text;
   text.style.fontSize = 12;
+  text.style.textBaseline = 'bottom';
 }
 function speedScale(_text: any) {
   if (!_text) return;

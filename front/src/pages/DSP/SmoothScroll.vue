@@ -1,5 +1,7 @@
 <template>
-  <div class="flex flex-wrap px-2 overflow-hidden w-full justify-center">
+  <div
+    class="flex flex-wrap px-4 overflow-y-scroll overflow-x-hidden h-full w-full justify-center"
+  >
     <div class="grow shrink-0 basis-[400px]">
       <div ref="editorRef" class="w-full"></div>
       <button
@@ -15,7 +17,7 @@
         Reset
       </button>
     </div>
-    <GStage class="grow w-full max-w-md aspect-square">
+    <GStage class="grow w-full max-w-2xl aspect-square">
       <template #default>
         <SmoothScrollCharts :estimatorConst="Estimator" />
       </template>
@@ -41,11 +43,18 @@ export default class Estimator{
     this.lastPos = 0;
   }
   
+  //Do not remove this method
   onPositionChange(pos, deltaT){
-    this.speed = (pos - this.lastPos)*25 / deltaT;
+    this.speed = (pos - this.lastPos) / deltaT;
     this.lastPos=pos;
   }
   
+  //Do not remove this method
+  getDamping(){
+    return 0.99
+  }
+  
+  //Do not remove this method
   getSpeed(){
     return this.speed
   }
