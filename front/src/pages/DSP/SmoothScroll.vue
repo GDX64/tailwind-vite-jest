@@ -15,7 +15,7 @@
         Reset
       </button>
     </div>
-    <GStage class="grow w-full max-w-2xl aspect-square">
+    <GStage class="grow w-full max-w-xl aspect-square">
       <template #default>
         <SmoothScrollCharts :estimatorConst="Estimator" />
       </template>

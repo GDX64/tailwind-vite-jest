@@ -9,6 +9,15 @@
         :ref="speedScale"
       ></ptext>
       <PixiLines :points="indexedPoints(speed)" stroke="#ff0000" />
+      <PixiLine
+        :x0="0"
+        :x1="maxSamples"
+        :y0="0"
+        :y1="0"
+        use-scale
+        :stroke="'#571d1d'"
+        :opacity="0.4"
+      ></PixiLine>
     </template>
   </GScale>
   <GScale :x-data="scaleParams.x" :y-data="scaleParams.yPos">
@@ -24,12 +33,18 @@
     </template>
   </GScale>
   <PixiSquare
-    @pointerdown="pointerDown$.next($event)"
     :width="squareSize"
     :height="squareSize"
-    :x="pos[0]"
-    :y="3"
+    :y="pos[1]"
+    :x="3"
     fill="#ff0000"
+  ></PixiSquare>
+  <PixiSquare
+    @pointerdown="pointerDown$.next($event)"
+    :width="drawData.width - 2"
+    :height="drawData.height - 2"
+    :x="1"
+    :y="1"
   ></PixiSquare>
 </template>
 
@@ -43,12 +58,13 @@ import { Subject } from 'rxjs';
 import { FederatedPointerEvent, Text } from 'pixi.js';
 import { useAnimation, useDrag } from '../../utils/rxjsUtils';
 import { DragSquare, EstimatorConstructor } from './DSPMovement';
+import PixiLine from '../../vueRenderer/BaseComponents/PixiLine.vue';
 
 const props = defineProps<{
   estimatorConst?: EstimatorConstructor;
 }>();
 const drawData = useDrawData();
-const squareSize = 40;
+const squareSize = 30;
 const maxSamples = 120;
 const estimator = computed(() => {
   if (props.estimatorConst) {
@@ -65,14 +81,14 @@ const maxEverSpeed = ref(5);
 useAnimation((ticker) => {
   if (!estimator.value) return;
   if (isDragging.value) {
-    estimator.value.drag(pos.value[0], ticker.deltaMS);
+    estimator.value.drag(pos.value[1], ticker.deltaMS);
   } else {
     estimator.value.onTick(ticker.deltaMS);
   }
-  pos.value[0] = estimator.value.position;
+  pos.value[1] = estimator.value.position;
   maxEverSpeed.value = Math.max(maxEverSpeed.value, Math.abs(estimator.value.getSpeed()));
   speed.value.push(estimator.value.getSpeed());
-  points.value.push(pos.value[0]);
+  points.value.push(pos.value[1]);
   if (points.value.length > maxSamples) {
     speed.value.shift();
     points.value.shift();
@@ -90,10 +106,10 @@ function indexedPoints(x: number[]) {
 
 const scaleParams = computed(() => {
   return {
-    x: { padding: 10, domain: [-5, maxSamples] as const },
+    x: { domain: [-5, maxSamples] as const, image: [35, drawData.width - 10] },
     yPos: {
-      domain: [-drawData.height, drawData.height] as const,
-      image: [drawData.height - 10, 10] as const,
+      domain: [0, drawData.height] as const,
+      image: [10, drawData.height - 10] as const,
     },
     ySpeed: {
       domain: [-maxEverSpeed.value, maxEverSpeed.value] as const,
