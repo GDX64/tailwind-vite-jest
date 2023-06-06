@@ -23,12 +23,5 @@
       "@solidRender/*": ["./solidRender/*"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "tests/**/*.ts",
-    "solidRender/**/*.ts"
-  ]
+  "include": ["src/main.ts"]
 }
