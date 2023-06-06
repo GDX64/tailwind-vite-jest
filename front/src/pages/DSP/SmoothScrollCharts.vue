@@ -28,6 +28,7 @@ const props = defineProps<{
 }>();
 const drawData = useDrawData();
 const squareSize = 30;
+const maxSamples = 120;
 const estimator = computed(() => {
   if (props.estimatorConst) {
     return new DragSquare(props.estimatorConst, drawData.width - squareSize);
@@ -49,12 +50,14 @@ useAnimation((ticker) => {
   pos.value[0] = estimator.value.position;
   speed.value.push(estimator.value.getSpeed());
   points.value.push(pos.value[0]);
-  speed.value = speed.value.slice(-60);
-  points.value = points.value.slice(-60);
+  if (points.value.length > maxSamples) {
+    speed.value.shift();
+    points.value.shift();
+  }
 });
 
 const estimatedSpeed = computed(() => {
-  return indexedPoints(speed.value);
+  return speed.value.map((v, i) => [i, v * 50] as [number, number]);
 });
 
 function indexedPoints(x: number[]) {
@@ -63,7 +66,7 @@ function indexedPoints(x: number[]) {
 
 const scaleParams = computed(() => {
   return {
-    x: { padding: 10, domain: [-5, 60] as const },
+    x: { padding: 10, domain: [-5, maxSamples] as const },
     y: {
       domain: [-drawData.height, drawData.height] as const,
       image: [drawData.height - 10, 10] as const,

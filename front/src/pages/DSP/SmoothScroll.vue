@@ -71,7 +71,6 @@ function runCode() {
 
 function resetCode() {
   code.value = originalCode;
-  console.log('reset');
   if (editor.value) {
     const transaction = editor.value.state.update({
       changes: {
