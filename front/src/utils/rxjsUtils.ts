@@ -61,3 +61,8 @@ export function useAnimation(fn: (ticker: Ticker) => void, drawData?: DrawData) 
     onUnmounted(() => ticker.remove(cb));
   }
 }
+
+export function useInterval(fn: () => void, time: number) {
+  const timer = setInterval(fn, time);
+  onUnmounted(() => clearInterval(timer));
+}

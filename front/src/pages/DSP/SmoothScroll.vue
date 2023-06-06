@@ -10,11 +10,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watchEffect } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue';
 import GStage from '../../vueRenderer/GStage.vue';
 import SmoothScrollCharts from './SmoothScrollCharts.vue';
-import * as Monaco from 'monaco-editor';
-import './MonacoEditor';
+import { basicSetup, EditorView } from 'codemirror';
+import { javascript } from '@codemirror/lang-javascript';
+import { useAnimation, useInterval as useInterval } from '../../utils/rxjsUtils';
 
 const editorRef = ref<HTMLElement>();
 const code = ref(`
@@ -36,21 +37,30 @@ const code = ref(`
     `);
 const Estimator = ref<any>();
 
-let editor: Monaco.editor.IStandaloneCodeEditor;
-onMounted(() => {
-  editor = Monaco.editor.create(editorRef.value!, {
-    language: 'javascript',
-    value: code.value,
-  });
-  editor.onDidChangeModelContent((event) => {
-    code.value = editor.getValue();
-  });
+const editor = computed(() => {
+  if (editorRef.value) {
+    return new EditorView({
+      extensions: [basicSetup, javascript()],
+      parent: editorRef.value,
+      doc: code.value,
+    });
+  }
+  return null;
+});
+
+useInterval(() => {
+  code.value = editor.value?.state.doc.toString() ?? code.value;
+}, 1000);
+
+watch(editor, (editor, __, clear) => {
+  clear(() => editor?.destroy());
 });
 
 watchEffect(async () => {
   const blob = new Blob([code.value], {
     type: 'application/javascript',
   });
+  console.log('changed code');
 
   // Create a URL for the Blob object
   const url = URL.createObjectURL(blob);
@@ -61,6 +71,4 @@ watchEffect(async () => {
     Estimator.value = (await import(url)).default;
   } catch (error) {}
 });
-
-onUnmounted(() => editor.dispose());
 </script>
