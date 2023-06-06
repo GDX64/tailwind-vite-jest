@@ -7,7 +7,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { onUnmounted, ref } from 'vue';
+import { onUnmounted, ref, watchEffect } from 'vue';
 import { DrawData, useDrawData } from '../vueRenderer/UseDraw';
 import { Ticker } from 'pixi.js';
 
@@ -65,4 +65,13 @@ export function useAnimation(fn: (ticker: Ticker) => void, drawData?: DrawData) 
 export function useInterval(fn: () => void, time: number) {
   const timer = setInterval(fn, time);
   onUnmounted(() => clearInterval(timer));
+}
+
+export function storageRef(name: string, initial = '') {
+  const value = ref('');
+  value.value = localStorage.getItem(name) ?? initial;
+  watchEffect(() => {
+    localStorage.setItem(name, value.value);
+  });
+  return value;
 }
