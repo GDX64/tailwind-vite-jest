@@ -3,6 +3,7 @@
     <slot
       :scaleXY="scaleData.scale"
       :arrDomain="scaleData.arrDomain"
+      :ticks="scaleData.ticks"
       v-if="$slots.default"
     ></slot>
     <template v-if="!noLines">
@@ -20,7 +21,7 @@
 
 <script setup lang="ts">
 import * as d3 from 'd3';
-import { computed, reactive, watchEffect } from 'vue';
+import { computed, reactive } from 'vue';
 import { ScaleXY } from './interfaces';
 import PixiLine from './BaseComponents/PixiLine.vue';
 import { provideScale, useDrawData } from './UseDraw';
@@ -65,20 +66,18 @@ const scaleData = computed(() => {
   const [initY, finalY] = yData?.domain ?? yImage;
   const xLine = { from: [x(initX), y(0)] as Point2D, to: [x(finalX), y(0)] as Point2D };
   const yLine = { from: [x(0), y(initY)] as Point2D, to: [x(0), y(finalY)] as Point2D };
-  const xTicks = x.ticks(props.ticks ?? 5).map((num) => {
+  const ticks = { x: x.ticks(props.ticks ?? 5), y: y.ticks(props.ticks ?? 5) };
+  const xTicks = ticks.x.map((num) => {
     return { from: [x(num), y(0) - 3] as Point2D, to: [x(num), y(0) + 3] as Point2D };
   });
-  const yTicks = y.ticks(props.ticks ?? 5).map((num) => {
+  const yTicks = ticks.y.map((num) => {
     return { from: [x(0) + 3, y(num)] as Point2D, to: [x(0) - 3, y(num)] as Point2D };
   });
 
   const nDomain = props.nDomain ?? 10;
   const arrDomain = x.ticks(nDomain);
   return {
-    xLine,
-    yLine,
-    xTicks,
-    yTicks,
+    ticks,
     scale,
     allLines: [xLine, yLine, ...xTicks, ...yTicks],
     arrDomain,
