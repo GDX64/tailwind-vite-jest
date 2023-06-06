@@ -12,7 +12,8 @@ import { onUnmounted, ref, watchEffect } from 'vue';
 import { DrawData, useDrawData } from '../vueRenderer/UseDraw';
 import { Ticker } from 'pixi.js';
 
-export function useDrag(start: Observable<any>, pos = ref([0, 0] as [number, number])) {
+export function useDrag(start: Observable<any>) {
+  const pos = ref([0, 0] as [number, number]);
   const isDragging = ref(false);
   const sub = start
     .pipe(

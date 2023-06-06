@@ -68,7 +68,7 @@ const squareSize = 30;
 const maxSamples = 120;
 const estimator = computed(() => {
   if (props.estimatorConst) {
-    return new DragSquare(props.estimatorConst, drawData.width - squareSize);
+    return new DragSquare(props.estimatorConst, drawData.height - squareSize);
   }
 });
 
