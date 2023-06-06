@@ -2,6 +2,7 @@ import {
   animationFrames,
   fromEvent,
   Observable,
+  pairwise,
   scan,
   switchMap,
   takeUntil,

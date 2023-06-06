@@ -5,15 +5,15 @@
   </GScale>
   <PixiSquare
     @pointerdown="pointerDown$.next($event)"
-    :width="50"
-    :height="50"
+    :width="squareSize"
+    :height="squareSize"
     :x="pos[0]"
     fill="#ff0000"
   ></PixiSquare>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 import PixiLines from '../../vueRenderer/BaseComponents/PixiLines.vue';
 import GScale from '../../vueRenderer/GScale.vue';
 import { useDrawData } from '../../vueRenderer/UseDraw';
@@ -21,18 +21,17 @@ import PixiSquare from '../../vueRenderer/BaseComponents/PixiSquare.vue';
 import { Subject } from 'rxjs';
 import { FederatedPointerEvent } from 'pixi.js';
 import { useAnimation, useDrag } from '../../utils/rxjsUtils';
+import { DragSquare, EstimatorConstructor } from './DSPMovement';
 
 const props = defineProps<{
-  estimatorConst?: {
-    new (): {
-      onPositionChange(pos: number, deltaT: number): void;
-      getSpeed(): number;
-    };
-  };
+  estimatorConst?: EstimatorConstructor;
 }>();
-
+const drawData = useDrawData();
+const squareSize = 30;
 const estimator = computed(() => {
-  return props.estimatorConst ? new props.estimatorConst() : null;
+  if (props.estimatorConst) {
+    return new DragSquare(props.estimatorConst, drawData.width - squareSize);
+  }
 });
 
 const points = ref([] as number[]);
@@ -40,15 +39,18 @@ const pointerDown$ = new Subject<FederatedPointerEvent>();
 const { pos, isDragging } = useDrag(pointerDown$);
 const speed = ref([] as number[]);
 
-const drawData = useDrawData();
 useAnimation((ticker) => {
-  if (isDragging.value && estimator.value) {
-    estimator.value.onPositionChange(pos.value[0], ticker.deltaMS);
-    speed.value.push(estimator.value.getSpeed());
-    points.value.push(pos.value[0]);
-    speed.value = speed.value.slice(-60);
-    points.value = points.value.slice(-60);
+  if (!estimator.value) return;
+  if (isDragging.value) {
+    estimator.value.drag(pos.value[0], ticker.deltaMS);
+  } else {
+    estimator.value.onTick(ticker.deltaMS);
   }
+  pos.value[0] = estimator.value.position;
+  speed.value.push(estimator.value.getSpeed());
+  points.value.push(pos.value[0]);
+  speed.value = speed.value.slice(-60);
+  points.value = points.value.slice(-60);
 });
 
 const estimatedSpeed = computed(() => {
