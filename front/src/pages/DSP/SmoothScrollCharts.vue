@@ -106,7 +106,10 @@ function indexedPoints(x: number[]) {
 
 const scaleParams = computed(() => {
   return {
-    x: { domain: [-5, maxSamples] as const, image: [35, drawData.width - 10] },
+    x: {
+      domain: [-5, maxSamples] as const,
+      image: [35, drawData.width - 10] as const,
+    },
     yPos: {
       domain: [0, drawData.height] as const,
       image: [10, drawData.height - 10] as const,
