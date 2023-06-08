@@ -1,4 +1,5 @@
-import { Computed, Signal } from './SuperReactive';
+import { Vitest } from 'vitest';
+import { Computed, Signal, Waker } from './SuperReactive';
 
 describe('test superReactive', () => {
   test('reactive stuff', () => {
@@ -15,7 +16,6 @@ describe('test superReactive', () => {
     expect(fn).toHaveBeenCalledTimes(1);
     expect(c.read()).toBe(10);
     expect(fn).toHaveBeenCalledTimes(2);
-    expect(fn).toHaveBeenCalledTimes(2);
 
     s.write(3);
     expect(c.read()).toBe(3);
@@ -27,6 +27,7 @@ describe('test superReactive', () => {
     expect(c.read()).toBe(15);
     expect(fn).toHaveBeenCalledTimes(4);
 
+    s.write(1);
     expect(s.wakers.length).toBe(1);
   });
 
@@ -38,5 +39,23 @@ describe('test superReactive', () => {
     expect(c3.read()).toBe(11);
     s.write(10);
     expect(c3.read()).toBe(110);
+  });
+
+  test('nested wakers', () => {
+    const waker = new Waker();
+    const sig = new Signal(0);
+    const destroyFn = vitest.fn();
+    const c = waker.computed((w) => {
+      return w.computed((w) => {
+        w.onDestroy(destroyFn);
+        return sig.track(w);
+      });
+    });
+    expect(c.read().read()).toBe(0);
+    sig.write(1);
+    expect(c.read().read()).toBe(1);
+    expect(destroyFn).toBeCalledTimes(1);
+    waker.destroy();
+    expect(destroyFn).toBeCalledTimes(2);
   });
 });
