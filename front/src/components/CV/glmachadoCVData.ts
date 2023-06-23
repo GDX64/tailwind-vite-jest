@@ -13,7 +13,7 @@ const education = [
   },
   {
     description: `I went for a 2 semesters interchange in Argentina whilst I developed my bachelor thesis. 
-          There I studied adaptive signal processing, machine learning and computer graphics (where I learned Javascript).`,
+          There I studied adaptive signal processing, machine learning and computer graphics.`,
     schoolPlaceDate: 'UBA - Buneos Aires, AR. 2019',
     title: 'Electronic Engineering Interchange',
   },
@@ -22,7 +22,7 @@ const projects = [
   {
     title: 'Bachelor Thesis',
     description: `In my thesis I implemented adaptive filtering algorithms from papers with
-            Matlab to analyse harmonics from the electrical energy network. In this work I
+            Matlab to analyze harmonics from the electrical energy network. In this work I
             had the opportunity to work with some advanced Linear Algebra to implement the
             computations. There is also an implementation of the basic algorithm in C with FreeRTOS 
             in my github for embedded ESP32. You can download it 
@@ -31,9 +31,8 @@ const projects = [
   },
   {
     title: 'Personal Website',
-    description: `I've built my personal website some time ago, 
-          it is a little bit outdated but it has some interesting 3D animations and computer Graphics related things,
-          wich I like to learn in my spare time.`,
+    description: `I use my website mainly to upload demos experimenting with custom 2D renderers
+    for signal based frameworks like solid and vue.`,
   },
   {
     title: 'Blogs And Small Articles',
@@ -44,10 +43,10 @@ const projects = [
 ];
 const experiences = [
   {
-    title: 'Nelogica - Software Developer',
-    description: `Nelogica is the biggest trading software company in Brazil, and has several trading platforms. 
-          I was hired in 2020 to work in the Web Platforms as a Javascript developer, creating and improving our trading dashboards.
-          Now I work more on performance related subjects inside the Web Platforms and the transition to Typescript.`,
+    title: 'Nelógica - Software Developer',
+    description: `Nelógica is the biggest trading software company in Brazil, and has several trading platforms. 
+          I work building cross-platform UIs for web, IOS, android and MAC OS. Our focus is on reliability and performance.
+          We use mainly Typescript and VueJS (but also specific languages for each platform as SWIFT and Kotlin).`,
     schoolPlaceDate: 'Porto Alegre - RS, BR. 2020-(Now)',
   },
   {
@@ -63,8 +62,8 @@ const glmachadoCVData: CVData = {
   arrUserInfo: [
     {
       icon: Icons.Globe,
-      text: 'glmachado.herokuapp.com',
-      link: 'https://glmachado.herokuapp.com',
+      text: 'glmachado.com',
+      link: 'https://glmachado.com',
     },
     { icon: Icons.Mobile, text: '+55 32 98493-5474' },
     { icon: Icons.Envelope, text: 'gabriel.delmachado@gmail.com' },

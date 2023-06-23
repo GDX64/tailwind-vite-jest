@@ -1,6 +1,10 @@
 <template>
-  <div class="flex w-full justify-center items-center" tabindex="-1" @keydown="onkeydown">
-    <div class="cv-container">
+  <div
+    class="flex w-full justify-center items-center leading-relaxed"
+    tabindex="-1"
+    @keydown="onkeydown"
+  >
+    <div class="cv-container px-4 py-4 flex flex-col">
       <header class="flex items-center flex-col text-sm">
         <h1 class="text-sky-600 text-3xl mb-2">{{ cvData.name }}</h1>
         <h2 class="text-sky-600 text-xl mb-4">{{ cvData.title }}</h2>
@@ -14,7 +18,7 @@
           </template>
         </div>
       </header>
-      <div class="" v-for="(category, categoryIndex) of cvData.categories">
+      <div v-for="(category, categoryIndex) of cvData.categories">
         <FieldTitleVue :title="category.title"></FieldTitleVue>
         <template v-for="(data, fieldIndex) of category.fields">
           <FieldVue
@@ -45,7 +49,7 @@ import Envelope from '../../assets/envelope-solid.svg';
 import Location from '../../assets/location-pin-solid.svg';
 import Mobile from '../../assets/mobile-solid.svg';
 import Linkedin from '../../assets/linkedin-brands.svg';
-import { CVData, Field, Icons } from './SimpleCVTypes';
+import { Field, Icons } from './SimpleCVTypes';
 import { injectCV } from './CVStore';
 
 const { data: cvData, doUndo, undo, doAgain } = injectCV();
@@ -92,7 +96,6 @@ function onkeydown(event: KeyboardEvent) {
   width: 800px;
   height: 1131px;
   background-color: rgb(248, 244, 237);
-  padding: 40px 70px 50px 70px;
 }
 .cv-icon {
   height: 16px;
