@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { Graphics, Rectangle } from 'pixi.js';
+import { Graphics, Rectangle } from '@pixi/webworker';
 import { shallowRef, watchEffect } from 'vue';
 import { rgen, toPixiGraphic } from './RoughInterop';
 import { useDrawData } from '../UseDraw';

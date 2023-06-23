@@ -1,4 +1,5 @@
 <template>
+  <h1 class="text-xl">this is running on a worker thread!</h1>
   <input type="range" v-model.number="range" min="0" max="500" step="1" />
   <Root :squares="range" class="w-full aspect-square"></Root>
 </template>
