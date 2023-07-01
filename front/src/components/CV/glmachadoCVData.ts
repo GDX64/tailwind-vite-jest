@@ -46,13 +46,10 @@ const experiences = [
     title: 'Nelógica - Software Developer',
     description: `Nelógica is the biggest trading software company in Brazil, and has several trading platforms. 
           I work building cross-platform UIs for web, IOS, android and MAC OS. Our focus is on reliability and performance.
-          We use mainly Typescript and VueJS (but also specific languages for each platform as SWIFT and Kotlin).`,
+          We use mainly Typescript and VueJS (but also specific languages for each platform as SWIFT and Kotlin). My role
+          now is more guided towards performance improvements, developer experience (analyzing new tools and technologies)
+          and feature implementations, while instructing new members of the team.`,
     schoolPlaceDate: 'Porto Alegre - RS, BR. 2020-(Now)',
-  },
-  {
-    title: 'PSA - Intern',
-    schoolPlaceDate: 'Buenos Aires, AR. 2019',
-    description: `I've worked for two months as a Maintenance Intern in PSA, helping in the control of spare parts.`,
   },
 ];
 
