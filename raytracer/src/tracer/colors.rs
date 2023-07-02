@@ -1,4 +1,4 @@
-use crate::PointVec::TupleLike;
+use super::point_vec::TupleLike;
 
 pub struct Color {
     red: f64,
@@ -62,7 +62,7 @@ impl From<Color> for u32 {
 
 #[cfg(test)]
 mod test {
-    use crate::colors::Color;
+    use super::Color;
 
     #[test]
     fn to_color() {

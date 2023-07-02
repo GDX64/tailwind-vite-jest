@@ -1,8 +1,4 @@
-use colors::Color;
-use minifb::Key;
-mod PointVec;
-mod canvas;
-mod colors;
+use raytracer::{canvas, colors::Color};
 
 fn main() {
     let mut canvas = canvas::Canvas::new(800, 600);
