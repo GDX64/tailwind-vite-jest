@@ -1,5 +1,3 @@
-use std::borrow::Borrow;
-
 use raytracer::{canvas::Canvas, colors::Color};
 
 fn main() {
