@@ -1,6 +1,8 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-trait MatTraits:
+use crate::point_vec::TupleLike;
+
+pub trait MatTraits:
     Div<Self, Output = Self>
     + Sub<Self, Output = Self>
     + Add<Self, Output = Self>
@@ -16,20 +18,20 @@ trait MatTraits:
 }
 
 #[derive(Debug, Clone, PartialEq)]
-struct Mat4<T: MatTraits> {
+pub struct Mat4<T: MatTraits> {
     data: [T; 16],
 }
 
-trait HasOne {
+pub trait HasOne {
     fn one() -> Self;
 }
 
-trait Trigonometric {
+pub trait Trigonometric {
     fn sin(&self) -> Self;
     fn cos(&self) -> Self;
 }
 
-trait NearZero {
+pub trait NearZero {
     fn near_zero(&self) -> bool;
 }
 
@@ -46,7 +48,7 @@ impl<T: MatTraits> Mat4<T> {
         }
     }
 
-    fn translation(x: T, y: T, z: T) -> Mat4<T> {
+    pub fn translation(x: T, y: T, z: T) -> Mat4<T> {
         let mut mat = Mat4::identity();
         mat.data[12] = x;
         mat.data[13] = y;
@@ -62,7 +64,7 @@ impl<T: MatTraits> Mat4<T> {
         mat
     }
 
-    fn rotation_x(r: T) -> Mat4<T> {
+    pub fn rotation_x(r: T) -> Mat4<T> {
         let mut mat = Mat4::identity();
         mat.data[5] = r.cos();
         mat.data[6] = -r.sin();
@@ -71,7 +73,16 @@ impl<T: MatTraits> Mat4<T> {
         mat
     }
 
-    fn identity() -> Mat4<T> {
+    pub fn rotation_z(r: T) -> Mat4<T> {
+        let mut mat = Mat4::identity();
+        mat.data[0] = r.cos();
+        mat.data[1] = -r.sin();
+        mat.data[4] = r.sin();
+        mat.data[5] = r.cos();
+        mat
+    }
+
+    pub fn identity() -> Mat4<T> {
         let mut mat = Mat4::new();
         mat.data[0] = T::one();
         mat.data[5] = T::one();
@@ -80,7 +91,7 @@ impl<T: MatTraits> Mat4<T> {
         mat
     }
 
-    fn transpose(&self) -> Mat4<T> {
+    pub fn transpose(&self) -> Mat4<T> {
         let mut mat = Mat4::new();
         for i in 0..4 {
             for j in 0..4 {
@@ -90,7 +101,7 @@ impl<T: MatTraits> Mat4<T> {
         mat
     }
 
-    fn inverse(&self) -> Option<Mat4<T>> {
+    pub fn inverse(&self) -> Option<Mat4<T>> {
         let mut mat = Mat4::new();
         let a00 = self.data[0];
         let a01 = self.data[1];
@@ -144,7 +155,7 @@ impl<T: MatTraits> Mat4<T> {
         Some(mat)
     }
 
-    fn mul_ref(&self, rhs: &Mat4<T>) -> Mat4<T> {
+    pub fn mul_ref(&self, rhs: &Mat4<T>) -> Mat4<T> {
         let mut mat = Mat4::new();
         for i in 0..4 {
             for j in 0..4 {
@@ -155,6 +166,19 @@ impl<T: MatTraits> Mat4<T> {
             }
         }
         mat
+    }
+}
+
+impl Mat4<f64> {
+    pub fn mul_vec<V: TupleLike>(&self, rhs: &V) -> V {
+        let mut out = [0.0; 4];
+        for i in 0..4 {
+            out[i] = self.data[i] * rhs.get_x()
+                + self.data[i + 4] * rhs.get_y()
+                + self.data[i + 8] * rhs.get_z()
+                + self.data[i + 12] * rhs.get_w();
+        }
+        V::from_tuple((out[0], out[1], out[2], out[3]))
     }
 }
 
@@ -192,25 +216,39 @@ impl NearZero for f32 {
 
 impl Trigonometric for f32 {
     fn sin(&self) -> Self {
-        self.sin()
+        f32::sin(*self)
     }
 
     fn cos(&self) -> Self {
-        self.cos()
+        f32::cos(*self)
     }
 }
 impl Trigonometric for f64 {
     fn sin(&self) -> Self {
-        self.sin()
+        f64::sin(*self)
     }
 
     fn cos(&self) -> Self {
-        self.cos()
+        f64::cos(*self)
     }
 }
 
 impl MatTraits for f32 {}
 impl MatTraits for f64 {}
+
+impl<T: TupleLike> Mul<T> for Mat4<f64> {
+    type Output = T;
+    fn mul(self, rhs: T) -> Self::Output {
+        let mut out = vec![0.0; 4];
+        for i in 0..4 {
+            out[i] = self.data[i * 4] * rhs.get_x()
+                + self.data[i * 4 + 1] * rhs.get_y()
+                + self.data[i * 4 + 2] * rhs.get_z()
+                + self.data[i * 4 + 3] * rhs.get_w();
+        }
+        T::from_tuple((out[0], out[1], out[2], out[3]))
+    }
+}
 
 #[cfg(test)]
 mod test {

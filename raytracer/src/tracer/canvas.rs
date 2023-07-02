@@ -32,6 +32,9 @@ impl Canvas {
     }
 
     pub fn write(&mut self, x: usize, y: usize, value: impl Into<u32>) {
+        if x >= self.width || y >= self.height {
+            return;
+        }
         if let Some(item) = self.pixels.get_mut(y * self.width + x) {
             *item = value.into();
         }

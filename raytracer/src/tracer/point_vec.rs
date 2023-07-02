@@ -2,10 +2,32 @@ use std::ops::{Add, Mul, Sub};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Point {
-    x: f64,
-    y: f64,
-    z: f64,
-    w: f64,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+    pub w: f64,
+}
+
+impl TupleLike for (f64, f64, f64, f64) {
+    fn get_x(&self) -> f64 {
+        self.0
+    }
+
+    fn get_y(&self) -> f64 {
+        self.1
+    }
+
+    fn get_z(&self) -> f64 {
+        self.2
+    }
+
+    fn get_w(&self) -> f64 {
+        self.3
+    }
+
+    fn from_tuple(t: (f64, f64, f64, f64)) -> Self {
+        t
+    }
 }
 
 pub trait TupleLike: Sized {
@@ -90,7 +112,7 @@ pub trait TupleLike: Sized {
 }
 
 impl Point {
-    fn new(x: f64, y: f64, z: f64) -> Self {
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
         Point { x, y, z, w: 1.0 }
     }
 }
