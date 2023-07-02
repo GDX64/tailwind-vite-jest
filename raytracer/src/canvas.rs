@@ -31,8 +31,8 @@ impl Canvas {
         }
     }
 
-    pub fn write(&mut self, x: usize, y: usize, value: u32) {
-        self.pixels[y * self.width + x] = value;
+    pub fn write(&mut self, x: usize, y: usize, value: impl Into<u32>) {
+        self.pixels[y * self.width + x] = value.into();
     }
 
     pub fn update_canvas(&mut self) {
