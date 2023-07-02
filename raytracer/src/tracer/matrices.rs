@@ -1,4 +1,4 @@
-use std::ops::{Add, Div, Mul, Sub};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 trait MatTraits:
     Div<Self, Output = Self>
@@ -10,6 +10,8 @@ trait MatTraits:
     + Clone
     + HasOne
     + NearZero
+    + Neg<Output = Self>
+    + Trigonometric
 {
 }
 
@@ -20,6 +22,11 @@ struct Mat4<T: MatTraits> {
 
 trait HasOne {
     fn one() -> Self;
+}
+
+trait Trigonometric {
+    fn sin(&self) -> Self;
+    fn cos(&self) -> Self;
 }
 
 trait NearZero {
@@ -37,6 +44,31 @@ impl<T: MatTraits> Mat4<T> {
         Mat4 {
             data: [T::default(); 16],
         }
+    }
+
+    fn translation(x: T, y: T, z: T) -> Mat4<T> {
+        let mut mat = Mat4::identity();
+        mat.data[12] = x;
+        mat.data[13] = y;
+        mat.data[14] = z;
+        mat
+    }
+
+    fn scaling(x: T, y: T, z: T) -> Mat4<T> {
+        let mut mat = Mat4::identity();
+        mat.data[0] = x;
+        mat.data[5] = y;
+        mat.data[10] = z;
+        mat
+    }
+
+    fn rotation_x(r: T) -> Mat4<T> {
+        let mut mat = Mat4::identity();
+        mat.data[5] = r.cos();
+        mat.data[6] = -r.sin();
+        mat.data[9] = r.sin();
+        mat.data[10] = r.cos();
+        mat
     }
 
     fn identity() -> Mat4<T> {
@@ -155,6 +187,25 @@ impl NearZero for f64 {
 impl NearZero for f32 {
     fn near_zero(&self) -> bool {
         self.abs() < 1e-6
+    }
+}
+
+impl Trigonometric for f32 {
+    fn sin(&self) -> Self {
+        self.sin()
+    }
+
+    fn cos(&self) -> Self {
+        self.cos()
+    }
+}
+impl Trigonometric for f64 {
+    fn sin(&self) -> Self {
+        self.sin()
+    }
+
+    fn cos(&self) -> Self {
+        self.cos()
     }
 }
 
