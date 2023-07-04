@@ -31,11 +31,14 @@ impl Canvas {
         }
     }
 
-    pub fn write(&mut self, x: usize, y: usize, value: impl Into<u32>) {
-        if x >= self.width || y >= self.height {
+    pub fn write(&mut self, x: i32, y: i32, value: impl Into<u32>) {
+        if x >= self.width as i32 || y >= self.height as i32 || x < 0 || y < 0 {
             return;
         }
-        if let Some(item) = self.pixels.get_mut(y * self.width + x) {
+        if let Some(item) = self
+            .pixels
+            .get_mut((y as usize) * self.width + (x as usize))
+        {
             *item = value.into();
         }
     }

@@ -173,6 +173,13 @@ impl Sub<V3D> for Point {
     }
 }
 
+impl Add<Point> for V3D {
+    type Output = Point;
+    fn add(self, rhs: Point) -> Self::Output {
+        rhs + self
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct V3D {
     x: f64,
