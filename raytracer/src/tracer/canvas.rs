@@ -1,8 +1,8 @@
 use minifb::{Key, Window, WindowOptions};
 
 pub struct Canvas {
-    width: usize,
-    height: usize,
+    pub width: usize,
+    pub height: usize,
     window: Window,
     pixels: Vec<u32>,
 }
