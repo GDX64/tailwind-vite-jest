@@ -1,11 +1,12 @@
 use crate::{
+    matrices::Mat4,
     point_vec::{Point, TupleLike},
-    ray::Ray,
+    ray::{self, Ray},
+    transformable::Transformable,
 };
 
 pub struct Sphere {
-    radius: f64,
-    origin: Point,
+    m: Mat4<f64>,
 }
 
 pub struct Intersection<'a> {
@@ -15,30 +16,37 @@ pub struct Intersection<'a> {
 
 impl Sphere {
     pub fn new(radius: f64, origin: Point) -> Sphere {
-        Sphere { radius, origin }
+        let m = Mat4::scaling(radius, radius, radius);
+        let m = m * Mat4::translation(origin.x, origin.y, origin.z);
+        Sphere { m }
     }
 
     fn intersect(&self, ray: &Ray) -> Vec<Intersection> {
         let mut result = Vec::new();
-        let sphere_to_ray = ray.origin - self.origin;
-        let a = ray.direction.dot(&ray.direction);
-        let b = 2.0 * ray.direction.dot(&sphere_to_ray);
-        let c = sphere_to_ray.dot(&sphere_to_ray) - self.radius * self.radius;
-        let discriminant = b * b - 4.0 * a * c;
-        if discriminant < 0.0 {
-            return result;
+        if let Some(inverse) = self.m.inverse() {
+            let ray = ray.transform(&inverse);
+            let sphere_to_ray = ray.origin - Point::new(0.0, 0.0, 0.0);
+            let a = ray.direction.dot(&ray.direction);
+            let b = 2.0 * ray.direction.dot(&sphere_to_ray);
+            let c = sphere_to_ray.dot(&sphere_to_ray) - 1.0;
+            let discriminant = b * b - 4.0 * a * c;
+            if discriminant < 0.0 {
+                return result;
+            }
+            let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
+            let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
+            result.push(Intersection {
+                t: t1,
+                object: self,
+            });
+            result.push(Intersection {
+                t: t2,
+                object: self,
+            });
+            result
+        } else {
+            result
         }
-        let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
-        let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
-        result.push(Intersection {
-            t: t1,
-            object: self,
-        });
-        result.push(Intersection {
-            t: t2,
-            object: self,
-        });
-        result
     }
 
     pub fn hits(&self, ray: &Ray) -> Vec<Intersection> {
@@ -50,6 +58,14 @@ impl Sphere {
     pub fn has_hits(&self, ray: &Ray) -> bool {
         let intersects = self.intersect(ray);
         intersects.iter().any(|i| i.t > 0.0)
+    }
+}
+
+impl Transformable for Sphere {
+    fn transform(&self, m: &Mat4<f64>) -> Sphere {
+        Sphere {
+            m: m.mul_ref(&self.m),
+        }
     }
 }
 

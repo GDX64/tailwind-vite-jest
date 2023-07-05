@@ -56,7 +56,7 @@ impl<T: MatTraits> Mat4<T> {
         mat
     }
 
-    fn scaling(x: T, y: T, z: T) -> Mat4<T> {
+    pub fn scaling(x: T, y: T, z: T) -> Mat4<T> {
         let mut mat = Mat4::identity();
         mat.data[0] = x;
         mat.data[5] = y;
@@ -159,10 +159,10 @@ impl<T: MatTraits> Mat4<T> {
         let mut mat = Mat4::new();
         for i in 0..4 {
             for j in 0..4 {
-                mat.data[i * 4 + j] = self.data[i * 4] * rhs.data[j]
-                    + self.data[i * 4 + 1] * rhs.data[j + 4]
-                    + self.data[i * 4 + 2] * rhs.data[j + 8]
-                    + self.data[i * 4 + 3] * rhs.data[j + 12];
+                mat.data[i + j * 4] = self.data[i] * rhs.data[4 * j]
+                    + self.data[i + 4] * rhs.data[4 * j + 1]
+                    + self.data[i + 8] * rhs.data[4 * j + 2]
+                    + self.data[i + 12] * rhs.data[4 * j + 3];
             }
         }
         mat
@@ -170,7 +170,7 @@ impl<T: MatTraits> Mat4<T> {
 }
 
 impl Mat4<f64> {
-    pub fn mul_vec<V: TupleLike>(&self, rhs: &V) -> V {
+    pub fn mul_tuple<V: TupleLike>(&self, rhs: &V) -> V {
         let mut out = [0.0; 4];
         for i in 0..4 {
             out[i] = self.data[i] * rhs.get_x()
@@ -239,14 +239,7 @@ impl MatTraits for f64 {}
 impl<T: TupleLike> Mul<T> for Mat4<f64> {
     type Output = T;
     fn mul(self, rhs: T) -> Self::Output {
-        let mut out = vec![0.0; 4];
-        for i in 0..4 {
-            out[i] = self.data[i * 4] * rhs.get_x()
-                + self.data[i * 4 + 1] * rhs.get_y()
-                + self.data[i * 4 + 2] * rhs.get_z()
-                + self.data[i * 4 + 3] * rhs.get_w();
-        }
-        T::from_tuple((out[0], out[1], out[2], out[3]))
+        self.mul_tuple(&rhs)
     }
 }
 
