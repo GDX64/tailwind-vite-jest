@@ -14,4 +14,12 @@ describe('toBase64', () => {
     const nodeAnswer = Buffer.from(uint8array).toString('base64');
     expect(base64).toBe(nodeAnswer);
   });
+
+  it('should have the same results as native node Buffer methods', () => {
+    const randomString = [...Array(13)].map(() => Math.floor(Math.random() * 0xff));
+    const uint8array = new Uint8Array(randomString);
+    const base64 = toBase64(uint8array);
+    const nodeAnswer = Buffer.from(uint8array).toString('base64');
+    expect(base64).toBe(nodeAnswer);
+  });
 });
