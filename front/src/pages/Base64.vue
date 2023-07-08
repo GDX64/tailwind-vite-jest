@@ -9,8 +9,9 @@
 
 <script setup lang="ts">
 import { toBase64 } from '../benchmarks/toBase64';
-const randomString = [...Array(10_000_000)].map(() => Math.floor(Math.random() * 0xff));
-const buffer = new Uint8Array(randomString);
+const buffer = new Uint8Array(
+  [...Array(2 ** 24)].map(() => Math.floor(Math.random() * 0xff))
+);
 
 function run() {
   toBase64(buffer);

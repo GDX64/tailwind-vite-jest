@@ -11,8 +11,7 @@ export function toBase64(uint8array: Uint8Array) {
   const limit = uint8array.length - 2;
   let cursor = 0;
   while (i < limit) {
-    let bits24 =
-      0xffffff & ((uint8array[i++] << 16) | (uint8array[i++] << 8) | uint8array[i++]);
+    let bits24 = (uint8array[i++] << 16) | (uint8array[i++] << 8) | uint8array[i++];
 
     const a1 = bits24 >> 18;
     const a2 = (bits24 >> 12) & 0b111111;
