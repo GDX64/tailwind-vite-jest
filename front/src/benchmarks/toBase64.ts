@@ -11,14 +11,13 @@ export function toBase64(uint8array: Uint8Array) {
   const limit = uint8array.length - 2;
   let cursor = 0;
   while (i < limit) {
-    const a = uint8array[i++];
-    const b = uint8array[i++];
-    const c = uint8array[i++];
+    let bits24 =
+      0xffffff & ((uint8array[i++] << 16) | (uint8array[i++] << 8) | uint8array[i++]);
 
-    const a1 = a >> 2;
-    const a2 = ((a & 0b11) << 4) | (b >> 4);
-    const a3 = ((b & 0b1111) << 2) | (c >> 6);
-    const a4 = c & 0b111111;
+    const a1 = bits24 >> 18;
+    const a2 = (bits24 >> 12) & 0b111111;
+    const a3 = (bits24 >> 6) & 0b111111;
+    const a4 = bits24 & 0b111111;
 
     base64Arr[cursor++] = base64Table[a1];
     base64Arr[cursor++] = base64Table[a2];
