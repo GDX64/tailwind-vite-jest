@@ -19,6 +19,7 @@ const routes = [
   { path: '/dom', component: () => import('./pages/PixiDOM/PixiDOM.vue') },
   { path: '/workerdraw', component: () => import('./pages/WorkerDraw/WorkerDraw.vue') },
   { path: '/dsp', component: () => import('./pages/DSP/SmoothScroll.vue') },
+  { path: '/base64', component: () => import('./pages/Base64.vue') },
   // { path: '/set', component: Set },
   // { path: '/Wordle', component: Wordle },
   // { path: '/hilbert', component: Hilbert },
