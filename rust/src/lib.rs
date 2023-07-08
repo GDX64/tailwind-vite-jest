@@ -1,3 +1,5 @@
+#[allow(arithmetic_overflow)]
+pub mod base64;
 pub mod hilbert;
 pub mod mandelbrot;
 pub mod particles;
