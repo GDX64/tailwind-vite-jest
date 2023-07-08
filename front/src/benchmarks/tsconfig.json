@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "CommonJS",
+    "moduleResolution": "Node16",
+    "strict": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": false,
+    "allowJs": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "types": ["vitest/globals"]
+  },
+  "include": ["*.ts", "**/*.ts", "*.js", "**/*.js"]
+}
