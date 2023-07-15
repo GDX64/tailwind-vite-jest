@@ -1,10 +1,13 @@
 [package]
+edition = "2021"
 name = "incremental_draw"
 version = "0.1.0"
-edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 anchors = "0.6.0"
-leptos = { version = "0.4.2", features = ["csr"] }
+futures = "0.3.28"
+futures-signals = "0.3.32"
+leptos = {version = "0.4.2", features = ["csr"]}
+tokio = {version = "1.29.1", features = ["full"]}

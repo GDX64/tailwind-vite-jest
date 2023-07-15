@@ -1,81 +1,83 @@
-use std::rc::Rc;
+use futures::{stream::StreamExt, Stream};
+use futures_signals::{
+    signal::{Mutable, SignalExt},
+    signal_vec::{MutableVec, SignalVec, SignalVecExt, VecDiff},
+};
 
-use anchors::singlethread::*;
+fn test_signal() -> (impl Stream<Item = f64>, MutableVec<f64>) {
+    let data_points = MutableVec::new();
 
-fn testing() {
-    // example
-    let mut engine = Engine::new();
+    let desired_view_slice = Mutable::new((0, 5));
+    let canvas_size = Mutable::new((100, 100));
 
-    let (data_points, data_points_updater) = Var::new::<Engine>(vec![1, 2, 3, 10, 0]);
-    let (desired_view_slice, _) = Var::new::<Engine>((0, 5));
-    let (canvas_size, _) = Var::new::<Engine>((100, 100));
+    let vec_sum =
+        data_points
+            .signal_vec()
+            .to_stream()
+            .scan((0.0, Vec::<f64>::new()), |acc, diff| {
+                let (sum, data_points) = acc;
+                match diff {
+                    VecDiff::Replace { values } => {
+                        *sum = values.iter().clone().sum();
+                        *data_points = values;
+                    }
+                    VecDiff::InsertAt { index, value } => {
+                        data_points.insert(index, value);
+                        *sum += value;
+                    }
+                    VecDiff::UpdateAt { index, value } => {
+                        let el = data_points[index];
+                        data_points[index] = value;
+                        *sum -= el;
+                        *sum += value;
+                    }
+                    VecDiff::RemoveAt { index } => {
+                        let el = data_points.remove(index);
+                        *sum -= el;
+                    }
+                    VecDiff::Clear { .. } => {
+                        *sum = 0.0;
+                        data_points.clear();
+                    }
+                    VecDiff::Move {
+                        old_index,
+                        new_index,
+                    } => {
+                        data_points.swap(old_index, new_index);
+                    }
+                    VecDiff::Pop {} => {
+                        let el = data_points.pop().unwrap();
+                        *sum -= el;
+                    }
+                    VecDiff::Push { value } => {
+                        data_points.push(value);
+                        *sum += value;
+                    }
+                }
+                let sum = *sum;
+                async move { Some(sum) }
+            });
+    return (vec_sum, data_points);
 
-    let real_slice = (&data_points, &desired_view_slice).map(|data_points, desired_view_slice| {
-        let min = desired_view_slice.0;
-        let max = desired_view_slice.1;
-        let max = std::cmp::min(max, data_points.len());
-        (min, max)
-    });
-
-    let min_max_data = (&data_points, &real_slice).map(|data, view| {
-        data[view.0..view.1]
-            .iter()
-            .fold((i32::MAX, i32::MIN), |(min, max), &x| {
-                (std::cmp::min(min, x), std::cmp::max(max, x))
-            })
-    });
-
-    let xy_scale =
-        (&min_max_data, &real_slice, &canvas_size).map(|(min, max), view, (canvas_x, canvas_y)| {
-            let scale_x = Scale::new(
-                (view.0 as f64, view.1 as f64 - 1.0),
-                (0.0, *canvas_x as f64),
-            );
-            let scale_y = Scale::new((*min as f64, *max as f64), (*canvas_y as f64, 0.0));
-            (scale_x, scale_y)
-        });
-
-    let scaled_view_data =
-        (&data_points, &xy_scale, &real_slice).map(|data, (scale_x, scale_y), view| {
-            data[view.0..view.1]
-                .iter()
-                .enumerate()
-                .map(|(index, item)| {
-                    let x = scale_x.apply(index as f64);
-                    let y = scale_y.apply(*item as f64);
-                    (x, y)
-                })
-                .collect::<Vec<_>>()
-        });
-
-    let scaled_view = engine.get(&scaled_view_data);
-    assert_eq!(scaled_view[1], (25.0, 80.0));
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-struct Scale {
-    k: f64,
-    b: f64,
-}
-
-impl Scale {
-    fn apply(&self, x: f64) -> f64 {
-        self.k * x + self.b
-    }
-
-    fn new((domain_min, domain_max): (f64, f64), (range_min, range_max): (f64, f64)) -> Scale {
-        let k = (range_max - range_min) / (domain_max - domain_min);
-        let b = range_min - k * domain_min;
-        Scale { k, b }
-    }
+    //block on the stream
 }
 
 #[cfg(test)]
 mod tests {
+    use futures::pin_mut;
+
     use super::*;
 
-    #[test]
-    fn it_works() {
-        testing();
+    #[tokio::test]
+    async fn it_works() {
+        let (s, v) = test_signal();
+        let mut lock = v.lock_mut();
+        lock.push(3.0);
+        pin_mut!(s);
+        let result = s.next().await;
+        assert_eq!(result, Some(3.0));
+        lock.pop();
+        let result = s.next().await;
+        assert_eq!(result, Some(0.0));
     }
 }
