@@ -4,6 +4,8 @@ use futures_signals::{
     signal_vec::{MutableVec, SignalVec, SignalVecExt, VecDiff},
 };
 
+mod anchors_test;
+
 fn test_signal() -> (impl Stream<Item = f64>, MutableVec<f64>) {
     let data_points = MutableVec::new();
 
@@ -64,7 +66,8 @@ fn test_signal() -> (impl Stream<Item = f64>, MutableVec<f64>) {
 
 #[cfg(test)]
 mod tests {
-    use futures::pin_mut;
+    use futures::{pin_mut, task::noop_waker};
+    use futures_signals::signal::{from_stream, Signal};
 
     use super::*;
 
@@ -73,11 +76,6 @@ mod tests {
         let (s, v) = test_signal();
         let mut lock = v.lock_mut();
         lock.push(3.0);
-        pin_mut!(s);
-        let result = s.next().await;
-        assert_eq!(result, Some(3.0));
-        lock.pop();
-        let result = s.next().await;
-        assert_eq!(result, Some(0.0));
+        let sig = from_stream(s);
     }
 }

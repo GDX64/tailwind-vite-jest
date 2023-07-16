@@ -1,12 +1,12 @@
 use anchors::singlethread::*;
 
-fn testing() {
+pub fn testing() {
     // example
     let mut engine = Engine::new();
 
-    let (data_points, data_points_updater) = Var::new::<Engine>(vec![1, 2, 3, 10, 0]);
-    let (desired_view_slice, _) = Var::new::<Engine>((0, 5));
-    let (canvas_size, _) = Var::new::<Engine>((100, 100));
+    let data_points = Var::new(vec![1, 2, 3, 10, 0]).watch();
+    let desired_view_slice = Var::new((0, 5)).watch();
+    let canvas_size = Var::new((100, 100)).watch();
     let real_slice = (&data_points, &desired_view_slice).map(|data_points, desired_view_slice| {
         let min = desired_view_slice.0;
         let max = desired_view_slice.1;
@@ -65,4 +65,11 @@ impl Scale {
         let b = range_min - k * domain_min;
         Scale { k, b }
     }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn test_anchors() {}
 }
