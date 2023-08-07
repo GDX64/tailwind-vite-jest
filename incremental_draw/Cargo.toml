@@ -6,8 +6,15 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anchors = {git = "https://github.com/lord/anchors.git"}
-futures = "0.3.28"
-futures-signals = "0.3.32"
 leptos = {version = "0.4.2", features = ["csr"]}
-tokio = {version = "1.29.1", features = ["full"]}
+wasm-bindgen = "0.2.74"
+
+[dependencies.web-sys]
+features = [
+  'CanvasRenderingContext2d',
+  'Document',
+  'Element',
+  'HtmlCanvasElement',
+  'Window',
+]
+version = "0.3.4"
