@@ -14,15 +14,8 @@ fn MyComponent(cx: Scope) -> impl IntoView {
 
     create_effect(cx, move |_| {
         if let Some(ctx) = context_from(&canvas_ref) {
-            let mut chart_obj = Chart {
-                base_data: (0..1000_000).map(|i| ((i as f64) / 100.0).sin()).collect(),
-                view_range: (0, 900_000),
-                scale_x: LinScale::new((0.0, 5.0), (0.0, 300.0)),
-                scale_y: LinScale::new((0.0, 5.0), (0.0, 100.0)),
-                ctx,
-                canvas_size: (300, 150),
-                view_data: vec![],
-            };
+            let base_data: Vec<f64> = (0..1000_000).map(|i| ((i as f64) / 5000.0).sin()).collect();
+            let mut chart_obj = Chart::build(&base_data, ctx);
             chart_obj.recalc();
             chart.set(Some(chart_obj));
         }
@@ -39,8 +32,7 @@ fn MyComponent(cx: Scope) -> impl IntoView {
     let advance_chart = move |delta: i32| {
         chart.update(|chart| {
             chart.as_mut().map(|chart| {
-                chart.view_range.0 = (delta + chart.view_range.0 as i32) as usize;
-                chart.view_range.1 = (delta + chart.view_range.1 as i32) as usize;
+                chart.view_range.1 += (delta * (chart.view_range.1 / 10) as i32) as usize;
                 chart.recalc();
             });
         })
@@ -50,10 +42,10 @@ fn MyComponent(cx: Scope) -> impl IntoView {
         cx,
         <div>
             <button on:click=move |_| {
-                advance_chart(-100);
+                advance_chart(-1);
             }>-</button>
             <button on:click=move |_| {
-                advance_chart(100);
+                advance_chart(1);
             }>+</button>
             <canvas node_ref=canvas_ref style="width: 100%; height: 500px"></canvas>
         </div>

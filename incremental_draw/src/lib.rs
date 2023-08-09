@@ -6,18 +6,34 @@ use segment_tree::{
 use wasm_bindgen::JsValue;
 use web_sys::CanvasRenderingContext2d;
 
-#[derive(PartialEq)]
 pub struct Chart {
-    pub base_data: Vec<f64>,
     pub view_range: (usize, usize),
     pub scale_x: LinScale,
     pub scale_y: LinScale,
     pub ctx: CanvasRenderingContext2d,
     pub canvas_size: (u32, u32),
-    pub view_data: Vec<(f64, f64)>,
+    pub view_data: Vec<(f64, MinMax)>,
+    pub min_max_tree: MinMaxTree,
 }
 
 impl Chart {
+    pub fn build(base_data: &[f64], ctx: CanvasRenderingContext2d) -> Chart {
+        let base = base_data
+            .iter()
+            .map(|v| MinMax::same(*v))
+            .collect::<Vec<_>>();
+        let min_max_tree = MinMaxTree::build(base, MinMaxOp);
+        Chart {
+            view_range: (0, base_data.len() / 2),
+            scale_x: LinScale::new((0.0, 5.0), (0.0, 300.0)),
+            scale_y: LinScale::new((0.0, 5.0), (0.0, 100.0)),
+            ctx,
+            canvas_size: (300, 150),
+            view_data: vec![],
+            min_max_tree,
+        }
+    }
+
     pub fn adjust_canvas(&mut self) -> Option<()> {
         let canvas = self.ctx.canvas()?;
         let width = canvas.client_width() as u32;
@@ -28,19 +44,40 @@ impl Chart {
         Some(())
     }
 
+    fn calc_base_data(&self) -> Vec<MinMax> {
+        let (min, max) = self.view_range;
+        let max_items_on_screen = 300.min(max - min);
+        let range = max - min;
+        let step = range / max_items_on_screen;
+        let v = (0..max_items_on_screen)
+            .map(|i| {
+                self.min_max_tree
+                    .query(min + i * step, min + (i + 1) * step)
+            })
+            .collect::<Vec<_>>();
+        v
+    }
+
     pub fn recalc(&mut self) {
         self.adjust_canvas();
         let (min, max) = self.view_range;
-        self.scale_x = LinScale::new((min as f64, max as f64), (0.0, self.canvas_size.0 as f64));
-        let data = &self.base_data[min..max];
-        let (min, max) = data.iter().fold((f64::MAX, f64::MIN), |(min, max), &x| {
-            (min.min(x), max.max(x))
-        });
-        self.scale_y = LinScale::new((min, max), (5.0, self.canvas_size.1 as f64 - 5.0));
+        let data = self.calc_base_data();
+        let MinMax { min, max } = self.min_max_tree.query(min, max);
+        self.scale_y = LinScale::new((max, min), (5.0, self.canvas_size.1 as f64 - 5.0));
+        self.scale_x = LinScale::new(
+            (0 as f64, data.len() as f64),
+            (0.0, self.canvas_size.0 as f64),
+        );
         self.view_data = data
             .iter()
             .enumerate()
-            .map(|(i, &x)| (self.scale_x.apply(i as f64), self.scale_y.apply(x)))
+            .map(|(i, &min_max)| {
+                let min = self.scale_y.apply(min_max.min);
+                let max = self.scale_y.apply(min_max.max);
+
+                let x = self.scale_x.apply(i as f64);
+                (x, MinMax { min, max })
+            })
             .collect();
     }
 
@@ -53,14 +90,17 @@ impl Chart {
             self.canvas_size.1 as f64,
         );
         ctx.begin_path();
-        if let Some(first_data_point) = self.view_data.first() {
-            ctx.move_to(first_data_point.0, first_data_point.1);
-            for data_point in self.view_data.iter().step_by(1000).skip(1) {
-                ctx.line_to(data_point.0, data_point.1);
-            }
-        }
         let val = JsValue::from_str("red");
         ctx.set_stroke_style(&val);
+        for data_point in self.view_data.iter() {
+            ctx.rect(
+                data_point.0,
+                data_point.1.max,
+                1.0,
+                (data_point.1.max - data_point.1.min).abs(),
+            );
+        }
+
         ctx.stroke();
     }
 }
@@ -84,9 +124,9 @@ impl LinScale {
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
-struct MinMax {
-    min: f64,
-    max: f64,
+pub struct MinMax {
+    pub min: f64,
+    pub max: f64,
 }
 
 impl MinMax {
@@ -120,6 +160,8 @@ impl Identity<MinMax> for MinMaxOp {
         }
     }
 }
+
+pub type MinMaxTree = SegmentPoint<MinMax, MinMaxOp>;
 
 #[cfg(test)]
 mod test {
