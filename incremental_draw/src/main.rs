@@ -15,8 +15,8 @@ fn MyComponent(cx: Scope) -> impl IntoView {
     create_effect(cx, move |_| {
         if let Some(ctx) = context_from(&canvas_ref) {
             let mut chart_obj = Chart {
-                base_data: (0..1000).map(|i| ((i as f64) / 100.0).sin()).collect(),
-                view_range: (0, 900),
+                base_data: (0..1000_000).map(|i| ((i as f64) / 100.0).sin()).collect(),
+                view_range: (0, 900_000),
                 scale_x: LinScale::new((0.0, 5.0), (0.0, 300.0)),
                 scale_y: LinScale::new((0.0, 5.0), (0.0, 100.0)),
                 ctx,
@@ -50,12 +50,12 @@ fn MyComponent(cx: Scope) -> impl IntoView {
         cx,
         <div>
             <button on:click=move |_| {
-                advance_chart(1);
-            }>+</button>
-            <button on:click=move |_| {
-                advance_chart(-1);
+                advance_chart(-100);
             }>-</button>
-            <canvas node_ref=canvas_ref></canvas>
+            <button on:click=move |_| {
+                advance_chart(100);
+            }>+</button>
+            <canvas node_ref=canvas_ref style="width: 100%; height: 500px"></canvas>
         </div>
     }
 }
