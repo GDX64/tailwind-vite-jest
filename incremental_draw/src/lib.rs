@@ -35,10 +35,18 @@ impl Chart {
     }
 
     pub fn adjust_canvas(&mut self) -> Option<()> {
+        self.view_range = (
+            self.view_range.0,
+            self.view_range.1.min(self.min_max_tree.len()).max(10),
+        );
         let canvas = self.ctx.canvas()?;
         let width = canvas.client_width() as u32;
         let height = canvas.client_height() as u32;
-        self.canvas_size = (width, height);
+        let dpi = web_sys::window()
+            .map(|win| win.device_pixel_ratio())
+            .unwrap_or(1.0);
+        self.canvas_size = (((width as f64) * dpi) as u32, (height as f64 * dpi) as u32);
+        let (width, height) = self.canvas_size;
         canvas.set_width(width);
         canvas.set_height(height);
         Some(())
