@@ -14,6 +14,7 @@ pub struct Chart {
     pub canvas_size: (u32, u32),
     pub view_data: Vec<(f64, MinMax)>,
     pub min_max_tree: MinMaxTree,
+    curr_step: usize,
 }
 
 impl Chart {
@@ -31,6 +32,7 @@ impl Chart {
             canvas_size: (300, 150),
             view_data: vec![],
             min_max_tree,
+            curr_step: 1,
         }
     }
 
@@ -45,7 +47,6 @@ impl Chart {
         let dpi = web_sys::window()
             .map(|win| win.device_pixel_ratio())
             .unwrap_or(1.0);
-        log!("dpi {:?}, ({width}, {height})", dpi);
         self.canvas_size = (((width as f64) * dpi) as u32, (height as f64 * dpi) as u32);
         let (width, height) = self.canvas_size;
         canvas.set_width(width);
@@ -53,11 +54,12 @@ impl Chart {
         Some(())
     }
 
-    fn calc_base_data(&self) -> Vec<MinMax> {
+    fn calc_base_data(&mut self) -> Vec<MinMax> {
         let (min, max) = self.view_range;
         let max_items_on_screen = 300.min(max - min);
         let range = max - min;
         let step = range / max_items_on_screen;
+        self.curr_step = step;
         let v = (0..max_items_on_screen)
             .map(|i| {
                 self.min_max_tree
@@ -69,7 +71,6 @@ impl Chart {
 
     pub fn recalc(&mut self) {
         self.adjust_canvas();
-        log!("recalc, {:?}", self.canvas_size);
         let (min, max) = self.view_range;
         let data = self.calc_base_data();
         let MinMax { min, max } = self.min_max_tree.query(min, max);
@@ -112,6 +113,47 @@ impl Chart {
         }
 
         ctx.stroke();
+    }
+
+    pub fn zoom(&mut self, delta: i32) {
+        let (min, max) = self.view_range;
+        let min = min as i32;
+        let max = max as i32;
+        let gap = max - min;
+        let add_delta = delta * (gap / 100).max(1);
+        let new_max = max + add_delta;
+        let new_min = min - add_delta;
+        if gap + add_delta * 2 < 10_000 {
+            return;
+        }
+
+        if new_max > self.min_max_tree.len() as i32 {
+            self.view_range.1 = self.min_max_tree.len();
+            self.view_range.0 = new_min.max(0) as usize;
+        } else if new_min < 0 {
+            self.view_range.0 = 0;
+            self.view_range.1 = new_max.min(self.min_max_tree.len() as i32) as usize;
+        } else {
+            self.view_range.0 = new_min as usize;
+            self.view_range.1 = new_max as usize;
+        }
+        self.recalc();
+    }
+
+    pub fn slide(&mut self, delta: i32) {
+        let view_range = &mut self.view_range;
+        let gap = (view_range.1 - view_range.0) as i32;
+        let min = view_range.0 as i32 + (self.curr_step as i32) * delta;
+        let min = min.max(0);
+        let max = min + gap;
+        if max > self.min_max_tree.len() as i32 {
+            view_range.0 = self.min_max_tree.len() - gap as usize;
+            view_range.1 = self.min_max_tree.len();
+        } else {
+            view_range.0 = min as usize;
+            view_range.1 = max as usize;
+        }
+        self.recalc();
     }
 }
 

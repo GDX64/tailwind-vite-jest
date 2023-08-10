@@ -61,7 +61,6 @@ fn MyComponent(cx: Scope) -> impl IntoView {
                 frame_async().await;
                 chart.with(|chart| {
                     chart.as_ref().map(|chart| {
-                        log!("draw");
                         chart.draw();
                     });
                 });
@@ -69,32 +68,32 @@ fn MyComponent(cx: Scope) -> impl IntoView {
         },
     );
 
-    let advance_chart = move |delta: i32| {
+    let advance_chart = move |deltaY: i32, deltaX: i32| {
         write_chart.update(|chart| {
             chart.as_mut().map(|chart| {
-                let view_range = &mut chart.view_range;
-                view_range.1 = view_range.1.max(100);
-                let add_delta = delta * (view_range.1 / 100).max(1) as i32;
-                view_range.1 = if add_delta < 0 && add_delta.abs() > view_range.1 as i32 {
-                    10
-                } else {
-                    (view_range.1 as i32 + add_delta) as usize
-                };
-                chart.recalc();
+                chart.zoom(deltaY);
+                chart.slide(deltaX)
             });
         })
     };
 
-    let view_elements =
-        move || chart.with(|chart| chart.as_ref().map(|chart| chart.view_range.1).unwrap_or(1));
+    let view_elements = move || {
+        chart.with(|chart| {
+            chart
+                .as_ref()
+                .map(|chart| chart.view_range.1 - chart.view_range.0)
+                .unwrap_or(1)
+        })
+    };
 
     view! {
         cx,
         <div>
             <div>"elements: " {move ||format_str(view_elements())}</div>
             <canvas node_ref=canvas_ref style="width: 100vw; height: 500px" on:wheel= move |event|{
-                let delta = event.delta_y() as i32;
-                advance_chart(delta);
+                let deltaY = event.delta_y() as i32;
+                let deltaX = event.delta_x() as i32;
+                advance_chart(deltaY, deltaX);
             } ></canvas>
         </div>
     }
