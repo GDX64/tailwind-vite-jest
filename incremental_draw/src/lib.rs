@@ -45,6 +45,7 @@ impl Chart {
         let dpi = web_sys::window()
             .map(|win| win.device_pixel_ratio())
             .unwrap_or(1.0);
+        log!("dpi {:?}, ({width}, {height})", dpi);
         self.canvas_size = (((width as f64) * dpi) as u32, (height as f64 * dpi) as u32);
         let (width, height) = self.canvas_size;
         canvas.set_width(width);
@@ -68,6 +69,7 @@ impl Chart {
 
     pub fn recalc(&mut self) {
         self.adjust_canvas();
+        log!("recalc, {:?}", self.canvas_size);
         let (min, max) = self.view_range;
         let data = self.calc_base_data();
         let MinMax { min, max } = self.min_max_tree.query(min, max);
