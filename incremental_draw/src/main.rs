@@ -81,15 +81,25 @@ fn MyComponent(cx: Scope) -> impl IntoView {
         chart.with(|chart| {
             chart
                 .as_ref()
-                .map(|chart| chart.view_range.1 - chart.view_range.0)
-                .unwrap_or(1)
+                .map(|chart| {
+                    let range_size = chart.view_range.1 - chart.view_range.0;
+                    let query = chart.query_range();
+                    format!(
+                        "{} -- {:?} / min: {}, max: {}",
+                        format_str(range_size),
+                        chart.view_range,
+                        query.min as i32,
+                        query.max as i32
+                    )
+                })
+                .unwrap_or("".to_string())
         })
     };
 
     view! {
         cx,
         <div>
-            <div>"elements: " {move ||format_str(view_elements())}</div>
+            <div>"elements: " {move ||view_elements()}</div>
             <canvas node_ref=canvas_ref style="width: 100vw; height: 500px" on:wheel= move |event|{
                 let deltaY = event.delta_y() as i32;
                 let deltaX = event.delta_x() as i32;
