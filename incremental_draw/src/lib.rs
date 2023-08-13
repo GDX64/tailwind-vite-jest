@@ -1,5 +1,6 @@
 use leptos::log;
 use segment_tree::{
+    maybe_owned::MaybeOwned,
     ops::{Commutative, Identity, Operation},
     SegmentPoint,
 };
@@ -14,6 +15,7 @@ pub struct Chart {
     pub canvas_size: (u32, u32),
     pub view_data: Vec<(f64, MinMax)>,
     pub min_max_tree: MinMaxTree,
+    size_updated: bool,
     curr_step: usize,
 }
 
@@ -33,10 +35,11 @@ impl Chart {
             view_data: vec![],
             min_max_tree,
             curr_step: 1,
+            size_updated: false,
         }
     }
 
-    pub fn query_range(&self) -> MinMax {
+    pub fn query_range<'a>(&'a self) -> MinMax {
         let (min, max) = self.view_range;
         self.min_max_tree.query(min, max)
     }
@@ -63,42 +66,42 @@ impl Chart {
         Some(())
     }
 
-    fn calc_base_data(&mut self) -> Vec<MinMax> {
+    fn calc_base_data(&mut self) -> impl ExactSizeIterator<Item = MinMax> + '_ {
         let (min, max) = self.view_range;
         let max_items_on_screen = 300.min(max - min);
         let range = max - min;
         let step = range / max_items_on_screen;
         self.curr_step = step;
-        let v = (0..max_items_on_screen)
-            .map(|i| {
-                self.min_max_tree
-                    .query(min + i * step, min + (i + 1) * step)
-            })
-            .collect::<Vec<_>>();
-        v
+        let iter = (0..max_items_on_screen).map(move |i| {
+            self.min_max_tree
+                .query(min + i * step, min + (i + 1) * step)
+        });
+        iter
     }
 
     pub fn recalc(&mut self) {
-        self.adjust_canvas();
+        if !self.size_updated {
+            self.adjust_canvas();
+            self.size_updated = true;
+        }
         let (min, max) = self.view_range;
-        let data = self.calc_base_data();
+        let canvas_size = self.canvas_size.clone();
         let MinMax { min, max } = self.min_max_tree.query(min, max);
-        self.scale_y = LinScale::new((max, min), (5.0, self.canvas_size.1 as f64 - 5.0));
-        self.scale_x = LinScale::new(
-            (0 as f64, data.len() as f64),
-            (0.0, self.canvas_size.0 as f64),
-        );
+        let data = self.calc_base_data();
+        let scale_y = LinScale::new((max, min), (5.0, canvas_size.1 as f64 - 5.0));
+        let scale_x = LinScale::new((0 as f64, data.len() as f64), (0.0, canvas_size.0 as f64));
         self.view_data = data
-            .iter()
             .enumerate()
-            .map(|(i, &min_max)| {
-                let min = self.scale_y.apply(min_max.min);
-                let max = self.scale_y.apply(min_max.max);
+            .map(|(i, min_max)| {
+                let min = scale_y.apply(min_max.min);
+                let max = scale_y.apply(min_max.max);
 
-                let x = self.scale_x.apply(i as f64);
+                let x = scale_x.apply(i as f64);
                 (x, MinMax { min, max })
             })
             .collect();
+        self.scale_x = scale_x;
+        self.scale_y = scale_y;
     }
 
     pub fn draw(&self) {
