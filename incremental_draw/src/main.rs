@@ -44,7 +44,7 @@ fn MyComponent(cx: Scope) -> impl IntoView {
     canvas_ref.on_load(cx, move |node| {
         node.on_mount(move |node| {
             if let Some(ctx) = context_from(&node) {
-                let base_data: Vec<f64> = random_walk(10_000_000);
+                let base_data: Vec<f64> = random_walk(20_000_000);
                 let mut chart_obj = Chart::build(&base_data, ctx);
                 chart_obj.recalc();
                 write_chart.set(Some(chart_obj));
@@ -84,10 +84,13 @@ fn MyComponent(cx: Scope) -> impl IntoView {
                 .map(|chart| {
                     let range_size = chart.view_range.1 - chart.view_range.0;
                     let query = chart.query_range();
+                    let (min, max) = chart.view_range;
                     format!(
-                        "{} -- {:?} / min: {}, max: {}",
+                        "{}({}) - ({} - {}) / min: {}, max: {}",
                         format_str(range_size),
-                        chart.view_range,
+                        format_percent(range_size, chart.get_size()),
+                        format_percent(min, chart.get_size()),
+                        format_percent(max, chart.get_size()),
                         query.min as i32,
                         query.max as i32
                     )
@@ -99,7 +102,7 @@ fn MyComponent(cx: Scope) -> impl IntoView {
     view! {
         cx,
         <div>
-            <div>"elements: " {move ||view_elements()}</div>
+            <div> {move ||view_elements()}</div>
             <canvas node_ref=canvas_ref style="width: 100vw; height: 500px" on:wheel= move |event|{
                 let deltaY = event.delta_y() as i32;
                 let deltaX = event.delta_x() as i32;
@@ -128,4 +131,8 @@ fn format_str(num: usize) -> String {
         res.push(c);
     });
     res.chars().rev().collect()
+}
+
+fn format_percent(num: usize, reference: usize) -> String {
+    format!("{:.2}%", (num as f64 / reference as f64) * 100.0)
 }

@@ -41,6 +41,10 @@ impl Chart {
         self.min_max_tree.query(min, max)
     }
 
+    pub fn get_size(&self) -> usize {
+        self.min_max_tree.len()
+    }
+
     pub fn adjust_canvas(&mut self) -> Option<()> {
         self.view_range = (
             self.view_range.0,
