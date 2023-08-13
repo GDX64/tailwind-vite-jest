@@ -1,6 +1,4 @@
-use leptos::log;
 use segment_tree::{
-    maybe_owned::MaybeOwned,
     ops::{Commutative, Identity, Operation},
     SegmentPoint,
 };
@@ -15,6 +13,7 @@ pub struct Chart {
     pub canvas_size: (u32, u32),
     pub view_data: Vec<(f64, MinMax)>,
     pub min_max_tree: MinMaxTree,
+    pub avg_recalc_time: f64,
     size_updated: bool,
     curr_step: usize,
 }
@@ -36,6 +35,7 @@ impl Chart {
             min_max_tree,
             curr_step: 1,
             size_updated: false,
+            avg_recalc_time: 0.0,
         }
     }
 
@@ -66,20 +66,20 @@ impl Chart {
         Some(())
     }
 
-    fn calc_base_data(&mut self) -> impl ExactSizeIterator<Item = MinMax> + '_ {
+    fn calc_base_data(&self) -> (impl ExactSizeIterator<Item = MinMax> + '_, usize) {
         let (min, max) = self.view_range;
         let max_items_on_screen = 300.min(max - min);
         let range = max - min;
         let step = range / max_items_on_screen;
-        self.curr_step = step;
         let iter = (0..max_items_on_screen).map(move |i| {
             self.min_max_tree
                 .query(min + i * step, min + (i + 1) * step)
         });
-        iter
+        (iter, step)
     }
 
     pub fn recalc(&mut self) {
+        let start_time = js_sys::Date::now();
         if !self.size_updated {
             self.adjust_canvas();
             self.size_updated = true;
@@ -87,7 +87,7 @@ impl Chart {
         let (min, max) = self.view_range;
         let canvas_size = self.canvas_size.clone();
         let MinMax { min, max } = self.min_max_tree.query(min, max);
-        let data = self.calc_base_data();
+        let (data, step) = self.calc_base_data();
         let scale_y = LinScale::new((max, min), (5.0, canvas_size.1 as f64 - 5.0));
         let scale_x = LinScale::new((0 as f64, data.len() as f64), (0.0, canvas_size.0 as f64));
         self.view_data = data
@@ -102,6 +102,9 @@ impl Chart {
             .collect();
         self.scale_x = scale_x;
         self.scale_y = scale_y;
+        self.curr_step = step;
+        let end_time = js_sys::Date::now();
+        self.avg_recalc_time = (end_time - start_time) * 0.1 + self.avg_recalc_time * 0.9;
     }
 
     pub fn draw(&self) {
@@ -203,7 +206,7 @@ impl MinMax {
     }
 }
 
-struct MinMaxOp;
+pub struct MinMaxOp;
 
 impl Operation<MinMax> for MinMaxOp {
     fn combine(&self, a: &MinMax, b: &MinMax) -> MinMax {

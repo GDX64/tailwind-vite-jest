@@ -86,13 +86,14 @@ fn MyComponent(cx: Scope) -> impl IntoView {
                     let query = chart.query_range();
                     let (min, max) = chart.view_range;
                     format!(
-                        "{}({}) - ({} - {}) / min: {}, max: {}",
+                        "{}({}) - ({} - {}) / min: {}, max: {} | recalc time: {:.2}ms",
                         format_str(range_size),
                         format_percent(range_size, chart.get_size()),
                         format_percent(min, chart.get_size()),
                         format_percent(max, chart.get_size()),
                         query.min as i32,
-                        query.max as i32
+                        query.max as i32,
+                        chart.avg_recalc_time,
                     )
                 })
                 .unwrap_or("".to_string())
