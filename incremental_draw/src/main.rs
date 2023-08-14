@@ -44,7 +44,7 @@ fn MyComponent(cx: Scope) -> impl IntoView {
     canvas_ref.on_load(cx, move |node| {
         node.on_mount(move |node| {
             if let Some(ctx) = context_from(&node) {
-                let base_data: Vec<f64> = random_walk(20_000_000);
+                let base_data: Vec<f64> = random_walk(10_000_000);
                 let mut chart_obj = Chart::build(&base_data, ctx);
                 chart_obj.recalc();
                 write_chart.set(Some(chart_obj));

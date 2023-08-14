@@ -1,7 +1,4 @@
-use segment_tree::{
-    ops::{Commutative, Identity, Operation},
-    SegmentPoint,
-};
+use segment_tree::{ops::Operation, SegmentPoint};
 use wasm_bindgen::JsValue;
 use web_sys::CanvasRenderingContext2d;
 
