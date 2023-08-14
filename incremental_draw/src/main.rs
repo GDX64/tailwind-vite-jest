@@ -2,7 +2,7 @@ use futures::channel::oneshot;
 use incremental_draw::Chart;
 use leptos::{html::*, *};
 use wasm_bindgen::{prelude::Closure, JsCast};
-use web_sys::CanvasRenderingContext2d;
+use web_sys::{CanvasRenderingContext2d, PointerEvent};
 
 pub fn main() {
     mount_to_body(|cx| view! { cx,  <MyComponent></MyComponent> })
@@ -40,7 +40,7 @@ fn random_walk(size: usize) -> Vec<f64> {
 fn MyComponent(cx: Scope) -> impl IntoView {
     let canvas_ref: NodeRef<Canvas> = create_node_ref(cx);
     let (chart, write_chart) = create_signal(cx, None as Option<Chart>);
-
+    let (mouse_point, write_mouse_point) = create_signal(cx, (0.0, 0.0));
     canvas_ref.on_load(cx, move |node| {
         node.on_mount(move |node| {
             if let Some(ctx) = context_from(&node) {
@@ -71,7 +71,7 @@ fn MyComponent(cx: Scope) -> impl IntoView {
     let advance_chart = move |deltaY: i32, deltaX: i32| {
         write_chart.update(|chart| {
             chart.as_mut().map(|chart| {
-                chart.zoom(deltaY);
+                chart.zoom(deltaY, mouse_point.get().0);
                 chart.slide(deltaX)
             });
         })
@@ -104,11 +104,16 @@ fn MyComponent(cx: Scope) -> impl IntoView {
         cx,
         <div>
             <div> {move ||view_elements()}</div>
-            <canvas node_ref=canvas_ref style="width: 100vw; height: 500px" on:wheel= move |event|{
+            <canvas node_ref=canvas_ref style="width: 100vw; height: 500px"
+            on:wheel= move |event|{
                 let deltaY = event.delta_y() as i32;
                 let deltaX = event.delta_x() as i32;
                 advance_chart(deltaY, deltaX);
-            } ></canvas>
+            }
+            on:pointermove= move |event: PointerEvent|{
+                write_mouse_point.set((event.offset_x() as f64, event.offset_y() as f64));
+            }
+            ></canvas>
         </div>
     }
 }

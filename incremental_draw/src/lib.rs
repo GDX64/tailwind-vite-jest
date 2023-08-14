@@ -39,6 +39,12 @@ impl Chart {
         }
     }
 
+    fn dpr() -> f64 {
+        web_sys::window()
+            .map(|win| win.device_pixel_ratio())
+            .unwrap_or(1.0)
+    }
+
     pub fn query_range<'a>(&'a self) -> MinMax {
         let (min, max) = self.view_range;
         self.min_max_tree.query(min, max)
@@ -56,10 +62,8 @@ impl Chart {
         let canvas = self.ctx.canvas()?;
         let width = canvas.client_width() as u32;
         let height = canvas.client_height() as u32;
-        let dpi = web_sys::window()
-            .map(|win| win.device_pixel_ratio())
-            .unwrap_or(1.0);
-        self.canvas_size = (((width as f64) * dpi) as u32, (height as f64 * dpi) as u32);
+        let dpr = Self::dpr();
+        self.canvas_size = (((width as f64) * dpr) as u32, (height as f64 * dpr) as u32);
         let (width, height) = self.canvas_size;
         canvas.set_width(width);
         canvas.set_height(height);
@@ -130,28 +134,27 @@ impl Chart {
         ctx.stroke();
     }
 
-    pub fn zoom(&mut self, delta: i32) {
+    pub fn zoom(&mut self, delta: i32, center_point: f64) {
         let (min, max) = self.view_range;
+        let point_index =
+            ((self.scale_x.apply_inv(center_point * Self::dpr()) as usize) * self.curr_step) + min;
+        let point_index = point_index.max(0).min(self.min_max_tree.len()) as i32;
         let min = min as i32;
         let max = max as i32;
-        let gap = max - min;
-        let add_delta = delta * (gap / 100).max(1);
-        let new_max = max + add_delta;
-        let new_min = min - add_delta;
-        if gap + add_delta * 2 < 10_000 {
+        let range = max - min;
+        let range_left = point_index - min;
+        let range_right = max - point_index;
+        let delta_left = (delta * range_left) / 100;
+        let delta_right = (delta * range_right) / 100;
+        let new_max = (max + delta_right)
+            .max(point_index + 1)
+            .min(self.get_size() as i32);
+        let new_min = (min - delta_left).max(0).min(point_index - 1);
+        if range + delta_left + delta_right < 10_000 {
             return;
         }
-
-        if new_max > self.min_max_tree.len() as i32 {
-            self.view_range.1 = self.min_max_tree.len();
-            self.view_range.0 = new_min.max(0) as usize;
-        } else if new_min < 0 {
-            self.view_range.0 = 0;
-            self.view_range.1 = new_max.min(self.min_max_tree.len() as i32) as usize;
-        } else {
-            self.view_range.0 = new_min as usize;
-            self.view_range.1 = new_max as usize;
-        }
+        self.view_range.0 = new_min.max(0) as usize;
+        self.view_range.1 = new_max.min(self.get_size() as i32) as usize;
         self.recalc();
     }
 
@@ -180,13 +183,17 @@ pub struct LinScale {
 
 impl LinScale {
     pub fn new(domain: (f64, f64), range: (f64, f64)) -> LinScale {
-        let k = (range.1 - range.0) / (domain.1 - domain.0);
-        let alpha = range.0 - k * domain.0;
+        let alpha = (range.1 - range.0) / (domain.1 - domain.0);
+        let k = range.0 - alpha * domain.0;
         LinScale { k, alpha }
     }
 
     pub fn apply(&self, x: f64) -> f64 {
-        self.k * x + self.alpha
+        self.alpha * x + self.k
+    }
+
+    pub fn apply_inv(&self, y: f64) -> f64 {
+        (y - self.k) / self.alpha
     }
 }
 
