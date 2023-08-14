@@ -54,13 +54,12 @@ fn MyComponent(cx: Scope) -> impl IntoView {
 
     create_resource(
         cx,
-        move || chart.track(),
-        move |_| {
-            chart.track();
-            async move {
+        move || (),
+        move |_| async move {
+            loop {
                 frame_async().await;
-                chart.with(|chart| {
-                    chart.as_ref().map(|chart| {
+                write_chart.update_untracked(|chart| {
+                    chart.as_mut().map(|chart| {
                         chart.draw();
                     });
                 });

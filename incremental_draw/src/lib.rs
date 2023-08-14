@@ -13,10 +13,13 @@ pub struct Chart {
     pub ctx: CanvasRenderingContext2d,
     pub canvas_size: (u32, u32),
     pub view_data: Vec<(f64, Candle)>,
+    last_draw_data: Vec<(f64, Candle)>,
     pub min_max_tree: MinMaxTree,
     pub avg_recalc_time: f64,
     size_updated: bool,
     curr_step: usize,
+    should_draw: bool,
+    last_draw_time: f64,
 }
 
 impl Chart {
@@ -33,10 +36,13 @@ impl Chart {
             ctx,
             canvas_size: (300, 150),
             view_data: vec![],
+            last_draw_data: vec![],
             min_max_tree,
             curr_step: 1,
             size_updated: false,
             avg_recalc_time: 0.0,
+            should_draw: false,
+            last_draw_time: 0.0,
         }
     }
 
@@ -113,9 +119,16 @@ impl Chart {
         self.curr_step = step;
         let end_time = js_sys::Date::now();
         self.avg_recalc_time = (end_time - start_time) * 0.1 + self.avg_recalc_time * 0.9;
+        self.should_draw = true;
+        self.last_draw_time = js_sys::Date::now();
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&mut self) {
+        if !self.should_draw {
+            return;
+        }
+        let time_percent = (js_sys::Date::now() - self.last_draw_time) / 64.0;
+        let time_percent = time_percent.min(1.0);
         let ctx = &self.ctx;
         ctx.clear_rect(
             0.0,
@@ -127,7 +140,16 @@ impl Chart {
         let val = JsValue::from_str("green");
         ctx.set_stroke_style(&val);
         ctx.set_fill_style(&val);
-        for (x, candle) in self.view_data.iter() {
+        if self.last_draw_data.len() != self.view_data.len() {
+            self.last_draw_data = self.view_data.clone();
+        }
+        self.last_draw_data = self
+            .view_data
+            .iter()
+            .zip(&self.last_draw_data)
+            .map(|((x, now), (_, last))| (*x, last.interpolate(now, time_percent)))
+            .collect();
+        for (x, candle) in self.last_draw_data.iter() {
             if candle.is_positive() {
                 candle.draw(ctx, *x);
             }
@@ -139,13 +161,16 @@ impl Chart {
         let val = JsValue::from_str("red");
         ctx.set_fill_style(&val);
         ctx.set_stroke_style(&val);
-        for (x, candle) in self.view_data.iter() {
+        for (x, candle) in self.last_draw_data.iter() {
             if !candle.is_positive() {
                 candle.draw(ctx, *x);
             }
         }
         ctx.stroke();
         ctx.fill();
+        if time_percent == 1.0 {
+            self.should_draw = false;
+        }
     }
 
     pub fn zoom(&mut self, delta: i32, center_point: f64) {
@@ -226,6 +251,15 @@ impl Candle {
             max,
             open,
             close,
+        }
+    }
+
+    fn interpolate(&self, other: &Self, percent: f64) -> Self {
+        Candle {
+            min: self.min + (other.min - self.min) * percent,
+            max: self.max + (other.max - self.max) * percent,
+            open: self.open + (other.open - self.open) * percent,
+            close: self.close + (other.close - self.close) * percent,
         }
     }
 
