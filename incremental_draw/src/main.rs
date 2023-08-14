@@ -2,7 +2,7 @@ use futures::channel::oneshot;
 use incremental_draw::Chart;
 use leptos::{html::*, *};
 use wasm_bindgen::{prelude::Closure, JsCast};
-use web_sys::{CanvasRenderingContext2d, PointerEvent};
+use web_sys::{CanvasRenderingContext2d, PointerEvent, TouchEvent};
 
 pub fn main() {
     mount_to_body(|cx| view! { cx,  <MyComponent></MyComponent> })
@@ -41,6 +41,8 @@ fn MyComponent(cx: Scope) -> impl IntoView {
     let canvas_ref: NodeRef<Canvas> = create_node_ref(cx);
     let (chart, write_chart) = create_signal(cx, None as Option<Chart>);
     let (mouse_point, write_mouse_point) = create_signal(cx, (0.0, 0.0));
+    let (is_pointer_down, write_is_pointer_down) = create_signal(cx, false);
+    let (draw_count, write_draw_count) = create_signal(cx, 0);
     canvas_ref.on_load(cx, move |node| {
         node.on_mount(move |node| {
             if let Some(ctx) = context_from(&node) {
@@ -60,7 +62,9 @@ fn MyComponent(cx: Scope) -> impl IntoView {
                 frame_async().await;
                 write_chart.update_untracked(|chart| {
                     chart.as_mut().map(|chart| {
-                        chart.draw();
+                        if chart.draw() {
+                            write_draw_count.set(draw_count.get() + 1);
+                        };
                     });
                 });
             }
@@ -101,16 +105,29 @@ fn MyComponent(cx: Scope) -> impl IntoView {
 
     view! {
         cx,
-        <div>
+        <div style="overflow: hidden; width: 100%; height: fit-content; user-select: none">
             <div> {move ||view_elements()}</div>
-            <canvas node_ref=canvas_ref style="width: 100vw; height: 500px"
+            <div> {move || format!("{}", draw_count.get())}</div>
+            <canvas node_ref=canvas_ref style="width: 100%; height: 500px"
             on:wheel= move |event|{
                 let deltaY = event.delta_y() as i32;
                 let deltaX = event.delta_x() as i32;
+                log!("deltaY: {}, deltaX: {}", deltaY, deltaX);
                 advance_chart(deltaY, deltaX);
             }
             on:pointermove= move |event: PointerEvent|{
-                write_mouse_point.set((event.offset_x() as f64, event.offset_y() as f64));
+                if is_pointer_down.get() {
+                    let deltaX = event.client_x() - mouse_point.get().0 as i32;
+                    let deltaY = event.client_y() - mouse_point.get().1 as i32;
+                    advance_chart(deltaY, deltaX);
+                }
+                write_mouse_point.set((event.client_x() as f64, event.client_y() as f64));
+            }
+            on:pointerdown=move |_|{
+                write_is_pointer_down.set(true);
+            }
+            on:pointerup=move |_|{
+                write_is_pointer_down.set(false);
             }
             ></canvas>
         </div>

@@ -2,9 +2,9 @@ use segment_tree::{ops::Operation, SegmentPoint};
 use wasm_bindgen::JsValue;
 use web_sys::CanvasRenderingContext2d;
 
-const CANDLE_WIDTH: usize = 11;
-const CANDLE_PADDING: usize = 3;
-const CANDLE_REAL_WIDTH: usize = CANDLE_WIDTH - CANDLE_PADDING;
+const CANDLE_WIDTH: f64 = 21.0;
+const CANDLE_PADDING: f64 = 4.0;
+const TRANSITION_TIME: f64 = 80.0;
 
 pub struct Chart {
     pub view_range: (usize, usize),
@@ -80,7 +80,7 @@ impl Chart {
     fn calc_base_data(&self) -> (impl ExactSizeIterator<Item = Candle> + '_, usize) {
         let (min, max) = self.view_range;
         let canvas_width = self.canvas_size.0;
-        let max_candles = canvas_width as usize / CANDLE_WIDTH;
+        let max_candles = (canvas_width as f64 / (CANDLE_WIDTH * Self::dpr())) as usize;
         let max_items_on_screen = max_candles.min(max - min);
         let range = max - min;
         let step = range / max_items_on_screen;
@@ -123,13 +123,14 @@ impl Chart {
         self.last_draw_time = js_sys::Date::now();
     }
 
-    pub fn draw(&mut self) {
+    pub fn draw(&mut self) -> bool {
         if !self.should_draw {
-            return;
+            return false;
         }
-        let time_percent = (js_sys::Date::now() - self.last_draw_time) / 64.0;
+        let time_percent = (js_sys::Date::now() - self.last_draw_time) / TRANSITION_TIME;
         let time_percent = time_percent.min(1.0);
         let ctx = &self.ctx;
+        ctx.save();
         ctx.clear_rect(
             0.0,
             0.0,
@@ -143,6 +144,8 @@ impl Chart {
         if self.last_draw_data.len() != self.view_data.len() {
             self.last_draw_data = self.view_data.clone();
         }
+        let width = Self::dpr() * CANDLE_WIDTH;
+        let padding = Self::dpr() * CANDLE_PADDING;
         self.last_draw_data = self
             .view_data
             .iter()
@@ -151,11 +154,11 @@ impl Chart {
             .collect();
         for (x, candle) in self.last_draw_data.iter() {
             if candle.is_positive() {
-                candle.draw(ctx, *x);
+                candle.draw(ctx, *x, width, padding);
             }
         }
         ctx.close_path();
-        ctx.stroke();
+        // ctx.stroke();
         ctx.fill();
         ctx.begin_path();
         let val = JsValue::from_str("red");
@@ -163,14 +166,16 @@ impl Chart {
         ctx.set_stroke_style(&val);
         for (x, candle) in self.last_draw_data.iter() {
             if !candle.is_positive() {
-                candle.draw(ctx, *x);
+                candle.draw(ctx, *x, width, padding);
             }
         }
-        ctx.stroke();
+        // ctx.stroke();
         ctx.fill();
+        ctx.restore();
         if time_percent == 1.0 {
             self.should_draw = false;
         }
+        return true;
     }
 
     pub fn zoom(&mut self, delta: i32, center_point: f64) {
@@ -263,17 +268,12 @@ impl Candle {
         }
     }
 
-    fn draw(&self, ctx: &CanvasRenderingContext2d, x: f64) {
-        ctx.rect(
-            x + ((CANDLE_WIDTH + 1) / 2) as f64,
-            self.max,
-            1.0,
-            (self.max - self.min).abs(),
-        );
+    fn draw(&self, ctx: &CanvasRenderingContext2d, x: f64, width: f64, padding: f64) {
+        ctx.rect(x + width / 2.0, self.max, 1.0, (self.max - self.min).abs());
         let upper = self.open.max(self.close);
         let lower = self.open.min(self.close);
-        let width = CANDLE_REAL_WIDTH as f64;
-        ctx.rect(x + CANDLE_PADDING as f64, lower, width, upper - lower)
+        let width = width - padding * 2.0;
+        ctx.rect(x + padding as f64, lower, width, upper - lower)
     }
 
     fn is_positive(&self) -> bool {
