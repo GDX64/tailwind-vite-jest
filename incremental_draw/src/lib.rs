@@ -5,13 +5,17 @@ use segment_tree::{
 use wasm_bindgen::JsValue;
 use web_sys::CanvasRenderingContext2d;
 
+const CANDLE_WIDTH: usize = 11;
+const CANDLE_PADDING: usize = 3;
+const CANDLE_REAL_WIDTH: usize = CANDLE_WIDTH - CANDLE_PADDING;
+
 pub struct Chart {
     pub view_range: (usize, usize),
     pub scale_x: LinScale,
     pub scale_y: LinScale,
     pub ctx: CanvasRenderingContext2d,
     pub canvas_size: (u32, u32),
-    pub view_data: Vec<(f64, MinMax)>,
+    pub view_data: Vec<(f64, Candle)>,
     pub min_max_tree: MinMaxTree,
     pub avg_recalc_time: f64,
     size_updated: bool,
@@ -22,7 +26,7 @@ impl Chart {
     pub fn build(base_data: &[f64], ctx: CanvasRenderingContext2d) -> Chart {
         let base = base_data
             .iter()
-            .map(|v| MinMax::same(*v))
+            .map(|v| Candle::same(*v))
             .collect::<Vec<_>>();
         let min_max_tree = MinMaxTree::build(base, MinMaxOp);
         Chart {
@@ -45,9 +49,9 @@ impl Chart {
             .unwrap_or(1.0)
     }
 
-    pub fn query_range<'a>(&'a self) -> MinMax {
+    pub fn query_range<'a>(&'a self) -> Candle {
         let (min, max) = self.view_range;
-        self.min_max_tree.query(min, max)
+        self.min_max_tree.query_noiden(min, max)
     }
 
     pub fn get_size(&self) -> usize {
@@ -70,14 +74,16 @@ impl Chart {
         Some(())
     }
 
-    fn calc_base_data(&self) -> (impl ExactSizeIterator<Item = MinMax> + '_, usize) {
+    fn calc_base_data(&self) -> (impl ExactSizeIterator<Item = Candle> + '_, usize) {
         let (min, max) = self.view_range;
-        let max_items_on_screen = 300.min(max - min);
+        let canvas_width = self.canvas_size.0;
+        let max_candles = canvas_width as usize / CANDLE_WIDTH;
+        let max_items_on_screen = max_candles.min(max - min);
         let range = max - min;
         let step = range / max_items_on_screen;
         let iter = (0..max_items_on_screen).map(move |i| {
             self.min_max_tree
-                .query(min + i * step, min + (i + 1) * step)
+                .query_noiden(min + i * step, min + (i + 1) * step)
         });
         (iter, step)
     }
@@ -90,7 +96,7 @@ impl Chart {
         }
         let (min, max) = self.view_range;
         let canvas_size = self.canvas_size.clone();
-        let MinMax { min, max } = self.min_max_tree.query(min, max);
+        let Candle { min, max, .. } = self.min_max_tree.query_noiden(min, max);
         let (data, step) = self.calc_base_data();
         let scale_y = LinScale::new((max, min), (5.0, canvas_size.1 as f64 - 5.0));
         let scale_x = LinScale::new((0 as f64, data.len() as f64), (0.0, canvas_size.0 as f64));
@@ -99,9 +105,10 @@ impl Chart {
             .map(|(i, min_max)| {
                 let min = scale_y.apply(min_max.min);
                 let max = scale_y.apply(min_max.max);
-
+                let close = scale_y.apply(min_max.close);
+                let open = scale_y.apply(min_max.open);
                 let x = scale_x.apply(i as f64);
-                (x, MinMax { min, max })
+                (x, Candle::new(min, max, close, open))
             })
             .collect();
         self.scale_x = scale_x;
@@ -120,18 +127,28 @@ impl Chart {
             self.canvas_size.1 as f64,
         );
         ctx.begin_path();
-        let val = JsValue::from_str("red");
+        let val = JsValue::from_str("green");
         ctx.set_stroke_style(&val);
-        for data_point in self.view_data.iter() {
-            ctx.rect(
-                data_point.0,
-                data_point.1.max,
-                1.0,
-                (data_point.1.max - data_point.1.min).abs(),
-            );
+        ctx.set_fill_style(&val);
+        for (x, candle) in self.view_data.iter() {
+            if candle.is_positive() {
+                candle.draw(ctx, *x);
+            }
         }
-
+        ctx.close_path();
         ctx.stroke();
+        ctx.fill();
+        ctx.begin_path();
+        let val = JsValue::from_str("red");
+        ctx.set_fill_style(&val);
+        ctx.set_stroke_style(&val);
+        for (x, candle) in self.view_data.iter() {
+            if !candle.is_positive() {
+                candle.draw(ctx, *x);
+            }
+        }
+        ctx.stroke();
+        ctx.fill();
     }
 
     pub fn zoom(&mut self, delta: i32, center_point: f64) {
@@ -198,63 +215,78 @@ impl LinScale {
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
-pub struct MinMax {
+pub struct Candle {
     pub min: f64,
     pub max: f64,
+    pub open: f64,
+    pub close: f64,
 }
 
-impl MinMax {
-    fn new(min: f64, max: f64) -> MinMax {
-        MinMax { min, max }
+impl Candle {
+    fn new(min: f64, max: f64, open: f64, close: f64) -> Candle {
+        Candle {
+            min,
+            max,
+            open,
+            close,
+        }
     }
 
-    fn same(val: f64) -> MinMax {
-        MinMax::new(val, val)
+    fn draw(&self, ctx: &CanvasRenderingContext2d, x: f64) {
+        ctx.rect(
+            x + ((CANDLE_WIDTH + 1) / 2) as f64,
+            self.max,
+            1.0,
+            (self.max - self.min).abs(),
+        );
+        let upper = self.open.max(self.close);
+        let lower = self.open.min(self.close);
+        let width = CANDLE_REAL_WIDTH as f64;
+        ctx.rect(x + CANDLE_PADDING as f64, lower, width, upper - lower)
+    }
+
+    fn is_positive(&self) -> bool {
+        self.close > self.open
+    }
+
+    fn same(val: f64) -> Candle {
+        Candle::new(val, val, val, val)
     }
 }
 
 pub struct MinMaxOp;
 
-impl Operation<MinMax> for MinMaxOp {
-    fn combine(&self, a: &MinMax, b: &MinMax) -> MinMax {
-        MinMax {
+impl Operation<Candle> for MinMaxOp {
+    fn combine(&self, a: &Candle, b: &Candle) -> Candle {
+        Candle {
             min: a.min.min(b.min),
             max: a.max.max(b.max),
+            open: a.open,
+            close: b.close,
         }
     }
 }
 
-impl Commutative<MinMax> for MinMaxOp {}
-
-impl Identity<MinMax> for MinMaxOp {
-    fn identity(&self) -> MinMax {
-        MinMax {
-            min: f64::MAX,
-            max: f64::MIN,
-        }
-    }
-}
-
-pub type MinMaxTree = SegmentPoint<MinMax, MinMaxOp>;
+pub type MinMaxTree = SegmentPoint<Candle, MinMaxOp>;
 
 #[cfg(test)]
 mod test {
     use segment_tree::SegmentPoint;
 
-    use crate::{MinMax, MinMaxOp};
+    use crate::{Candle, MinMaxOp};
 
     #[test]
     fn test_segment_tree() {
         let example_minmax_vec = vec![
-            MinMax::same(1.0),
-            MinMax::same(2.0),
-            MinMax::same(3.0),
-            MinMax::same(4.0),
-            MinMax::same(5.0),
-            MinMax::same(6.0),
+            Candle::same(1.0),
+            Candle::same(2.0),
+            Candle::same(3.0),
+            Candle::same(4.0),
+            Candle::same(5.0),
+            Candle::same(6.0),
         ];
 
         let tree = SegmentPoint::build(example_minmax_vec, MinMaxOp);
-        assert_eq!(tree.query(0, 6), MinMax::new(1.0, 6.0));
+        assert_eq!(tree.query_noiden(0, 6), Candle::new(1.0, 6.0, 0.0, 0.0));
     }
 }
