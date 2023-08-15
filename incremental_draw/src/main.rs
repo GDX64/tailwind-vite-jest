@@ -1,24 +1,16 @@
 use futures::channel::oneshot;
 use incremental_draw::Chart;
 use leptos::{html::*, *};
-use wasm_bindgen::{prelude::Closure, JsCast};
-use web_sys::{CanvasRenderingContext2d, PointerEvent, TouchEvent};
+use wasm_bindgen::JsCast;
+use web_sys::{CanvasRenderingContext2d, PointerEvent};
 
 pub fn main() {
     mount_to_body(|cx| view! { cx,  <MyComponent></MyComponent> })
 }
 
-fn request_frame<F: FnOnce() + 'static>(f: F) -> Option<i32> {
-    let f = Closure::once(Box::new(f) as Box<dyn FnOnce()>);
-    let res = window()
-        .request_animation_frame(f.into_js_value().unchecked_ref())
-        .ok()?;
-    Some(res)
-}
-
 async fn frame_async() {
     let (sender, receiver) = oneshot::channel::<()>();
-    request_frame(move || {
+    leptos::request_animation_frame(move || {
         sender.send(()).ok();
     });
     receiver.await.ok();

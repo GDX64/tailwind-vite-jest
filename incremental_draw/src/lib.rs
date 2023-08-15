@@ -2,9 +2,9 @@ use segment_tree::{ops::Operation, SegmentPoint};
 use wasm_bindgen::JsValue;
 use web_sys::CanvasRenderingContext2d;
 
-const CANDLE_WIDTH: f64 = 21.0;
-const CANDLE_PADDING: f64 = 4.0;
-const TRANSITION_TIME: f64 = 80.0;
+const CANDLE_WIDTH: f64 = 11.0;
+const CANDLE_PADDING: f64 = 2.0;
+const TRANSITION_TIME: f64 = 60.0;
 
 pub struct Chart {
     pub view_range: (usize, usize),
@@ -179,6 +179,7 @@ impl Chart {
     }
 
     pub fn zoom(&mut self, delta: i32, center_point: f64) {
+        leptos::log!("zooming delta: {}, center_point: {}", delta, center_point);
         let (min, max) = self.view_range;
         let point_index =
             ((self.scale_x.apply_inv(center_point * Self::dpr()) as usize) * self.curr_step) + min;
