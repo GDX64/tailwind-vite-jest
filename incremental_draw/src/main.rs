@@ -34,7 +34,6 @@ fn MyComponent(cx: Scope) -> impl IntoView {
     let (chart, write_chart) = create_signal(cx, None as Option<Chart>);
     let (mouse_point, write_mouse_point) = create_signal(cx, (0.0, 0.0));
     let (is_pointer_down, write_is_pointer_down) = create_signal(cx, false);
-    let (draw_count, write_draw_count) = create_signal(cx, 0);
     canvas_ref.on_load(cx, move |node| {
         node.on_mount(move |node| {
             if let Some(ctx) = context_from(&node) {
@@ -54,9 +53,7 @@ fn MyComponent(cx: Scope) -> impl IntoView {
                 frame_async().await;
                 write_chart.update_untracked(|chart| {
                     chart.as_mut().map(|chart| {
-                        if chart.draw() {
-                            write_draw_count.set(draw_count.get() + 1);
-                        };
+                        chart.draw();
                     });
                 });
             }
@@ -97,14 +94,12 @@ fn MyComponent(cx: Scope) -> impl IntoView {
 
     view! {
         cx,
-        <div style="overflow: hidden; width: 100%; height: fit-content; user-select: none">
+        <div style="overflow: hidden; width: 100%; height: fit-content; user-select: none; overscroll-behavior: none;">
             <div> {move ||view_elements()}</div>
-            <div> {move || format!("{}", draw_count.get())}</div>
             <canvas node_ref=canvas_ref style="width: 100%; height: 500px"
             on:wheel= move |event|{
                 let deltaY = event.delta_y() as i32;
                 let deltaX = event.delta_x() as i32;
-                log!("deltaY: {}, deltaX: {}", deltaY, deltaX);
                 advance_chart(deltaY, deltaX);
             }
             on:pointermove= move |event: PointerEvent|{

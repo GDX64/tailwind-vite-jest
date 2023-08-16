@@ -1,6 +1,8 @@
+use color_things::RGB;
 use segment_tree::{ops::Operation, SegmentPoint};
 use wasm_bindgen::JsValue;
 use web_sys::CanvasRenderingContext2d;
+mod color_things;
 
 const CANDLE_WIDTH: f64 = 11.0;
 const CANDLE_PADDING: f64 = 2.0;
@@ -13,7 +15,7 @@ pub struct Chart {
     pub ctx: CanvasRenderingContext2d,
     pub canvas_size: (u32, u32),
     pub view_data: Vec<(f64, Candle)>,
-    last_draw_data: Vec<(f64, Candle)>,
+    last_draw_data: Vec<(f64, VisualCandle)>,
     pub min_max_tree: MinMaxTree,
     pub avg_recalc_time: f64,
     size_updated: bool,
@@ -137,41 +139,28 @@ impl Chart {
             self.canvas_size.0 as f64,
             self.canvas_size.1 as f64,
         );
-        ctx.begin_path();
         let val = JsValue::from_str("green");
         ctx.set_stroke_style(&val);
         ctx.set_fill_style(&val);
         if self.last_draw_data.len() != self.view_data.len() {
-            self.last_draw_data = self.view_data.clone();
+            self.last_draw_data = self
+                .view_data
+                .iter()
+                .map(|(x, candle)| (*x, candle.to_visual()))
+                .collect();
         }
         let width = Self::dpr() * CANDLE_WIDTH;
         let padding = Self::dpr() * CANDLE_PADDING;
         self.last_draw_data = self
             .view_data
             .iter()
+            .map(|(x, candle)| (x, candle.to_visual()))
             .zip(&self.last_draw_data)
-            .map(|((x, now), (_, last))| (*x, last.interpolate(now, time_percent)))
+            .map(|((x, now), (_, last))| (*x, last.interpolate(&now, time_percent)))
             .collect();
-        for (x, candle) in self.last_draw_data.iter() {
-            if candle.is_positive() {
-                candle.draw(ctx, *x, width, padding);
-            }
-        }
-        ctx.close_path();
-        // ctx.stroke();
-        ctx.fill();
-        ctx.begin_path();
-        let val = JsValue::from_str("red");
-        ctx.set_fill_style(&val);
-        ctx.set_stroke_style(&val);
-        for (x, candle) in self.last_draw_data.iter() {
-            if !candle.is_positive() {
-                candle.draw(ctx, *x, width, padding);
-            }
-        }
-        // ctx.stroke();
-        ctx.fill();
-        ctx.restore();
+        self.last_draw_data
+            .iter()
+            .for_each(|(x, candle)| candle.draw(ctx, *x, width, padding));
         if time_percent == 1.0 {
             self.should_draw = false;
         }
@@ -179,7 +168,6 @@ impl Chart {
     }
 
     pub fn zoom(&mut self, delta: i32, center_point: f64) {
-        leptos::log!("zooming delta: {}, center_point: {}", delta, center_point);
         let (min, max) = self.view_range;
         let point_index =
             ((self.scale_x.apply_inv(center_point * Self::dpr()) as usize) * self.curr_step) + min;
@@ -250,6 +238,42 @@ pub struct Candle {
     pub close: f64,
 }
 
+pub struct VisualCandle {
+    pub candle: Candle,
+    pub color: RGB,
+}
+
+impl VisualCandle {
+    fn draw(&self, ctx: &CanvasRenderingContext2d, x: f64, width: f64, padding: f64) {
+        let hex_color = self.color.to_hex();
+        let js_color = JsValue::from_str(&hex_color);
+        ctx.set_fill_style(&js_color);
+        ctx.set_stroke_style(&js_color);
+        let candle = &self.candle;
+        ctx.stroke_rect(
+            x + width / 2.0,
+            candle.max,
+            1.0,
+            (candle.max - candle.min).abs(),
+        );
+        let upper = candle.open.max(candle.close);
+        let lower = candle.open.min(candle.close);
+        let width = width - padding * 2.0;
+        ctx.fill_rect(x + padding as f64, lower, width, upper - lower);
+    }
+
+    fn interpolate(&self, other: &Self, percent: f64) -> Self {
+        let candle = Candle {
+            min: self.candle.min + (other.candle.min - self.candle.min) * percent,
+            max: self.candle.max + (other.candle.max - self.candle.max) * percent,
+            open: self.candle.open + (other.candle.open - self.candle.open) * percent,
+            close: self.candle.close + (other.candle.close - self.candle.close) * percent,
+        };
+        let color = self.color.interpolate(&other.color, percent as f32);
+        VisualCandle { candle, color }
+    }
+}
+
 impl Candle {
     fn new(min: f64, max: f64, open: f64, close: f64) -> Candle {
         Candle {
@@ -260,21 +284,24 @@ impl Candle {
         }
     }
 
-    fn interpolate(&self, other: &Self, percent: f64) -> Self {
-        Candle {
-            min: self.min + (other.min - self.min) * percent,
-            max: self.max + (other.max - self.max) * percent,
-            open: self.open + (other.open - self.open) * percent,
-            close: self.close + (other.close - self.close) * percent,
+    fn to_visual(&self) -> VisualCandle {
+        let color = if self.is_positive() {
+            RGB {
+                r: 0,
+                g: 0xff,
+                b: 0,
+            }
+        } else {
+            RGB {
+                r: 0xff,
+                g: 0,
+                b: 0,
+            }
+        };
+        VisualCandle {
+            candle: *self,
+            color,
         }
-    }
-
-    fn draw(&self, ctx: &CanvasRenderingContext2d, x: f64, width: f64, padding: f64) {
-        ctx.rect(x + width / 2.0, self.max, 1.0, (self.max - self.min).abs());
-        let upper = self.open.max(self.close);
-        let lower = self.open.min(self.close);
-        let width = width - padding * 2.0;
-        ctx.rect(x + padding as f64, lower, width, upper - lower)
     }
 
     fn is_positive(&self) -> bool {
