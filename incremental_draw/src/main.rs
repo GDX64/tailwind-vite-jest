@@ -8,10 +8,11 @@ pub fn main() {
     mount_to_body(|cx| view! { cx,  <MyComponent></MyComponent> })
 }
 
-async fn frame_async() {
+async fn frame_async(f: impl FnOnce() + 'static) {
     let (sender, receiver) = oneshot::channel::<()>();
     leptos::request_animation_frame(move || {
         sender.send(()).ok();
+        f();
     });
     receiver.await.ok();
 }
@@ -50,7 +51,7 @@ fn MyComponent(cx: Scope) -> impl IntoView {
         move || (),
         move |_| async move {
             loop {
-                frame_async().await;
+                frame_async(move || {}).await;
                 write_chart.update_untracked(|chart| {
                     chart.as_mut().map(|chart| {
                         chart.draw();
@@ -64,7 +65,7 @@ fn MyComponent(cx: Scope) -> impl IntoView {
         write_chart.update(|chart| {
             chart.as_mut().map(|chart| {
                 chart.zoom(deltaY, mouse_point.get().0);
-                chart.slide(deltaX)
+                chart.slide(deltaX);
             });
         })
     };

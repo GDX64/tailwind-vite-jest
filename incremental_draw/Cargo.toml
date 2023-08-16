@@ -19,5 +19,6 @@ features = [
   'Element',
   'HtmlCanvasElement',
   'Window',
+  'Performance',
 ]
 version = "0.3.4"

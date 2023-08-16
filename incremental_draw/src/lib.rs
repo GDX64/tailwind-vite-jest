@@ -54,6 +54,13 @@ impl Chart {
             .unwrap_or(1.0)
     }
 
+    fn now() -> f64 {
+        fn now_opt() -> Option<f64> {
+            Some(web_sys::window()?.performance()?.now())
+        }
+        now_opt().unwrap_or(0.0)
+    }
+
     pub fn query_range<'a>(&'a self) -> Candle {
         let (min, max) = self.view_range;
         self.min_max_tree.query_noiden(min, max)
@@ -94,7 +101,7 @@ impl Chart {
     }
 
     pub fn recalc(&mut self) {
-        let start_time = js_sys::Date::now();
+        let start_time = Self::now();
         if !self.size_updated {
             self.adjust_canvas();
             self.size_updated = true;
@@ -119,17 +126,17 @@ impl Chart {
         self.scale_x = scale_x;
         self.scale_y = scale_y;
         self.curr_step = step;
-        let end_time = js_sys::Date::now();
-        self.avg_recalc_time = (end_time - start_time) * 0.1 + self.avg_recalc_time * 0.9;
+        self.avg_recalc_time = (Self::now() - start_time) * 0.1 + self.avg_recalc_time * 0.9;
         self.should_draw = true;
-        self.last_draw_time = js_sys::Date::now();
+        self.last_draw_time = Self::now();
     }
 
     pub fn draw(&mut self) -> bool {
         if !self.should_draw {
             return false;
         }
-        let time_percent = (js_sys::Date::now() - self.last_draw_time) / TRANSITION_TIME;
+        let time_now = Self::now();
+        let time_percent = (time_now - self.last_draw_time) / TRANSITION_TIME;
         let time_percent = time_percent.min(1.0);
         let ctx = &self.ctx;
         ctx.save();
@@ -139,9 +146,6 @@ impl Chart {
             self.canvas_size.0 as f64,
             self.canvas_size.1 as f64,
         );
-        let val = JsValue::from_str("green");
-        ctx.set_stroke_style(&val);
-        ctx.set_fill_style(&val);
         if self.last_draw_data.len() != self.view_data.len() {
             self.last_draw_data = self
                 .view_data
@@ -164,6 +168,7 @@ impl Chart {
         if time_percent == 1.0 {
             self.should_draw = false;
         }
+        ctx.restore();
         return true;
     }
 
@@ -238,6 +243,7 @@ pub struct Candle {
     pub close: f64,
 }
 
+#[derive(Clone, Copy, Debug)]
 pub struct VisualCandle {
     pub candle: Candle,
     pub color: RGB,
