@@ -1,12 +1,26 @@
 use color_things::RGB;
 use segment_tree::{ops::Operation, SegmentPoint};
+use transitions::{CanTransition, Transition};
 use wasm_bindgen::JsValue;
 use web_sys::CanvasRenderingContext2d;
 mod color_things;
+mod transitions;
 
 const CANDLE_WIDTH: f64 = 11.0;
 const CANDLE_PADDING: f64 = 2.0;
 const TRANSITION_TIME: f64 = 60.0;
+
+impl CanTransition for Vec<VisualCandle> {
+    fn interpolate(&self, other: &Self, t: f64) -> Self {
+        if other.len() != self.len() {
+            return other.clone();
+        }
+        self.iter()
+            .zip(other)
+            .map(|(source, target)| source.interpolate(&target, t))
+            .collect()
+    }
+}
 
 pub struct Chart {
     pub view_range: (usize, usize),
@@ -15,13 +29,12 @@ pub struct Chart {
     pub ctx: CanvasRenderingContext2d,
     pub canvas_size: (u32, u32),
     pub view_data: Vec<(f64, Candle)>,
-    last_draw_data: Vec<(f64, VisualCandle)>,
+    transition: Transition<Vec<VisualCandle>>,
     pub min_max_tree: MinMaxTree,
     pub avg_recalc_time: f64,
     size_updated: bool,
     curr_step: usize,
     should_draw: bool,
-    last_draw_time: f64,
 }
 
 impl Chart {
@@ -38,13 +51,12 @@ impl Chart {
             ctx,
             canvas_size: (300, 150),
             view_data: vec![],
-            last_draw_data: vec![],
+            transition: Transition::new(vec![], vec![], TRANSITION_TIME),
             min_max_tree,
             curr_step: 1,
             size_updated: false,
             avg_recalc_time: 0.0,
             should_draw: false,
-            last_draw_time: 0.0,
         }
     }
 
@@ -123,21 +135,27 @@ impl Chart {
                 (x, Candle::new(min, max, close, open))
             })
             .collect();
+        self.transition
+            .update_target(self.calc_visual(), Self::now());
         self.scale_x = scale_x;
         self.scale_y = scale_y;
         self.curr_step = step;
         self.avg_recalc_time = (Self::now() - start_time) * 0.1 + self.avg_recalc_time * 0.9;
         self.should_draw = true;
-        self.last_draw_time = Self::now();
+    }
+
+    fn calc_visual(&self) -> Vec<VisualCandle> {
+        self.view_data
+            .iter()
+            .map(|(x, candle)| candle.to_visual(*x))
+            .collect()
     }
 
     pub fn draw(&mut self) -> bool {
         if !self.should_draw {
             return false;
         }
-        let time_now = Self::now();
-        let time_percent = (time_now - self.last_draw_time) / TRANSITION_TIME;
-        let time_percent = time_percent.min(1.0);
+        self.transition.update_time(Self::now());
         let ctx = &self.ctx;
         ctx.save();
         ctx.clear_rect(
@@ -146,26 +164,13 @@ impl Chart {
             self.canvas_size.0 as f64,
             self.canvas_size.1 as f64,
         );
-        if self.last_draw_data.len() != self.view_data.len() {
-            self.last_draw_data = self
-                .view_data
-                .iter()
-                .map(|(x, candle)| (*x, candle.to_visual()))
-                .collect();
-        }
         let width = Self::dpr() * CANDLE_WIDTH;
         let padding = Self::dpr() * CANDLE_PADDING;
-        self.last_draw_data = self
-            .view_data
+        self.transition
+            .now()
             .iter()
-            .map(|(x, candle)| (x, candle.to_visual()))
-            .zip(&self.last_draw_data)
-            .map(|((x, now), (_, last))| (*x, last.interpolate(&now, time_percent)))
-            .collect();
-        self.last_draw_data
-            .iter()
-            .for_each(|(x, candle)| candle.draw(ctx, *x, width, padding));
-        if time_percent == 1.0 {
+            .for_each(|candle| candle.draw(ctx, width, padding));
+        if self.transition.progress() == 1.0 {
             self.should_draw = false;
         }
         ctx.restore();
@@ -247,15 +252,17 @@ pub struct Candle {
 pub struct VisualCandle {
     pub candle: Candle,
     pub color: RGB,
+    pub x: f64,
 }
 
 impl VisualCandle {
-    fn draw(&self, ctx: &CanvasRenderingContext2d, x: f64, width: f64, padding: f64) {
+    fn draw(&self, ctx: &CanvasRenderingContext2d, width: f64, padding: f64) {
         let hex_color = self.color.to_hex();
         let js_color = JsValue::from_str(&hex_color);
         ctx.set_fill_style(&js_color);
         ctx.set_stroke_style(&js_color);
         let candle = &self.candle;
+        let x = self.x;
         ctx.stroke_rect(
             x + width / 2.0,
             candle.max,
@@ -276,7 +283,11 @@ impl VisualCandle {
             close: self.candle.close + (other.candle.close - self.candle.close) * percent,
         };
         let color = self.color.interpolate(&other.color, percent as f32);
-        VisualCandle { candle, color }
+        VisualCandle {
+            candle,
+            color,
+            x: self.x + (other.x - self.x) * percent,
+        }
     }
 }
 
@@ -290,7 +301,7 @@ impl Candle {
         }
     }
 
-    fn to_visual(&self) -> VisualCandle {
+    fn to_visual(&self, x: f64) -> VisualCandle {
         let color = if self.is_positive() {
             RGB {
                 r: 0,
@@ -307,6 +318,7 @@ impl Candle {
         VisualCandle {
             candle: *self,
             color,
+            x,
         }
     }
 
