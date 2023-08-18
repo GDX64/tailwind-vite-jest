@@ -1,5 +1,5 @@
 <template>
-  <div class="place-to-mount-the-chart"></div>
+  <div class="place-to-mount-the-chart w-full"></div>
 </template>
 
 <script setup lang="ts">
