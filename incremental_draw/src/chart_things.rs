@@ -4,9 +4,9 @@ use segment_tree::{ops::Operation, SegmentPoint};
 use wasm_bindgen::JsValue;
 use web_sys::CanvasRenderingContext2d;
 
-const CANDLE_WIDTH: f64 = 11.0;
-const CANDLE_PADDING: f64 = 2.0;
-const TRANSITION_TIME: f64 = 60.0;
+const CANDLE_WIDTH: f64 = 7.0;
+const CANDLE_PADDING: f64 = 1.0;
+const TRANSITION_TIME: f64 = 100.0;
 
 impl CanTransition for Vec<VisualCandle> {
     fn interpolate(&self, other: &Self, t: f64) -> Self {
@@ -30,6 +30,7 @@ pub struct Chart {
     transition: Transition<Vec<VisualCandle>>,
     pub min_max_tree: MinMaxTree,
     pub avg_recalc_time: f64,
+    pub avg_redraw_time: f64,
     size_updated: bool,
     curr_step: usize,
     should_draw: bool,
@@ -54,6 +55,7 @@ impl Chart {
             curr_step: 1,
             size_updated: false,
             avg_recalc_time: 0.0,
+            avg_redraw_time: 0.0,
             should_draw: false,
         }
     }
@@ -153,6 +155,7 @@ impl Chart {
         if !self.should_draw {
             return false;
         }
+        let draw_start = Self::now();
         self.transition.update_time(Self::now());
         let ctx = &self.ctx;
         ctx.save();
@@ -172,6 +175,7 @@ impl Chart {
             self.should_draw = false;
         }
         ctx.restore();
+        self.avg_redraw_time = (Self::now() - draw_start) * 0.1 + self.avg_redraw_time * 0.9;
         return true;
     }
 
@@ -302,15 +306,15 @@ impl Candle {
     fn to_visual(&self, x: f64) -> VisualCandle {
         let color = if self.is_positive() {
             RGB {
-                r: 0,
-                g: 0xff,
-                b: 0,
+                r: 0x33,
+                g: 0xaa,
+                b: 0x11,
             }
         } else {
             RGB {
-                r: 0xff,
-                g: 0,
-                b: 0,
+                r: 0xaa,
+                g: 0x33,
+                b: 0x11,
             }
         };
         VisualCandle {
