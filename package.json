@@ -23,6 +23,7 @@
   "homepage": "https://github.com/GDX64/tailwind-vite-jest#readme",
   "workspaces": [
     "rust",
-    "front"
+    "front",
+    "incremental_draw"
   ]
 }

@@ -22,3 +22,6 @@ features = [
   'Performance',
 ]
 version = "0.3.4"
+
+[lib]
+crate-type = ["cdylib", "rlib"]

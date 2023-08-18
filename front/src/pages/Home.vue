@@ -20,6 +20,9 @@
         <a class="text-sky-700 underline" href="/base64">base64</a>
       </li>
       <li>
+        <a class="text-sky-700 underline" href="/wasm-chart">Wasm Chart</a>
+      </li>
+      <li>
         <a class="text-sky-700 underline" href="/cv">CV</a>
       </li>
     </ul>

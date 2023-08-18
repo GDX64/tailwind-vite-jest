@@ -1,22 +1,40 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use super::chart_things::Chart;
 use futures::channel::oneshot;
-use leptos::{html::*, *};
+use leptos::html::Canvas;
+use leptos::*;
+use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{CanvasRenderingContext2d, PointerEvent};
 
-pub fn leptos_main(s: &str) -> Option<()> {
+#[wasm_bindgen]
+pub fn leptos_main(s: &str) -> JsValue {
     // mount_to(parent, f);
     fn get_element(s: &str) -> Option<web_sys::HtmlElement> {
         let el = web_sys::window()?.document()?.query_selector(s).ok()??;
         let el = el.dyn_into::<web_sys::HtmlElement>().ok()?;
         Some(el)
     }
+    let maybe_scope = Rc::new(RefCell::new(None));
+    let maybe_scope_clone = maybe_scope.clone();
     if let Some(el) = get_element(s) {
-        mount_to(el, |cx| view! { cx,  <MyComponent></MyComponent> });
+        mount_to(el, move |cx| {
+            let cx_copy = cx.clone();
+            maybe_scope.borrow_mut().replace(cx_copy);
+            return view! { cx,  <MyComponent></MyComponent> };
+        });
     } else {
         mount_to_body(|cx| view! { cx,  <MyComponent></MyComponent> });
     }
-    Some(())
+    let dispose = Closure::once(move || {
+        if let Some(scope) = maybe_scope_clone.borrow_mut().take() {
+            scope.dispose();
+        }
+    })
+    .into_js_value();
+    dispose
 }
 
 async fn frame_async(f: impl FnOnce() + 'static) {
