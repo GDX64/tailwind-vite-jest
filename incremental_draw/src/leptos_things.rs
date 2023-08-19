@@ -1,6 +1,9 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use crate::chart_core::dpr;
+use crate::chart_core::draw_arr;
+
 use super::chart_things::Chart;
 use futures::channel::oneshot;
 use leptos::html::Canvas;
@@ -61,7 +64,7 @@ fn random_walk(size: usize) -> Vec<f64> {
 #[component]
 fn MyComponent(cx: Scope) -> impl IntoView {
     let canvas_ref: NodeRef<Canvas> = create_node_ref(cx);
-    let (chart, write_chart) = create_signal(cx, None as Option<Chart>);
+    let (chart, write_chart) = create_signal(cx, None as Option<(Chart, CanvasRenderingContext2d)>);
     let (mouse_point, write_mouse_point) = create_signal(cx, (0.0, 0.0));
     let (is_pointer_down, write_is_pointer_down) = create_signal(cx, false);
     canvas_ref.on_load(cx, move |node| {
@@ -70,9 +73,15 @@ fn MyComponent(cx: Scope) -> impl IntoView {
                 let is_small_width = node.client_width() < 600;
                 let elements = if is_small_width { 500_000 } else { 10_000_000 };
                 let base_data: Vec<f64> = random_walk(elements);
-                let mut chart_obj = Chart::build(&base_data, ctx);
+                let mut chart_obj = Chart::build(&base_data);
+                let width = node.client_width() as u32;
+                let height = node.client_height() as u32;
+                let dpr = dpr();
+                node.set_width((width as f64 * dpr) as u32);
+                node.set_height((height as f64 * dpr) as u32);
+                chart_obj.adjust_canvas((width, height));
                 chart_obj.recalc();
-                write_chart.set(Some(chart_obj));
+                write_chart.set(Some((chart_obj, ctx)));
             }
         });
     });
@@ -84,8 +93,9 @@ fn MyComponent(cx: Scope) -> impl IntoView {
             loop {
                 frame_async(move || {}).await;
                 write_chart.update_untracked(|chart| {
-                    chart.as_mut().map(|chart| {
-                        chart.draw();
+                    chart.as_mut().map(|(chart, ctx)| {
+                        let mut transition = chart.get_view();
+                        draw_arr(ctx, &mut transition)
                     });
                 });
             }
@@ -94,7 +104,7 @@ fn MyComponent(cx: Scope) -> impl IntoView {
 
     let advance_chart = move |deltaY: i32, deltaX: i32| {
         write_chart.update(|chart| {
-            chart.as_mut().map(|chart| {
+            chart.as_mut().map(|(chart, _)| {
                 chart.zoom(deltaY, mouse_point.get().0);
                 chart.slide(deltaX);
             });
@@ -105,7 +115,7 @@ fn MyComponent(cx: Scope) -> impl IntoView {
         chart.with(|chart| {
             chart
                 .as_ref()
-                .map(|chart| {
+                .map(|(chart, _)| {
                     let range_size = chart.view_range.1 - chart.view_range.0;
                     let query = chart.query_range();
                     let (min, max) = chart.view_range;

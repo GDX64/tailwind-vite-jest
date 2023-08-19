@@ -1,30 +1,13 @@
-use super::color_things::RGB;
-use super::transitions::{CanTransition, Transition};
-use segment_tree::{ops::Operation, SegmentPoint};
-use wasm_bindgen::JsValue;
-use web_sys::CanvasRenderingContext2d;
-
+use super::transitions::Transition;
+use crate::chart_core::{Candle, LinScale, MinMaxOp, MinMaxTree, VisualCandle};
 const CANDLE_WIDTH: f64 = 7.0;
 const CANDLE_PADDING: f64 = 1.0;
 const TRANSITION_TIME: f64 = 100.0;
-
-impl CanTransition for Vec<VisualCandle> {
-    fn interpolate(&self, other: &Self, t: f64) -> Self {
-        if other.len() != self.len() {
-            return other.clone();
-        }
-        self.iter()
-            .zip(other)
-            .map(|(source, target)| source.interpolate(&target, t))
-            .collect()
-    }
-}
 
 pub struct Chart {
     pub view_range: (usize, usize),
     pub scale_x: LinScale,
     pub scale_y: LinScale,
-    pub ctx: CanvasRenderingContext2d,
     pub canvas_size: (u32, u32),
     pub view_data: Vec<(f64, Candle)>,
     transition: Transition<Vec<VisualCandle>>,
@@ -37,7 +20,7 @@ pub struct Chart {
 }
 
 impl Chart {
-    pub fn build(base_data: &[f64], ctx: CanvasRenderingContext2d) -> Chart {
+    pub fn build(base_data: &[f64]) -> Chart {
         let base = base_data
             .iter()
             .map(|v| Candle::same(*v))
@@ -47,7 +30,6 @@ impl Chart {
             view_range: (0, base_data.len() / 2),
             scale_x: LinScale::new((0.0, 5.0), (0.0, 300.0)),
             scale_y: LinScale::new((0.0, 5.0), (0.0, 100.0)),
-            ctx,
             canvas_size: (300, 150),
             view_data: vec![],
             transition: Transition::new(vec![], vec![], TRANSITION_TIME),
@@ -82,19 +64,13 @@ impl Chart {
         self.min_max_tree.len()
     }
 
-    pub fn adjust_canvas(&mut self) -> Option<()> {
+    pub fn adjust_canvas(&mut self, new_size: (u32, u32)) -> Option<()> {
         self.view_range = (
             self.view_range.0,
             self.view_range.1.min(self.min_max_tree.len()).max(10),
         );
-        let canvas = self.ctx.canvas()?;
-        let width = canvas.client_width() as u32;
-        let height = canvas.client_height() as u32;
-        let dpr = Self::dpr();
-        self.canvas_size = (((width as f64) * dpr) as u32, (height as f64 * dpr) as u32);
+        self.canvas_size = new_size;
         let (width, height) = self.canvas_size;
-        canvas.set_width(width);
-        canvas.set_height(height);
         Some(())
     }
 
@@ -114,10 +90,6 @@ impl Chart {
 
     pub fn recalc(&mut self) {
         let start_time = Self::now();
-        if !self.size_updated {
-            self.adjust_canvas();
-            self.size_updated = true;
-        }
         let (min, max) = self.view_range;
         let canvas_size = self.canvas_size.clone();
         let Candle { min, max, .. } = self.min_max_tree.query_noiden(min, max);
@@ -151,32 +123,8 @@ impl Chart {
             .collect()
     }
 
-    pub fn draw(&mut self) -> bool {
-        if !self.should_draw {
-            return false;
-        }
-        let draw_start = Self::now();
-        self.transition.update_time(Self::now());
-        let ctx = &self.ctx;
-        ctx.save();
-        ctx.clear_rect(
-            0.0,
-            0.0,
-            self.canvas_size.0 as f64,
-            self.canvas_size.1 as f64,
-        );
-        let width = Self::dpr() * CANDLE_WIDTH;
-        let padding = Self::dpr() * CANDLE_PADDING;
-        self.transition
-            .now()
-            .iter()
-            .for_each(|candle| candle.draw(ctx, width, padding));
-        if self.transition.progress() == 1.0 {
-            self.should_draw = false;
-        }
-        ctx.restore();
-        self.avg_redraw_time = (Self::now() - draw_start) * 0.1 + self.avg_redraw_time * 0.9;
-        return true;
+    pub fn get_view(&mut self) -> Transition<Vec<VisualCandle>> {
+        self.transition.clone()
     }
 
     pub fn zoom(&mut self, delta: i32, center_point: f64) {
@@ -217,155 +165,5 @@ impl Chart {
             view_range.1 = max as usize;
         }
         self.recalc();
-    }
-}
-
-#[derive(PartialEq)]
-pub struct LinScale {
-    k: f64,
-    alpha: f64,
-}
-
-impl LinScale {
-    pub fn new(domain: (f64, f64), range: (f64, f64)) -> LinScale {
-        let alpha = (range.1 - range.0) / (domain.1 - domain.0);
-        let k = range.0 - alpha * domain.0;
-        LinScale { k, alpha }
-    }
-
-    pub fn apply(&self, x: f64) -> f64 {
-        self.alpha * x + self.k
-    }
-
-    pub fn apply_inv(&self, y: f64) -> f64 {
-        (y - self.k) / self.alpha
-    }
-}
-
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub struct Candle {
-    pub min: f64,
-    pub max: f64,
-    pub open: f64,
-    pub close: f64,
-}
-
-#[derive(Clone, Copy, Debug)]
-pub struct VisualCandle {
-    pub candle: Candle,
-    pub color: RGB,
-    pub x: f64,
-}
-
-impl VisualCandle {
-    fn draw(&self, ctx: &CanvasRenderingContext2d, width: f64, padding: f64) {
-        let hex_color = self.color.to_hex();
-        let js_color = JsValue::from_str(&hex_color);
-        ctx.set_fill_style(&js_color);
-        ctx.set_stroke_style(&js_color);
-        let candle = &self.candle;
-        let x = self.x;
-        ctx.stroke_rect(
-            x + width / 2.0,
-            candle.max,
-            1.0,
-            (candle.max - candle.min).abs(),
-        );
-        let upper = candle.open.max(candle.close);
-        let lower = candle.open.min(candle.close);
-        let width = width - padding * 2.0;
-        ctx.fill_rect(x + padding as f64, lower, width, upper - lower);
-    }
-
-    fn interpolate(&self, other: &Self, percent: f64) -> Self {
-        let candle = Candle {
-            min: self.candle.min + (other.candle.min - self.candle.min) * percent,
-            max: self.candle.max + (other.candle.max - self.candle.max) * percent,
-            open: self.candle.open + (other.candle.open - self.candle.open) * percent,
-            close: self.candle.close + (other.candle.close - self.candle.close) * percent,
-        };
-        let color = self.color.interpolate(&other.color, percent as f32);
-        VisualCandle {
-            candle,
-            color,
-            x: self.x + (other.x - self.x) * percent,
-        }
-    }
-}
-
-impl Candle {
-    fn new(min: f64, max: f64, open: f64, close: f64) -> Candle {
-        Candle {
-            min,
-            max,
-            open,
-            close,
-        }
-    }
-
-    fn to_visual(&self, x: f64) -> VisualCandle {
-        let color = if self.is_positive() {
-            RGB {
-                r: 0x33,
-                g: 0xaa,
-                b: 0x11,
-            }
-        } else {
-            RGB {
-                r: 0xaa,
-                g: 0x33,
-                b: 0x11,
-            }
-        };
-        VisualCandle {
-            candle: *self,
-            color,
-            x,
-        }
-    }
-
-    fn is_positive(&self) -> bool {
-        self.close > self.open
-    }
-
-    fn same(val: f64) -> Candle {
-        Candle::new(val, val, val, val)
-    }
-}
-
-pub struct MinMaxOp;
-
-impl Operation<Candle> for MinMaxOp {
-    fn combine(&self, a: &Candle, b: &Candle) -> Candle {
-        Candle {
-            min: a.min.min(b.min),
-            max: a.max.max(b.max),
-            open: a.open,
-            close: b.close,
-        }
-    }
-}
-
-pub type MinMaxTree = SegmentPoint<Candle, MinMaxOp>;
-
-#[cfg(test)]
-mod test {
-    use segment_tree::SegmentPoint;
-
-    use super::{Candle, MinMaxOp};
-
-    #[test]
-    fn test_segment_tree() {
-        let example_minmax_vec = vec![
-            Candle::same(1.0),
-            Candle::same(2.0),
-            Candle::same(3.0),
-            Candle::same(4.0),
-            Candle::same(5.0),
-            Candle::same(6.0),
-        ];
-
-        let tree = SegmentPoint::build(example_minmax_vec, MinMaxOp);
-        assert_eq!(tree.query_noiden(0, 6), Candle::new(1.0, 6.0, 0.0, 0.0));
     }
 }

@@ -2,6 +2,7 @@ pub trait CanTransition {
     fn interpolate(&self, other: &Self, t: f64) -> Self;
 }
 
+#[derive(Clone)]
 pub struct Transition<T: CanTransition> {
     start: T,
     end: T,
