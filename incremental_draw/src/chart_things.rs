@@ -14,7 +14,6 @@ pub struct Chart {
     pub min_max_tree: MinMaxTree,
     pub avg_recalc_time: f64,
     pub avg_redraw_time: f64,
-    size_updated: bool,
     curr_step: usize,
     should_draw: bool,
 }
@@ -35,7 +34,6 @@ impl Chart {
             transition: Transition::new(vec![], vec![], TRANSITION_TIME),
             min_max_tree,
             curr_step: 1,
-            size_updated: false,
             avg_recalc_time: 0.0,
             avg_redraw_time: 0.0,
             should_draw: false,
@@ -70,7 +68,6 @@ impl Chart {
             self.view_range.1.min(self.min_max_tree.len()).max(10),
         );
         self.canvas_size = new_size;
-        let (width, height) = self.canvas_size;
         Some(())
     }
 

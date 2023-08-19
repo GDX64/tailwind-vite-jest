@@ -74,11 +74,11 @@ fn MyComponent(cx: Scope) -> impl IntoView {
                 let elements = if is_small_width { 500_000 } else { 10_000_000 };
                 let base_data: Vec<f64> = random_walk(elements);
                 let mut chart_obj = Chart::build(&base_data);
-                let width = node.client_width() as u32;
-                let height = node.client_height() as u32;
                 let dpr = dpr();
-                node.set_width((width as f64 * dpr) as u32);
-                node.set_height((height as f64 * dpr) as u32);
+                let width = ((node.client_width() as f64) * dpr) as u32;
+                let height = ((node.client_height() as f64) * dpr) as u32;
+                node.set_width(width);
+                node.set_height(height);
                 chart_obj.adjust_canvas((width, height));
                 chart_obj.recalc();
                 write_chart.set(Some((chart_obj, ctx)));
