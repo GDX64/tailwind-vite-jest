@@ -116,7 +116,13 @@ impl Candle {
         }
     }
 
-    pub fn to_visual(&self, x: f64) -> VisualCandle {
+    pub fn to_visual(&self, index: usize, scale_x: &LinScale, scale_y: &LinScale) -> VisualCandle {
+        let min = scale_y.apply(self.min);
+        let max = scale_y.apply(self.max);
+        let close = scale_y.apply(self.close);
+        let open = scale_y.apply(self.open);
+        let x = scale_x.apply(index as f64);
+        let candle = Candle::new(min, max, close, open);
         let color = if self.is_positive() {
             RGB {
                 r: 0x33,
@@ -130,11 +136,7 @@ impl Candle {
                 b: 0x11,
             }
         };
-        VisualCandle {
-            candle: *self,
-            color,
-            x,
-        }
+        VisualCandle { candle, color, x }
     }
 
     fn is_positive(&self) -> bool {
@@ -163,11 +165,15 @@ pub type MinMaxTree = SegmentPoint<Candle, MinMaxOp>;
 
 pub struct ChartView {
     pub candles: Vec<VisualCandle>,
+    pub on_wheel: Option<Box<dyn Fn(i32, i32)>>,
 }
 
 impl ChartView {
     pub fn from_visual_candles(candles: Vec<VisualCandle>) -> Self {
-        Self { candles }
+        Self {
+            candles,
+            on_wheel: None,
+        }
     }
 
     pub fn draw(&self, ctx: &CanvasRenderingContext2d) {
@@ -189,6 +195,7 @@ impl Default for ChartView {
     fn default() -> Self {
         Self {
             candles: Vec::new(),
+            on_wheel: None,
         }
     }
 }
@@ -198,4 +205,48 @@ pub trait DrawableChart {
     fn is_dirty(&self) -> bool;
     fn zoom(&mut self, delta: i32, mouse_x: f64);
     fn slide(&mut self, delta: i32);
+}
+
+pub fn update_zoom(
+    view_range: &mut (usize, usize),
+    delta: i32,
+    center_point: f64,
+    curr_step: usize,
+    data_size: usize,
+    scale_x: &LinScale,
+) {
+    let (min, max) = view_range;
+    let point_index = ((scale_x.apply_inv(center_point * dpr()) as usize) * curr_step) + *min;
+    let point_index = point_index.max(0).min(data_size) as i32;
+    let min = *min as i32;
+    let max = *max as i32;
+    let range = max - min;
+    let range_left = point_index - min;
+    let range_right = max - point_index;
+    let delta_left = (delta * range_left) / 100;
+    let delta_right = (delta * range_right) / 100;
+    let new_max = (max + delta_right)
+        .max(point_index + 1)
+        .min(data_size as i32);
+    let new_min = (min - delta_left).max(0).min(point_index - 1);
+    if range + delta_left + delta_right < 10_000 {
+        return;
+    }
+    view_range.0 = new_min.max(0) as usize;
+    view_range.1 = new_max.min(data_size as i32) as usize;
+}
+
+pub fn slide(view_range: &mut (usize, usize), delta: i32, curr_step: usize, data_size: usize) {
+    let view_range = view_range;
+    let gap = (view_range.1 - view_range.0) as i32;
+    let min = view_range.0 as i32 + (curr_step as i32) * delta;
+    let min = min.max(0);
+    let max = min + gap;
+    if max > data_size as i32 {
+        view_range.0 = data_size - gap as usize;
+        view_range.1 = data_size;
+    } else {
+        view_range.0 = min as usize;
+        view_range.1 = max as usize;
+    }
 }

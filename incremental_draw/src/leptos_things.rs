@@ -85,7 +85,6 @@ fn MyComponent(cx: Scope) -> impl IntoView {
                 node.set_width(width);
                 node.set_height(height);
                 chart_obj.adjust_canvas((width, height));
-                chart_obj.recalc();
                 write_chart.set(Some((Box::new(chart_obj), ctx)));
             }
         });

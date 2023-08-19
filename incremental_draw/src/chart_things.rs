@@ -1,5 +1,6 @@
 use crate::chart_core::{
-    Candle, ChartView, DrawableChart, LinScale, MinMaxOp, MinMaxTree, VisualCandle, CANDLE_WIDTH,
+    slide, update_zoom, Candle, ChartView, DrawableChart, LinScale, MinMaxOp, MinMaxTree,
+    VisualCandle, CANDLE_WIDTH,
 };
 
 pub struct Chart {
@@ -7,7 +8,6 @@ pub struct Chart {
     pub scale_x: LinScale,
     pub scale_y: LinScale,
     pub canvas_size: (u32, u32),
-    pub view_data: Vec<(f64, Candle)>,
     pub min_max_tree: MinMaxTree,
     pub avg_recalc_time: f64,
     pub avg_redraw_time: f64,
@@ -27,7 +27,6 @@ impl Chart {
             scale_x: LinScale::new((0.0, 5.0), (0.0, 300.0)),
             scale_y: LinScale::new((0.0, 5.0), (0.0, 100.0)),
             canvas_size: (300, 150),
-            view_data: vec![],
             min_max_tree,
             curr_step: 1,
             avg_recalc_time: 0.0,
@@ -80,8 +79,10 @@ impl Chart {
         });
         (iter, step)
     }
+}
 
-    pub fn recalc(&mut self) {
+impl DrawableChart for Chart {
+    fn get_view(&mut self) -> ChartView {
         let start_time = Self::now();
         let (min, max) = self.view_range;
         let canvas_size = self.canvas_size.clone();
@@ -89,38 +90,17 @@ impl Chart {
         let (data, step) = self.calc_base_data();
         let scale_y = LinScale::new((max, min), (5.0, canvas_size.1 as f64 - 5.0));
         let scale_x = LinScale::new((0 as f64, data.len() as f64), (0.0, canvas_size.0 as f64));
-        self.view_data = data
+        let view_data = data
             .enumerate()
-            .map(|(i, min_max)| {
-                let min = scale_y.apply(min_max.min);
-                let max = scale_y.apply(min_max.max);
-                let close = scale_y.apply(min_max.close);
-                let open = scale_y.apply(min_max.open);
-                let x = scale_x.apply(i as f64);
-                (x, Candle::new(min, max, close, open))
-            })
+            .map(|(i, candle)| candle.to_visual(i, &scale_x, &scale_y))
             .collect();
         self.scale_x = scale_x;
         self.scale_y = scale_y;
         self.curr_step = step;
         self.avg_recalc_time = (Self::now() - start_time) * 0.1 + self.avg_recalc_time * 0.9;
-    }
-
-    fn calc_visual(&self) -> Vec<VisualCandle> {
-        self.view_data
-            .iter()
-            .map(|(x, candle)| candle.to_visual(*x))
-            .collect()
-    }
-}
-
-impl DrawableChart for Chart {
-    fn get_view(&mut self) -> ChartView {
-        if self.dirty {
-            self.recalc();
-            self.dirty = false;
-        }
-        ChartView::from_visual_candles(self.calc_visual())
+        self.dirty = false;
+        let view = ChartView::from_visual_candles(view_data);
+        view
     }
 
     fn is_dirty(&self) -> bool {
@@ -128,42 +108,21 @@ impl DrawableChart for Chart {
     }
 
     fn zoom(&mut self, delta: i32, center_point: f64) {
-        let (min, max) = self.view_range;
-        let point_index =
-            ((self.scale_x.apply_inv(center_point * Self::dpr()) as usize) * self.curr_step) + min;
-        let point_index = point_index.max(0).min(self.min_max_tree.len()) as i32;
-        let min = min as i32;
-        let max = max as i32;
-        let range = max - min;
-        let range_left = point_index - min;
-        let range_right = max - point_index;
-        let delta_left = (delta * range_left) / 100;
-        let delta_right = (delta * range_right) / 100;
-        let new_max = (max + delta_right)
-            .max(point_index + 1)
-            .min(self.get_size() as i32);
-        let new_min = (min - delta_left).max(0).min(point_index - 1);
-        if range + delta_left + delta_right < 10_000 {
-            return;
-        }
-        self.view_range.0 = new_min.max(0) as usize;
-        self.view_range.1 = new_max.min(self.get_size() as i32) as usize;
+        let data_size = self.get_size();
+        update_zoom(
+            &mut self.view_range,
+            delta,
+            center_point,
+            self.curr_step,
+            data_size,
+            &self.scale_x,
+        );
         self.dirty = true;
     }
 
     fn slide(&mut self, delta: i32) {
-        let view_range = &mut self.view_range;
-        let gap = (view_range.1 - view_range.0) as i32;
-        let min = view_range.0 as i32 + (self.curr_step as i32) * delta;
-        let min = min.max(0);
-        let max = min + gap;
-        if max > self.min_max_tree.len() as i32 {
-            view_range.0 = self.min_max_tree.len() - gap as usize;
-            view_range.1 = self.min_max_tree.len();
-        } else {
-            view_range.0 = min as usize;
-            view_range.1 = max as usize;
-        }
+        let data_size = self.get_size();
+        slide(&mut self.view_range, delta, self.curr_step, data_size);
         self.dirty = true;
     }
 }
