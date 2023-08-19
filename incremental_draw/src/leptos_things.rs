@@ -73,6 +73,7 @@ fn MyComponent(cx: Scope) -> impl IntoView {
     );
     let (mouse_point, write_mouse_point) = create_signal(cx, (0.0, 0.0));
     let (is_pointer_down, write_is_pointer_down) = create_signal(cx, false);
+    let (times, write_times) = create_signal(cx, (0.0, 0.0));
     let (current_view, write_current_view) = create_signal(
         cx,
         Transition::new(ChartView::default(), ChartView::default(), 100.0),
@@ -104,10 +105,19 @@ fn MyComponent(cx: Scope) -> impl IntoView {
                 write_chart.update_untracked(|chart| {
                     chart.as_mut().map(|(chart, ctx)| {
                         if chart.is_dirty() {
+                            let (mut recalc_time, mut redraw_time) = (0.0, 0.0);
                             write_current_view.update(|view| {
+                                let recalc_start = now();
                                 let view_now = chart.get_view();
+                                recalc_time = now() - recalc_start;
+                                let redraw_start = now();
                                 view.update_target(view_now, now());
                                 view.now().draw(ctx);
+                                redraw_time = now() - redraw_start;
+                            });
+                            write_times.update(|(recalc_now, redraw_now)| {
+                                *recalc_now = recalc_time * 0.1 + *recalc_now * 0.9;
+                                *redraw_now = *redraw_now * 0.9 + redraw_time * 0.1;
                             });
                         }
                     });
@@ -126,28 +136,8 @@ fn MyComponent(cx: Scope) -> impl IntoView {
     };
 
     let view_elements = move || {
-        chart.with(|chart| {
-            chart
-                .as_ref()
-                .map(|(chart, _)| {
-                    // let range_size = chart.view_range.1 - chart.view_range.0;
-                    // let query = chart.query_range();
-                    // let (min, max) = chart.view_range;
-                    // format!(
-                    //     "{}({}) - ({} - {}) / min: {}, max: {} | recalc time: {:.2}ms | redraw time: {:.2}ms",
-                    //     format_str(range_size),
-                    //     format_percent(range_size, chart.get_size()),
-                    //     format_percent(min, chart.get_size()),
-                    //     format_percent(max, chart.get_size()),
-                    //     query.min as i32,
-                    //     query.max as i32,
-                    //     chart.avg_recalc_time,
-                    //     chart.avg_redraw_time,
-                    // )
-                    "this is a chart".to_string()
-                })
-                .unwrap_or("".to_string())
-        })
+        let (recalc_time, redraw_time) = times.get();
+        format!("Recalc: {:.2}ms, Redraw: {:.2}ms", recalc_time, redraw_time)
     };
 
     view! {
