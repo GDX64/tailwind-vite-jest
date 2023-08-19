@@ -9,8 +9,6 @@ pub struct Chart {
     pub scale_y: LinScale,
     pub canvas_size: (u32, u32),
     pub min_max_tree: MinMaxTree,
-    pub avg_recalc_time: f64,
-    pub avg_redraw_time: f64,
     curr_step: usize,
     dirty: bool,
 }
@@ -29,8 +27,6 @@ impl Chart {
             canvas_size: (300, 150),
             min_max_tree,
             curr_step: 1,
-            avg_recalc_time: 0.0,
-            avg_redraw_time: 0.0,
             dirty: true,
         }
     }
@@ -69,11 +65,6 @@ impl Chart {
 
 impl DrawableChart for Chart {
     fn get_view(&mut self) -> ChartView {
-        self.view_range = (
-            self.view_range.0,
-            self.view_range.1.min(self.min_max_tree.len()).max(10),
-        );
-        let start_time = Self::now();
         let (min, max) = self.view_range;
         let canvas_size = self.canvas_size.clone();
         let Candle { min, max, .. } = self.min_max_tree.query_noiden(min, max);
@@ -87,7 +78,6 @@ impl DrawableChart for Chart {
         self.scale_x = scale_x;
         self.scale_y = scale_y;
         self.curr_step = step;
-        self.avg_recalc_time = (Self::now() - start_time) * 0.1 + self.avg_recalc_time * 0.9;
         self.dirty = false;
         let view = ChartView::from_visual_candles(view_data);
         view

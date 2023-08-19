@@ -4,7 +4,7 @@ pub struct HSL {
     l: f32,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct RGB {
     pub r: u8,
     pub g: u8,

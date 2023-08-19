@@ -37,7 +37,7 @@ impl CanTransition for ChartView {
     }
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub struct LinScale {
     k: f64,
     alpha: f64,
@@ -67,7 +67,7 @@ pub struct Candle {
     pub close: f64,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct VisualCandle {
     pub candle: Candle,
     pub color: RGB,
@@ -167,7 +167,7 @@ impl Operation<Candle> for MinMaxOp {
 
 pub type MinMaxTree = SegmentPoint<Candle, MinMaxOp>;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ChartView {
     pub candles: Vec<VisualCandle>,
 }

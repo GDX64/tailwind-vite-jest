@@ -5,6 +5,7 @@ use crate::chart_core::dpr;
 use crate::chart_core::now;
 use crate::chart_core::ChartView;
 use crate::chart_core::DrawableChart;
+use crate::chart_with_leptos::LeptosChart;
 use crate::transitions::Transition;
 
 use super::chart_things::Chart;
@@ -67,7 +68,7 @@ fn random_walk(size: usize) -> Vec<f64> {
 #[component]
 fn MyComponent(cx: Scope) -> impl IntoView {
     let canvas_ref: NodeRef<Canvas> = create_node_ref(cx);
-    let chart = Chart::build(&random_walk(1_000_0000));
+    let chart = LeptosChart::build(&random_walk(1_000_0000), cx);
     let (chart, write_chart) = create_signal(cx, Box::new(chart) as Box<dyn DrawableChart>);
     let (mouse_point, write_mouse_point) = create_signal(cx, (0.0, 0.0));
     let (is_pointer_down, write_is_pointer_down) = create_signal(cx, false);
