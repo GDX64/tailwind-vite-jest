@@ -1,6 +1,6 @@
 use crate::chart_core::{
     slide, update_zoom, Candle, ChartView, DrawableChart, LinScale, MinMaxOp, MinMaxTree,
-    VisualCandle, CANDLE_WIDTH,
+    CANDLE_WIDTH,
 };
 
 pub struct Chart {
@@ -46,11 +46,6 @@ impl Chart {
             Some(web_sys::window()?.performance()?.now())
         }
         now_opt().unwrap_or(0.0)
-    }
-
-    pub fn query_range<'a>(&'a self) -> Candle {
-        let (min, max) = self.view_range;
-        self.min_max_tree.query_noiden(min, max)
     }
 
     pub fn get_size(&self) -> usize {
@@ -109,8 +104,8 @@ impl DrawableChart for Chart {
 
     fn zoom(&mut self, delta: i32, center_point: f64) {
         let data_size = self.get_size();
-        update_zoom(
-            &mut self.view_range,
+        self.view_range = update_zoom(
+            self.view_range,
             delta,
             center_point,
             self.curr_step,
@@ -122,7 +117,7 @@ impl DrawableChart for Chart {
 
     fn slide(&mut self, delta: i32) {
         let data_size = self.get_size();
-        slide(&mut self.view_range, delta, self.curr_step, data_size);
+        self.view_range = slide(self.view_range, delta, self.curr_step, data_size);
         self.dirty = true;
     }
 }

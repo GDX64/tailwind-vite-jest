@@ -21,15 +21,19 @@ pub fn now() -> f64 {
     now_opt().unwrap_or(0.0)
 }
 
-impl CanTransition for Vec<VisualCandle> {
+impl CanTransition for ChartView {
     fn interpolate(&self, other: &Self, t: f64) -> Self {
-        if other.len() != self.len() {
+        if other.candles.len() != self.candles.len() {
             return other.clone();
         }
-        self.iter()
-            .zip(other)
-            .map(|(source, target)| source.interpolate(&target, t))
-            .collect()
+        ChartView {
+            candles: self
+                .candles
+                .iter()
+                .zip(&other.candles)
+                .map(|(source, target)| source.interpolate(&target, t))
+                .collect(),
+        }
     }
 }
 
@@ -163,17 +167,14 @@ impl Operation<Candle> for MinMaxOp {
 
 pub type MinMaxTree = SegmentPoint<Candle, MinMaxOp>;
 
+#[derive(Clone, Debug)]
 pub struct ChartView {
     pub candles: Vec<VisualCandle>,
-    pub on_wheel: Option<Box<dyn Fn(i32, i32)>>,
 }
 
 impl ChartView {
     pub fn from_visual_candles(candles: Vec<VisualCandle>) -> Self {
-        Self {
-            candles,
-            on_wheel: None,
-        }
+        Self { candles }
     }
 
     pub fn draw(&self, ctx: &CanvasRenderingContext2d) {
@@ -195,7 +196,6 @@ impl Default for ChartView {
     fn default() -> Self {
         Self {
             candles: Vec::new(),
-            on_wheel: None,
         }
     }
 }
@@ -208,18 +208,18 @@ pub trait DrawableChart {
 }
 
 pub fn update_zoom(
-    view_range: &mut (usize, usize),
+    view_range: (usize, usize),
     delta: i32,
     center_point: f64,
     curr_step: usize,
     data_size: usize,
     scale_x: &LinScale,
-) {
+) -> (usize, usize) {
     let (min, max) = view_range;
-    let point_index = ((scale_x.apply_inv(center_point * dpr()) as usize) * curr_step) + *min;
+    let point_index = ((scale_x.apply_inv(center_point * dpr()) as usize) * curr_step) + min;
     let point_index = point_index.max(0).min(data_size) as i32;
-    let min = *min as i32;
-    let max = *max as i32;
+    let min = min as i32;
+    let max = max as i32;
     let range = max - min;
     let range_left = point_index - min;
     let range_right = max - point_index;
@@ -230,23 +230,29 @@ pub fn update_zoom(
         .min(data_size as i32);
     let new_min = (min - delta_left).max(0).min(point_index - 1);
     if range + delta_left + delta_right < 10_000 {
-        return;
+        view_range
+    } else {
+        (
+            new_min.max(0) as usize,
+            new_max.min(data_size as i32) as usize,
+        )
     }
-    view_range.0 = new_min.max(0) as usize;
-    view_range.1 = new_max.min(data_size as i32) as usize;
 }
 
-pub fn slide(view_range: &mut (usize, usize), delta: i32, curr_step: usize, data_size: usize) {
+pub fn slide(
+    view_range: (usize, usize),
+    delta: i32,
+    curr_step: usize,
+    data_size: usize,
+) -> (usize, usize) {
     let view_range = view_range;
     let gap = (view_range.1 - view_range.0) as i32;
     let min = view_range.0 as i32 + (curr_step as i32) * delta;
     let min = min.max(0);
     let max = min + gap;
     if max > data_size as i32 {
-        view_range.0 = data_size - gap as usize;
-        view_range.1 = data_size;
+        (data_size - gap as usize, data_size)
     } else {
-        view_range.0 = min as usize;
-        view_range.1 = max as usize;
+        (min as usize, max as usize)
     }
 }

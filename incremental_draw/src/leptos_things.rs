@@ -2,8 +2,10 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use crate::chart_core::dpr;
+use crate::chart_core::now;
 use crate::chart_core::ChartView;
 use crate::chart_core::DrawableChart;
+use crate::transitions::Transition;
 
 use super::chart_things::Chart;
 use futures::channel::oneshot;
@@ -71,7 +73,10 @@ fn MyComponent(cx: Scope) -> impl IntoView {
     );
     let (mouse_point, write_mouse_point) = create_signal(cx, (0.0, 0.0));
     let (is_pointer_down, write_is_pointer_down) = create_signal(cx, false);
-    let (current_view, write_current_view) = create_signal(cx, ChartView::default());
+    let (current_view, write_current_view) = create_signal(
+        cx,
+        Transition::new(ChartView::default(), ChartView::default(), 100.0),
+    );
     canvas_ref.on_load(cx, move |node| {
         node.on_mount(move |node| {
             if let Some(ctx) = context_from(&node) {
@@ -99,9 +104,11 @@ fn MyComponent(cx: Scope) -> impl IntoView {
                 write_chart.update_untracked(|chart| {
                     chart.as_mut().map(|(chart, ctx)| {
                         if chart.is_dirty() {
-                            let transition = chart.get_view();
-                            transition.draw(ctx);
-                            write_current_view.set(transition);
+                            write_current_view.update(|view| {
+                                let view_now = chart.get_view();
+                                view.update_target(view_now, now());
+                                view.now().draw(ctx);
+                            });
                         }
                     });
                 });
