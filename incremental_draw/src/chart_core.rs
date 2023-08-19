@@ -205,6 +205,7 @@ pub trait DrawableChart {
     fn is_dirty(&self) -> bool;
     fn zoom(&mut self, delta: i32, mouse_x: f64);
     fn slide(&mut self, delta: i32);
+    fn set_canvas_size(&mut self, size: (u32, u32));
 }
 
 pub fn update_zoom(

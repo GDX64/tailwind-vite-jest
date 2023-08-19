@@ -52,15 +52,6 @@ impl Chart {
         self.min_max_tree.len()
     }
 
-    pub fn adjust_canvas(&mut self, new_size: (u32, u32)) -> Option<()> {
-        self.view_range = (
-            self.view_range.0,
-            self.view_range.1.min(self.min_max_tree.len()).max(10),
-        );
-        self.canvas_size = new_size;
-        Some(())
-    }
-
     fn calc_base_data(&self) -> (impl ExactSizeIterator<Item = Candle> + '_, usize) {
         let (min, max) = self.view_range;
         let canvas_width = self.canvas_size.0;
@@ -78,6 +69,10 @@ impl Chart {
 
 impl DrawableChart for Chart {
     fn get_view(&mut self) -> ChartView {
+        self.view_range = (
+            self.view_range.0,
+            self.view_range.1.min(self.min_max_tree.len()).max(10),
+        );
         let start_time = Self::now();
         let (min, max) = self.view_range;
         let canvas_size = self.canvas_size.clone();
@@ -96,6 +91,11 @@ impl DrawableChart for Chart {
         self.dirty = false;
         let view = ChartView::from_visual_candles(view_data);
         view
+    }
+
+    fn set_canvas_size(&mut self, size: (u32, u32)) {
+        self.canvas_size = size;
+        self.dirty = true;
     }
 
     fn is_dirty(&self) -> bool {

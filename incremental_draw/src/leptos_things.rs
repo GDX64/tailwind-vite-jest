@@ -67,10 +67,8 @@ fn random_walk(size: usize) -> Vec<f64> {
 #[component]
 fn MyComponent(cx: Scope) -> impl IntoView {
     let canvas_ref: NodeRef<Canvas> = create_node_ref(cx);
-    let (chart, write_chart) = create_signal(
-        cx,
-        None as Option<(Box<dyn DrawableChart>, CanvasRenderingContext2d)>,
-    );
+    let chart = Chart::build(&random_walk(1_000_0000));
+    let (chart, write_chart) = create_signal(cx, Box::new(chart) as Box<dyn DrawableChart>);
     let (mouse_point, write_mouse_point) = create_signal(cx, (0.0, 0.0));
     let (is_pointer_down, write_is_pointer_down) = create_signal(cx, false);
     let (times, write_times) = create_signal(cx, (0.0, 0.0));
@@ -80,19 +78,14 @@ fn MyComponent(cx: Scope) -> impl IntoView {
     );
     canvas_ref.on_load(cx, move |node| {
         node.on_mount(move |node| {
-            if let Some(ctx) = context_from(&node) {
-                let is_small_width = node.client_width() < 600;
-                let elements = if is_small_width { 500_000 } else { 10_000_000 };
-                let base_data: Vec<f64> = random_walk(elements);
-                let mut chart_obj = Chart::build(&base_data);
-                let dpr = dpr();
-                let width = ((node.client_width() as f64) * dpr) as u32;
-                let height = ((node.client_height() as f64) * dpr) as u32;
-                node.set_width(width);
-                node.set_height(height);
-                chart_obj.adjust_canvas((width, height));
-                write_chart.set(Some((Box::new(chart_obj), ctx)));
-            }
+            let dpr = dpr();
+            let width = ((node.client_width() as f64) * dpr) as u32;
+            let height = ((node.client_height() as f64) * dpr) as u32;
+            node.set_width(width);
+            node.set_height(height);
+            write_chart.update(|chart| {
+                chart.set_canvas_size((width, height));
+            })
         });
     });
 
@@ -103,24 +96,29 @@ fn MyComponent(cx: Scope) -> impl IntoView {
             loop {
                 frame_async(move || {}).await;
                 write_chart.update_untracked(|chart| {
-                    chart.as_mut().map(|(chart, ctx)| {
-                        if chart.is_dirty() {
-                            let (mut recalc_time, mut redraw_time) = (0.0, 0.0);
-                            write_current_view.update(|view| {
-                                let recalc_start = now();
-                                let view_now = chart.get_view();
-                                recalc_time = now() - recalc_start;
-                                let redraw_start = now();
-                                view.update_target(view_now, now());
-                                view.now().draw(ctx);
-                                redraw_time = now() - redraw_start;
-                            });
-                            write_times.update(|(recalc_now, redraw_now)| {
-                                *recalc_now = recalc_time * 0.1 + *recalc_now * 0.9;
-                                *redraw_now = *redraw_now * 0.9 + redraw_time * 0.1;
-                            });
-                        }
-                    });
+                    let canvas = canvas_ref.get().expect("there should be a canvas");
+                    let ctx = context_from(&canvas).expect("there should be a context");
+                    if chart.is_dirty() {
+                        let (mut recalc_time, mut redraw_time) = (0.0, 0.0);
+                        write_current_view.update(|view| {
+                            let recalc_start = now();
+                            let view_now = chart.get_view();
+                            recalc_time = now() - recalc_start;
+                            let redraw_start = now();
+                            view.update_target(view_now, now());
+                            view.now().draw(&ctx);
+                            redraw_time = now() - redraw_start;
+                        });
+                        write_times.update(|(recalc_now, redraw_now)| {
+                            *recalc_now = recalc_time * 0.1 + *recalc_now * 0.9;
+                            *redraw_now = *redraw_now * 0.9 + redraw_time * 0.1;
+                        });
+                    } else if current_view.get().progress() < 1.0 {
+                        write_current_view.update(|view| {
+                            view.update_time(now());
+                            view.now().draw(&ctx);
+                        });
+                    }
                 });
             }
         },
@@ -128,10 +126,8 @@ fn MyComponent(cx: Scope) -> impl IntoView {
 
     let advance_chart = move |deltaY: i32, deltaX: i32| {
         write_chart.update(|chart| {
-            chart.as_mut().map(|(chart, _)| {
-                chart.zoom(deltaY, mouse_point.get().0);
-                chart.slide(deltaX);
-            });
+            chart.zoom(deltaY, mouse_point.get().0);
+            chart.slide(deltaX);
         })
     };
 
