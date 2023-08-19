@@ -1,8 +1,6 @@
-use super::transitions::Transition;
-use crate::chart_core::{Candle, LinScale, MinMaxOp, MinMaxTree, VisualCandle};
-const CANDLE_WIDTH: f64 = 7.0;
-const CANDLE_PADDING: f64 = 1.0;
-const TRANSITION_TIME: f64 = 100.0;
+use crate::chart_core::{
+    Candle, ChartView, DrawableChart, LinScale, MinMaxOp, MinMaxTree, VisualCandle, CANDLE_WIDTH,
+};
 
 pub struct Chart {
     pub view_range: (usize, usize),
@@ -10,12 +8,11 @@ pub struct Chart {
     pub scale_y: LinScale,
     pub canvas_size: (u32, u32),
     pub view_data: Vec<(f64, Candle)>,
-    transition: Transition<Vec<VisualCandle>>,
     pub min_max_tree: MinMaxTree,
     pub avg_recalc_time: f64,
     pub avg_redraw_time: f64,
     curr_step: usize,
-    should_draw: bool,
+    dirty: bool,
 }
 
 impl Chart {
@@ -31,12 +28,11 @@ impl Chart {
             scale_y: LinScale::new((0.0, 5.0), (0.0, 100.0)),
             canvas_size: (300, 150),
             view_data: vec![],
-            transition: Transition::new(vec![], vec![], TRANSITION_TIME),
             min_max_tree,
             curr_step: 1,
             avg_recalc_time: 0.0,
             avg_redraw_time: 0.0,
-            should_draw: false,
+            dirty: true,
         }
     }
 
@@ -104,13 +100,10 @@ impl Chart {
                 (x, Candle::new(min, max, close, open))
             })
             .collect();
-        self.transition
-            .update_target(self.calc_visual(), Self::now());
         self.scale_x = scale_x;
         self.scale_y = scale_y;
         self.curr_step = step;
         self.avg_recalc_time = (Self::now() - start_time) * 0.1 + self.avg_recalc_time * 0.9;
-        self.should_draw = true;
     }
 
     fn calc_visual(&self) -> Vec<VisualCandle> {
@@ -119,12 +112,22 @@ impl Chart {
             .map(|(x, candle)| candle.to_visual(*x))
             .collect()
     }
+}
 
-    pub fn get_view(&mut self) -> Transition<Vec<VisualCandle>> {
-        self.transition.clone()
+impl DrawableChart for Chart {
+    fn get_view(&mut self) -> ChartView {
+        if self.dirty {
+            self.recalc();
+            self.dirty = false;
+        }
+        ChartView::from_visual_candles(self.calc_visual())
     }
 
-    pub fn zoom(&mut self, delta: i32, center_point: f64) {
+    fn is_dirty(&self) -> bool {
+        self.dirty
+    }
+
+    fn zoom(&mut self, delta: i32, center_point: f64) {
         let (min, max) = self.view_range;
         let point_index =
             ((self.scale_x.apply_inv(center_point * Self::dpr()) as usize) * self.curr_step) + min;
@@ -145,10 +148,10 @@ impl Chart {
         }
         self.view_range.0 = new_min.max(0) as usize;
         self.view_range.1 = new_max.min(self.get_size() as i32) as usize;
-        self.recalc();
+        self.dirty = true;
     }
 
-    pub fn slide(&mut self, delta: i32) {
+    fn slide(&mut self, delta: i32) {
         let view_range = &mut self.view_range;
         let gap = (view_range.1 - view_range.0) as i32;
         let min = view_range.0 as i32 + (self.curr_step as i32) * delta;
@@ -161,6 +164,6 @@ impl Chart {
             view_range.0 = min as usize;
             view_range.1 = max as usize;
         }
-        self.recalc();
+        self.dirty = true;
     }
 }

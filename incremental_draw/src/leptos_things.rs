@@ -2,7 +2,8 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use crate::chart_core::dpr;
-use crate::chart_core::draw_arr;
+use crate::chart_core::ChartView;
+use crate::chart_core::DrawableChart;
 
 use super::chart_things::Chart;
 use futures::channel::oneshot;
@@ -64,9 +65,13 @@ fn random_walk(size: usize) -> Vec<f64> {
 #[component]
 fn MyComponent(cx: Scope) -> impl IntoView {
     let canvas_ref: NodeRef<Canvas> = create_node_ref(cx);
-    let (chart, write_chart) = create_signal(cx, None as Option<(Chart, CanvasRenderingContext2d)>);
+    let (chart, write_chart) = create_signal(
+        cx,
+        None as Option<(Box<dyn DrawableChart>, CanvasRenderingContext2d)>,
+    );
     let (mouse_point, write_mouse_point) = create_signal(cx, (0.0, 0.0));
     let (is_pointer_down, write_is_pointer_down) = create_signal(cx, false);
+    let (current_view, write_current_view) = create_signal(cx, ChartView::default());
     canvas_ref.on_load(cx, move |node| {
         node.on_mount(move |node| {
             if let Some(ctx) = context_from(&node) {
@@ -81,7 +86,7 @@ fn MyComponent(cx: Scope) -> impl IntoView {
                 node.set_height(height);
                 chart_obj.adjust_canvas((width, height));
                 chart_obj.recalc();
-                write_chart.set(Some((chart_obj, ctx)));
+                write_chart.set(Some((Box::new(chart_obj), ctx)));
             }
         });
     });
@@ -94,8 +99,11 @@ fn MyComponent(cx: Scope) -> impl IntoView {
                 frame_async(move || {}).await;
                 write_chart.update_untracked(|chart| {
                     chart.as_mut().map(|(chart, ctx)| {
-                        let mut transition = chart.get_view();
-                        draw_arr(ctx, &mut transition)
+                        if chart.is_dirty() {
+                            let transition = chart.get_view();
+                            transition.draw(ctx);
+                            write_current_view.set(transition);
+                        }
                     });
                 });
             }
@@ -116,20 +124,21 @@ fn MyComponent(cx: Scope) -> impl IntoView {
             chart
                 .as_ref()
                 .map(|(chart, _)| {
-                    let range_size = chart.view_range.1 - chart.view_range.0;
-                    let query = chart.query_range();
-                    let (min, max) = chart.view_range;
-                    format!(
-                        "{}({}) - ({} - {}) / min: {}, max: {} | recalc time: {:.2}ms | redraw time: {:.2}ms",
-                        format_str(range_size),
-                        format_percent(range_size, chart.get_size()),
-                        format_percent(min, chart.get_size()),
-                        format_percent(max, chart.get_size()),
-                        query.min as i32,
-                        query.max as i32,
-                        chart.avg_recalc_time,
-                        chart.avg_redraw_time,
-                    )
+                    // let range_size = chart.view_range.1 - chart.view_range.0;
+                    // let query = chart.query_range();
+                    // let (min, max) = chart.view_range;
+                    // format!(
+                    //     "{}({}) - ({} - {}) / min: {}, max: {} | recalc time: {:.2}ms | redraw time: {:.2}ms",
+                    //     format_str(range_size),
+                    //     format_percent(range_size, chart.get_size()),
+                    //     format_percent(min, chart.get_size()),
+                    //     format_percent(max, chart.get_size()),
+                    //     query.min as i32,
+                    //     query.max as i32,
+                    //     chart.avg_recalc_time,
+                    //     chart.avg_redraw_time,
+                    // )
+                    "this is a chart".to_string()
                 })
                 .unwrap_or("".to_string())
         })

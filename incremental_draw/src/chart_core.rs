@@ -2,14 +2,11 @@ use segment_tree::{ops::Operation, SegmentPoint};
 use wasm_bindgen::JsValue;
 use web_sys::CanvasRenderingContext2d;
 
-use crate::{
-    color_things::RGB,
-    transitions::{CanTransition, Transition},
-};
+use crate::{color_things::RGB, transitions::CanTransition};
 
-const CANDLE_WIDTH: f64 = 7.0;
+pub const CANDLE_WIDTH: f64 = 7.0;
 const CANDLE_PADDING: f64 = 1.0;
-const TRANSITION_TIME: f64 = 100.0;
+// const TRANSITION_TIME: f64 = 100.0;
 
 pub fn dpr() -> f64 {
     web_sys::window()
@@ -22,23 +19,6 @@ pub fn now() -> f64 {
         Some(web_sys::window()?.performance()?.now())
     }
     now_opt().unwrap_or(0.0)
-}
-
-pub fn draw_arr(ctx: &CanvasRenderingContext2d, transition: &mut Transition<Vec<VisualCandle>>) {
-    let draw_start = now();
-    transition.update_time(now());
-    ctx.save();
-    let canvas = ctx.canvas().expect("there should be a canvas");
-    let width = canvas.width() as f64;
-    let height = canvas.height() as f64;
-    ctx.clear_rect(0.0, 0.0, width, height);
-    let width = dpr() * CANDLE_WIDTH;
-    let padding = dpr() * CANDLE_PADDING;
-    transition
-        .now()
-        .iter()
-        .for_each(|candle| candle.draw(ctx, width, padding));
-    ctx.restore();
 }
 
 impl CanTransition for Vec<VisualCandle> {
@@ -180,3 +160,42 @@ impl Operation<Candle> for MinMaxOp {
 }
 
 pub type MinMaxTree = SegmentPoint<Candle, MinMaxOp>;
+
+pub struct ChartView {
+    pub candles: Vec<VisualCandle>,
+}
+
+impl ChartView {
+    pub fn from_visual_candles(candles: Vec<VisualCandle>) -> Self {
+        Self { candles }
+    }
+
+    pub fn draw(&self, ctx: &CanvasRenderingContext2d) {
+        ctx.save();
+        let canvas = ctx.canvas().expect("there should be a canvas");
+        let width = canvas.width() as f64;
+        let height = canvas.height() as f64;
+        ctx.clear_rect(0.0, 0.0, width, height);
+        let width = dpr() * CANDLE_WIDTH;
+        let padding = dpr() * CANDLE_PADDING;
+        self.candles
+            .iter()
+            .for_each(|candle| candle.draw(ctx, width, padding));
+        ctx.restore();
+    }
+}
+
+impl Default for ChartView {
+    fn default() -> Self {
+        Self {
+            candles: Vec::new(),
+        }
+    }
+}
+
+pub trait DrawableChart {
+    fn get_view(&mut self) -> ChartView;
+    fn is_dirty(&self) -> bool;
+    fn zoom(&mut self, delta: i32, mouse_x: f64);
+    fn slide(&mut self, delta: i32);
+}
