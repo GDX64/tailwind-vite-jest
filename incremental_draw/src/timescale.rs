@@ -21,7 +21,7 @@ impl TimeScale {
     }
 
     fn calc_ticks(&self) -> Vec<(f64, String)> {
-        const TARGET_TICK_SIZE: usize = 100;
+        const TARGET_TICK_SIZE: usize = 80;
         let size_px = self.scale.get_base_range() as usize;
         let pixel_per_candle = size_px / self.dates.len();
         let candles_per_tick = (TARGET_TICK_SIZE / pixel_per_candle) + 1;
@@ -46,10 +46,10 @@ impl TimeScale {
             // years
             first.format("%Y").to_string()
         } else if duration.num_days() > 30 {
-            first.format("%m/%Y").to_string()
+            first.format("%Y/%m").to_string()
             // months
         } else if duration.num_days() > 1 {
-            first.format("%d").to_string()
+            first.format("%m/%d").to_string()
             // days
         } else {
             first.format("%H:%M").to_string()
@@ -57,12 +57,39 @@ impl TimeScale {
         }
     }
 
-    pub fn draw(&self, ctx: &CanvasRenderingContext2d, height: f64) {
+    fn calc_master_label(&self) -> Option<String> {
+        let first = self.dates.first()?;
+        let last = self.dates.last()?;
+        let duration = last.signed_duration_since(*first);
+        let result = if duration.num_days() > 365 {
+            // years
+            let first_label = first.format("%Y");
+            let last_label = last.format("%Y");
+            format!("{} - {}", first_label, last_label)
+        } else if duration.num_days() > 30 {
+            first.format("%Y").to_string()
+            // months
+        } else if duration.num_days() > 1 {
+            first.format("%Y/%m").to_string()
+            // days
+        } else {
+            first.format("%Y/%m/%d").to_string()
+            //
+        };
+        Some(result)
+    }
+
+    pub fn draw(&self, ctx: &CanvasRenderingContext2d, width: f64, height: f64) {
         ctx.set_font("15px sans-serif");
         ctx.set_fill_style(&JsValue::from_str("black"));
-        ctx.set_text_align("center");
         self.calc_ticks().iter().for_each(|(pos_x, label)| {
-            ctx.fill_text(label, *pos_x, height - 5.0);
+            // ctx.fill_rect(pos_x - 2.0, height - 20.0, 1.0, 10.0);
+            ctx.fill_text(label, *pos_x, height - 5.0).ok();
         });
+        ctx.set_text_align("center");
+        if let Some(label) = self.calc_master_label() {
+            ctx.set_font("28px sans-serif");
+            ctx.fill_text(&label, width / 2.0, 25.0).ok();
+        }
     }
 }

@@ -7,6 +7,7 @@ use crate::{color_things::RGB, timescale::TimeScale, transitions::CanTransition}
 
 pub const CANDLE_WIDTH: f64 = 7.0;
 const CANDLE_PADDING: f64 = 1.0;
+const MIN_RANGE: i32 = 3_000;
 // const TRANSITION_TIME: f64 = 100.0;
 
 pub fn dpr() -> f64 {
@@ -34,7 +35,7 @@ impl CanTransition for ChartView {
                 .zip(&other.candles)
                 .map(|(source, target)| source.interpolate(&target, t))
                 .collect(),
-            timescale: self.timescale.clone(),
+            timescale: other.timescale.clone(),
         }
     }
 }
@@ -213,14 +214,14 @@ impl ChartView {
         let width = canvas.width() as f64;
         let height = canvas.height() as f64;
         ctx.clear_rect(0.0, 0.0, width, height);
-        let width = dpr() * CANDLE_WIDTH;
+        let candle_width = dpr() * CANDLE_WIDTH;
         let padding = dpr() * CANDLE_PADDING;
         self.candles
             .iter()
-            .for_each(|candle| candle.draw(ctx, width, padding));
+            .for_each(|candle| candle.draw(ctx, candle_width, padding));
         ctx.restore();
         ctx.save();
-        self.timescale.draw(&ctx, height);
+        self.timescale.draw(&ctx, width, height);
         ctx.restore();
     }
 }
@@ -264,7 +265,7 @@ pub fn update_zoom(
         .max(point_index + 1)
         .min(data_size as i32);
     let new_min = (min - delta_left).max(0).min(point_index - 1);
-    if range + delta_left + delta_right < 10_000 {
+    if range + delta_left + delta_right < MIN_RANGE {
         view_range
     } else {
         (

@@ -15,7 +15,8 @@ pub struct Chart {
 
 impl Chart {
     pub fn build(base_data: &[f64]) -> Chart {
-        let mut date = 946692000000u64;
+        // let mut date = 946692000000u64;
+        let mut date = 0u64;
         let base = base_data
             .iter()
             .map(|v| {
@@ -101,6 +102,12 @@ impl DrawableChart for Chart {
             &self.scale_x,
         );
         self.dirty = true;
+        // leptos::log!(
+        //     "{:?}",
+        //     self.min_max_tree
+        //         .query_noiden(self.view_range.0, self.view_range.1)
+        //         .start
+        // );
     }
 
     fn slide(&mut self, delta: i32) {
