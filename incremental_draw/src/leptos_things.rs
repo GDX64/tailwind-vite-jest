@@ -138,7 +138,7 @@ fn MyComponent(cx: Scope) -> impl IntoView {
                 if is_pointer_down.get() {
                     let deltaX = event.client_x() - mouse_point.get().0 as i32;
                     let deltaY = event.client_y() - mouse_point.get().1 as i32;
-                    advance_chart(deltaY, deltaX);
+                    advance_chart(deltaY, -deltaX);
                 }
                 write_mouse_point.set((event.client_x() as f64, event.client_y() as f64));
             }

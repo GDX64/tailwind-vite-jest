@@ -1,5 +1,5 @@
 <template>
-  <div class="place-to-mount-the-chart w-full"></div>
+  <div class="place-to-mount-the-chart w-full overscroll-none touch-none"></div>
 </template>
 
 <script setup lang="ts">
