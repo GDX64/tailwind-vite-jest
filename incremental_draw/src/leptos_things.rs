@@ -52,10 +52,6 @@ async fn frame_async(f: impl FnOnce() + 'static) {
     receiver.await.ok();
 }
 
-fn random_js() -> f64 {
-    js_sys::Math::random()
-}
-
 #[component]
 fn MyComponent(cx: Scope) -> impl IntoView {
     let canvas_ref: NodeRef<Canvas> = create_node_ref(cx);

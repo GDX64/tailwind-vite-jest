@@ -15,12 +15,11 @@ pub struct Chart {
 
 impl Chart {
     pub fn build(size: usize) -> Chart {
-        // let mut date = 946692000000u64;
-        let mut date = 0u64;
+        let mut date = 946692000000u64;
         let mut base_data = Candle::random_walk(size);
         base_data.iter_mut().for_each(|v| {
             v.start = date;
-            date += 60_000;
+            date += 600_000;
             v.end = date;
         });
         leptos::log!("data generated, {}", base_data.len());
