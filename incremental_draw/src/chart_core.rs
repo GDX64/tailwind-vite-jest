@@ -40,6 +40,10 @@ impl CanTransition for ChartView {
     }
 }
 
+pub fn adjust_dpr(val: usize) -> usize {
+    ((val as f64) * dpr()) as usize
+}
+
 #[derive(PartialEq, Clone, Debug)]
 pub struct LinScale {
     k: f64,

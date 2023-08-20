@@ -142,8 +142,9 @@ fn MyComponent(cx: Scope) -> impl IntoView {
                 }
                 write_mouse_point.set((event.client_x() as f64, event.client_y() as f64));
             }
-            on:pointerdown=move |_|{
+            on:pointerdown=move |event: PointerEvent|{
                 write_is_pointer_down.set(true);
+                write_mouse_point.set((event.client_x() as f64, event.client_y() as f64));
             }
             on:pointerup=move |_|{
                 write_is_pointer_down.set(false);

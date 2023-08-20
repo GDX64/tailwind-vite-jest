@@ -1,4 +1,4 @@
-use crate::chart_core::LinScale;
+use crate::chart_core::{adjust_dpr, dpr, LinScale};
 use chrono::NaiveDateTime;
 use wasm_bindgen::JsValue;
 use web_sys::CanvasRenderingContext2d;
@@ -21,10 +21,10 @@ impl TimeScale {
     }
 
     fn calc_ticks(&self) -> Vec<(f64, String)> {
-        const TARGET_TICK_SIZE: usize = 80;
+        let target_tick_size = adjust_dpr(80);
         let size_px = self.scale.get_base_range() as usize;
         let pixel_per_candle = size_px / self.dates.len();
-        let candles_per_tick = (TARGET_TICK_SIZE / pixel_per_candle) + 1;
+        let candles_per_tick = (target_tick_size / pixel_per_candle) + 1;
         let result = self
             .dates
             .chunks(candles_per_tick)
@@ -80,16 +80,16 @@ impl TimeScale {
     }
 
     pub fn draw(&self, ctx: &CanvasRenderingContext2d, width: f64, height: f64) {
-        ctx.set_font("15px sans-serif");
+        ctx.set_font(&format!("{}px sans-serif", adjust_dpr(15)));
         ctx.set_fill_style(&JsValue::from_str("black"));
         self.calc_ticks().iter().for_each(|(pos_x, label)| {
             // ctx.fill_rect(pos_x - 2.0, height - 20.0, 1.0, 10.0);
-            ctx.fill_text(label, *pos_x, height - 5.0).ok();
+            ctx.fill_text(label, *pos_x, height - 5.0 * dpr()).ok();
         });
         ctx.set_text_align("center");
         if let Some(label) = self.calc_master_label() {
-            ctx.set_font("28px sans-serif");
-            ctx.fill_text(&label, width / 2.0, 25.0).ok();
+            ctx.set_font(&format!("{}px sans-serif", adjust_dpr(28)));
+            ctx.fill_text(&label, width / 2.0, 25.0 * dpr()).ok();
         }
     }
 }
