@@ -1,8 +1,9 @@
+use chrono::{NaiveDate, NaiveDateTime};
 use segment_tree::{ops::Operation, SegmentPoint};
 use wasm_bindgen::JsValue;
 use web_sys::CanvasRenderingContext2d;
 
-use crate::{color_things::RGB, transitions::CanTransition};
+use crate::{color_things::RGB, timescale::TimeScale, transitions::CanTransition};
 
 pub const CANDLE_WIDTH: f64 = 7.0;
 const CANDLE_PADDING: f64 = 1.0;
@@ -33,21 +34,31 @@ impl CanTransition for ChartView {
                 .zip(&other.candles)
                 .map(|(source, target)| source.interpolate(&target, t))
                 .collect(),
+            timescale: self.timescale.clone(),
         }
     }
 }
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct LinScale {
     k: f64,
     alpha: f64,
+    image: (f64, f64),
 }
 
 impl LinScale {
     pub fn new(domain: (f64, f64), range: (f64, f64)) -> LinScale {
         let alpha = (range.1 - range.0) / (domain.1 - domain.0);
         let k = range.0 - alpha * domain.0;
-        LinScale { k, alpha }
+        LinScale {
+            k,
+            alpha,
+            image: range,
+        }
+    }
+
+    pub fn get_base_range(&self) -> f64 {
+        self.image.1 - self.image.0
     }
 
     pub fn apply(&self, x: f64) -> f64 {
@@ -65,6 +76,8 @@ pub struct Candle {
     pub max: f64,
     pub open: f64,
     pub close: f64,
+    pub start: u64,
+    pub end: u64,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -100,6 +113,8 @@ impl VisualCandle {
             max: self.candle.max + (other.candle.max - self.candle.max) * percent,
             open: self.candle.open + (other.candle.open - self.candle.open) * percent,
             close: self.candle.close + (other.candle.close - self.candle.close) * percent,
+            end: self.candle.end,
+            start: self.candle.start,
         };
         let color = self.color.interpolate(&other.color, percent as f32);
         VisualCandle {
@@ -111,12 +126,14 @@ impl VisualCandle {
 }
 
 impl Candle {
-    pub fn new(min: f64, max: f64, open: f64, close: f64) -> Candle {
+    pub fn new(min: f64, max: f64, open: f64, close: f64, start: u64, end: u64) -> Candle {
         Candle {
             min,
             max,
             open,
             close,
+            start,
+            end,
         }
     }
 
@@ -126,7 +143,7 @@ impl Candle {
         let close = scale_y.apply(self.close);
         let open = scale_y.apply(self.open);
         let x = scale_x.apply(index as f64);
-        let candle = Candle::new(min, max, close, open);
+        let candle = Candle::new(min, max, close, open, self.start, self.end);
         let color = if self.is_positive() {
             RGB {
                 r: 0x33,
@@ -147,8 +164,8 @@ impl Candle {
         self.close > self.open
     }
 
-    pub fn same(val: f64) -> Candle {
-        Candle::new(val, val, val, val)
+    pub fn same(val: f64, time: u64) -> Candle {
+        Candle::new(val, val, val, val, time, time)
     }
 }
 
@@ -161,6 +178,8 @@ impl Operation<Candle> for MinMaxOp {
             max: a.max.max(b.max),
             open: a.open,
             close: b.close,
+            start: a.start,
+            end: b.end,
         }
     }
 }
@@ -170,11 +189,22 @@ pub type MinMaxTree = SegmentPoint<Candle, MinMaxOp>;
 #[derive(Clone, Debug, PartialEq)]
 pub struct ChartView {
     pub candles: Vec<VisualCandle>,
+    pub timescale: TimeScale,
 }
 
 impl ChartView {
-    pub fn from_visual_candles(candles: Vec<VisualCandle>) -> Self {
-        Self { candles }
+    pub fn from_visual_candles(candles: Vec<VisualCandle>, scale_x: LinScale) -> Self {
+        let timescale = TimeScale::new(
+            candles
+                .iter()
+                .map(|candle| {
+                    NaiveDateTime::from_timestamp_millis(candle.candle.start as i64)
+                        .expect("timestamp should be valid")
+                })
+                .collect(),
+            scale_x,
+        );
+        Self { candles, timescale }
     }
 
     pub fn draw(&self, ctx: &CanvasRenderingContext2d) {
@@ -189,6 +219,9 @@ impl ChartView {
             .iter()
             .for_each(|candle| candle.draw(ctx, width, padding));
         ctx.restore();
+        ctx.save();
+        self.timescale.draw(&ctx, height);
+        ctx.restore();
     }
 }
 
@@ -196,6 +229,7 @@ impl Default for ChartView {
     fn default() -> Self {
         Self {
             candles: Vec::new(),
+            timescale: TimeScale::default(),
         }
     }
 }

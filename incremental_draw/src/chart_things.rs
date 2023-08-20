@@ -15,9 +15,14 @@ pub struct Chart {
 
 impl Chart {
     pub fn build(base_data: &[f64]) -> Chart {
+        let mut date = 946692000000u64;
         let base = base_data
             .iter()
-            .map(|v| Candle::same(*v))
+            .map(|v| {
+                let candle = Candle::same(*v, date);
+                date += 60_000;
+                candle
+            })
             .collect::<Vec<_>>();
         let min_max_tree = MinMaxTree::build(base, MinMaxOp);
         Chart {
@@ -35,13 +40,6 @@ impl Chart {
         web_sys::window()
             .map(|win| win.device_pixel_ratio())
             .unwrap_or(1.0)
-    }
-
-    fn now() -> f64 {
-        fn now_opt() -> Option<f64> {
-            Some(web_sys::window()?.performance()?.now())
-        }
-        now_opt().unwrap_or(0.0)
     }
 
     pub fn get_size(&self) -> usize {
@@ -79,7 +77,7 @@ impl DrawableChart for Chart {
         self.scale_y = scale_y;
         self.curr_step = step;
         self.dirty = false;
-        let view = ChartView::from_visual_candles(view_data);
+        let view = ChartView::from_visual_candles(view_data, self.scale_x.clone());
         view
     }
 

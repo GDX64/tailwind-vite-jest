@@ -20,7 +20,7 @@ impl LeptosChart {
     pub fn build(base_data: &[f64], cx: Scope) -> LeptosChart {
         let base = base_data
             .iter()
-            .map(|v| Candle::same(*v))
+            .map(|v| Candle::same(*v, 0.0))
             .collect::<Vec<_>>();
         let min_max_tree = MinMaxTree::build(base, MinMaxOp);
         let canvas_size = create_rw_signal(cx, (100u32, 100u32));
