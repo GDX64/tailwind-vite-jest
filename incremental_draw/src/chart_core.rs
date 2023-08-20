@@ -1,4 +1,4 @@
-use chrono::{NaiveDate, NaiveDateTime};
+use chrono::NaiveDateTime;
 use segment_tree::{ops::Operation, SegmentPoint};
 use wasm_bindgen::JsValue;
 use web_sys::CanvasRenderingContext2d;
@@ -7,7 +7,7 @@ use crate::{color_things::RGB, timescale::TimeScale, transitions::CanTransition}
 
 pub const CANDLE_WIDTH: f64 = 7.0;
 const CANDLE_PADDING: f64 = 1.0;
-const MIN_RANGE: i32 = 3_000;
+const MIN_RANGE: i32 = 500;
 // const TRANSITION_TIME: f64 = 100.0;
 
 pub fn dpr() -> f64 {
@@ -126,6 +126,12 @@ impl VisualCandle {
     }
 }
 
+impl Default for Candle {
+    fn default() -> Self {
+        Candle::same(0.0, 0)
+    }
+}
+
 impl Candle {
     pub fn new(min: f64, max: f64, open: f64, close: f64, start: u64, end: u64) -> Candle {
         Candle {
@@ -136,6 +142,28 @@ impl Candle {
             start,
             end,
         }
+    }
+
+    pub fn from_arr(arr: &[f64]) -> Option<Candle> {
+        let min = *arr.iter().min_by(|&a, &b| a.partial_cmp(b).unwrap())?;
+        let max = *arr.iter().max_by(|&a, &b| a.partial_cmp(b).unwrap())?;
+        let open = *arr.get(0)?;
+        let close = *arr.get(3)?;
+        Some(Candle::new(min, max, open, close, 0, 0))
+    }
+
+    pub fn random_walk(size: usize) -> Vec<Candle> {
+        fn random_walk(size: usize) -> Vec<f64> {
+            let mut v = vec![0.0; size];
+            for i in 1..size {
+                v[i] = v[i - 1] + js_sys::Math::random() - 0.5;
+            }
+            v
+        }
+        random_walk(size * 4)
+            .chunks_exact(4)
+            .map(|arr| Candle::from_arr(arr).unwrap_or_default())
+            .collect()
     }
 
     pub fn to_visual(&self, index: usize, scale_x: &LinScale, scale_y: &LinScale) -> VisualCandle {

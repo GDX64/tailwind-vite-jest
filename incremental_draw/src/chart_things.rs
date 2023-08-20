@@ -14,20 +14,19 @@ pub struct Chart {
 }
 
 impl Chart {
-    pub fn build(base_data: &[f64]) -> Chart {
+    pub fn build(size: usize) -> Chart {
         // let mut date = 946692000000u64;
         let mut date = 0u64;
-        let base = base_data
-            .iter()
-            .map(|v| {
-                let candle = Candle::same(*v, date);
-                date += 60_000;
-                candle
-            })
-            .collect::<Vec<_>>();
-        let min_max_tree = MinMaxTree::build(base, MinMaxOp);
+        let mut base_data = Candle::random_walk(size);
+        base_data.iter_mut().for_each(|v| {
+            v.start = date;
+            date += 60_000;
+            v.end = date;
+        });
+        leptos::log!("data generated, {}", base_data.len());
+        let min_max_tree = MinMaxTree::build(base_data, MinMaxOp);
         Chart {
-            view_range: (0, base_data.len() / 2),
+            view_range: (0, size),
             scale_x: LinScale::new((0.0, 5.0), (0.0, 300.0)),
             scale_y: LinScale::new((0.0, 5.0), (0.0, 100.0)),
             canvas_size: (300, 150),
@@ -102,12 +101,6 @@ impl DrawableChart for Chart {
             &self.scale_x,
         );
         self.dirty = true;
-        // leptos::log!(
-        //     "{:?}",
-        //     self.min_max_tree
-        //         .query_noiden(self.view_range.0, self.view_range.1)
-        //         .start
-        // );
     }
 
     fn slide(&mut self, delta: i32) {

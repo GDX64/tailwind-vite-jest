@@ -56,18 +56,10 @@ fn random_js() -> f64 {
     js_sys::Math::random()
 }
 
-fn random_walk(size: usize) -> Vec<f64> {
-    let mut v = vec![0.0; size];
-    for i in 1..size {
-        v[i] = v[i - 1] + random_js() - 0.5;
-    }
-    v
-}
-
 #[component]
 fn MyComponent(cx: Scope) -> impl IntoView {
     let canvas_ref: NodeRef<Canvas> = create_node_ref(cx);
-    let chart = Chart::build(&random_walk(1_000_0000));
+    let chart = Chart::build(1_000_000);
     let (_, write_chart) = create_signal(cx, Box::new(chart) as Box<dyn DrawableChart>);
     let (mouse_point, write_mouse_point) = create_signal(cx, (0.0, 0.0));
     let (is_pointer_down, write_is_pointer_down) = create_signal(cx, false);
