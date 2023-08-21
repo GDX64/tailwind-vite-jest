@@ -1,6 +1,9 @@
 <template>
+  <div class="py-5 text-center">
+    This chart has 10M points, and it's drawn with rust and webassembly
+  </div>
   <div
-    class="w-full overscroll-none touch-none h-screen max-h-[500px] mt-10 bg-yellow-100"
+    class="w-full overscroll-none touch-pan-y h-screen max-h-[500px] border-black border-2 bg-yellow-100"
   >
     <canvas
       ref="canvas"
@@ -22,12 +25,11 @@ const canvas = ref<HTMLCanvasElement>();
 const chart = ref<ChartToCommand>();
 onUnmounted(() => {
   chart.value?.free();
-  console.log('chart free');
 });
 const { size } = useSize(canvas);
 watchEffect(() => {
   const ctx = canvas.value?.getContext('2d');
-  if (!ctx) return;
+  if (!ctx || !size.height || !size.width) return;
   ctx.canvas.width = size.width * devicePixelRatio;
   ctx.canvas.height = size.height * devicePixelRatio;
   chart.value?.on_size_change(

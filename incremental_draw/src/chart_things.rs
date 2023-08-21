@@ -25,9 +25,9 @@ impl Chart {
         leptos::log!("data generated, {}", base_data.len());
         let min_max_tree = MinMaxTree::build(base_data, MinMaxOp);
         Chart {
-            view_range: (0, size),
+            view_range: (0, size / 2),
             scale_x: LinScale::new((0.0, 5.0), (0.0, 300.0)),
-            scale_y: LinScale::new((0.0, 5.0), (0.0, 100.0)),
+            scale_y: LinScale::new((0.0, 5.0), (0.0, 150.0)),
             canvas_size: (300, 150),
             min_max_tree,
             curr_step: 1,
