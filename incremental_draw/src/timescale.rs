@@ -21,7 +21,7 @@ impl TimeScale {
     }
 
     fn calc_ticks(&self) -> Vec<(f64, String)> {
-        let target_tick_size = adjust_dpr(80);
+        let target_tick_size = adjust_dpr(50);
         let size_px = self.scale.get_base_range() as usize;
         let pixel_per_candle = size_px / self.dates.len();
         let candles_per_tick = (target_tick_size / pixel_per_candle) + 1;
@@ -80,7 +80,7 @@ impl TimeScale {
     }
 
     pub fn draw(&self, ctx: &CanvasRenderingContext2d, width: f64, height: f64) {
-        ctx.set_font(&format!("{}px sans-serif", adjust_dpr(15)));
+        ctx.set_font(&format!("{}px sans-serif", adjust_dpr(12)));
         ctx.set_fill_style(&JsValue::from_str("black"));
         self.calc_ticks().iter().for_each(|(pos_x, label)| {
             // ctx.fill_rect(pos_x - 2.0, height - 20.0, 1.0, 10.0);
@@ -88,7 +88,7 @@ impl TimeScale {
         });
         ctx.set_text_align("center");
         if let Some(label) = self.calc_master_label() {
-            ctx.set_font(&format!("{}px sans-serif", adjust_dpr(28)));
+            ctx.set_font(&format!("{}px sans-serif", adjust_dpr(20)));
             ctx.fill_text(&label, width / 2.0, 25.0 * dpr()).ok();
         }
     }

@@ -8,7 +8,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { onUnmounted, ref, watchEffect } from 'vue';
+import { onUnmounted, reactive, ref, watchEffect } from 'vue';
 import { DrawData, useDrawData } from '../vueRenderer/UseDraw';
 import { Ticker } from 'pixi.js';
 
@@ -64,6 +64,11 @@ export function useAnimation(fn: (ticker: Ticker) => void, drawData?: DrawData) 
   }
 }
 
+export function useAnimationFrames(fn: (elapsed: number) => void) {
+  const sub = animationFrames().subscribe(({ elapsed }) => fn(elapsed));
+  onUnmounted(() => sub.unsubscribe());
+}
+
 export function useInterval(fn: () => void, time: number) {
   const timer = setInterval(fn, time);
   onUnmounted(() => clearInterval(timer));
@@ -76,4 +81,22 @@ export function storageRef(name: string, initial = '') {
     localStorage.setItem(name, value.value);
   });
   return value;
+}
+
+export function useSize(container = ref<HTMLElement>()) {
+  const size = reactive({ width: 0, height: 0 });
+  const obs = new ResizeObserver((entries) => {
+    const el = container.value;
+    size.width = el?.clientWidth ?? 0;
+    size.height = el?.clientHeight ?? 0;
+  });
+  watchEffect((clear) => {
+    const el = container.value;
+    if (el) {
+      obs.observe(el);
+      clear(() => obs.unobserve(el));
+    }
+  });
+  onUnmounted(() => obs.disconnect());
+  return { size, container };
 }
