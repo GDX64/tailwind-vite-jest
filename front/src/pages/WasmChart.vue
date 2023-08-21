@@ -103,7 +103,7 @@ function touchPinchMove({
 
   function onpointerup(event: PointerEvent) {
     lastX.id = -1;
-    activePoints.delete(event.pointerId);
+    activePoints.clear();
   }
 
   return { onpointermove, onpointerdown, onpointerup };
