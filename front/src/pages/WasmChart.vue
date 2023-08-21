@@ -7,7 +7,7 @@
   >
     <canvas
       ref="canvas"
-      class="w-full h-full"
+      class="w-full h-full touch-pan-y"
       @pointermove="onpointermove"
       @pointerdown="onpointerdown"
       @pointerup="onpointerup"
@@ -101,7 +101,7 @@ function touchPinchMove({
     }
   }
 
-  function onpointerup(event) {
+  function onpointerup(event: PointerEvent) {
     lastX.id = -1;
     activePoints.delete(event.pointerId);
   }
