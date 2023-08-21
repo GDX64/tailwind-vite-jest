@@ -26,22 +26,20 @@ impl ChartToCommand {
         }
     }
 
-    pub fn pointer_move(&mut self, x: i32, y: i32, is_pointer_down: bool) {
-        if is_pointer_down {
-            let delta_x = x - self.mouse_point.0;
-            let delta_y = y - self.mouse_point.1;
-            self.chart.zoom(delta_y, self.mouse_point.0 as f64);
-            self.chart.slide(-delta_x);
-        }
-        self.mouse_point = (x, y);
-    }
-
     pub fn pointer_down(&mut self, x: i32, y: i32) {
         self.mouse_point = (x, y);
     }
 
-    pub fn wheel(&mut self, delta_y: i32, delta_x: i32) {
-        self.chart.zoom(delta_y, self.mouse_point.0 as f64);
+    pub fn zoom(&mut self, delta_y: i32, point_x: f64) {
+        self.chart.zoom(delta_y, point_x);
+    }
+
+    pub fn slide(&mut self, delta_x: i32) {
+        self.chart.slide(delta_x);
+    }
+
+    pub fn wheel(&mut self, delta_y: i32, delta_x: i32, point_x: f64) {
+        self.chart.zoom(delta_y, point_x);
         self.chart.slide(delta_x);
     }
 

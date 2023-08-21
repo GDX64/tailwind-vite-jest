@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="place-to-mount-the-chart w-full overscroll-none touch-none h-screen max-h-[500px]"
-  >
+  <div class="w-full overscroll-none touch-none h-screen max-h-[500px] mt-10">
     <canvas
       ref="canvas"
       class="w-full h-full"
@@ -50,21 +48,55 @@ useAnimationFrames(() => {
   chart.value?.on_new_frame();
 });
 
-let isPointerDown = false;
+const activePoints = new Map<number, PointerEvent>();
+let lastTouchesDistance = 0;
+const lastX = { pos: 0, id: -1 };
+const info = ref('');
 function onpointermove(event: PointerEvent) {
-  chart.value?.pointer_move(event.offsetX, event.offsetY, isPointerDown);
+  activePoints.set(event.pointerId, event);
+  if (activePoints.size === 1 && lastX.id === event.pointerId) {
+    const xNow = event.clientX;
+    const deltaX = xNow - lastX.pos;
+    lastX.pos = xNow;
+    chart.value?.slide(-deltaX);
+    console.log('sliding', deltaX);
+    return;
+  }
+  if (activePoints.size !== 2) return;
+
+  const [event1, event2] = [...activePoints.values()];
+  const touchesDistance = Math.hypot(
+    event1.clientX - event2.clientX,
+    event1.clientY - event2.clientY
+  );
+  const touchesDelta = touchesDistance - lastTouchesDistance;
+  const midx = (event1.clientX + event2.clientX) / 2;
+  lastTouchesDistance = touchesDistance;
+
+  chart.value?.zoom(-touchesDelta, midx);
 }
 
 function onpointerdown(event: PointerEvent) {
-  isPointerDown = true;
+  lastX.id = event.pointerId;
+  lastX.pos = event.clientX;
+  activePoints.set(event.pointerId, event);
   chart.value?.pointer_down(event.offsetX, event.offsetY);
+  if (activePoints.size === 2) {
+    const [event1, event2] = [...activePoints.values()];
+    const touchesDistance = Math.hypot(
+      event1.clientX - event2.clientX,
+      event1.clientY - event2.clientY
+    );
+    lastTouchesDistance = touchesDistance;
+  }
 }
 
-function onpointerup() {
-  isPointerDown = false;
+function onpointerup(event) {
+  lastX.id = -1;
+  activePoints.delete(event.pointerId);
 }
 
 function onwheel(event: WheelEvent) {
-  chart.value?.wheel(event.deltaY, event.deltaX);
+  chart.value?.wheel(event.deltaY, event.deltaX, lastX.pos);
 }
 </script>
