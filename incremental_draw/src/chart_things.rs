@@ -14,6 +14,10 @@ pub struct Chart {
 }
 
 impl Chart {
+    pub fn set_dirty(&mut self) {
+        self.dirty = true;
+    }
+
     pub fn build(size: usize) -> Chart {
         let mut date = 946692000000u64;
         let mut base_data = Candle::random_walk(size);

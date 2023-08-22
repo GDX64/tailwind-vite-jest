@@ -36,6 +36,7 @@ impl CanTransition for ChartView {
                 .map(|(source, target)| source.interpolate(&target, t))
                 .collect(),
             timescale: other.timescale.clone(),
+            kind: other.kind.clone(),
         }
     }
 }
@@ -93,7 +94,7 @@ pub struct VisualCandle {
 }
 
 impl VisualCandle {
-    fn draw(&self, ctx: &CanvasRenderingContext2d, width: f64, padding: f64) {
+    fn draw(&self, ctx: &CanvasRenderingContext2d, width: f64, padding: f64, kind: &ChartKind) {
         let hex_color = self.color.to_hex();
         let js_color = JsValue::from_str(&hex_color);
         ctx.set_fill_style(&js_color);
@@ -106,10 +107,12 @@ impl VisualCandle {
             1.0,
             (candle.max - candle.min).abs(),
         );
-        let upper = candle.open.max(candle.close);
-        let lower = candle.open.min(candle.close);
-        let width = width - padding * 2.0;
-        ctx.fill_rect(x + padding as f64, lower, width, upper - lower);
+        if kind == &ChartKind::CANDLES {
+            let upper = candle.open.max(candle.close);
+            let lower = candle.open.min(candle.close);
+            let width = width - padding * 2.0;
+            ctx.fill_rect(x + padding as f64, lower, width, upper - lower);
+        }
     }
 
     fn interpolate(&self, other: &Self, percent: f64) -> Self {
@@ -220,9 +223,17 @@ impl Operation<Candle> for MinMaxOp {
 pub type MinMaxTree = SegmentPoint<Candle, MinMaxOp>;
 
 #[derive(Clone, Debug, PartialEq)]
+pub enum ChartKind {
+    STICK,
+    LINE,
+    CANDLES,
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct ChartView {
     pub candles: Vec<VisualCandle>,
     pub timescale: TimeScale,
+    pub kind: ChartKind,
 }
 
 impl ChartView {
@@ -237,10 +248,28 @@ impl ChartView {
                 .collect(),
             scale_x,
         );
-        Self { candles, timescale }
+        Self {
+            candles,
+            timescale,
+            kind: ChartKind::CANDLES,
+        }
     }
 
     pub fn draw(&self, ctx: &CanvasRenderingContext2d) {
+        match self.kind {
+            ChartKind::LINE => self.draw_as_lines(ctx),
+            ChartKind::STICK => self.draw_candles(ctx),
+            ChartKind::CANDLES => self.draw_candles(ctx),
+        }
+        let canvas = ctx.canvas().expect("there should be a canvas");
+        let width = canvas.width() as f64;
+        let height = canvas.height() as f64;
+        ctx.save();
+        self.timescale.draw(&ctx, width, height);
+        ctx.restore();
+    }
+
+    fn draw_candles(&self, ctx: &CanvasRenderingContext2d) {
         ctx.save();
         let canvas = ctx.canvas().expect("there should be a canvas");
         let width = canvas.width() as f64;
@@ -250,7 +279,24 @@ impl ChartView {
         let padding = dpr() * CANDLE_PADDING;
         self.candles
             .iter()
-            .for_each(|candle| candle.draw(ctx, candle_width, padding));
+            .for_each(|candle| candle.draw(ctx, candle_width, padding, &self.kind));
+        ctx.restore();
+    }
+
+    fn draw_as_lines(&self, ctx: &CanvasRenderingContext2d) {
+        ctx.save();
+        let canvas = ctx.canvas().expect("there should be a canvas");
+        let width = canvas.width() as f64;
+        let height = canvas.height() as f64;
+        ctx.clear_rect(0.0, 0.0, width, height);
+        if let Some(first) = self.candles.first() {
+            ctx.begin_path();
+            ctx.move_to(first.x, first.candle.close);
+            for candle in self.candles.iter().skip(1) {
+                ctx.line_to(candle.x, candle.candle.close);
+                ctx.stroke();
+            }
+        }
         ctx.restore();
         ctx.save();
         self.timescale.draw(&ctx, width, height);
@@ -263,6 +309,7 @@ impl Default for ChartView {
         Self {
             candles: Vec::new(),
             timescale: TimeScale::default(),
+            kind: ChartKind::CANDLES,
         }
     }
 }

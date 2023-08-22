@@ -1,13 +1,18 @@
 <template>
-  <div class="py-5 text-center">
-    This chart has 10M points, and it's drawn with rust and webassembly
+  <div class="py-5 flex gap-2 px-2">
+    <select v-model.number="chartKind" class="bg-yellow-200">
+      <option value="0">Candles</option>
+      <option value="1">Line</option>
+      <option value="2">Stick</option>
+    </select>
+    <div class="">This chart has 1M points, and it's drawn with rust and webassembly</div>
   </div>
   <div
     class="w-full overscroll-none touch-pan-y h-screen max-h-[500px] border-black border-2 bg-yellow-100"
   >
     <canvas
       ref="canvas"
-      class="w-full h-full touch-pan-y"
+      class="h-full w-full touch-pan-y"
       @pointermove="onpointermove"
       @pointerdown="onpointerdown"
       @pointerup="onpointerup"
@@ -23,6 +28,12 @@ import { useSize, useAnimationFrames } from '../utils/rxjsUtils';
 
 const canvas = ref<HTMLCanvasElement>();
 const chart = ref<ChartToCommand>();
+const chartKind = ref(0);
+
+watchEffect(() => {
+  chart.value?.change_chart_kind(chartKind.value);
+});
+
 onUnmounted(() => {
   chart.value?.free();
 });

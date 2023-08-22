@@ -1,4 +1,5 @@
 use crate::chart_core::now;
+use crate::chart_core::ChartKind;
 use crate::chart_core::ChartView;
 use crate::chart_core::DrawableChart;
 use crate::transitions::Transition;
@@ -13,6 +14,7 @@ pub struct ChartToCommand {
     mouse_point: (i32, i32),
     ctx: CanvasRenderingContext2d,
     view: Transition<ChartView>,
+    kind: ChartKind,
 }
 
 #[wasm_bindgen]
@@ -23,7 +25,19 @@ impl ChartToCommand {
             mouse_point: (0, 0),
             ctx,
             view: Transition::new(ChartView::default(), ChartView::default(), 100.0),
+            kind: ChartKind::CANDLES,
         }
+    }
+
+    pub fn change_chart_kind(&mut self, kind: u8) {
+        match kind {
+            0 => self.kind = ChartKind::CANDLES,
+            1 => self.kind = ChartKind::LINE,
+            _ => {
+                self.kind = ChartKind::STICK;
+            }
+        }
+        self.chart.set_dirty();
     }
 
     pub fn pointer_down(&mut self, x: i32, y: i32) {
@@ -49,7 +63,8 @@ impl ChartToCommand {
 
     pub fn on_new_frame(&mut self) {
         if self.chart.is_dirty() {
-            let view_now = self.chart.get_view();
+            let mut view_now = self.chart.get_view();
+            view_now.kind = self.kind.clone();
             self.view.update_target(view_now, now());
             self.view.now().draw(&self.ctx);
         } else if self.view.progress() < 1.0 {
