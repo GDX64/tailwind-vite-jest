@@ -22,6 +22,10 @@ impl<T: CanTransition> Transition<T> {
         }
     }
 
+    pub fn get_target(&self) -> &T {
+        &self.end
+    }
+
     pub fn progress(&self) -> f64 {
         ((self.time_now - self.start_time) / self.duration).min(1.0)
     }

@@ -15,6 +15,7 @@ pub struct ChartToCommand {
     ctx: CanvasRenderingContext2d,
     view: Transition<ChartView>,
     kind: ChartKind,
+    interpolate: bool,
 }
 
 #[wasm_bindgen]
@@ -26,6 +27,7 @@ impl ChartToCommand {
             ctx,
             view: Transition::new(ChartView::default(), ChartView::default(), 100.0),
             kind: ChartKind::CANDLES,
+            interpolate: true,
         }
     }
 
@@ -37,6 +39,11 @@ impl ChartToCommand {
                 self.kind = ChartKind::STICK;
             }
         }
+        self.chart.set_dirty();
+    }
+
+    pub fn change_interpolate(&mut self, interpolate: bool) {
+        self.interpolate = interpolate;
         self.chart.set_dirty();
     }
 
@@ -62,14 +69,24 @@ impl ChartToCommand {
     }
 
     pub fn on_new_frame(&mut self) {
-        if self.chart.is_dirty() {
+        let should_draw = if self.chart.is_dirty() {
             let mut view_now = self.chart.get_view();
             view_now.kind = self.kind.clone();
             self.view.update_target(view_now, now());
-            self.view.now().draw(&self.ctx);
+            true
         } else if self.view.progress() < 1.0 {
             self.view.update_time(now());
             self.view.now().draw(&self.ctx);
+            true
+        } else {
+            false
+        };
+        if should_draw {
+            if self.interpolate {
+                self.view.now().draw(&self.ctx);
+            } else {
+                self.view.get_target().draw(&self.ctx);
+            }
         }
     }
 }

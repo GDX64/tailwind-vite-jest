@@ -1,11 +1,16 @@
 <template>
-  <div class="py-5 flex gap-2 px-2">
-    <select v-model.number="chartKind" class="bg-yellow-200">
-      <option value="0">Candles</option>
-      <option value="1">Line</option>
-      <option value="2">Stick</option>
-    </select>
+  <div class="py-5 flex flex-col gap-2 px-2">
     <div class="">This chart has 1M points, and it's drawn with rust and webassembly</div>
+    <div class="flex gap-1">
+      <label for="">Kind: </label>
+      <select v-model.number="chartKind" class="bg-yellow-200 h-6 w-fit mr-3">
+        <option value="0">Candles</option>
+        <option value="1">Line</option>
+        <option value="2">Stick</option>
+      </select>
+      <label for="check-interpolate">Interpolate</label>
+      <input id="check-interpolate" type="checkbox" v-model="interpolate" />
+    </div>
   </div>
   <div
     class="w-full overscroll-none touch-pan-y h-screen max-h-[500px] border-black border-2 bg-yellow-100"
@@ -29,9 +34,11 @@ import { useSize, useAnimationFrames } from '../utils/rxjsUtils';
 const canvas = ref<HTMLCanvasElement>();
 const chart = ref<ChartToCommand>();
 const chartKind = ref(0);
+const interpolate = ref(true);
 
 watchEffect(() => {
   chart.value?.change_chart_kind(chartKind.value);
+  chart.value?.change_interpolate(interpolate.value);
 });
 
 onUnmounted(() => {

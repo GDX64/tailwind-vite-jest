@@ -294,9 +294,9 @@ impl ChartView {
             ctx.move_to(first.x, first.candle.close);
             for candle in self.candles.iter().skip(1) {
                 ctx.line_to(candle.x, candle.candle.close);
-                ctx.stroke();
             }
         }
+        ctx.stroke();
         ctx.restore();
         ctx.save();
         self.timescale.draw(&ctx, width, height);
