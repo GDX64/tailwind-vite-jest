@@ -70,7 +70,9 @@ impl ChartToCommand {
 
     pub fn on_new_frame(&mut self) {
         let should_draw = if self.chart.is_dirty() {
+            let start = now();
             let mut view_now = self.chart.get_view();
+            view_now.recalc_time = now() - start;
             view_now.kind = self.kind.clone();
             self.view.update_target(view_now, now());
             true

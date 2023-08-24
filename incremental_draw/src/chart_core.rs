@@ -37,6 +37,7 @@ impl CanTransition for ChartView {
                 .collect(),
             timescale: other.timescale.clone(),
             kind: other.kind.clone(),
+            recalc_time: other.recalc_time,
         }
     }
 }
@@ -234,6 +235,7 @@ pub struct ChartView {
     pub candles: Vec<VisualCandle>,
     pub timescale: TimeScale,
     pub kind: ChartKind,
+    pub recalc_time: f64,
 }
 
 impl ChartView {
@@ -252,6 +254,7 @@ impl ChartView {
             candles,
             timescale,
             kind: ChartKind::CANDLES,
+            recalc_time: 0.0,
         }
     }
 
@@ -266,6 +269,10 @@ impl ChartView {
         let height = canvas.height() as f64;
         ctx.save();
         self.timescale.draw(&ctx, width, height);
+        ctx.set_fill_style(&JsValue::from_str("#ff0000"));
+        ctx.set_text_baseline("top");
+        ctx.fill_text(&format!("recalc time: {:.2}ms", self.recalc_time), 0.0, 0.0)
+            .ok();
         ctx.restore();
     }
 
@@ -288,6 +295,7 @@ impl ChartView {
         let canvas = ctx.canvas().expect("there should be a canvas");
         let width = canvas.width() as f64;
         let height = canvas.height() as f64;
+        ctx.set_line_width(dpr().round());
         ctx.clear_rect(0.0, 0.0, width, height);
         if let Some(first) = self.candles.first() {
             ctx.begin_path();
@@ -307,6 +315,7 @@ impl Default for ChartView {
             candles: Vec::new(),
             timescale: TimeScale::default(),
             kind: ChartKind::CANDLES,
+            recalc_time: 0.0,
         }
     }
 }
