@@ -298,9 +298,6 @@ impl ChartView {
         }
         ctx.stroke();
         ctx.restore();
-        ctx.save();
-        self.timescale.draw(&ctx, width, height);
-        ctx.restore();
     }
 }
 

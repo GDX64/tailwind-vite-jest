@@ -81,15 +81,21 @@ impl TimeScale {
 
     pub fn draw(&self, ctx: &CanvasRenderingContext2d, width: f64, height: f64) {
         ctx.set_font(&format!("{}px sans-serif", adjust_dpr(12)));
-        ctx.set_fill_style(&JsValue::from_str("black"));
+        ctx.set_fill_style(&JsValue::from_str("#00000066"));
+        let dpr = dpr();
+        let rect_height = 20.0 * dpr;
+        let title_rect = 25.0 * dpr;
+        ctx.fill_rect(0.0, height - rect_height, width, rect_height);
+        ctx.fill_rect(0.0, 0.0, width, title_rect);
+        ctx.set_fill_style(&JsValue::from_str("#ffffff"));
         self.calc_ticks().iter().for_each(|(pos_x, label)| {
             // ctx.fill_rect(pos_x - 2.0, height - 20.0, 1.0, 10.0);
-            ctx.fill_text(label, *pos_x, height - 5.0 * dpr()).ok();
+            ctx.fill_text(label, *pos_x, height - 5.0 * dpr).ok();
         });
         ctx.set_text_align("center");
         if let Some(label) = self.calc_master_label() {
             ctx.set_font(&format!("{}px sans-serif", adjust_dpr(20)));
-            ctx.fill_text(&label, width / 2.0, 25.0 * dpr()).ok();
+            ctx.fill_text(&label, width / 2.0, 20.0 * dpr).ok();
         }
     }
 }
