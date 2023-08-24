@@ -1,3 +1,4 @@
+use crate::chart_core::adjust_dpr;
 use crate::chart_core::now;
 use crate::chart_core::ChartKind;
 use crate::chart_core::ChartView;
@@ -16,6 +17,9 @@ pub struct ChartToCommand {
     view: Transition<ChartView>,
     kind: ChartKind,
     interpolate: bool,
+    recalc_time: f64,
+    redraw_time: f64,
+    show_stats: bool,
 }
 
 #[wasm_bindgen]
@@ -28,22 +32,20 @@ impl ChartToCommand {
             view: Transition::new(ChartView::default(), ChartView::default(), 100.0),
             kind: ChartKind::CANDLES,
             interpolate: true,
+            recalc_time: 0.0,
+            redraw_time: 0.0,
+            show_stats: false,
         }
     }
 
-    pub fn change_chart_kind(&mut self, kind: u8) {
+    pub fn change_settings(&mut self, interpolate: bool, show_stats: bool, kind: u8) {
+        self.interpolate = interpolate;
+        self.show_stats = show_stats;
         match kind {
             0 => self.kind = ChartKind::CANDLES,
             1 => self.kind = ChartKind::LINE,
-            _ => {
-                self.kind = ChartKind::STICK;
-            }
+            _ => self.kind = ChartKind::STICK,
         }
-        self.chart.set_dirty();
-    }
-
-    pub fn change_interpolate(&mut self, interpolate: bool) {
-        self.interpolate = interpolate;
         self.chart.set_dirty();
     }
 
@@ -72,23 +74,47 @@ impl ChartToCommand {
         let should_draw = if self.chart.is_dirty() {
             let start = now();
             let mut view_now = self.chart.get_view();
-            view_now.recalc_time = now() - start;
             view_now.kind = self.kind.clone();
             self.view.update_target(view_now, now());
+            self.recalc_time = now() - start;
             true
         } else if self.view.progress() < 1.0 {
             self.view.update_time(now());
-            self.view.now().draw(&self.ctx);
             true
         } else {
             false
         };
         if should_draw {
+            let start = now();
             if self.interpolate {
                 self.view.now().draw(&self.ctx);
             } else {
                 self.view.get_target().draw(&self.ctx);
             }
+            self.redraw_time = now() - start;
+            if self.show_stats {
+                self.draw_stats();
+            }
         }
+    }
+
+    fn draw_stats(&self) {
+        self.ctx.save();
+        self.ctx.set_fill_style(&JsValue::from_str("#00ff00"));
+        self.ctx.set_text_baseline("top");
+        self.ctx.set_text_align("left");
+        let font_size = adjust_dpr(12);
+        self.ctx.set_font(&format!("{}px sans-serif", font_size));
+        self.ctx
+            .fill_text(&format!("recalc: {:.2}ms", self.recalc_time,), 10.0, 0.0)
+            .ok();
+        self.ctx
+            .fill_text(
+                &format!("redraw: {:.2}ms", self.redraw_time),
+                10.0,
+                font_size as f64,
+            )
+            .ok();
+        self.ctx.restore();
     }
 }

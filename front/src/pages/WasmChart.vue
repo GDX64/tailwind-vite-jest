@@ -1,15 +1,17 @@
 <template>
   <div class="py-5 flex flex-col gap-2 px-2">
     <div class="">This chart has 1M points, and it's drawn with rust and webassembly</div>
-    <div class="flex gap-1">
+    <div class="flex gap-1 items-center select-none">
       <label for="">Kind: </label>
       <select v-model.number="chartKind" class="bg-yellow-200 h-6 w-fit mr-3">
         <option value="0">Candles</option>
         <option value="1">Line</option>
         <option value="2">Stick</option>
       </select>
-      <label for="check-interpolate">Interpolate</label>
       <input id="check-interpolate" type="checkbox" v-model="interpolate" />
+      <label class="mr-3" for="check-interpolate">Interpolate</label>
+      <input id="check-stats" type="checkbox" v-model="showStats" />
+      <label for="check-stats">Show Stats</label>
     </div>
   </div>
   <div
@@ -35,10 +37,10 @@ const canvas = ref<HTMLCanvasElement>();
 const chart = ref<ChartToCommand>();
 const chartKind = ref(0);
 const interpolate = ref(true);
+const showStats = ref(false);
 
 watchEffect(() => {
-  chart.value?.change_chart_kind(chartKind.value);
-  chart.value?.change_interpolate(interpolate.value);
+  chart.value?.change_settings(interpolate.value, showStats.value, chartKind.value);
 });
 
 onUnmounted(() => {

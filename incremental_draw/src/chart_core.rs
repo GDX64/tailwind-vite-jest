@@ -269,10 +269,6 @@ impl ChartView {
         let height = canvas.height() as f64;
         ctx.save();
         self.timescale.draw(&ctx, width, height);
-        ctx.set_fill_style(&JsValue::from_str("#ff0000"));
-        ctx.set_text_baseline("top");
-        ctx.fill_text(&format!("recalc time: {:.2}ms", self.recalc_time), 0.0, 0.0)
-            .ok();
         ctx.restore();
     }
 

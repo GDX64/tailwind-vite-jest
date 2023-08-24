@@ -26,7 +26,6 @@ impl Chart {
             date += 600_000;
             v.end = date;
         });
-        leptos::log!("data generated, {}", base_data.len());
         let min_max_tree = MinMaxTree::build(base_data, MinMaxOp);
         Chart {
             view_range: (0, size / 2),
