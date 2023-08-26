@@ -8,7 +8,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { onUnmounted, reactive, ref, watchEffect } from 'vue';
+import { computed, onUnmounted, reactive, ref, watchEffect } from 'vue';
 import { DrawData, useDrawData } from '../vueRenderer/UseDraw';
 import { Ticker } from 'pixi.js';
 
@@ -64,8 +64,17 @@ export function useAnimation(fn: (ticker: Ticker) => void, drawData?: DrawData) 
   }
 }
 
-export function useAnimationFrames(fn: (elapsed: number) => void) {
-  const sub = animationFrames().subscribe(({ elapsed }) => fn(elapsed));
+export function useAnimationFrames(
+  fn: (args: { elapsed: number; delta: number; count: number }) => void
+) {
+  let last = 0;
+  let count = 0;
+  const sub = animationFrames().subscribe(({ elapsed }) => {
+    const delta = elapsed - last;
+    last = elapsed;
+    count++;
+    fn({ elapsed, delta, count });
+  });
   onUnmounted(() => sub.unsubscribe());
 }
 
@@ -99,4 +108,30 @@ export function useSize(container = ref<HTMLElement>()) {
   });
   onUnmounted(() => obs.disconnect());
   return { size, container };
+}
+
+export function useCanvasDPI() {
+  const canvas = ref<HTMLCanvasElement>();
+  const { size } = useSize(canvas);
+  watchEffect(() => {
+    if (canvas.value) {
+      const ctx = canvas.value.getContext('2d');
+      if (ctx) {
+        const dpr = self.devicePixelRatio || 1;
+        const { width, height } = size;
+        canvas.value.width = width * dpr;
+        canvas.value.height = height * dpr;
+      }
+    }
+  });
+  return {
+    canvas,
+    size,
+    pixelSize: computed(() => {
+      return {
+        width: size.width * (self.devicePixelRatio || 1),
+        height: size.height * (self.devicePixelRatio || 1),
+      };
+    }),
+  };
 }
