@@ -9,8 +9,6 @@ import {
   tap,
 } from 'rxjs';
 import { computed, onUnmounted, reactive, ref, watchEffect } from 'vue';
-import { DrawData, useDrawData } from '../vueRenderer/UseDraw';
-import { Ticker } from 'pixi.js';
 
 export function useDrag(start: Observable<any>) {
   const pos = ref([0, 0] as [number, number]);
@@ -41,27 +39,6 @@ export function useDrag(start: Observable<any>) {
     });
   onUnmounted(() => sub.unsubscribe());
   return { pos, isDragging };
-}
-
-export function useElapsed(time = ref(0)) {
-  const data = useDrawData();
-  const sub = animationFrames().subscribe(({ elapsed }) => {
-    if (data.isVisible) {
-      time.value = elapsed;
-    }
-  });
-  onUnmounted(() => sub.unsubscribe());
-  return time;
-}
-
-export function useAnimation(fn: (ticker: Ticker) => void, drawData?: DrawData) {
-  const data = drawData ?? useDrawData();
-  const ticker = data.app?.ticker;
-  if (ticker) {
-    const cb = () => fn(ticker as Ticker);
-    ticker.add(cb);
-    onUnmounted(() => ticker.remove(cb));
-  }
 }
 
 export function useAnimationFrames(
