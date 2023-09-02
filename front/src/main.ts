@@ -15,10 +15,6 @@ const routes = [
   { path: '/base64', component: () => import('./pages/Base64.vue') },
   { path: '/wasm-chart', component: () => import('./pages/WasmChart.vue') },
   { path: '/text-quality', component: () => import('./pages/TextQualityTest.vue') },
-  // { path: '/set', component: Set },
-  // { path: '/Wordle', component: Wordle },
-  // { path: '/hilbert', component: Hilbert },
-  // { path: '/ball', component: BallAnimation },
 ];
 
 // 3. Create the router instance and pass the `routes` option
