@@ -24,3 +24,6 @@ wasm-opt = ['-O4', '-g']
 
 [[bin]]
 name = "wasm_bin"
+
+[build]
+rust-flags = "-C target-feature=+simd128"

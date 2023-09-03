@@ -8,7 +8,7 @@
   "devDependencies": {},
   "scripts": {
     "dev": "wasm-pack build --target web",
-    "build": "wasm-pack build --target web",
+    "build": "wasm-pack build --target web --release",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
