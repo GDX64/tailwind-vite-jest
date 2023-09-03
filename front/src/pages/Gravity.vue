@@ -1,11 +1,11 @@
 <template>
   <div class="flex flex-col h-screen w-screen overflow-hidden">
-    <div class="flex">
+    <div class="flex px-2 py-4 gap-2 bg-sky-200 border-sky-600 border-b-2">
       <input type="range" :min="0" :max="180" :step="1" v-model.number="rotX" />
       <input type="range" :min="0" :max="180" :step="1" v-model.number="rotY" />
       <input type="range" :min="0" :max="180" :step="1" v-model.number="rotZ" />
     </div>
-    <div class="h-full grow relative">
+    <div class="h-full grow relative bg-amber-100">
       <canvas
         ref="canvas"
         class="absolute top-0 left-0 w-full h-full"
@@ -128,7 +128,7 @@ function strokeRectWith4Points(
 
 function projectionMatrix() {
   const m = new DOMMatrix();
-  const rotation = m.rotate(rotX.value, rotY.value, rotZ.value);
+  const rotation = m.scale(2, 2).rotate(rotX.value, rotY.value, rotZ.value);
   const translation = m.translate(
     pixelSize.value.width / 2,
     pixelSize.value.height / 2,
