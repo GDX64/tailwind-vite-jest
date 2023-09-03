@@ -20,6 +20,7 @@ rand = "0.8.5"
 
 [package.metadata.wasm-pack.profile.release]
 # previously had just ['-O4']
+rust-flags = "-C target-feature=+simd128"
 wasm-opt = ['-O4', '-g']
 
 [[bin]]
@@ -27,3 +28,4 @@ name = "wasm_bin"
 
 [build]
 rust-flags = "-C target-feature=+simd128"
+wasm-opt = ['-O4', '-g']

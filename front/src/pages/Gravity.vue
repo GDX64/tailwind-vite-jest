@@ -11,7 +11,7 @@ const { canvas, pixelSize } = useCanvasDPI();
 let world: ParticleWorld | undefined = undefined;
 init().then(() => {
   const { width, height } = pixelSize.value;
-  world = random_world(width, height, 1000);
+  world = random_world(width, height, 500);
 });
 
 useAnimationFrames(() => {
@@ -19,15 +19,16 @@ useAnimationFrames(() => {
   const points = world?.points();
   const ctx = canvas.value?.getContext('2d');
   if (points && ctx) {
-    console.log('drawing');
     const N = points.length / 2;
     ctx.clearRect(0, 0, pixelSize.value.width, pixelSize.value.height);
     ctx.fillStyle = 'black';
+    ctx.beginPath();
     for (let i = 0; i < N; i++) {
       const x = points[i];
       const y = points[i + N];
-      ctx.fillRect(x, y, 5, 5);
+      ctx.rect(x - 2, y - 2, 4, 4);
     }
+    ctx.fill();
   }
 });
 </script>

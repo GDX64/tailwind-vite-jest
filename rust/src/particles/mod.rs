@@ -1,27 +1,31 @@
 mod euler;
 
 use super::random;
-use euler::{euler_evolve, V2};
+use euler::{euler_evolve, V3};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub struct ParticleWorld {
-    x: Vec<V2>,
-    v: Vec<V2>,
+    x: Vec<V3>,
+    v: Vec<V3>,
     calc: ParticleWorldCalc,
 }
 
 #[wasm_bindgen]
 pub fn random_world(max_x: f32, max_y: f32, number_of_particles: usize) -> ParticleWorld {
     let v = (0..number_of_particles).map(|_| {
-        return V2::new(random() as f32 * max_x, random() as f32 * max_y);
+        return V3::new(
+            random() as f32 * max_x,
+            random() as f32 * max_y,
+            400.0 * random() as f32,
+        );
     });
 
     ParticleWorld {
         x: v.collect(),
-        v: vec![V2::new(0.0, 0.0); number_of_particles],
+        v: vec![V3::new(0.0, 0.0, 0.0); number_of_particles],
         calc: ParticleWorldCalc {
-            center: V2::new(400.0, 400.0),
+            center: V3::new(400.0, 400.0, 400.0),
             repulsion: 200.0,
             center_force: 1.5,
         },
@@ -40,15 +44,21 @@ impl ParticleWorld {
     }
 
     pub fn points(&self) -> Vec<f32> {
-        self.x.iter().flat_map(|v| [v.x, v.y]).collect::<Vec<f32>>()
+        self.x
+            .iter()
+            .flat_map(|v| [v.x(), v.y()])
+            .collect::<Vec<f32>>()
     }
 
     pub fn speed(&self) -> Vec<f32> {
-        self.v.iter().flat_map(|v| [v.x, v.y]).collect::<Vec<f32>>()
+        self.v
+            .iter()
+            .flat_map(|v| [v.x(), v.y()])
+            .collect::<Vec<f32>>()
     }
 
     pub fn set_center(&mut self, x: f32, y: f32) {
-        self.calc.center = V2::new(x, y);
+        self.calc.center = V3::new(x, y, 0.0);
     }
 
     pub fn set_forces(&mut self, repulsion: f32, center: f32) {
@@ -58,28 +68,29 @@ impl ParticleWorld {
 }
 
 struct ParticleWorldCalc {
-    center: V2,
+    center: V3,
     repulsion: f32,
     center_force: f32,
 }
 
 impl ParticleWorldCalc {
-    fn calc_acc(&self, position: &Vec<V2>, speed: &Vec<V2>) -> Vec<V2> {
+    #[inline(never)]
+    fn calc_acc(&self, position: &Vec<V3>, speed: &Vec<V3>) -> Vec<V3> {
         position
             .iter()
             .enumerate()
             .map(|(i, x)| {
                 let mut acc = self.base_influence(&x);
-                acc = acc.add(&speed[i].mul_scalar(-DAMPING)); //speed damping
+                acc.add_mut(&speed[i].mul_scalar(-DAMPING)); //speed damping
                 position
                     .iter()
-                    .for_each(|other| acc = acc.add(&self.influence(&x, &other)));
+                    .for_each(|other| acc.add_mut(&self.influence(&x, &other)));
                 acc
             })
             .collect()
     }
 
-    fn influence(&self, point: &V2, reference: &V2) -> V2 {
+    fn influence(&self, point: &V3, reference: &V3) -> V3 {
         let r = point.sub(reference);
         let norm_sq = r.norm_squared();
         if norm_sq == 0.0 {
@@ -90,7 +101,7 @@ impl ParticleWorldCalc {
         }
     }
 
-    fn base_influence(&self, point: &V2) -> V2 {
+    fn base_influence(&self, point: &V3) -> V3 {
         let r = self.center.sub(point);
         let norm = r.norm();
         if norm == 0.0 {

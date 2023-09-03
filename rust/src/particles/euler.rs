@@ -1,4 +1,4 @@
-pub fn euler_evolve(x: &mut V2, v: &mut V2, acc: &V2, dt: f32) {
+pub fn euler_evolve(x: &mut V3, v: &mut V3, acc: &V3, dt: f32) {
     let dv = acc.mul_scalar(dt);
     let new_v = dv.add(v);
     *v = new_v;
@@ -6,48 +6,69 @@ pub fn euler_evolve(x: &mut V2, v: &mut V2, acc: &V2, dt: f32) {
     *x = dx.add(x);
 }
 
-pub struct V2 {
-    pub x: f32,
-    pub y: f32,
+use std::arch::wasm32::{f32x4_add, f32x4_extract_lane, f32x4_mul, f32x4_splat, f32x4_sub, v128};
+
+pub union V3 {
+    v: v128,
+    arr: [f32; 4],
 }
 
-impl Clone for V2 {
+impl Clone for V3 {
     fn clone(&self) -> Self {
-        Self {
-            x: self.x,
-            y: self.y,
-        }
+        unsafe { Self { v: self.v } }
     }
 }
 
-impl V2 {
-    pub fn new(x: f32, y: f32) -> Self {
-        Self { x, y }
+impl V3 {
+    pub fn x(&self) -> f32 {
+        unsafe { self.arr[0] }
+    }
+
+    pub fn y(&self) -> f32 {
+        unsafe { self.arr[1] }
+    }
+
+    pub fn z(&self) -> f32 {
+        unsafe { self.arr[2] }
+    }
+
+    pub fn new(x: f32, y: f32, z: f32) -> Self {
+        Self {
+            arr: [x, y, z, 0.0],
+        }
     }
 
     pub fn mul_scalar(&self, scalar: f32) -> Self {
-        Self {
-            x: self.x * scalar,
-            y: self.y * scalar,
+        unsafe {
+            Self {
+                v: f32x4_mul(self.v, f32x4_splat(scalar)),
+            }
         }
     }
 
     pub fn add(&self, other: &Self) -> Self {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
+        unsafe {
+            Self {
+                v: f32x4_add(self.v, other.v),
+            }
         }
     }
 
     pub fn sub(&self, other: &Self) -> Self {
-        Self {
-            x: self.x - other.x,
-            y: self.y - other.y,
+        unsafe {
+            Self {
+                v: f32x4_sub(self.v, other.v),
+            }
         }
     }
 
     pub fn dot(&self, other: &Self) -> f32 {
-        self.x * other.x + self.y * other.y
+        unsafe {
+            let mul = f32x4_mul(self.v, other.v);
+            f32x4_extract_lane::<1>(mul)
+                + f32x4_extract_lane::<0>(mul)
+                + f32x4_extract_lane::<2>(mul)
+        }
     }
 
     pub fn norm(&self) -> f32 {
@@ -60,5 +81,11 @@ impl V2 {
 
     pub fn norm_squared(&self) -> f32 {
         self.dot(self)
+    }
+
+    pub fn add_mut(&mut self, other: &Self) {
+        unsafe {
+            self.v = f32x4_add(self.v, other.v);
+        }
     }
 }
