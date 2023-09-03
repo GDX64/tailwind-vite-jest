@@ -96,8 +96,8 @@ export function useCanvasDPI() {
       if (ctx) {
         const dpr = self.devicePixelRatio || 1;
         const { width, height } = size;
-        canvas.value.width = width * dpr;
-        canvas.value.height = height * dpr;
+        canvas.value.width = Math.floor(width * dpr);
+        canvas.value.height = Math.floor(height * dpr);
       }
     }
   });

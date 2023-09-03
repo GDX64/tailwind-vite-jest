@@ -55,14 +55,10 @@ impl ParticleWorld {
     }
 
     pub fn points(&self) -> Vec<f32> {
-        let m = &self.projection_mat;
         // let m = &Mat4::identity();
         self.x
             .iter()
-            .flat_map(|v| {
-                let v = m.v_mul(v);
-                [v.x() + 400.0, v.y() + 400.0, v.z()]
-            })
+            .flat_map(|v| [v.x(), v.y(), v.z()])
             .collect::<Vec<f32>>()
     }
 
