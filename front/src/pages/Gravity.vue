@@ -14,7 +14,7 @@ const rotY = ref(0);
 const world = ref<ParticleWorld>();
 init().then(() => {
   const { width, height } = pixelSize.value;
-  world.value = random_world(width, height, 10);
+  world.value = random_world(width, height, 100);
 });
 
 watchEffect(() => {
@@ -29,13 +29,19 @@ useAnimationFrames(({ elapsed }) => {
   const points = world.value?.points();
   const ctx = canvas.value?.getContext('2d');
   if (points && ctx) {
-    const N = points.length / 2;
+    const N = points.length / 3;
     ctx.clearRect(0, 0, pixelSize.value.width, pixelSize.value.height);
-    ctx.fillStyle = 'black';
     ctx.beginPath();
-    for (let i = 0; i < N; i++) {
+    ctx.fillStyle = 'black';
+    for (let i = 0; i < N; i += 3) {
       const x = points[i];
-      const y = points[i + N];
+      const y = points[i + 1];
+      const z = points[i + 2];
+      if (z < 0) {
+        continue;
+      }
+      // ctx.fillStyle = `#000000${Math.min(50, 255 - z).toString(16)}}`;
+      // console.log([x, y]);
       ctx.rect(x - 2, y - 2, 4, 4);
     }
     ctx.fill();

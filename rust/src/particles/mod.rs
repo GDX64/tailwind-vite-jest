@@ -18,9 +18,9 @@ pub struct ParticleWorld {
 pub fn random_world(max_x: f32, max_y: f32, number_of_particles: usize) -> ParticleWorld {
     let v = (0..number_of_particles).map(|_| {
         return V4::xyz(
-            random() as f32 * max_x,
-            random() as f32 * max_y,
-            400.0 * random() as f32,
+            random() as f32 * 100.0,
+            random() as f32 * 100.0,
+            100.0 * random() as f32,
         );
     });
 
@@ -48,18 +48,20 @@ impl ParticleWorld {
     }
 
     pub fn rotate(&mut self, angle_x: f32, angle_y: f32) {
-        let v_rotated = Mat4::rotate_y(angle_y).v_mul(&V4::xyz(0.0, 0.0, 1_000.0));
-        let v_rotated = Mat4::rotate_x(angle_x).v_mul(&v_rotated);
-        let translate = Mat4::translation_mat(400.0, 400.0, 0.0);
+        let v_rotated = Mat4::rotate_y(angle_y).v_mul(&V4::xyz(0.0, 0.0, 1000.0));
+        // let v_rotated = Mat4::rotate_x(angle_x).v_mul(&v_rotated);
+        let translate = Mat4::translation_mat(0.0, 0.0, 0.0);
         self.projection_mat = translate.mul(&Mat4::orthogonal_projection(&v_rotated));
     }
 
     pub fn points(&self) -> Vec<f32> {
+        let m = &self.projection_mat;
+        // let m = &Mat4::identity();
         self.x
             .iter()
             .flat_map(|v| {
-                let v = self.projection_mat.v_mul(v);
-                [v.x(), v.y()]
+                let v = m.v_mul(v);
+                [v.x() + 400.0, v.y() + 400.0, v.z()]
             })
             .collect::<Vec<f32>>()
     }
