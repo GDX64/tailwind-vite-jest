@@ -1,20 +1,23 @@
 mod euler;
 
+use self::euler::Mat4;
+
 use super::random;
-use euler::{euler_evolve, V3};
+use euler::{euler_evolve, V4};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub struct ParticleWorld {
-    x: Vec<V3>,
-    v: Vec<V3>,
+    x: Vec<V4>,
+    v: Vec<V4>,
+    projection_mat: Mat4,
     calc: ParticleWorldCalc,
 }
 
 #[wasm_bindgen]
 pub fn random_world(max_x: f32, max_y: f32, number_of_particles: usize) -> ParticleWorld {
     let v = (0..number_of_particles).map(|_| {
-        return V3::new(
+        return V4::xyz(
             random() as f32 * max_x,
             random() as f32 * max_y,
             400.0 * random() as f32,
@@ -23,9 +26,10 @@ pub fn random_world(max_x: f32, max_y: f32, number_of_particles: usize) -> Parti
 
     ParticleWorld {
         x: v.collect(),
-        v: vec![V3::new(0.0, 0.0, 0.0); number_of_particles],
+        v: vec![V4::xyz(0.0, 0.0, 0.0); number_of_particles],
+        projection_mat: Mat4::identity(),
         calc: ParticleWorldCalc {
-            center: V3::new(400.0, 400.0, 400.0),
+            center: V4::xyz(0.0, 0.0, 0.0),
             repulsion: 200.0,
             center_force: 1.5,
         },
@@ -43,10 +47,20 @@ impl ParticleWorld {
         });
     }
 
+    pub fn rotate(&mut self, angle_x: f32, angle_y: f32) {
+        let v_rotated = Mat4::rotate_y(angle_y).v_mul(&V4::xyz(0.0, 0.0, 1_000.0));
+        let v_rotated = Mat4::rotate_x(angle_x).v_mul(&v_rotated);
+        let translate = Mat4::translation_mat(400.0, 400.0, 0.0);
+        self.projection_mat = translate.mul(&Mat4::orthogonal_projection(&v_rotated));
+    }
+
     pub fn points(&self) -> Vec<f32> {
         self.x
             .iter()
-            .flat_map(|v| [v.x(), v.y()])
+            .flat_map(|v| {
+                let v = self.projection_mat.v_mul(v);
+                [v.x(), v.y()]
+            })
             .collect::<Vec<f32>>()
     }
 
@@ -58,7 +72,7 @@ impl ParticleWorld {
     }
 
     pub fn set_center(&mut self, x: f32, y: f32) {
-        self.calc.center = V3::new(x, y, 0.0);
+        self.calc.center = V4::xyz(x, y, 0.0);
     }
 
     pub fn set_forces(&mut self, repulsion: f32, center: f32) {
@@ -68,14 +82,14 @@ impl ParticleWorld {
 }
 
 struct ParticleWorldCalc {
-    center: V3,
+    center: V4,
     repulsion: f32,
     center_force: f32,
 }
 
 impl ParticleWorldCalc {
     #[inline(never)]
-    fn calc_acc(&self, position: &Vec<V3>, speed: &Vec<V3>) -> Vec<V3> {
+    fn calc_acc(&self, position: &Vec<V4>, speed: &Vec<V4>) -> Vec<V4> {
         position
             .iter()
             .enumerate()
@@ -90,7 +104,7 @@ impl ParticleWorldCalc {
             .collect()
     }
 
-    fn influence(&self, point: &V3, reference: &V3) -> V3 {
+    fn influence(&self, point: &V4, reference: &V4) -> V4 {
         let r = point.sub(reference);
         let norm_sq = r.norm_squared();
         if norm_sq == 0.0 {
@@ -101,7 +115,7 @@ impl ParticleWorldCalc {
         }
     }
 
-    fn base_influence(&self, point: &V3) -> V3 {
+    fn base_influence(&self, point: &V4) -> V4 {
         let r = self.center.sub(point);
         let norm = r.norm();
         if norm == 0.0 {
