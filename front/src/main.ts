@@ -16,6 +16,7 @@ const routes = [
   { path: '/wasm-chart', component: () => import('./pages/WasmChart.vue') },
   { path: '/text-quality', component: () => import('./pages/TextQualityTest.vue') },
   { path: '/gravity', component: () => import('./pages/Gravity.vue') },
+  { path: '/projection', component: () => import('./pages/Projection/Projection.vue') },
 ];
 
 // 3. Create the router instance and pass the `routes` option

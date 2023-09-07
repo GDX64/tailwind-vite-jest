@@ -8,7 +8,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { computed, onUnmounted, reactive, ref, watchEffect } from 'vue';
+import { computed, onUnmounted, reactive, ref, watchEffect, watchSyncEffect } from 'vue';
 
 export function useDrag(start: Observable<any>) {
   const pos = ref([0, 0] as [number, number]);
@@ -90,7 +90,7 @@ export function useSize(container = ref<HTMLElement>()) {
 export function useCanvasDPI() {
   const canvas = ref<HTMLCanvasElement>();
   const { size } = useSize(canvas);
-  watchEffect(() => {
+  watchSyncEffect(() => {
     if (canvas.value) {
       const ctx = canvas.value.getContext('2d');
       if (ctx) {
