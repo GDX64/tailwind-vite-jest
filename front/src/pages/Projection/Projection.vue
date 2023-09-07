@@ -20,10 +20,8 @@ import { mat4, vec4, vec3 } from 'gl-matrix';
 const rotY = ref((10 / 12) * Math.PI);
 const rotX = ref(Math.PI / 6);
 const plane = ref('20 20 20');
-const { canvas, pixelSize } = useCanvasDPI();
-const m = computed(() =>
-  Chart.mFromRot(rotY.value, rotX.value, pixelSize.value.width, pixelSize.value.height)
-);
+const { canvas, pixelSize, size } = useCanvasDPI();
+const m = computed(() => Chart.mFromRot(rotY.value, rotX.value, size.width, size.height));
 
 function parsePlane() {
   const [x, y, z] = plane.value.split(' ').map(Number);
@@ -35,10 +33,19 @@ watchEffect(() => {
   const ctx = canvas.value?.getContext('2d');
   if (ctx) {
     new Chart(ctx, m.value).draw((chart) => {
+      chart.ctx.lineWidth = 1;
       chart.drawAxis();
       const plane = parsePlane();
       if (plane) {
         chart.drawPlane(plane);
+        const w = vec3.fromValues(20, 10, 0);
+        const p = chart.projectOnPlane(plane, w);
+        chart.ctx.fillStyle = '#888800';
+        chart.ctx.strokeStyle = '#888800';
+        chart.drawVec(p, { text: 'p', _start: plane });
+        chart.ctx.fillStyle = '#008800';
+        chart.ctx.strokeStyle = '#008800';
+        chart.drawVec(w, { text: 'w', _start: plane });
       }
     });
   }
@@ -58,10 +65,18 @@ class Chart {
     return mat4.mul(rotM, translation, rotM);
   }
 
+  projectOnPlane(plane: vec3, v: vec3) {
+    const n = vec3.normalize(vec3.create(), plane);
+    const d = vec3.dot(n, v);
+    const p = vec3.scale(vec3.create(), n, d);
+    return vec3.sub(vec3.create(), v, p);
+  }
+
   draw(fn: (ctx: Chart) => void) {
     const { width, height } = pixelSize.value;
     const ctx = this.ctx;
     ctx.save();
+    ctx.scale(devicePixelRatio, devicePixelRatio);
     ctx.clearRect(0, 0, width, height);
     fn(this);
     ctx.restore();
@@ -123,7 +138,7 @@ class Chart {
     ctx.lineTo(p2[0], p2[1]);
     ctx.fillRect(p2[0] - 3, p2[1] - 3, 6, 6);
     ctx.stroke();
-    ctx.font = '20px serif';
+    ctx.font = '13px sans-serif';
     ctx.fillText(text, p2[0] + 10, p2[1] + 10);
   }
 }
