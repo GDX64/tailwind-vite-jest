@@ -19,6 +19,9 @@
       <li>
         <a class="text-sky-700 underline" href="/cv">CV</a>
       </li>
+      <li>
+        <a class="text-sky-700 underline" href="/projection">Projections</a>
+      </li>
     </ul>
   </div>
 </template>
