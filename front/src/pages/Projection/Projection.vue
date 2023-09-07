@@ -45,7 +45,7 @@ watchEffect(() => {
         chart.drawVec(p, { text: 'p', _start: plane });
         chart.ctx.fillStyle = '#008800';
         chart.ctx.strokeStyle = '#008800';
-        chart.drawVec(w, { text: 'w', _start: plane });
+        chart.drawVec(w, { text: 'w' });
       }
     });
   }
