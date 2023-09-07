@@ -1,14 +1,27 @@
 import {
   animationFrames,
   fromEvent,
+  map,
   Observable,
   pairwise,
   scan,
+  skip,
+  Subject,
   switchMap,
   takeUntil,
+  takeWhile,
   tap,
 } from 'rxjs';
-import { computed, onUnmounted, reactive, ref, watchEffect, watchSyncEffect } from 'vue';
+import {
+  computed,
+  onUnmounted,
+  reactive,
+  Ref,
+  ref,
+  shallowRef,
+  watchEffect,
+  watchSyncEffect,
+} from 'vue';
 
 export function useDrag(start: Observable<any>) {
   const pos = ref([0, 0] as [number, number]);
@@ -111,4 +124,41 @@ export function useCanvasDPI() {
       };
     }),
   };
+}
+
+export function animationProgress(duration: number) {
+  return animationFrames().pipe(
+    map(({ elapsed }) => Math.min(elapsed / duration, 1)),
+    takeWhile((v) => v <= 1, true)
+  );
+}
+
+export function lerpTime(a: number, b: number, t: number) {
+  return a * (1 - t) + b * t;
+}
+
+export function useInterpolation<T>(
+  r: () => T,
+  duration: number,
+  interpolator: (initial: T, final: T, t: number) => T
+) {
+  const subject = new Subject<T>();
+  watchEffect(() => {
+    subject.next(r());
+  });
+  const sRef = shallowRef(r());
+  const sub = subject
+    .pipe(
+      skip(1),
+      switchMap((v) => {
+        return animationProgress(duration).pipe(
+          map((t) => interpolator(sRef.value, v, t))
+        );
+      })
+    )
+    .subscribe((final) => {
+      sRef.value = final;
+    });
+  onUnmounted(() => sub.unsubscribe());
+  return sRef;
 }
