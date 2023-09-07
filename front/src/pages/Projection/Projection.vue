@@ -3,6 +3,7 @@
     <div class="flex px-2 py-4 gap-2 bg-sky-200 border-sky-600 border-b-2">
       <input type="range" :min="0" :max="Math.PI" :step="0.01" v-model.number="rotY" />
       <input type="range" :min="0" :max="Math.PI" :step="0.01" v-model.number="rotX" />
+      <input v-model="plane" />
     </div>
     <div class="h-full grow relative bg-amber-100">
       <canvas ref="canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
@@ -18,15 +19,28 @@ import { mat4, vec4, vec3 } from 'gl-matrix';
 
 const rotY = ref((10 / 12) * Math.PI);
 const rotX = ref(Math.PI / 6);
+const plane = ref('20 20 20');
 const { canvas, pixelSize } = useCanvasDPI();
 const m = computed(() =>
   Chart.mFromRot(rotY.value, rotX.value, pixelSize.value.width, pixelSize.value.height)
 );
 
+function parsePlane() {
+  const [x, y, z] = plane.value.split(' ').map(Number);
+  if (isNaN(x) || isNaN(y) || isNaN(z)) return null;
+  return [x, y, z] as vec3;
+}
+
 watchEffect(() => {
   const ctx = canvas.value?.getContext('2d');
   if (ctx) {
-    new Chart(ctx, m.value).draw();
+    new Chart(ctx, m.value).draw((chart) => {
+      chart.drawAxis();
+      const plane = parsePlane();
+      if (plane) {
+        chart.drawPlane(plane);
+      }
+    });
   }
 });
 
@@ -44,13 +58,12 @@ class Chart {
     return mat4.mul(rotM, translation, rotM);
   }
 
-  draw() {
+  draw(fn: (ctx: Chart) => void) {
     const { width, height } = pixelSize.value;
     const ctx = this.ctx;
     ctx.save();
     ctx.clearRect(0, 0, width, height);
-    this.drawAxis();
-    this.drawPlane([20, 20, 20]);
+    fn(this);
     ctx.restore();
   }
 
