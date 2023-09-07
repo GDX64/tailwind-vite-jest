@@ -26,7 +26,7 @@ const m = computed(() =>
 watchEffect(() => {
   const ctx = canvas.value?.getContext('2d');
   if (ctx) {
-    new Chart(ctx, m.value).drawAxis();
+    new Chart(ctx, m.value).draw();
   }
 });
 
@@ -44,23 +44,67 @@ class Chart {
     return mat4.mul(rotM, translation, rotM);
   }
 
-  drawAxis() {
+  draw() {
     const { width, height } = pixelSize.value;
     const ctx = this.ctx;
     ctx.save();
     ctx.clearRect(0, 0, width, height);
+    this.drawAxis();
+    this.drawPlane([20, 20, 20]);
+    ctx.restore();
+  }
+
+  drawAxis() {
     this.drawVec([40, 0, 0], { text: 'x' });
     this.drawVec([0, 40, 0], { text: 'y' });
     this.drawVec([0, 0, 40], { text: 'z' });
-    ctx.restore();
+  }
+
+  drawPlane(v: vec3, { fill = '#ff000044', vecsColor = '#ff0000' } = {}) {
+    this.ctx.strokeStyle = vecsColor;
+    this.ctx.fillStyle = vecsColor;
+    this.drawVec(v, { text: 'v' });
+    const c1 = vec3.cross(vec3.create(), v, [1, 0, 0]);
+    vec3.normalize(c1, c1);
+    const c2 = vec3.cross(vec3.create(), v, c1);
+    vec3.normalize(c2, c2);
+    vec3.scale(c1, c1, 20);
+    vec3.scale(c2, c2, 20);
+    this.drawVec(c1, { text: 'c1', _start: v });
+    this.drawVec(c2, { text: 'c2', _start: v });
+    const minusC1 = vec3.scale(vec3.create(), c1, -1);
+    const minusC2 = vec3.scale(vec3.create(), c2, -1);
+    const points = [
+      vec3.add(vec3.create(), minusC1, minusC2),
+      vec3.add(vec3.create(), minusC1, c2),
+      vec3.add(vec3.create(), c1, c2),
+      vec3.add(vec3.create(), c1, minusC2),
+    ];
+    this.polygon(points.map((p) => vec3.add(vec3.create(), p, v)));
+    this.ctx.fillStyle = fill;
+    this.ctx.fill();
+  }
+
+  polygon(points: vec3[]) {
+    const ctx = this.ctx;
+    ctx.beginPath();
+    const p = this.transformPoint(points[0]);
+    ctx.moveTo(p[0], p[1]);
+    for (let i = 1; i < points.length; i++) {
+      const p = this.transformPoint(points[i]);
+      ctx.lineTo(p[0], p[1]);
+    }
+    ctx.closePath();
+  }
+
+  transformPoint(p: vec3) {
+    return vec4.transformMat4(vec4.create(), [p[0], p[1], p[2], 1], this.m);
   }
 
   drawVec(_v: vec3, { _start = [0, 0, 0] as vec3, text = '' } = {}) {
     const ctx = this.ctx;
-    const _p2 = vec3.add(vec3.create(), _v, _start);
-    const start = [_start[0], _start[1], _start[2], 1] as vec4;
-    const p1 = vec4.transformMat4(vec4.create(), start, this.m);
-    const p2 = vec4.transformMat4(vec4.create(), [_p2[0], _p2[1], _p2[2], 1], this.m);
+    const p1 = this.transformPoint(_start);
+    const p2 = this.transformPoint(vec3.add(vec3.create(), _v, _start));
     ctx.beginPath();
     ctx.moveTo(p1[0], p1[1]);
     ctx.lineTo(p2[0], p2[1]);
