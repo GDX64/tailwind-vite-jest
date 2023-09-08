@@ -17,6 +17,7 @@ const routes = [
   { path: '/text-quality', component: () => import('./pages/TextQualityTest.vue') },
   { path: '/gravity', component: () => import('./pages/Gravity.vue') },
   { path: '/projection', component: () => import('./pages/Projection/Projection.vue') },
+  { path: '/aninha', component: () => import('./pages/Aninha.vue') },
 ];
 
 // 3. Create the router instance and pass the `routes` option
