@@ -1,6 +1,5 @@
 import { UserConfig, configDefaults } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
-import glsl from 'vite-plugin-glsl';
 import svgLoader from 'vite-svg-loader';
 import auto from 'autoprefixer';
 import tailwind from 'tailwindcss';
@@ -12,7 +11,7 @@ export default (args) => {
     worker: {
       plugins: [makeVuePlugin()],
     },
-    plugins: [makeVuePlugin(), glsl(), svgLoader()],
+    plugins: [makeVuePlugin(), svgLoader() as any],
     test: {
       globals: true,
       environment: 'happy-dom',
