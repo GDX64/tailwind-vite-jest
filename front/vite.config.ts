@@ -4,7 +4,6 @@ import glsl from 'vite-plugin-glsl';
 import svgLoader from 'vite-svg-loader';
 import auto from 'autoprefixer';
 import tailwind from 'tailwindcss';
-import solidPlugin from 'vite-plugin-solid';
 import path from 'path';
 
 // https://vitejs.dev/config/
@@ -13,17 +12,7 @@ export default (args) => {
     worker: {
       plugins: [makeVuePlugin()],
     },
-    plugins: [
-      makeVuePlugin(),
-      glsl(),
-      svgLoader(),
-      solidPlugin({
-        solid: {
-          generate: 'universal',
-          moduleName: '@solidRender/CustomRender',
-        },
-      }),
-    ],
+    plugins: [makeVuePlugin(), glsl(), svgLoader()],
     test: {
       globals: true,
       environment: 'happy-dom',
