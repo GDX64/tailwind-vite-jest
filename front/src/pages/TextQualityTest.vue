@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { ReactiveEffect, ReactiveEffect, computed, ref } from 'vue';
+import { ReactiveEffect, computed, ref } from 'vue';
 import { useAnimationFrames } from '../utils/rxjsUtils';
 import TextCanvas from './textRendering/TextCanvas.vue';
 import TextPixi from './textRendering/TextPixi.vue';
@@ -25,10 +25,14 @@ enum TextOptions {
 }
 
 const fps = ref(0);
-const comp = computed(() => fps.value);
-const effect = new ReactiveEffect();
+const effect = new ReactiveEffect(
+  () => fps.value,
+  () => {
+    console.log('scheduler was called');
+  }
+);
+effect.run();
 useAnimationFrames(({ delta, count }) => {
-  comp.value;
   if (count % 60 === 0) {
     fps.value = Math.round(1000 / delta);
   }
