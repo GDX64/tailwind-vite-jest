@@ -9,7 +9,6 @@ const routes = [
   { path: '/grid', component: () => import('./components/Grid.vue') },
   { path: '/cv', component: () => import('./pages/CV.vue') },
   { path: '/tippy', component: () => import('./pages/TippyTest.vue') },
-  { path: '/gpgpu', component: () => import('./pages/GPGPU.vue') },
   { path: '/layers', component: () => import('./pages/Layers.vue') },
   { path: '/noise', component: () => import('./pages/Noise/PerlinNoise.vue') },
   { path: '/base64', component: () => import('./pages/Base64.vue') },
