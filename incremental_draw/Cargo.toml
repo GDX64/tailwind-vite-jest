@@ -10,8 +10,10 @@ chrono = "0.4.26"
 futures = "0.3.28"
 js-sys = "0.3.64"
 leptos = {version = "0.4.2", features = ["csr"]}
+piet = {version = "0.6.2", features = ["samples"]}
 piet-web = "0.6.2"
 segment-tree = "2.0.0"
+taffy = "0.3.13"
 wasm-bindgen = "0.2.74"
 
 [dependencies.web-sys]
