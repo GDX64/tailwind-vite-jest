@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useAnimationFrames, useCanvasDPI } from '../../utils/rxjsUtils';
 
 const props = defineProps<{
@@ -11,6 +11,13 @@ const props = defineProps<{
 }>();
 const { canvas, pixelSize } = useCanvasDPI();
 const fps = ref(0);
+const texts = computed(() =>
+  [...new Array(props.amountOfText)].map(() => ({
+    x: Math.random() * pixelSize.value.width,
+    y: Math.random() * pixelSize.value.height,
+    text: Math.random().toFixed(6),
+  }))
+);
 
 useAnimationFrames(({ delta, count, elapsed }) => {
   if (count % 60 === 0) {
@@ -22,11 +29,11 @@ useAnimationFrames(({ delta, count, elapsed }) => {
   ctx.clearRect(0, 0, width, height);
   ctx.font = '20px sans-serif';
   ctx.textBaseline = 'top';
-  for (let i = 0; i < props.amountOfText; i++) {
-    const baseWidth = 100;
-    const x = (i * baseWidth) % width;
-    const y = (Math.floor((i * baseWidth) / width) * 20) % height;
-    ctx.fillText(Math.random().toFixed(6), x, y);
-  }
+  texts.value.slice(0, 10).forEach((text) => {
+    text.text = Math.random().toFixed(6);
+  });
+  texts.value.forEach((text) => {
+    ctx.fillText(text.text, text.x, text.y);
+  });
 });
 </script>

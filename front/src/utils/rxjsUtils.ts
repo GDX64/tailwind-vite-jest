@@ -82,7 +82,7 @@ export function storageRef(name: string, initial = '') {
   return value;
 }
 
-export function useSize(container = ref<HTMLElement>()) {
+export function useSize(container = ref<HTMLElement | null>()) {
   const size = reactive({ width: 0, height: 0 });
   const obs = new ResizeObserver((entries) => {
     const el = container.value;

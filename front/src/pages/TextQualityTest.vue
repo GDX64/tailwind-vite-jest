@@ -25,18 +25,11 @@ enum TextOptions {
 }
 
 const fps = ref(0);
-const effect = new ReactiveEffect(
-  () => fps.value,
-  () => {
-    console.log('scheduler was called');
-  }
-);
-effect.run();
 useAnimationFrames(({ delta, count }) => {
   if (count % 60 === 0) {
     fps.value = Math.round(1000 / delta);
   }
 });
-const amountOfText = ref(500);
+const amountOfText = ref(5000);
 const textOption = ref(TextOptions.pixijs);
 </script>
