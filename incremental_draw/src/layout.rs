@@ -25,6 +25,7 @@ fn create_leaf(shape: &MyShapes, taffy: &mut Taffy) -> Node {
             size,
             children,
         } => {
+            // let style = Style;
             let node = taffy
                 .new_leaf(Style {
                     flex_direction: FlexDirection::Row,
@@ -32,6 +33,7 @@ fn create_leaf(shape: &MyShapes, taffy: &mut Taffy) -> Node {
                         width: points(size.0),
                         height: points(size.1),
                     },
+                    flex_grow: 1.0,
                     gap: points(10.0),
                     ..Default::default()
                 })

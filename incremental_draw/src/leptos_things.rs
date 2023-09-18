@@ -60,6 +60,7 @@ pub fn run(ctx: CanvasRenderingContext2d)->Option<()> {
         ]
     };
     let (layout, taffy) = calc_layout(shapes)?;
+    
     draw_all(&mut piet_context, layout, &taffy);
     piet_context.finish().unwrap();
     Some(())
@@ -103,7 +104,7 @@ pub fn leptos_main() {
         });
         view! {cx,
             <div>
-                <h1>"a chart"</h1>
+                <h1>"Some rects"</h1>
                 <canvas node_ref=canvas_ref>
                 </canvas>
             </div>
