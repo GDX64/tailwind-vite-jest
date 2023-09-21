@@ -27,7 +27,7 @@ onMounted(async () => {
   const c = new Container();
   const textArr = [...new Array(props.amountOfText)].map(() => {
     const text = new Text({
-      text: 'hello',
+      text: Math.random().toFixed(6),
       renderMode: 'bitmap',
       style: { fontSize: 13 },
     });
