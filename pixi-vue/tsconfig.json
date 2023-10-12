@@ -15,8 +15,8 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "lib": ["esnext", "dom", "dom.iterable"],
-    "types": ["vitest/globals", "@webgpu/types"]
+    "lib": ["esnext", "dom", "dom.iterable"]
   },
   "include": ["src/main.ts", "src/**/*.d.ts", "src/**/*.test.ts"]
 }
+
