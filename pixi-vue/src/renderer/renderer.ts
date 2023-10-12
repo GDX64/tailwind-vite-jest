@@ -93,6 +93,8 @@ export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
 function calcLayout(el: GElement): LayoutBox<GElement> {
   const box = new LayoutBox(el);
   box.kind = el.position;
+  box.x = el.x;
+  box.y = el.y;
   box.width = el.width;
   box.height = el.height;
   for (const child of el.children) {

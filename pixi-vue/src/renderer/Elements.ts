@@ -17,6 +17,8 @@ export class GElement {
   pixiRef: PIXI.Container = new PIXI.Container();
   parent: null | GElement = null;
   children: GElement[] = [];
+  x = 0;
+  y = 0;
   width = null as null | number;
   height = null as null | number;
   position = LayoutKind.ABSOLUTE;
@@ -93,7 +95,19 @@ export class GRect extends GElement {
         break;
       case "onClick":
         this.pixiRef.interactive = true;
-        this.pixiRef.on("click", next);
+        this.pixiRef.onclick = next;
+        break;
+      case "onPointerdown":
+        this.pixiRef.interactive = true;
+        this.pixiRef.onpointerdown = next;
+        break;
+      case "onPointerup":
+        this.pixiRef.interactive = true;
+        this.pixiRef.onpointerup = next;
+        break;
+      case "onPointermove":
+        this.pixiRef.interactive = true;
+        this.pixiRef.onpointermove = (event) => next(event.nativeEvent);
         break;
       case "width":
         this.width = next;
@@ -104,10 +118,12 @@ export class GRect extends GElement {
         this.marklayoutDirty();
         break;
       case "x":
-        this.pixiRef.x = next;
+        this.x = next;
+        this.marklayoutDirty();
         break;
       case "y":
-        this.pixiRef.y = next;
+        this.y = next;
+        this.marklayoutDirty();
         break;
       case "fill":
         this.fill = next;
