@@ -30,18 +30,25 @@ export class GElement {
     y: 0,
   };
 
+  redraw() {
+    this.children.forEach((child) => child.redraw());
+  }
+
+  recalcLayout(): LayoutBox {
+    this.children.forEach((child) => child.recalcLayout());
+    this.dirtyLayout = false;
+    return this.layout;
+  }
+
   marklayoutDirty() {
+    // if (!this.dirtyLayout) {
     this.dirtyLayout = true;
     this.parent?.marklayoutDirty();
+    // }
   }
 
   static text(str: string) {
     return new GText(str);
-  }
-
-  updateLayout(result: LayoutBox) {
-    this.layout = result;
-    this.dirtyLayout = false;
   }
 
   patch(prop: string, prev: any, next: any) {}
@@ -50,6 +57,7 @@ export class GElement {
     child.parent = this;
     this.children.push(child);
     this.pixiRef.addChild(child.pixiRef);
+    this.marklayoutDirty();
   }
 
   setText(str: string) {}
@@ -58,6 +66,7 @@ export class GElement {
     child.parent = this;
     this.children.splice(index, 0, child);
     this.pixiRef.addChildAt(child.pixiRef, index);
+    this.marklayoutDirty();
   }
 
   removeChild(child: GElement) {
@@ -65,6 +74,7 @@ export class GElement {
     if (index === -1) return;
     this.children.splice(index, 1);
     this.pixiRef.removeChild(child.pixiRef);
+    this.marklayoutDirty();
   }
 }
 
@@ -72,10 +82,29 @@ export class GRect extends GElement {
   fill = 0xffffff;
   pixiRef: PIXI.Graphics = new PIXI.Graphics();
 
-  updateLayout(result: LayoutBox): void {
-    this.dirtyLayout = false;
-    this.layout = result;
-    this.redraw();
+  recalcLayout(): LayoutBox {
+    if (this.position === LayoutKind.ABSOLUTE) {
+      this.layout.x = this.x;
+      this.layout.y = this.y;
+      this.layout.width = this.width ?? 0;
+      this.layout.height = this.height ?? 0;
+      this.children.forEach((child) => child.recalcLayout());
+    } else if (this.position === LayoutKind.HORIZONTAL) {
+      let totalWidth = 0;
+      let maxHeight = 0;
+      for (const child of this.children) {
+        const { width, height } = child.recalcLayout();
+        child.layout.x = totalWidth;
+        totalWidth += width;
+        maxHeight = Math.max(maxHeight, height);
+      }
+      this.layout.width = this.width ?? totalWidth;
+      this.layout.height = this.height ?? maxHeight;
+      this.layout.x = this.x;
+      this.layout.y = this.y;
+    }
+    this.dirtyLayout = true;
+    return this.layout;
   }
 
   redraw() {
@@ -86,6 +115,7 @@ export class GRect extends GElement {
     rect.fill();
     this.pixiRef.x = x;
     this.pixiRef.y = y;
+    this.children.forEach((child) => child.redraw());
   }
 
   patch(prop: string, prev: any, next: any) {

@@ -75,7 +75,8 @@ export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
   const nodeRoot = new GElement();
   pApp.ticker.add(() => {
     if (nodeRoot.dirtyLayout) {
-      updateLayouts(nodeRoot);
+      nodeRoot.recalcLayout();
+      nodeRoot.redraw();
     }
   });
   nodeRoot.pixiRef = pApp.stage;
@@ -88,32 +89,4 @@ export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
     },
     pApp,
   };
-}
-
-function calcLayout(el: GElement): LayoutBox<GElement> {
-  const box = new LayoutBox(el);
-  box.kind = el.position;
-  box.x = el.x;
-  box.y = el.y;
-  box.width = el.width;
-  box.height = el.height;
-  for (const child of el.children) {
-    box.addChild(calcLayout(child));
-  }
-  return box;
-}
-
-function updateLayouts(el: GElement) {
-  const box = calcLayout(el);
-  const result = box.calculateLayout();
-  console.log(result);
-  function updateWithResults(result: LayoutResult<GElement>) {
-    const el = result.data;
-    if (el == null) return;
-    el.updateLayout(result);
-    for (const child of result.children) {
-      updateWithResults(child);
-    }
-  }
-  updateWithResults(result);
 }

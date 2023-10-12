@@ -46,46 +46,31 @@ watchEffect(() => {
     @pointerdown="pointerdown"
     @pointerup="pointerup"
     @pointermove="pointermove"
+    :fill="0xaaaaaa"
+    :height="200"
+    :width="200"
   >
-    <g-rect :position="LayoutKind.HORIZONTAL" :fill="0xaaaaaa" :height="200">
+    <g-rect :y="200" :x="50" :position="LayoutKind.HORIZONTAL">
       <g-rect
-        :position="LayoutKind.HORIZONTAL"
-        :fill="0xff0000"
-        :height="100"
-        @click="val += 1"
+        @click="rects.push({ fill: randomColor(), size: 50 })"
+        :fill="0x00ff00"
+        :height="50"
+        :width="80"
       >
-        <g-rect
-          v-for="rect of rects"
-          :width="rect.size"
-          :height="rect.size"
-          :fill="rect.fill"
-          @click="rect.size += 1"
-        ></g-rect>
+        <g-text>Add</g-text>
       </g-rect>
+      <g-rect @click="rects.pop()" :fill="0x00ffff" :height="50" :width="80">
+        <g-text>remove</g-text>
+      </g-rect>
+    </g-rect>
+    <g-rect :position="LayoutKind.HORIZONTAL" :fill="0xff0000" :height="100">
       <g-rect
-        :position="LayoutKind.HORIZONTAL"
-        :width="100"
-        :fill="randomColor()"
-        :height="100"
-        @click="val += 1"
-        v-once
-      >
-        <g-text :font-size="12" :fill="0xffffff"
-          >This is very crazy stuff</g-text
-        >
-      </g-rect>
-      <g-rect
-        :position="LayoutKind.HORIZONTAL"
-        :fill="randomColor()"
-        :height="100"
-        @click="val += 1"
-        v-once
-      >
-        <g-rect :width="50" :height="50" :fill="randomColor()"></g-rect>
-        <g-rect :width="50" :height="50" :fill="randomColor()"></g-rect>
-        <g-rect :width="50" :height="50" :fill="randomColor()"></g-rect>
-        <g-rect :width="50" :height="50" :fill="randomColor()"></g-rect>
-      </g-rect>
+        v-for="rect of rects"
+        :width="rect.size"
+        :height="rect.size"
+        :fill="rect.fill"
+        @click="rect.size += 1"
+      ></g-rect>
     </g-rect>
   </g-rect>
 </template>
