@@ -1,17 +1,45 @@
 import * as PIXI from "pixi.js";
+import { LayoutKind } from "./Layout";
 
 export enum ElTags {
   TEXT = "g-text",
   RECT = "g-rect",
 }
 
+export type LayoutBox = {
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+};
+
 export class GElement {
   pixiRef: PIXI.Container = new PIXI.Container();
   parent: null | GElement = null;
   children: GElement[] = [];
+  width = null as null | number;
+  height = null as null | number;
+  position = LayoutKind.ABSOLUTE;
+  dirtyLayout = true;
+  layout = {
+    width: 0,
+    height: 0,
+    x: 0,
+    y: 0,
+  };
+
+  marklayoutDirty() {
+    this.dirtyLayout = true;
+    this.parent?.marklayoutDirty();
+  }
 
   static text(str: string) {
     return new GText(str);
+  }
+
+  updateLayout(result: LayoutBox) {
+    this.layout = result;
+    this.dirtyLayout = false;
   }
 
   patch(prop: string, prev: any, next: any) {}
@@ -39,44 +67,41 @@ export class GElement {
 }
 
 export class GRect extends GElement {
-  width = 0;
-  height = 0;
   fill = 0xffffff;
   pixiRef: PIXI.Graphics = new PIXI.Graphics();
-  isDirty = false;
 
-  markDirty() {
-    if (!this.isDirty) {
-      this.isDirty = true;
-      queueMicrotask(() => {
-        this.redraw();
-        this.isDirty = false;
-      });
-    }
+  updateLayout(result: LayoutBox): void {
+    this.dirtyLayout = false;
+    this.layout = result;
+    this.redraw();
   }
 
   redraw() {
     this.pixiRef.clear();
-    const rect = this.pixiRef.rect(0, 0, this.width, this.height);
+    const { height, width, x, y } = this.layout;
+    const rect = this.pixiRef.rect(0, 0, width, height);
     rect.fillStyle = this.fill;
     rect.fill();
-    console.log("redraw");
+    this.pixiRef.x = x;
+    this.pixiRef.y = y;
   }
 
   patch(prop: string, prev: any, next: any) {
-    console.log(prop, prev, next);
     switch (prop) {
+      case "position":
+        this.position = next;
+        break;
       case "onClick":
         this.pixiRef.interactive = true;
         this.pixiRef.on("click", next);
         break;
       case "width":
         this.width = next;
-        this.markDirty();
+        this.marklayoutDirty();
         break;
       case "height":
         this.height = next;
-        this.markDirty();
+        this.marklayoutDirty();
         break;
       case "x":
         this.pixiRef.x = next;
@@ -86,7 +111,7 @@ export class GRect extends GElement {
         break;
       case "fill":
         this.fill = next;
-        this.markDirty();
+        this.marklayoutDirty();
         break;
       default:
         break;
@@ -107,6 +132,9 @@ export class GText extends GElement {
 
   patch(prop: string, prev: any, next: any) {
     switch (prop) {
+      case "fill":
+        this.pixiRef.style.fill = next;
+        break;
       case "x":
         this.pixiRef.x = next;
         break;
