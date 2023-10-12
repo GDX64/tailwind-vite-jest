@@ -125,10 +125,16 @@ class GRect extends GElement {
   height = 0;
   fill = 0xffffff;
   pixiRef: PIXI.Graphics = new PIXI.Graphics();
+  isDirty = false;
 
-  constructor() {
-    super();
-    this.redraw();
+  markDirty() {
+    if (!this.isDirty) {
+      this.isDirty = true;
+      queueMicrotask(() => {
+        this.redraw();
+        this.isDirty = false;
+      });
+    }
   }
 
   redraw() {
@@ -136,17 +142,23 @@ class GRect extends GElement {
     const rect = this.pixiRef.rect(0, 0, this.width, this.height);
     rect.fillStyle = this.fill;
     rect.fill();
+    console.log("redraw");
   }
 
   patch(prop: string, prev: any, next: any) {
+    console.log(prop, prev, next);
     switch (prop) {
+      case "onClick":
+        this.pixiRef.interactive = true;
+        this.pixiRef.on("click", next);
+        break;
       case "width":
         this.width = next;
-        this.redraw();
+        this.markDirty();
         break;
       case "height":
         this.height = next;
-        this.redraw();
+        this.markDirty();
         break;
       case "x":
         this.pixiRef.x = next;
@@ -156,7 +168,7 @@ class GRect extends GElement {
         break;
       case "fill":
         this.fill = next;
-        this.redraw();
+        this.markDirty();
         break;
       default:
         break;
