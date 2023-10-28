@@ -119,9 +119,11 @@ export class GRect extends GElement {
         break;
       case "x":
         this.x = next;
+        this.pixiRef.x = next;
         break;
       case "y":
         this.y = next;
+        this.pixiRef.y = next;
         break;
       case "fill":
         this.fill = next;

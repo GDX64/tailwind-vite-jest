@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { ref, shallowRef, triggerRef, watchEffect } from "vue";
+import { usePixiAnimation } from "../renderer/renderer";
 const val = ref(0);
 function randomColor() {
   return Math.floor(Math.random() * 0xffffff);
 }
-const rects = ref([
-  {
-    size: 50,
-    fill: randomColor(),
-  },
-]);
+const rects = shallowRef(
+  [...Array(100)].map(() => {
+    return {
+      y: 0,
+      x: 0,
+      size: 10,
+      fill: randomColor(),
+    };
+  })
+);
 
 let isDown = false;
 function pointerdown() {
@@ -25,8 +30,13 @@ function pointermove(event: PointerEvent) {
     position.value.y += event.movementY;
   }
 }
-watchEffect(() => {
-  console.log(rects.value.map((item) => item.size));
+
+usePixiAnimation((ticker) => {
+  rects.value.forEach((rect, i) => {
+    rect.x = (i * 10) % 800;
+    rect.y = Math.sin(ticker.lastTime / 10000 + i / 10) * 500 + 500;
+  });
+  triggerRef(rects);
 });
 </script>
 
@@ -38,11 +48,13 @@ watchEffect(() => {
     @pointerup="pointerup"
     @pointermove="pointermove"
     :fill="0xaaaaaa"
-    :height="200"
-    :width="200"
+    :height="1000"
+    :width="1000"
   >
     <g-rect
       v-for="rect of rects"
+      :y="rect.y"
+      :x="rect.x"
       :width="rect.size"
       :height="rect.size"
       :fill="rect.fill"

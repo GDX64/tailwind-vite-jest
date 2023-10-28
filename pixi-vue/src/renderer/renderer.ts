@@ -1,4 +1,4 @@
-import { createRenderer, Component } from "vue";
+import { createRenderer, Component, provide, inject, onUnmounted } from "vue";
 import * as PIXI from "pixi.js";
 import { ElTags, GElement, GRect, GText } from "./Elements";
 
@@ -73,13 +73,17 @@ export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
     resizeTo: canvas,
   });
   const app = appRenderer().createApp(comp);
+  app.provide("pixiApp", pApp);
   const nodeRoot = new GElement();
-  pApp.ticker.add(() => {
-    if (nodeRoot.isDirty) {
-      console.log("tick");
-      nodeRoot.redraw();
-    }
-  });
+  pApp.ticker.add(
+    () => {
+      if (nodeRoot.isDirty) {
+        nodeRoot.redraw();
+      }
+    },
+    null,
+    PIXI.UPDATE_PRIORITY.INTERACTION
+  );
   nodeRoot.pixiRef = pApp.stage;
   app.mount(nodeRoot);
 
@@ -90,4 +94,16 @@ export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
     },
     pApp,
   };
+}
+
+export function usePixiApp() {
+  return inject<PIXI.Application>("pixiApp")!;
+}
+
+export function usePixiAnimation(fn: (ticker: PIXI.Ticker) => void) {
+  const app = usePixiApp();
+  app.ticker.add(fn);
+  onUnmounted(() => {
+    app.ticker.remove(fn);
+  });
 }
