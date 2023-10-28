@@ -1,7 +1,6 @@
 import { createRenderer, Component } from "vue";
 import * as PIXI from "pixi.js";
 import { ElTags, GElement, GRect, GText } from "./Elements";
-import { LayoutBox, LayoutResult } from "./Layout";
 
 function appRenderer() {
   const { createApp } = createRenderer<GElement, GElement>({
@@ -30,12 +29,14 @@ function appRenderer() {
       }
     },
     nextSibling(node) {
-      const index = node.parent?.children.findIndex((item) => item === node);
+      const index = node.parent
+        ?.deref()
+        ?.children.findIndex((item) => item === node);
       if (index === -1 || index == null) return null;
-      return node.parent?.children[index + 1] ?? null;
+      return node.parent?.deref()?.children[index + 1] ?? null;
     },
     parentNode(node) {
-      return node?.parent ?? null;
+      return node.parent?.deref() ?? null;
     },
     patchProp(
       el,
@@ -51,7 +52,7 @@ function appRenderer() {
       el.patch(key, prevValue, nextValue);
     },
     remove(el) {
-      el.parent?.removeChild(el);
+      el.parent?.deref()?.removeChild(el);
     },
     setElementText(node, text) {
       node.setText(text);
@@ -74,8 +75,8 @@ export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
   const app = appRenderer().createApp(comp);
   const nodeRoot = new GElement();
   pApp.ticker.add(() => {
-    if (nodeRoot.dirtyLayout) {
-      nodeRoot.recalcLayout();
+    if (nodeRoot.isDirty) {
+      console.log("tick");
       nodeRoot.redraw();
     }
   });

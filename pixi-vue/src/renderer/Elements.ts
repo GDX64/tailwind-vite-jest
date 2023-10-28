@@ -1,5 +1,4 @@
 import * as PIXI from "pixi.js";
-import { LayoutKind } from "./Layout";
 
 export enum ElTags {
   TEXT = "g-text",
@@ -13,38 +12,33 @@ export type LayoutBox = {
   y: number;
 };
 
+declare global {
+  interface WeakRef<T> {
+    deref(): T | undefined;
+  }
+
+  interface WeakRefConstructor {
+    prototype: WeakRef<any>;
+    new <T extends Object>(target: T): WeakRef<T>;
+  }
+
+  const WeakRef: WeakRefConstructor;
+}
+
 export class GElement {
   pixiRef: PIXI.Container = new PIXI.Container();
-  parent: null | GElement = null;
+  parent = null as WeakRef<GElement> | null;
   children: GElement[] = [];
   x = 0;
   y = 0;
-  width = null as null | number;
-  height = null as null | number;
-  position = LayoutKind.ABSOLUTE;
-  dirtyLayout = true;
-  layout = {
-    width: 0,
-    height: 0,
-    x: 0,
-    y: 0,
-  };
+  width = 0;
+  height = 0;
+  isDirty = true;
 
   redraw() {
+    if (!this.isDirty) return;
     this.children.forEach((child) => child.redraw());
-  }
-
-  recalcLayout(): LayoutBox {
-    this.children.forEach((child) => child.recalcLayout());
-    this.dirtyLayout = false;
-    return this.layout;
-  }
-
-  marklayoutDirty() {
-    // if (!this.dirtyLayout) {
-    this.dirtyLayout = true;
-    this.parent?.marklayoutDirty();
-    // }
+    this.isDirty = false;
   }
 
   static text(str: string) {
@@ -54,19 +48,22 @@ export class GElement {
   patch(prop: string, prev: any, next: any) {}
 
   addChild(child: GElement) {
-    child.parent = this;
+    child.parent = new WeakRef(this);
     this.children.push(child);
     this.pixiRef.addChild(child.pixiRef);
-    this.marklayoutDirty();
+  }
+
+  markDirty() {
+    this.isDirty = true;
+    this.parent?.deref()?.markDirty();
   }
 
   setText(str: string) {}
 
   addChildAt(child: GElement, index: number) {
-    child.parent = this;
+    child.parent = new WeakRef(this);
     this.children.splice(index, 0, child);
     this.pixiRef.addChildAt(child.pixiRef, index);
-    this.marklayoutDirty();
   }
 
   removeChild(child: GElement) {
@@ -74,7 +71,6 @@ export class GElement {
     if (index === -1) return;
     this.children.splice(index, 1);
     this.pixiRef.removeChild(child.pixiRef);
-    this.marklayoutDirty();
   }
 }
 
@@ -82,47 +78,21 @@ export class GRect extends GElement {
   fill = 0xffffff;
   pixiRef: PIXI.Graphics = new PIXI.Graphics();
 
-  recalcLayout(): LayoutBox {
-    if (this.position === LayoutKind.ABSOLUTE) {
-      this.layout.x = this.x;
-      this.layout.y = this.y;
-      this.layout.width = this.width ?? 0;
-      this.layout.height = this.height ?? 0;
-      this.children.forEach((child) => child.recalcLayout());
-    } else if (this.position === LayoutKind.HORIZONTAL) {
-      let totalWidth = 0;
-      let maxHeight = 0;
-      for (const child of this.children) {
-        const { width, height } = child.recalcLayout();
-        child.layout.x = totalWidth;
-        totalWidth += width;
-        maxHeight = Math.max(maxHeight, height);
-      }
-      this.layout.width = this.width ?? totalWidth;
-      this.layout.height = this.height ?? maxHeight;
-      this.layout.x = this.x;
-      this.layout.y = this.y;
-    }
-    this.dirtyLayout = true;
-    return this.layout;
-  }
-
   redraw() {
+    if (!this.isDirty) return;
     this.pixiRef.clear();
-    const { height, width, x, y } = this.layout;
+    const { height, width, x, y } = this;
     const rect = this.pixiRef.rect(0, 0, width, height);
     rect.fillStyle = this.fill;
     rect.fill();
     this.pixiRef.x = x;
     this.pixiRef.y = y;
     this.children.forEach((child) => child.redraw());
+    this.isDirty = false;
   }
 
   patch(prop: string, prev: any, next: any) {
     switch (prop) {
-      case "position":
-        this.position = next;
-        break;
       case "onClick":
         this.pixiRef.interactive = true;
         this.pixiRef.onclick = next;
@@ -141,23 +111,21 @@ export class GRect extends GElement {
         break;
       case "width":
         this.width = next;
-        this.marklayoutDirty();
+        this.markDirty();
         break;
       case "height":
         this.height = next;
-        this.marklayoutDirty();
+        this.markDirty();
         break;
       case "x":
         this.x = next;
-        this.marklayoutDirty();
         break;
       case "y":
         this.y = next;
-        this.marklayoutDirty();
         break;
       case "fill":
         this.fill = next;
-        this.marklayoutDirty();
+        this.markDirty();
         break;
       default:
         break;

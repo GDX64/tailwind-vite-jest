@@ -15,7 +15,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "lib": ["esnext", "dom", "dom.iterable"]
+    "lib": ["esnext", "dom", "dom.iterable", "ES2021.WeakRef"]
   },
   "include": ["src/main.ts", "src/**/*.d.ts", "src/**/*.test.ts"]
 }
