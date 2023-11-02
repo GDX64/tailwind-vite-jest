@@ -5,6 +5,7 @@ export enum ElTags {
   RECT = "g-rect",
   CONTAINER = "g-container",
   RAW = "g-raw",
+  SPRITE = "g-sprite",
 }
 
 export type LayoutBox = {
@@ -49,6 +50,9 @@ export class GElement {
 
   patch(prop: string, prev: any, next: any) {
     switch (prop) {
+      case "blendMode":
+        this.pixiRef.blendMode = next;
+        break;
       case "x":
         this.x = next;
         this.pixiRef.x = next;
@@ -94,6 +98,10 @@ export class GElement {
 
   replacePixiChild(oldNode: PIXI.Container, newNode: PIXI.Container) {
     this.pixiRef.swapChildren(oldNode, newNode);
+  }
+
+  destroy() {
+    this.pixiRef.destroy();
   }
 }
 

@@ -1,7 +1,8 @@
-import { Container, View } from "pixi.js";
+import { Container } from "pixi.js";
 import { GElement } from "./Elements";
 
 export default class RawContainer extends GElement {
+  current: Container | null = null;
   constructor() {
     super();
   }
@@ -11,6 +12,8 @@ export default class RawContainer extends GElement {
       case "pixiEl":
         this.pixiRef.removeChildren().forEach((child) => child.destroy());
         this.pixiRef.addChild(next);
+        this.current?.destroy();
+        this.current = next;
         break;
       case "x":
         this.pixiRef.x = next;

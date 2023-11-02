@@ -1,17 +1,56 @@
 <script setup lang="ts">
 import { ref, shallowRef, triggerRef, watchEffect } from "vue";
-import { usePixiAnimation, usePixiAppData } from "../renderer/renderer";
-import { Graphics, FillGradient, Text, Rectangle } from "pixi.js";
+import {
+  usePixiAnimation,
+  usePixiAppData,
+  usePixiApp,
+} from "../renderer/renderer";
+import {
+  Graphics,
+  FillGradient,
+  Text,
+  MaskFilter,
+  Assets,
+  Sprite,
+  Container,
+  RenderTexture,
+} from "pixi.js";
 import TestLine from "./TestLine.vue";
+import baseSpritePath from "../assets/neon.png";
+
+const texture = RenderTexture.create({
+  width: 64,
+  height: 64,
+});
+
+const app = usePixiApp();
+Assets.load([baseSpritePath]).then(() => {
+  const sprite = Sprite.from(baseSpritePath);
+  const g = new Graphics();
+  const grad = new FillGradient(0, 0, 64, 64);
+  grad.addColorStop(0, 0x000000);
+  grad.addColorStop(1, 0xff0000);
+  g.circle(0, 0, 100).fill(grad);
+  g.mask = sprite;
+  // g.blendMode = "soft-light";
+  const container = new Container();
+  container.addChild(sprite, g);
+  app.renderer.render({
+    container: container,
+    target: texture,
+    clear: true,
+  });
+});
+
 function randomColor() {
   return Math.floor(Math.random() * 0xffffff);
 }
 const rects = shallowRef(
-  [...Array(100)].map(() => {
+  [...Array(500)].map(() => {
     return {
       y: 0,
       x: 0,
-      size: 10,
+      size: 1 / 2,
       fill: randomColor(),
     };
   })
@@ -30,7 +69,7 @@ usePixiAnimation((ticker) => {
   triggerRef(rects);
 });
 
-const position = ref({ x: 100, y: 100 });
+const position = ref({ x: data.width / 2, y: data.height / 2 });
 const linePoints = [
   { x: 0, y: 0 },
   { x: 100, y: 100 },
@@ -40,16 +79,15 @@ const pixiText = centeredText();
 
 function centeredText() {
   const pixiText = new Text({
-    text: "hello",
+    text: "Those evas were rendered to a texture",
     renderMode: "bitmap",
     style: {
       fontSize: 22,
-      fill: "#b4d6e7",
+      fill: "#00a2ff",
     },
   });
-  const { width, height } = pixiText.getBounds();
+  const { width } = pixiText.getBounds();
   pixiText.x = -width / 2;
-  pixiText.y = -height / 2;
   return pixiText;
 }
 
@@ -68,43 +106,28 @@ function pointermove(event: PointerEvent) {
     alpha.value = Math.max(0.1, position.value.x / data.width);
   }
 }
-
-function drawFn(g: Graphics) {
-  const grad = new FillGradient(-100, -100, 100, 100);
-  grad.addColorStop(0, 0x000000);
-  grad.addColorStop(1, 0xff0000);
-  g.circle(0, 0, 100).fill(grad);
-  g.hitArea = new Rectangle(-100, -100, 200, 200);
-  g.moveTo(0, 100)
-    .lineTo(0, -100)
-    .moveTo(100, 0)
-    .lineTo(-100, 0)
-    .stroke({ color: 0xffffff, width: 1 });
-}
 </script>
 
 <template>
   <g-container>
-    <g-container :x="position.x" :y="position.y">
-      <g-rect
-        @pointermove="pointermove"
-        @pointerdown="pointerdown"
-        @pointerup="pointerup"
-        :drawfn="drawFn"
-      ></g-rect>
-      <g-text> huhu </g-text>
-      <g-raw :pixiEl="pixiText"></g-raw>
-    </g-container>
-    <TestLine :points="linePoints"></TestLine>
     <g-rect
+      :width="data.width"
+      :height="data.height"
+      :fill="'#e8d8b6'"
+    ></g-rect>
+    <g-container :x="position.x" :y="position.y">
+      <!-- <g-raw :pixiEl="eva"></g-raw> -->
+      <g-raw :pixiEl="pixiText" :y="32"></g-raw>
+    </g-container>
+    <TestLine :points="linePoints" :y="300"></TestLine>
+    <g-sprite
       v-for="rect of rects"
       :y="rect.y"
       :x="rect.x"
       :width="rect.size"
       :height="rect.size"
-      :fill="rect.fill"
-      :alpha="alpha"
-    ></g-rect>
+      :texture="texture"
+    ></g-sprite>
   </g-container>
 </template>
 

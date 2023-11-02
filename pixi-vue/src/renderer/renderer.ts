@@ -10,21 +10,23 @@ import {
 import * as PIXI from "pixi.js";
 import { ElTags, GElement, GRect, GText } from "./Elements";
 import RawContainer from "./RawContainer";
+import GSprite from "./GSprite";
 
 declare module "vue" {
-  type PosArgs = { x: number; y: number };
+  type BasicArgs = { x: number; y: number; blendMode: PIXI.BLEND_MODES };
   export interface GlobalComponents {
-    GText: Component<PosArgs & { text: string }>;
-    GRect: Component<PosArgs & {}>;
-    GContainer: Component<PosArgs & {}>;
-    GRaw: Component<PosArgs & { pixiEl: PIXI.Container }>;
+    GText: Component<BasicArgs & { text: string }>;
+    GRect: Component<BasicArgs & {}>;
+    GContainer: Component<BasicArgs & {}>;
+    GRaw: Component<BasicArgs & { pixiEl: PIXI.Container }>;
+    GSprite: Component<BasicArgs & { url: string }>;
   }
 }
 
 function appRenderer() {
   const { createApp } = createRenderer<GElement, GElement>({
     createComment(text) {
-      return GElement.text(text);
+      return GElement.text("");
     },
     createElement(type, isSVG, isCustomizedBuiltIn, vnodeProps) {
       switch (type) {
@@ -34,6 +36,8 @@ function appRenderer() {
           return new GText("");
         case ElTags.RAW:
           return new RawContainer();
+        case ElTags.SPRITE:
+          return new GSprite();
         case ElTags.CONTAINER:
         default:
           return new GElement();
@@ -75,7 +79,7 @@ function appRenderer() {
     },
     remove(el) {
       el.parent?.deref()?.removeChild(el);
-      el.pixiRef.destroy();
+      el.destroy();
     },
     setElementText(node, text) {
       node.setText(text);
@@ -91,10 +95,12 @@ export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
   const pApp = new PIXI.Application();
   await pApp.init({
     canvas: canvas,
-    backgroundColor: 0xffffff,
     resolution: devicePixelRatio,
     resizeTo: canvas,
     antialias: true,
+    // backgroundAlpha: 0,
+    background: "#00000000",
+    clearBeforeRender: true,
     powerPreference: "low-power",
   });
 
@@ -105,15 +111,19 @@ export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
 
   let lastWidth = 0;
   let lastHeight = 0;
+  function checkUpdateDims() {
+    const { width, height } = pApp.screen;
+    if (width !== lastWidth || height !== lastHeight) {
+      lastWidth = width;
+      lastHeight = height;
+      appData.width = width;
+      appData.height = height;
+    }
+  }
+  checkUpdateDims();
   pApp.ticker.add(
     () => {
-      const { width, height } = pApp.screen;
-      if (width !== lastWidth || height !== lastHeight) {
-        lastWidth = width;
-        lastHeight = height;
-        appData.width = width;
-        appData.height = height;
-      }
+      checkUpdateDims();
       if (nodeRoot.isDirty) {
         nodeRoot.redraw();
       }
