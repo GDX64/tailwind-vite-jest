@@ -1,5 +1,4 @@
-import { NumberColorFormat } from '@faker-js/faker';
-import { mat2, vec2 } from 'gl-matrix';
+import { vec2 } from 'gl-matrix';
 
 export function randomColor() {
   const randByte = () => Math.floor(Math.random() * 256);

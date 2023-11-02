@@ -18,6 +18,7 @@ const routes = [
   { path: '/projection', component: () => import('./pages/Projection/Projection.vue') },
   { path: '/aninha', component: () => import('./pages/Aninha.vue') },
   { path: '/layout-test', component: () => import('./pages/LayoutTest/LayoutTest.vue') },
+  { path: '/libtest', component: () => import('./pages/LibTest.vue') },
 ];
 
 // 3. Create the router instance and pass the `routes` option
