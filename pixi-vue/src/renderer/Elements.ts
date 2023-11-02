@@ -111,6 +111,10 @@ export class GElement {
   }
 
   destroy() {
+    this.pixiRef.children.forEach((child) => {
+      child.destroy();
+    });
+    this.pixiRef.removeChildren();
     this.pixiRef.destroy();
   }
 }

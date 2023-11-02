@@ -3,6 +3,16 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/pixi-vue.umd.cjs",
+  "module": "./dist/pixi-vue.js",
+  "exports": {
+    ".": {
+      "import": "./dist/pixi-vue.js"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
@@ -17,8 +27,8 @@
     "@vitejs/plugin-vue": "^4.2.3",
     "typescript": "^5.2.2",
     "vite": "^4.4.5",
+    "vite-plugin-dts": "^3.6.3",
     "vitest": "^0.34.6",
     "vue-tsc": "^1.8.5"
   }
 }
-
