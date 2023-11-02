@@ -16,6 +16,11 @@
     "lib": ["ESNext", "dom", "dom.iterable", "ESNext.WeakRef"],
     "typeRoots": ["@types"]
   },
-  "include": ["src/main.ts", "src/**/*.d.ts", "src/**/*.test.ts"]
+  "include": [
+    "src/main.ts",
+    "src/**/*.d.ts",
+    "src/**/*.vue",
+    "src/**/*.test.ts",
+    "src/lib.ts"
+  ]
 }
-
