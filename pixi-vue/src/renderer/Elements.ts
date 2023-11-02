@@ -64,6 +64,7 @@ export class GElement {
     child.parent = new WeakRef(this);
     this.children.push(child);
     this.pixiRef.addChild(child.pixiRef);
+    this.markDirty();
   }
 
   markDirty() {
@@ -79,6 +80,7 @@ export class GElement {
     child.parent = new WeakRef(this);
     this.children.splice(index, 0, child);
     this.pixiRef.addChildAt(child.pixiRef, index);
+    this.markDirty();
   }
 
   removeChild(child: GElement) {
@@ -86,6 +88,11 @@ export class GElement {
     if (index === -1) return;
     this.children.splice(index, 1);
     this.pixiRef.removeChild(child.pixiRef);
+    this.markDirty();
+  }
+
+  replacePixiChild(oldNode: PIXI.Container, newNode: PIXI.Container) {
+    this.pixiRef.swapChildren(oldNode, newNode);
   }
 }
 
@@ -175,6 +182,10 @@ export class GText extends GElement {
 
   patch(prop: string, prev: any, next: any) {
     switch (prop) {
+      case "pixiEl":
+        this.parent?.deref()?.replacePixiChild(this.pixiRef, next);
+        this.pixiRef = next;
+        break;
       case "fill":
         this.pixiRef.style.fill = next;
         break;

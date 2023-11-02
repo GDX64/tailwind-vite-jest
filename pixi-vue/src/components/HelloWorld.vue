@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, shallowRef, triggerRef, watchEffect } from "vue";
 import { usePixiAnimation, usePixiAppData } from "../renderer/renderer";
-import { Graphics, v8_0_0 } from "pixi.js";
-const val = ref(0);
+import { Graphics, FillGradient, Text, Rectangle } from "pixi.js";
+import TestLine from "./TestLine.vue";
 function randomColor() {
   return Math.floor(Math.random() * 0xffffff);
 }
 const rects = shallowRef(
-  [...Array(500)].map(() => {
+  [...Array(100)].map(() => {
     return {
       y: 0,
       x: 0,
@@ -30,14 +30,32 @@ usePixiAnimation((ticker) => {
   triggerRef(rects);
 });
 
+const position = ref({ x: 100, y: 100 });
+const pixiText = new Text({
+  text: "huhu",
+  renderMode: "canvas",
+  style: {
+    fontSize: 22,
+    fill: "#fffcfc",
+    align: "center",
+    textBaseline: "middle",
+  },
+});
+
+const linePoints = [
+  { x: 0, y: 0 },
+  { x: 100, y: 100 },
+  { x: 200, y: 0 },
+];
+
 let isDown = false;
 function pointerdown() {
+  console.log("pointerdown");
   isDown = true;
 }
 function pointerup() {
   isDown = false;
 }
-const position = ref({ x: 0, y: 0 });
 function pointermove(event: PointerEvent) {
   if (isDown) {
     position.value.x += event.movementX;
@@ -47,7 +65,16 @@ function pointermove(event: PointerEvent) {
 }
 
 function drawFn(g: Graphics) {
-  g.circle(0, 0, 100).fill(0xff0000);
+  const grad = new FillGradient(-100, -100, 100, 100);
+  grad.addColorStop(0, 0x000000);
+  grad.addColorStop(1, 0xff0000);
+  g.circle(0, 0, 100).fill(grad);
+  g.hitArea = new Rectangle(-100, -100, 200, 200);
+  g.moveTo(0, 100)
+    .lineTo(0, -100)
+    .moveTo(100, 0)
+    .lineTo(-100, 0)
+    .stroke({ color: 0xffffff, width: 1 });
 }
 </script>
 
@@ -60,8 +87,9 @@ function drawFn(g: Graphics) {
         @pointerup="pointerup"
         :drawfn="drawFn"
       ></g-rect>
-      <g-text fill="#fffcfc" :x="0" :y="0" :font-size="10">huhu</g-text>
+      <g-text :pixiEl="pixiText" :x="0" :y="0"> huhu </g-text>
     </g-container>
+    <TestLine :points="linePoints"></TestLine>
     <g-rect
       v-for="rect of rects"
       :y="rect.y"

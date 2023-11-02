@@ -5,6 +5,7 @@ import {
   inject,
   onUnmounted,
   reactive,
+  h,
 } from "vue";
 import * as PIXI from "pixi.js";
 import { ElTags, GElement, GRect, GText } from "./Elements";
@@ -69,6 +70,7 @@ function appRenderer() {
     },
     remove(el) {
       el.parent?.deref()?.removeChild(el);
+      el.pixiRef.destroy();
     },
     setElementText(node, text) {
       node.setText(text);
@@ -92,7 +94,7 @@ export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
   });
 
   const appData = reactive({ width: 0, height: 0 });
-  const app = appRenderer().createApp(comp);
+  const app = appRenderer().createApp(() => h(comp));
   app.provide("pixiApp", pApp).provide("pixiAppData", appData);
   const nodeRoot = new GElement();
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { defineComponent, h, onBeforeUnmount, onMounted, ref } from "vue";
-import { ElTags, createRoot } from "./renderer/renderer";
+import { onBeforeUnmount, onMounted, ref } from "vue";
+import { createRoot } from "./renderer/renderer";
 import HelloWorld from "./components/HelloWorld.vue";
 
 const canvas = ref<HTMLCanvasElement>();
@@ -12,6 +12,7 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
+  console.log("destroy");
   destroy();
 });
 </script>
