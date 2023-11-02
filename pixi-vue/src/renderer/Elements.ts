@@ -71,7 +71,9 @@ export class GElement {
     this.parent?.deref()?.markDirty();
   }
 
-  setText(str: string) {}
+  setText(str: string) {
+    console.log("set text", str);
+  }
 
   addChildAt(child: GElement, index: number) {
     child.parent = new WeakRef(this);
@@ -90,22 +92,31 @@ export class GElement {
 export class GRect extends GElement {
   fill = 0xffffff;
   pixiRef: PIXI.Graphics = new PIXI.Graphics();
+  drawfn: (pixiRef: PIXI.Graphics) => void | null;
 
   redraw() {
     if (!this.isDirty) return;
-    this.pixiRef.clear();
-    const { height, width, x, y } = this;
-    const rect = this.pixiRef.rect(0, 0, width, height);
-    rect.fillStyle = this.fill;
-    rect.fill();
-    this.pixiRef.x = x;
-    this.pixiRef.y = y;
-    this.children.forEach((child) => child.redraw());
+    if (this.drawfn) {
+      this.drawfn(this.pixiRef);
+    } else {
+      this.pixiRef.clear();
+      const { height, width, x, y } = this;
+      const rect = this.pixiRef.rect(0, 0, width, height);
+      rect.fillStyle = this.fill;
+      rect.fill();
+      this.pixiRef.x = x;
+      this.pixiRef.y = y;
+    }
     this.isDirty = false;
   }
 
   patch(prop: string, prev: any, next: any) {
     switch (prop) {
+      case "drawfn":
+        this.pixiRef.clear();
+        this.drawfn = next;
+        this.markDirty();
+        break;
       case "onClick":
         this.pixiRef.interactive = true;
         this.pixiRef.onclick = next;
@@ -149,10 +160,10 @@ export class GRect extends GElement {
 }
 
 export class GText extends GElement {
-  pixiRef: PIXI.Text = new PIXI.Text({});
+  pixiRef: PIXI.Text;
   constructor(str: string) {
     super();
-    this.pixiRef.text = str;
+    this.pixiRef = new PIXI.Text({ text: str, renderMode: "bitmap" });
   }
 
   setText(str: string) {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, shallowRef, triggerRef, watchEffect } from "vue";
 import { usePixiAnimation } from "../renderer/renderer";
+import { Graphics } from "pixi.js";
 const val = ref(0);
 function randomColor() {
   return Math.floor(Math.random() * 0xffffff);
@@ -38,10 +39,23 @@ usePixiAnimation((ticker) => {
   });
   triggerRef(rects);
 });
+
+function drawFn(g: Graphics) {
+  g.circle(0, 0, 100).fill(0xff0000);
+}
 </script>
 
 <template>
-  <g-container :y="position.y" :x="position.x">
+  <g-container>
+    <g-container :x="position.x" :y="position.y">
+      <g-rect
+        @pointermove="pointermove"
+        @pointerdown="pointerdown"
+        @pointerup="pointerup"
+        :drawfn="drawFn"
+      ></g-rect>
+      <g-text fill="#fffcfc" :x="0" :y="0" :font-size="10">huhu</g-text>
+    </g-container>
     <g-rect
       v-for="rect of rects"
       :y="rect.y"

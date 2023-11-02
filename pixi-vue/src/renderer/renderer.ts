@@ -2,6 +2,14 @@ import { createRenderer, Component, provide, inject, onUnmounted } from "vue";
 import * as PIXI from "pixi.js";
 import { ElTags, GElement, GRect, GText } from "./Elements";
 
+declare module "vue" {
+  export interface GlobalComponents {
+    GText: Component<{ x: number; y: number; text: string }>;
+    GRect: Component<{ x: number; y: number }>;
+    GContainer: Component<{ x: number; y: number }>;
+  }
+}
+
 function appRenderer() {
   const { createApp } = createRenderer<GElement, GElement>({
     createComment(text) {
@@ -68,10 +76,11 @@ function appRenderer() {
 export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
   const pApp = new PIXI.Application();
   await pApp.init({
-    element: canvas as any,
+    canvas: canvas,
     backgroundColor: 0xffffff,
     resolution: devicePixelRatio,
     resizeTo: canvas,
+    antialias: true,
   });
   const app = appRenderer().createApp(comp);
   app.provide("pixiApp", pApp);

@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "NodeNext",
+    "module": "ESNext",
     "useDefineForClassFields": true,
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "Node",
     "strict": true,
     "strictNullChecks": true,
     "jsx": "preserve",
@@ -15,7 +15,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "lib": ["esnext", "dom", "dom.iterable", "ES2021.WeakRef"]
+    "lib": ["esnext", "dom", "dom.iterable"]
   },
   "include": ["src/main.ts", "src/**/*.d.ts", "src/**/*.test.ts"]
 }
