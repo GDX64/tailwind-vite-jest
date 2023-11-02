@@ -13,7 +13,12 @@ import RawContainer from "./RawContainer";
 import GSprite from "./GSprite";
 
 declare module "vue" {
-  type BasicArgs = { x: number; y: number; blendMode: PIXI.BLEND_MODES };
+  type BasicArgs = {
+    x: number;
+    y: number;
+    blendMode: PIXI.BLEND_MODES;
+    scale: number;
+  };
   export interface GlobalComponents {
     GText: Component<BasicArgs & { text: string }>;
     GRect: Component<BasicArgs & {}>;

@@ -53,6 +53,9 @@ export class GElement {
       case "blendMode":
         this.pixiRef.blendMode = next;
         break;
+      case "scale":
+        this.pixiRef.scale.set(next, next);
+        break;
       case "x":
         this.x = next;
         this.pixiRef.x = next;
