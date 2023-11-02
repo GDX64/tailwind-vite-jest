@@ -4,6 +4,7 @@ export enum ElTags {
   TEXT = "g-text",
   RECT = "g-rect",
   CONTAINER = "g-container",
+  RAW = "g-raw",
 }
 
 export type LayoutBox = {
@@ -182,10 +183,6 @@ export class GText extends GElement {
 
   patch(prop: string, prev: any, next: any) {
     switch (prop) {
-      case "pixiEl":
-        this.parent?.deref()?.replacePixiChild(this.pixiRef, next);
-        this.pixiRef = next;
-        break;
       case "fill":
         this.pixiRef.style.fill = next;
         break;

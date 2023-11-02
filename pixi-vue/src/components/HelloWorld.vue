@@ -31,22 +31,27 @@ usePixiAnimation((ticker) => {
 });
 
 const position = ref({ x: 100, y: 100 });
-const pixiText = new Text({
-  text: "huhu",
-  renderMode: "canvas",
-  style: {
-    fontSize: 22,
-    fill: "#fffcfc",
-    align: "center",
-    textBaseline: "middle",
-  },
-});
-
 const linePoints = [
   { x: 0, y: 0 },
   { x: 100, y: 100 },
   { x: 200, y: 0 },
 ];
+const pixiText = centeredText();
+
+function centeredText() {
+  const pixiText = new Text({
+    text: "hello",
+    renderMode: "bitmap",
+    style: {
+      fontSize: 22,
+      fill: "#b4d6e7",
+    },
+  });
+  const { width, height } = pixiText.getBounds();
+  pixiText.x = -width / 2;
+  pixiText.y = -height / 2;
+  return pixiText;
+}
 
 let isDown = false;
 function pointerdown() {
@@ -87,7 +92,8 @@ function drawFn(g: Graphics) {
         @pointerup="pointerup"
         :drawfn="drawFn"
       ></g-rect>
-      <g-text :pixiEl="pixiText" :x="0" :y="0"> huhu </g-text>
+      <g-text> huhu </g-text>
+      <g-raw :pixiEl="pixiText"></g-raw>
     </g-container>
     <TestLine :points="linePoints"></TestLine>
     <g-rect

@@ -9,12 +9,15 @@ import {
 } from "vue";
 import * as PIXI from "pixi.js";
 import { ElTags, GElement, GRect, GText } from "./Elements";
+import RawContainer from "./RawContainer";
 
 declare module "vue" {
+  type PosArgs = { x: number; y: number };
   export interface GlobalComponents {
-    GText: Component<{ x: number; y: number; text: string }>;
-    GRect: Component<{ x: number; y: number }>;
-    GContainer: Component<{ x: number; y: number }>;
+    GText: Component<PosArgs & { text: string }>;
+    GRect: Component<PosArgs & {}>;
+    GContainer: Component<PosArgs & {}>;
+    GRaw: Component<PosArgs & { pixiEl: PIXI.Container }>;
   }
 }
 
@@ -29,6 +32,8 @@ function appRenderer() {
           return new GRect();
         case ElTags.TEXT:
           return new GText("");
+        case ElTags.RAW:
+          return new RawContainer();
         case ElTags.CONTAINER:
         default:
           return new GElement();
