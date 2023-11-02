@@ -41,16 +41,7 @@ usePixiAnimation((ticker) => {
 </script>
 
 <template>
-  <g-rect
-    :y="position.y"
-    :x="position.x"
-    @pointerdown="pointerdown"
-    @pointerup="pointerup"
-    @pointermove="pointermove"
-    :fill="0xaaaaaa"
-    :height="1000"
-    :width="1000"
-  >
+  <g-container :y="position.y" :x="position.x">
     <g-rect
       v-for="rect of rects"
       :y="rect.y"
@@ -60,7 +51,7 @@ usePixiAnimation((ticker) => {
       :fill="rect.fill"
       @click="rect.size += 1"
     ></g-rect>
-  </g-rect>
+  </g-container>
 </template>
 
 <style scoped></style>

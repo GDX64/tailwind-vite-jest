@@ -13,6 +13,7 @@ function appRenderer() {
           return new GRect();
         case ElTags.TEXT:
           return new GText("");
+        case ElTags.CONTAINER:
         default:
           return new GElement();
       }
@@ -67,7 +68,7 @@ function appRenderer() {
 export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
   const pApp = new PIXI.Application();
   await pApp.init({
-    canvas,
+    element: canvas as any,
     backgroundColor: 0xffffff,
     resolution: devicePixelRatio,
     resizeTo: canvas,
@@ -90,7 +91,8 @@ export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
   return {
     destroy: () => {
       app.unmount();
-      pApp.destroy();
+      pApp.stop();
+      pApp.renderer.destroy();
     },
     pApp,
   };

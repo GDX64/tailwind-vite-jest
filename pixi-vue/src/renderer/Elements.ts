@@ -3,6 +3,7 @@ import * as PIXI from "pixi.js";
 export enum ElTags {
   TEXT = "g-text",
   RECT = "g-rect",
+  CONTAINER = "g-container",
 }
 
 export type LayoutBox = {
@@ -45,7 +46,19 @@ export class GElement {
     return new GText(str);
   }
 
-  patch(prop: string, prev: any, next: any) {}
+  patch(prop: string, prev: any, next: any) {
+    switch (prop) {
+      case "x":
+        this.x = next;
+        this.pixiRef.x = next;
+        break;
+      case "y":
+        this.y = next;
+        this.pixiRef.y = next;
+        break;
+      default:
+    }
+  }
 
   addChild(child: GElement) {
     child.parent = new WeakRef(this);
