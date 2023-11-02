@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, shallowRef, triggerRef, watchEffect } from "vue";
-import { usePixiAnimation } from "../renderer/renderer";
-import { Graphics } from "pixi.js";
+import { usePixiAnimation, usePixiAppData } from "../renderer/renderer";
+import { Graphics, v8_0_0 } from "pixi.js";
 const val = ref(0);
 function randomColor() {
   return Math.floor(Math.random() * 0xffffff);
 }
 const rects = shallowRef(
-  [...Array(100)].map(() => {
+  [...Array(500)].map(() => {
     return {
       y: 0,
       x: 0,
@@ -16,6 +16,19 @@ const rects = shallowRef(
     };
   })
 );
+
+const data = usePixiAppData();
+const alpha = ref(0.1);
+
+usePixiAnimation((ticker) => {
+  const { width, height } = data;
+  rects.value.forEach((rect, i) => {
+    rect.x = (i * 10) % width;
+    rect.y =
+      (Math.sin(ticker.lastTime / 10000 + i / 10) * height) / 2 + height / 2;
+  });
+  triggerRef(rects);
+});
 
 let isDown = false;
 function pointerdown() {
@@ -29,16 +42,9 @@ function pointermove(event: PointerEvent) {
   if (isDown) {
     position.value.x += event.movementX;
     position.value.y += event.movementY;
+    alpha.value = Math.max(0.1, position.value.x / data.width);
   }
 }
-
-usePixiAnimation((ticker) => {
-  rects.value.forEach((rect, i) => {
-    rect.x = (i * 10) % 800;
-    rect.y = Math.sin(ticker.lastTime / 10000 + i / 10) * 500 + 500;
-  });
-  triggerRef(rects);
-});
 
 function drawFn(g: Graphics) {
   g.circle(0, 0, 100).fill(0xff0000);
@@ -63,7 +69,7 @@ function drawFn(g: Graphics) {
       :width="rect.size"
       :height="rect.size"
       :fill="rect.fill"
-      @click="rect.size += 1"
+      :alpha="alpha"
     ></g-rect>
   </g-container>
 </template>

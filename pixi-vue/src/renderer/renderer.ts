@@ -1,4 +1,11 @@
-import { createRenderer, Component, provide, inject, onUnmounted } from "vue";
+import {
+  createRenderer,
+  Component,
+  provide,
+  inject,
+  onUnmounted,
+  reactive,
+} from "vue";
 import * as PIXI from "pixi.js";
 import { ElTags, GElement, GRect, GText } from "./Elements";
 
@@ -81,12 +88,25 @@ export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
     resolution: devicePixelRatio,
     resizeTo: canvas,
     antialias: true,
+    powerPreference: "low-power",
   });
+
+  const appData = reactive({ width: 0, height: 0 });
   const app = appRenderer().createApp(comp);
-  app.provide("pixiApp", pApp);
+  app.provide("pixiApp", pApp).provide("pixiAppData", appData);
   const nodeRoot = new GElement();
+
+  let lastWidth = 0;
+  let lastHeight = 0;
   pApp.ticker.add(
     () => {
+      const { width, height } = pApp.screen;
+      if (width !== lastWidth || height !== lastHeight) {
+        lastWidth = width;
+        lastHeight = height;
+        appData.width = width;
+        appData.height = height;
+      }
       if (nodeRoot.isDirty) {
         nodeRoot.redraw();
       }
@@ -94,6 +114,7 @@ export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
     null,
     PIXI.UPDATE_PRIORITY.INTERACTION
   );
+
   nodeRoot.pixiRef = pApp.stage;
   app.mount(nodeRoot);
 
@@ -109,6 +130,10 @@ export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
 
 export function usePixiApp() {
   return inject<PIXI.Application>("pixiApp")!;
+}
+
+export function usePixiAppData() {
+  return inject<{ width: number; height: number }>("pixiAppData")!;
 }
 
 export function usePixiAnimation(fn: (ticker: PIXI.Ticker) => void) {

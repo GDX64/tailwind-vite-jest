@@ -112,6 +112,9 @@ export class GRect extends GElement {
 
   patch(prop: string, prev: any, next: any) {
     switch (prop) {
+      case "alpha":
+        this.pixiRef.alpha = next;
+        break;
       case "drawfn":
         this.pixiRef.clear();
         this.drawfn = next;
