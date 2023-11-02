@@ -15,19 +15,6 @@ export type LayoutBox = {
   y: number;
 };
 
-declare global {
-  interface WeakRef<T> {
-    deref(): T | undefined;
-  }
-
-  interface WeakRefConstructor {
-    prototype: WeakRef<any>;
-    new <T extends Object>(target: T): WeakRef<T>;
-  }
-
-  const WeakRef: WeakRefConstructor;
-}
-
 export class GElement {
   pixiRef: PIXI.Container = new PIXI.Container();
   parent = null as WeakRef<GElement> | null;
@@ -50,6 +37,26 @@ export class GElement {
 
   patch(prop: string, prev: any, next: any) {
     switch (prop) {
+      case "visible": {
+        this.pixiRef.visible = next;
+        break;
+      }
+      case "onClick":
+        this.pixiRef.interactive = true;
+        this.pixiRef.onclick = next;
+        break;
+      case "onPointerdown":
+        this.pixiRef.interactive = true;
+        this.pixiRef.onpointerdown = next;
+        break;
+      case "onPointerup":
+        this.pixiRef.interactive = true;
+        this.pixiRef.onpointerup = next;
+        break;
+      case "onPointermove":
+        this.pixiRef.interactive = true;
+        this.pixiRef.onpointermove = (event) => next(event.nativeEvent);
+        break;
       case "blendMode":
         this.pixiRef.blendMode = next;
         break;
@@ -85,7 +92,7 @@ export class GElement {
   }
 
   addChildAt(child: GElement, index: number) {
-    child.parent = new WeakRef(this);
+    child.parent = new WeakRef(this as GElement);
     this.children.splice(index, 0, child);
     this.pixiRef.addChildAt(child.pixiRef, index);
     this.markDirty();
@@ -111,7 +118,7 @@ export class GElement {
 export class GRect extends GElement {
   fill = 0xffffff;
   pixiRef: PIXI.Graphics = new PIXI.Graphics();
-  drawfn: (pixiRef: PIXI.Graphics) => void | null;
+  drawfn: ((pixiRef: PIXI.Graphics) => void) | null = null;
 
   redraw() {
     if (!this.isDirty) return;
@@ -130,6 +137,7 @@ export class GRect extends GElement {
   }
 
   patch(prop: string, prev: any, next: any) {
+    super.patch(prop, prev, next);
     switch (prop) {
       case "alpha":
         this.pixiRef.alpha = next;
@@ -138,22 +146,6 @@ export class GRect extends GElement {
         this.pixiRef.clear();
         this.drawfn = next;
         this.markDirty();
-        break;
-      case "onClick":
-        this.pixiRef.interactive = true;
-        this.pixiRef.onclick = next;
-        break;
-      case "onPointerdown":
-        this.pixiRef.interactive = true;
-        this.pixiRef.onpointerdown = next;
-        break;
-      case "onPointerup":
-        this.pixiRef.interactive = true;
-        this.pixiRef.onpointerup = next;
-        break;
-      case "onPointermove":
-        this.pixiRef.interactive = true;
-        this.pixiRef.onpointermove = (event) => next(event.nativeEvent);
         break;
       case "width":
         this.width = next;

@@ -62,7 +62,7 @@ function appRenderer() {
     nextSibling(node) {
       const index = node.parent
         ?.deref()
-        ?.children.findIndex((item) => item === node);
+        ?.children.findIndex((item: any) => item === node);
       if (index === -1 || index == null) return null;
       return node.parent?.deref()?.children[index + 1] ?? null;
     },

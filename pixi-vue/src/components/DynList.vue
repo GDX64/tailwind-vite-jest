@@ -1,44 +1,53 @@
 <template>
-  <g-container>
+  <g-container @pointerdown="onPointerDown" @pointermove="onPointerMove">
     <g-rect :width="data.width" :height="data.height" fill="#bda7dd"></g-rect>
-    <g-container v-for="(row, i) of rows" :y="ROW_HEIGHT * i" :key="row.key">
-      <g-container>
-        <g-sprite :texture="row.image()" :scale="0.5"></g-sprite>
-        <g-text :fontSize="16" :x="imageSize().width / 2 + 10" :y="0"
-          >hello</g-text
+    <g-container :y="-scroll">
+      <template v-for="(row, i) of rows" :key="row.key">
+        <g-container
+          :y="ROW_HEIGHT * i"
+          v-if="
+            ROW_HEIGHT * i - scroll > 0 && ROW_HEIGHT * i - scroll < data.height
+          "
         >
-        <g-text
-          :x="imageSize().width / 2 + 10"
-          :y="25"
-          :fontSize="16"
-          :fill="row.color()"
-          >{{ row.name }}</g-text
-        >
-      </g-container>
-      <g-container :x="data.width / 3">
-        <g-text :fontSize="16" :x="imageSize().width + 10" :y="0">{{
-          row.age
-        }}</g-text>
-        <g-text
-          :x="imageSize().width + 10"
-          :y="25"
-          :fontSize="16"
-          :fill="row.color()"
-          >{{ row.height }}</g-text
-        >
-      </g-container>
-      <g-container :x="(data.width / 3) * 2">
-        <g-text :fontSize="16" :x="imageSize().width + 10" :y="0">{{
-          row.weight
-        }}</g-text>
-        <g-text
-          :x="imageSize().width + 10"
-          :y="25"
-          :fontSize="16"
-          :fill="row.color()"
-          >{{ row.weight }}</g-text
-        >
-      </g-container>
+          <g-container>
+            <g-sprite :texture="row.image()" :scale="0.5"></g-sprite>
+            <g-text :fontSize="16" :x="imageSize().width / 2 + 10" :y="0"
+              >hello</g-text
+            >
+            <g-text
+              :x="imageSize().width / 2 + 10"
+              :y="25"
+              :fontSize="16"
+              :fill="row.color()"
+              >{{ row.name }}</g-text
+            >
+          </g-container>
+          <g-container :x="data.width / 3">
+            <g-text :fontSize="16" :x="imageSize().width + 10" :y="0">{{
+              row.age
+            }}</g-text>
+            <g-text
+              :x="imageSize().width + 10"
+              :y="25"
+              :fontSize="16"
+              :fill="row.color()"
+              >{{ row.height }}</g-text
+            >
+          </g-container>
+          <g-container :x="(data.width / 3) * 2">
+            <g-text :fontSize="16" :x="imageSize().width + 10" :y="0">{{
+              row.weight
+            }}</g-text>
+            <g-text
+              :x="imageSize().width + 10"
+              :y="25"
+              :fontSize="16"
+              :fill="row.color()"
+              >{{ row.weight }}</g-text
+            >
+          </g-container>
+        </g-container>
+      </template>
     </g-container>
   </g-container>
 </template>
@@ -46,20 +55,22 @@
 <script setup lang="ts">
 import { shallowRef } from "vue";
 import { usePixiAnimation, usePixiAppData } from "../renderer/renderer";
-import { Assets, Texture } from "pixi.js";
+import { Assets, Point, Texture } from "pixi.js";
 import baseSpritePath from "../assets/neon.png";
 import { reactive } from "vue";
+import { ref } from "vue";
 
 const texture = shallowRef<Texture>();
 Assets.load([baseSpritePath]).then(() => {
   texture.value = Texture.from(baseSpritePath);
 });
+const scroll = ref(0);
 const ROW_HEIGHT = 45;
 
 const data = usePixiAppData();
 
 const rows = reactive(
-  [...Array(30)].map(() => {
+  [...Array(50)].map(() => {
     return {
       name: "hello",
       age: random(10, 100),
@@ -75,8 +86,10 @@ const rows = reactive(
   })
 );
 
+const totalHeight = () => rows.length * ROW_HEIGHT;
+
 usePixiAnimation(() => {
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 2; i++) {
     const chosen = Math.floor(Math.random() * rows.length);
     const row = rows[chosen];
     const propKey = Math.floor(Math.random() * 4);
@@ -94,5 +107,16 @@ function random(min: number, max: number) {
 function imageSize() {
   const { width = 0, height = 0 } = texture.value ?? {};
   return { width, height };
+}
+
+function onPointerDown() {
+  console.log("pointer down");
+}
+
+function onPointerMove(event: PointerEvent) {
+  const height = totalHeight();
+  const screenHeight = data.height;
+  scroll.value -= event.movementY;
+  scroll.value = Math.max(0, Math.min(scroll.value, height - screenHeight));
 }
 </script>

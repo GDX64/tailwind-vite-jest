@@ -1,21 +1,20 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "ESNext",
+    "module": "esnext",
     "useDefineForClassFields": true,
-    "moduleResolution": "Node",
+    "moduleResolution": "Bundler",
     "strict": true,
     "strictNullChecks": true,
     "jsx": "preserve",
-    // "jsxFactory": "solidRender",
-    // "jsxFragmentFactory": "solidRender",
     "noUnusedLocals": false,
     "allowJs": true,
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "lib": ["esnext", "dom", "dom.iterable"]
+    "lib": ["ESNext", "dom", "dom.iterable", "ESNext.WeakRef"],
+    "typeRoots": ["@types"]
   },
   "include": ["src/main.ts", "src/**/*.d.ts", "src/**/*.test.ts"]
 }

@@ -3,6 +3,10 @@ import { GElement } from "./Elements";
 
 export default class GSprite extends GElement {
   pixiRef: Sprite = new Sprite();
+  constructor() {
+    super();
+    console.log("GSprite constructor");
+  }
   patch(prop: string, prev: any, next: any): void {
     super.patch(prop, prev, next);
     switch (prop) {
