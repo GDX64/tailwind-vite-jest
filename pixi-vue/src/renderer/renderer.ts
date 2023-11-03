@@ -107,6 +107,7 @@ export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
     background: "#00000000",
     clearBeforeRender: true,
     powerPreference: "low-power",
+    preference: "webgl",
   });
 
   const appData = reactive({ width: 0, height: 0 });

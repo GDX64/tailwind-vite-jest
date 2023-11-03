@@ -17,7 +17,7 @@ export type LayoutBox = {
 
 export class GElement {
   pixiRef: PIXI.Container = new PIXI.Container();
-  parent = null as WeakRef<GElement> | null;
+  parent = null as any;
   children: GElement[] = [];
   x = 0;
   y = 0;
@@ -76,7 +76,7 @@ export class GElement {
   }
 
   addChild(child: GElement) {
-    child.parent = new WeakRef(this);
+    child.parent = createWeakRef(this);
     this.children.push(child);
     this.pixiRef.addChild(child.pixiRef);
     this.markDirty();
@@ -92,7 +92,7 @@ export class GElement {
   }
 
   addChildAt(child: GElement, index: number) {
-    child.parent = new WeakRef(this as GElement);
+    child.parent = createWeakRef(this as GElement);
     this.children.splice(index, 0, child);
     this.pixiRef.addChildAt(child.pixiRef, index);
     this.markDirty();
@@ -111,11 +111,7 @@ export class GElement {
   }
 
   destroy() {
-    this.pixiRef.children.forEach((child) => {
-      child.destroy();
-    });
-    this.pixiRef.removeChildren();
-    this.pixiRef.destroy();
+    this.pixiRef.destroy({ children: true });
   }
 }
 
@@ -206,4 +202,9 @@ export class GText extends GElement {
         break;
     }
   }
+}
+
+function createWeakRef<T>(obj: T): any {
+  const that = self as any;
+  return new that.WeakRef(obj);
 }

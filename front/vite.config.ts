@@ -27,7 +27,8 @@ export default (args) => {
       host: true,
     },
     build: {
-      sourcemap: true,
+      minify: false,
+      sourcemap: false,
     },
     resolve: {
       alias: {
