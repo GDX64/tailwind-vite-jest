@@ -1,4 +1,4 @@
-import { Message, SharedKey } from "./lib";
+import { Message, SharedKey } from "./talker";
 
 export type TestMessages = {
   start: Message<{ key: SharedKey; id: number }, string>;

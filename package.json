@@ -23,6 +23,7 @@
     "rust",
     "front",
     "incremental_draw",
-    "pixi-vue"
+    "pixi-vue",
+    "syncjs"
   ]
 }

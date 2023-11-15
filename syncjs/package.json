@@ -3,6 +3,18 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "files": [
+    "dist"
+  ],
+  "types": "./dist/lib.d.ts",
+  "main": "./dist/lib.umd.cjs",
+  "module": "./dist/lib.js",
+  "exports": {
+    ".": {
+      "import": "./dist/lib.js"
+    },
+    "./styles": "./dist/style.css"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -10,9 +22,8 @@
   },
   "devDependencies": {
     "typescript": "^5.0.2",
+    "vite-plugin-dts": "^3.6.3",
     "vite": "^4.4.5"
-  },
-  "dependencies": {
-    "@vitejs/plugin-basic-ssl": "^1.0.1"
   }
 }
+

@@ -1,5 +1,5 @@
 import { TestMessages } from "./MessagesTest";
-import { SharedKey, Talker } from "./lib";
+import { SharedKey, Talker } from "./talker";
 
 const talker = new Talker<TestMessages>(self, async (message) => {
   switch (message.kind) {
@@ -12,14 +12,14 @@ const talker = new Talker<TestMessages>(self, async (message) => {
 });
 
 async function useBuffer(key: SharedKey, id: number) {
-  talker.send("log", `thread ${id} ask the lock \u{1F64F}`);
+  talker.send("log", `thread ${id} asks the lock`);
   await Talker.lockOnShared(key, (view) => {
-    talker.send("log", `thread ${id} got the lock \u{1F510}`);
+    talker.send("log", `thread ${id} got the lock`);
     view[0] += 1;
-    talker.send("log", `thread ${id} counted: ${view[0]} \u2795`);
+    talker.send("log", `thread ${id} counted: ${view[0]}`);
     return new Promise((resolve) => setTimeout(resolve, 1000));
   });
-  talker.send("log", `thread ${id} release the lock \u{1F513}`);
+  talker.send("log", `thread ${id} release the lock`);
   await new Promise((resolve) => setTimeout(resolve, Math.random() * 2000));
   useBuffer(key, id);
 }
