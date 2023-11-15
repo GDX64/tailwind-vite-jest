@@ -2,13 +2,14 @@
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { createRoot } from "./renderer/renderer";
 // import HelloWorld from "./components/HelloWorld.vue";
-import DynList from "./components/DynList.vue";
+// import DynList from "./components/DynList.vue";
+import SmallScale from "./components/SmallScale.vue";
 
 const canvas = ref<HTMLCanvasElement>();
 
 let destroy = () => {};
 onMounted(async () => {
-  const app = await createRoot(canvas.value!, DynList);
+  const app = await createRoot(canvas.value!, SmallScale);
   destroy = app.destroy;
 });
 
@@ -35,4 +36,3 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped></style>
-
