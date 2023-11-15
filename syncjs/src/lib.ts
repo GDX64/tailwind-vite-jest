@@ -1,15 +1,12 @@
-interface Poster {
-  (message: any, transfer?: Transferable[]): void;
-}
-
-interface Listener {
-  addEventListener: (event: string, callback: (message: any) => void) => void;
-}
-
 export type Message<Data = any, Response = void> = {
   data: Data;
   response: Response;
 };
+
+interface ListenerPoster {
+  postMessage(message: any): void;
+  addEventListener(event: "message", cb: (data: any) => void): void;
+}
 
 type Messages = Record<string, Message<any, any>>;
 
@@ -26,12 +23,13 @@ export type SharedKey = {
 const responseKind = "__response__";
 export class Talker<M extends Messages> {
   private eventsMap: Map<KeyFor<any>, Set<Function>> = new Map();
+  private id = Math.floor(Math.random() * 1000_000);
   constructor(
     private receive: (data: MessagesWithKind<M>[keyof M]) => void,
-    private poster: Poster,
-    private listener: Listener
+    public readonly channel: ListenerPoster
   ) {
-    this.listener.addEventListener("message", (message) => {
+    this.channel.addEventListener("message", (message) => {
+      console.log("received message", message.data);
       if (message.data.kind === responseKind) {
         this.notifyMessage(message.data.id, message.data.data);
       } else {
@@ -57,7 +55,7 @@ export class Talker<M extends Messages> {
   ): KeyFor<M[K]["response"]>;
   send(kind: any, data?: any): any {
     const id = Math.random() as any;
-    this.poster({ kind, data, id });
+    this.channel.postMessage({ kind, data, id });
     return id;
   }
 
@@ -69,7 +67,7 @@ export class Talker<M extends Messages> {
   }
 
   emit<T>(key: KeyFor<T>, data: T) {
-    this.poster({ kind: responseKind, data, id: key });
+    this.channel.postMessage({ kind: responseKind, data, id: key });
   }
 
   sharedKey(size: number): SharedKey {
@@ -84,9 +82,9 @@ export class Talker<M extends Messages> {
     { __arr__, key }: SharedKey,
     cb: (view: Uint8Array) => T
   ) {
-    console.log("try to lock");
-    navigator.locks.request(key, async () => {
-      console.log("locked");
+    console.log("try to lock id:", this.id);
+    return navigator.locks.request(key, async () => {
+      console.log("locked id:", this.id);
       return cb(new Uint8Array(__arr__));
     });
   }
