@@ -17,16 +17,16 @@ type MessagesWithKind<M extends Messages> = {
 export type KeyFor<T> = number & { __keyFor: T };
 export type SharedKey = {
   __arr__: SharedArrayBuffer;
-  key: string;
+  __key__: string;
 };
+export type MessageDataOf<M extends Messages> = MessagesWithKind<M>[keyof M];
 
 const responseKind = "__response__";
 export class Talker<M extends Messages> {
   private eventsMap: Map<KeyFor<any>, Set<Function>> = new Map();
-  private id = Math.floor(Math.random() * 1000_000);
   constructor(
     public readonly channel: ListenerPoster,
-    private receive: (data: MessagesWithKind<M>[keyof M]) => void
+    private receive: (data: MessageDataOf<M>) => void
   ) {
     this.channel.addEventListener("message", (message) => {
       if (message.data.kind === responseKind) {
@@ -53,7 +53,7 @@ export class Talker<M extends Messages> {
     kind: M[K]["data"] extends void ? K : never
   ): KeyFor<M[K]["response"]>;
   send(kind: any, data?: any): any {
-    const id = Math.random() as any;
+    const id = (Math.random() * 1000_000) as any;
     this.channel.postMessage({ kind, data, id });
     return id;
   }
@@ -65,7 +65,16 @@ export class Talker<M extends Messages> {
     return () => this.eventsMap.get(key)?.delete(cb);
   }
 
-  emit<T>(key: KeyFor<T>, data: T) {
+  awaitResponse<T>(key: KeyFor<T>): Promise<T> {
+    return new Promise((resolve) => {
+      const remove = this.on(key, (data) => {
+        resolve(data);
+        remove();
+      });
+    });
+  }
+
+  response<T>(key: KeyFor<T>, data: T) {
     this.channel.postMessage({ kind: responseKind, data, id: key });
   }
 
@@ -73,12 +82,12 @@ export class Talker<M extends Messages> {
     const arr = new SharedArrayBuffer(size);
     return {
       __arr__: arr,
-      key: Math.random().toString(),
+      __key__: `sharedBuffer_${Math.random().toString().slice(2)}`,
     };
   }
 
   static async lockOnShared<T>(
-    { __arr__, key }: SharedKey,
+    { __arr__, __key__: key }: SharedKey,
     cb: (view: Uint8Array) => T
   ) {
     return navigator.locks.request(key, async () => {
