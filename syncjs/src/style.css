@@ -32,8 +32,13 @@ body {
   }
 }
 
+@media (prefers-color-scheme: dark) {
+  .container-example{
+    color: #ffffff;
+  }
+}
+
 .container-example{
-  color: #ffffff;
   display: flex;
   justify-content: space-between;
   padding: 10px;
