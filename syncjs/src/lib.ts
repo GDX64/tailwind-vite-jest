@@ -25,11 +25,10 @@ export class Talker<M extends Messages> {
   private eventsMap: Map<KeyFor<any>, Set<Function>> = new Map();
   private id = Math.floor(Math.random() * 1000_000);
   constructor(
-    private receive: (data: MessagesWithKind<M>[keyof M]) => void,
-    public readonly channel: ListenerPoster
+    public readonly channel: ListenerPoster,
+    private receive: (data: MessagesWithKind<M>[keyof M]) => void
   ) {
     this.channel.addEventListener("message", (message) => {
-      console.log("received message", message.data);
       if (message.data.kind === responseKind) {
         this.notifyMessage(message.data.id, message.data.data);
       } else {
@@ -70,7 +69,7 @@ export class Talker<M extends Messages> {
     this.channel.postMessage({ kind: responseKind, data, id: key });
   }
 
-  sharedKey(size: number): SharedKey {
+  static sharedKey(size: number): SharedKey {
     const arr = new SharedArrayBuffer(size);
     return {
       __arr__: arr,
@@ -78,13 +77,11 @@ export class Talker<M extends Messages> {
     };
   }
 
-  async lockOnShared<T>(
+  static async lockOnShared<T>(
     { __arr__, key }: SharedKey,
     cb: (view: Uint8Array) => T
   ) {
-    console.log("try to lock id:", this.id);
     return navigator.locks.request(key, async () => {
-      console.log("locked id:", this.id);
       return cb(new Uint8Array(__arr__));
     });
   }

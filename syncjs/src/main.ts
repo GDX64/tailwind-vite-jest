@@ -2,17 +2,15 @@ import { TestMessages } from "./MessagesTest";
 import { SharedKey, Talker } from "./lib";
 import TestWorker from "./TestWorker?worker";
 
-const worker = new TestWorker();
-
-const testTalker = new Talker<TestMessages>((data) => {
-  switch (data.kind) {
-    case "buff":
-      break;
-  }
-}, worker);
+const worker1 = new TestWorker();
+const worker2 = new TestWorker();
+const worker3 = new TestWorker();
+const testTalker1 = new Talker<TestMessages>(worker1, (data) => {});
+const testTalker2 = new Talker<TestMessages>(worker2, (data) => {});
+const testTalker3 = new Talker<TestMessages>(worker3, (data) => {});
 
 async function useBuffer(arr: SharedKey) {
-  await testTalker.lockOnShared(arr, (view) => {
+  await Talker.lockOnShared(arr, (view) => {
     view[0] += 1;
     console.log("main counted", view[0]);
     return new Promise((resolve) => setTimeout(resolve, 1000));
@@ -20,9 +18,11 @@ async function useBuffer(arr: SharedKey) {
   useBuffer(arr);
 }
 
-const arr = testTalker.sharedKey(1024);
+const arr = Talker.sharedKey(1024);
 setTimeout(() => {
-  testTalker.send("buff", arr);
+  testTalker1.send("buff", arr);
+  testTalker2.send("buff", arr);
+  testTalker3.send("buff", arr);
   useBuffer(arr);
 }, 1000);
 
