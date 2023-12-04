@@ -1,5 +1,9 @@
 <template>
-  <g-container @pointerdown="onPointerDown" @pointermove="onPointerMove">
+  <g-container
+    @pointerdown="onPointerDown"
+    @pointermove="onPointerMove"
+    @pointerup="onPointerUp"
+  >
     <g-rect :width="data.width" :height="data.height" fill="#bda7dd"></g-rect>
     <g-container :y="-scroll">
       <template v-for="(row, i) of rows" :key="row.key">
@@ -61,6 +65,7 @@ import { reactive } from "vue";
 import { ref } from "vue";
 
 const texture = shallowRef<Texture>();
+let pointerIsDown = false;
 Assets.load([baseSpritePath]).then(() => {
   texture.value = Texture.from(baseSpritePath);
 });
@@ -110,13 +115,19 @@ function imageSize() {
 }
 
 function onPointerDown() {
-  console.log("pointer down");
+  pointerIsDown = true;
+}
+
+function onPointerUp() {
+  pointerIsDown = false;
 }
 
 function onPointerMove(event: PointerEvent) {
-  const height = totalHeight();
-  const screenHeight = data.height;
-  scroll.value -= event.movementY;
-  scroll.value = Math.max(0, Math.min(scroll.value, height - screenHeight));
+  if (pointerIsDown) {
+    const height = totalHeight();
+    const screenHeight = data.height;
+    scroll.value -= event.movementY;
+    scroll.value = Math.max(0, Math.min(scroll.value, height - screenHeight));
+  }
 }
 </script>
