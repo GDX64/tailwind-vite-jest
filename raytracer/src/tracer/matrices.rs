@@ -1,6 +1,6 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-use crate::point_vec::TupleLike;
+use crate::point_vec::{Point, TupleLike};
 
 pub trait MatTraits:
     Div<Self, Output = Self>
@@ -166,6 +166,19 @@ impl<T: MatTraits> Mat4<T> {
             }
         }
         mat
+    }
+}
+
+impl Mat4<f64> {
+    pub fn mul_vec(&self, rhs: &Point) -> Point {
+        let mut out = [0.0; 4];
+        for i in 0..4 {
+            out[i] = self.data[i] * rhs.x
+                + self.data[i + 4] * rhs.y
+                + self.data[i + 8] * rhs.z
+                + self.data[i + 12] * rhs.w;
+        }
+        Point::new(out[0], out[1], out[2])
     }
 }
 

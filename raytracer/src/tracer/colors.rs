@@ -16,6 +16,19 @@ impl Color {
             alpha: 1.0,
         }
     }
+
+    pub fn to_u32(&self) -> u32 {
+        let mut r = (self.red * 255.0) as u32;
+        let mut g = (self.green * 255.0) as u32;
+        let b = (self.blue * 255.0) as u32;
+        let mut a = (self.alpha * 255.0) as u32;
+
+        a = a << 24;
+        r = r << 16;
+        g = g << 8;
+
+        r | g | b | a
+    }
 }
 
 impl TupleLike for Color {
@@ -47,16 +60,7 @@ impl TupleLike for Color {
 
 impl From<Color> for u32 {
     fn from(c: Color) -> Self {
-        let mut r = (c.red * 255.0) as u32;
-        let mut g = (c.green * 255.0) as u32;
-        let b = (c.blue * 255.0) as u32;
-        let mut a = (c.alpha * 255.0) as u32;
-
-        a = a << 24;
-        r = r << 16;
-        g = g << 8;
-
-        r | g | b | a
+        c.to_u32()
     }
 }
 

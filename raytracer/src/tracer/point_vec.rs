@@ -182,14 +182,24 @@ impl Add<Point> for V3D {
 
 #[derive(Debug, Clone, Copy)]
 pub struct V3D {
-    x: f64,
-    y: f64,
-    z: f64,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
 }
 
 impl V3D {
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         V3D { x, y, z }
+    }
+}
+
+impl From<Point> for V3D {
+    fn from(p: Point) -> Self {
+        V3D {
+            x: p.x,
+            y: p.y,
+            z: p.z,
+        }
     }
 }
 
@@ -277,6 +287,14 @@ mod test {
         let b = Point::new(2.0, 3.0, 4.0);
         let result = a - b;
         assert_eq!(result, V3D::new(-1.0, -1.0, -1.0));
+    }
+
+    #[test]
+    fn cross_sanity() {
+        let x = V3D::new(1.0, 0.0, 0.0);
+        let y = V3D::new(0.0, 1.0, 0.0);
+        let result = x.cross(&y);
+        assert_eq!(result, V3D::new(0.0, 0.0, 1.0));
     }
 
     #[test]
