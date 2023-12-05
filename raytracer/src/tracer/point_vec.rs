@@ -66,6 +66,10 @@ pub trait TupleLike: Sized {
         ))
     }
 
+    fn cross_z(&self, other: &Self) -> f64 {
+        self.get_x() * other.get_y() - self.get_y() * other.get_x()
+    }
+
     fn convert<T: TupleLike>(&self) -> T {
         T::from_tuple((self.get_x(), self.get_y(), self.get_z(), self.get_w()))
     }
