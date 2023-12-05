@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 use minifb::{Key, Window, WindowOptions};
 
 pub struct Canvas {
@@ -29,6 +31,17 @@ impl Canvas {
         for i in self.pixels.iter_mut() {
             *i = 0;
         }
+    }
+
+    pub fn mutable_range(
+        &mut self,
+        x_start: usize,
+        x_end: usize,
+        y: usize,
+    ) -> impl Iterator<Item = &mut u32> {
+        let start = y * self.width + x_start;
+        let end = y * self.width + x_end;
+        self.pixels[start..end].iter_mut()
     }
 
     pub fn write(&mut self, x: i32, y: i32, value: impl Into<u32>) {
