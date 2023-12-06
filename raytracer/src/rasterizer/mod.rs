@@ -43,14 +43,16 @@ impl TriangleRaster {
     pub fn rasterize_simd(&self, triangle: &Triangle, mut f: impl FnMut(i32, i32)) {
         let (min, max) = triangle.as_slice().min_max();
         let simd_triangle = SimdTriangle::from_triangle(triangle);
+        let vx0 = simd::f32x4::from_array([0.0, 1.0, 2.0, 3.0]);
+        let vx0 = vx0 + simd::f32x4::splat(min.x as f32);
+        let add_four = simd::f32x4::splat(4.0);
         for y in min.y as i32..=max.y as i32 {
             //loop x 4 by 4
+            let mut vx = vx0;
+            let vy = simd::f32x4::splat(y as f32);
             for x in (min.x as i32..=max.x as i32).step_by(4) {
-                let x_float = x as f32;
-                let vx =
-                    simd::f32x4::from_array([x_float, x_float + 1.0, x_float + 2.0, x_float + 3.0]);
-                let vy = simd::f32x4::splat(y as f32);
                 let mask = simd_triangle.is_inside(vx, vy);
+                vx = vx + add_four;
                 if mask.test(0) {
                     f(x, y);
                 }
