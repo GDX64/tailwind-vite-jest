@@ -1,4 +1,4 @@
-use crate::{
+use crate::math::{
     matrices::Mat4,
     point_vec::{Point, TupleLike, V3D},
     transformable::Transformable,

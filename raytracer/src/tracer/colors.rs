@@ -1,4 +1,4 @@
-use super::point_vec::TupleLike;
+use crate::math::point_vec::TupleLike;
 
 pub struct Color {
     red: f64,

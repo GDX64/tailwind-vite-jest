@@ -1,4 +1,4 @@
-use crate::point_vec::{TupleLike, V3D};
+use crate::math::point_vec::{TupleLike, V3D};
 use std::simd::{self, cmp::SimdPartialOrd};
 type Triangle = [V3D; 3];
 trait Boundable {
@@ -141,7 +141,7 @@ impl SimdTriangle {
 
 #[cfg(test)]
 mod test {
-    use std::simd::{self, cmp::SimdPartialOrd};
+    use std::simd::{self};
 
     #[test]
     fn test_inside() {

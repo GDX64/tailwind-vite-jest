@@ -1,9 +1,10 @@
-use crate::{
+use crate::math::{
     matrices::Mat4,
     point_vec::{Point, TupleLike},
-    ray::{self, Ray},
     transformable::Transformable,
 };
+
+use super::ray::Ray;
 
 pub struct Sphere {
     m: Mat4<f64>,
@@ -72,8 +73,8 @@ impl Transformable for Sphere {
 #[cfg(test)]
 mod test {
     use crate::{
-        point_vec::{Point, V3D},
-        ray::Ray,
+        math::point_vec::{Point, V3D},
+        tracer::ray::Ray,
     };
 
     use super::Sphere;

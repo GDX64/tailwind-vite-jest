@@ -1,6 +1,5 @@
+use super::point_vec::{Point, TupleLike};
 use std::ops::{Add, Div, Mul, Neg, Sub};
-
-use crate::point_vec::{Point, TupleLike};
 
 pub trait MatTraits:
     Div<Self, Output = Self>
@@ -258,7 +257,7 @@ impl<T: TupleLike> Mul<T> for Mat4<f64> {
 
 #[cfg(test)]
 mod test {
-    use crate::matrices::Mat4;
+    use super::super::matrices::Mat4;
 
     #[test]
     fn mul_test() {

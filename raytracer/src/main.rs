@@ -1,4 +1,6 @@
-use raytracer::{canvas, colors::Color};
+use tracer::{canvas, colors::Color};
+mod math;
+mod tracer;
 
 fn main() {
     let mut canvas = canvas::Canvas::new(800, 600);
