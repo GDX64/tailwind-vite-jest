@@ -56,12 +56,22 @@ impl TriangleRaster {
         for y in min.y as i32..=max.y as i32 {
             //loop x 4 by 4
             for x in (min.x as i32..=max.x as i32).step_by(4) {
-                let x = x as f32;
-                let vx = simd::f32x4::from_array([x, x + 1.0, x + 2.0, x + 3.0]);
+                let x_float = x as f32;
+                let vx =
+                    simd::f32x4::from_array([x_float, x_float + 1.0, x_float + 2.0, x_float + 3.0]);
                 let vy = simd::f32x4::splat(y as f32);
                 let mask = simd_triangle.is_inside(vx, vy);
-                if mask.all() {
-                    f(x as i32, y);
+                if mask.test(0) {
+                    f(x, y);
+                }
+                if mask.test(1) {
+                    f(x + 1, y);
+                }
+                if mask.test(2) {
+                    f(x + 2, y);
+                }
+                if mask.test(3) {
+                    f(x + 3, y);
                 }
             }
         }
