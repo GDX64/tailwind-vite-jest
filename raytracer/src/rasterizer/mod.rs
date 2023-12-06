@@ -1,11 +1,5 @@
-use crate::{
-    canvas::Canvas,
-    point_vec::{TupleLike, V3D},
-};
-use std::{
-    ops::BitAnd,
-    simd::{self, cmp::SimdPartialOrd, simd_swizzle, Mask},
-};
+use crate::point_vec::{TupleLike, V3D};
+use std::simd::{self, cmp::SimdPartialOrd};
 type Triangle = [V3D; 3];
 trait Boundable {
     fn min_max(&self) -> (V3D, V3D);
@@ -27,15 +21,11 @@ impl Boundable for &[V3D] {
     }
 }
 
-pub struct TriangleRaster {
-    color: crate::colors::Color,
-}
+pub struct TriangleRaster {}
 
 impl TriangleRaster {
     pub fn new() -> TriangleRaster {
-        TriangleRaster {
-            color: crate::colors::Color::new(1.0, 1.0, 0.0),
-        }
+        TriangleRaster {}
     }
 
     pub fn rasterize(&self, triangle: &Triangle, mut f: impl FnMut(i32, i32)) {
@@ -166,5 +156,26 @@ mod test {
     }
 
     #[test]
-    fn simd_inside() {}
+    fn simd_inside() {
+        let triangle = [
+            super::V3D::new(0.0, 0.0, 0.0),
+            super::V3D::new(0.0, 100.0, 0.0),
+            super::V3D::new(100.0, 100.0, 0.0),
+        ];
+        let simd_triangle = super::SimdTriangle::from_triangle(&triangle);
+        let x = simd::f32x4::from_array([10.0, 10.0, 10.0, 10.0]);
+        let y = simd::f32x4::from_array([50.0, 50.0, 50.0, 50.0]);
+        let mask = simd_triangle.is_inside(x, y);
+        assert_eq!(mask.test(0), true);
+        assert_eq!(mask.test(1), true);
+        assert_eq!(mask.test(2), true);
+        assert_eq!(mask.test(3), true);
+        let x = simd::f32x4::from_array([100.0, 100.0, 100.0, 100.0]);
+        let y = simd::f32x4::from_array([0.0, 0.0, 0.0, 0.0]);
+        let mask = simd_triangle.is_inside(x, y);
+        assert_eq!(mask.test(0), false);
+        assert_eq!(mask.test(1), false);
+        assert_eq!(mask.test(2), false);
+        assert_eq!(mask.test(3), false);
+    }
 }
