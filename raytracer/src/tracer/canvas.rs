@@ -1,5 +1,3 @@
-use std::ops::Range;
-
 use minifb::{Key, Window, WindowOptions};
 
 pub struct Canvas {
@@ -11,14 +9,14 @@ pub struct Canvas {
 
 impl Canvas {
     pub fn new(width: usize, height: usize) -> Canvas {
-        let window = Window::new(
+        let mut window = Window::new(
             "Test - ESC to exit",
             width,
             height,
             WindowOptions::default(),
         )
         .unwrap();
-
+        window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
         Canvas {
             width,
             height,

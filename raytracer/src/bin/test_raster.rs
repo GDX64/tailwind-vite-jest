@@ -15,29 +15,24 @@ fn main() {
         transform.mul_tuple(&Point::new(200.0, 400.0, 0.0)).into(),
     ];
     raster.rasterize_simd(&triangle, |x, y| canvas.write(x, y, 0xff0000u32));
-    let count = measure_time(|| {
+    measure_time(|| {
         let mut count = 0usize;
-        raster.rasterize(&triangle, |x, y| count += 1);
-        raster.rasterize(&triangle, |x, y| count += 1);
-        raster.rasterize(&triangle, |x, y| count += 1);
         raster.rasterize(&triangle, |x, y| count += 1);
         count
     });
-    let count2 = measure_time(|| {
+    measure_time(|| {
         let mut count = 0usize;
-        raster.rasterize_simd(&triangle, |x, y| count += 1);
-        raster.rasterize_simd(&triangle, |x, y| count += 1);
-        raster.rasterize_simd(&triangle, |x, y| count += 1);
         raster.rasterize_simd(&triangle, |x, y| count += 1);
         count
     });
-    println!("count1 {}, count2 {}", count, count2);
     canvas.loop_until_exit();
 }
 
-fn measure_time<T>(f: impl FnOnce() -> T) -> T {
+fn measure_time<T>(f: impl Fn() -> T) {
     let start = std::time::Instant::now();
-    let result = f();
-    println!("Elapsed: {:?}", start.elapsed());
-    result
+    let n = 1000;
+    for _ in 0..n {
+        std::hint::black_box(f());
+    }
+    println!("Elapsed: {:?}", start.elapsed() / n);
 }
