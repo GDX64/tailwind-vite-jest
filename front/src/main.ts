@@ -20,6 +20,10 @@ const routes = [
   { path: '/layout-test', component: () => import('./pages/LayoutTest/LayoutTest.vue') },
   { path: '/libtest', component: () => import('./pages/LibTest.vue') },
   { path: '/testWorker', component: () => import('./pages/TestWorkers.vue') },
+  {
+    path: '/simd-rasterization',
+    component: () => import('./pages/SIMDRasterization.vue'),
+  },
 ];
 
 // 3. Create the router instance and pass the `routes` option

@@ -9,6 +9,7 @@
     "build:incremental_draw": "npm run build --workspace=incremental_draw",
     "build:pixi-vue": "npm run build --workspace=pixi-vue",
     "build:syncjs": "npm run build --workspace=syncjs",
+    "build:raytracer": "npm run build --workspace=raytracer",
     "preview": "firebase serve",
     "deploy": "npm run build && firebase deploy",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -28,6 +29,7 @@
     "front",
     "incremental_draw",
     "pixi-vue",
+    "raytracer",
     "syncjs"
   ],
   "devDependencies": {

@@ -28,6 +28,11 @@
       <li>
         <a class="text-sky-700 underline" href="/testWorker">test worker</a>
       </li>
+      <li>
+        <a class="text-sky-700 underline" href="/simd-rasterization"
+          >SIMD rasterization</a
+        >
+      </li>
     </ul>
   </div>
 </template>
