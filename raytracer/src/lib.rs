@@ -1,7 +1,6 @@
 #![feature(portable_simd)]
 mod math;
 mod rasterizer;
-// use core::arch::wasm32::i16x8;
 use math::{
     matrices::Mat4,
     point_vec::{Point, V3D},
