@@ -1,0 +1,15 @@
+{
+  "name": "raytracer",
+  "version": "1.0.0",
+  "description": "",
+  "files": [
+    "pkg/**/*"
+  ],
+  "devDependencies": {},
+  "scripts": {
+    "dev": "wasm-pack build --target web",
+    "build": "wasm-pack build --target web --release",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
+

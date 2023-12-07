@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(typescript_custom_section)]
-const ITEXT_STYLE: &'static str = r#"
+const TYPESCRIPT_TYPES: &'static str = r#"
 interface TriangleInfo {
     p1: [number, number, number];
     p2: [number, number, number];
@@ -16,12 +16,19 @@ interface TriangleInfo {
     width: number;
     height: number;
 }
+
+interface TimeResult {
+    simd: number;
+    no_simd: number;
+}
 "#;
 
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(typescript_type = "TriangleInfo")]
     pub type TriangleInfoJs;
+    #[wasm_bindgen(typescript_type = "TimeResult")]
+    pub type TimeResultJs;
 }
 
 #[derive(Serialize, Deserialize)]
@@ -40,7 +47,7 @@ pub struct TimeResult {
 }
 
 #[wasm_bindgen]
-pub fn raster_triangle(info: TriangleInfoJs, canvas_vec: &mut [u32]) -> JsValue {
+pub fn raster_triangle(info: TriangleInfoJs, canvas_vec: &mut [u32]) -> TimeResultJs {
     let info = serde_wasm_bindgen::from_value::<TriangleInfo>(info.obj).unwrap();
     canvas_vec.iter_mut().for_each(|c| *c = 0xffaaaaaau32);
     let width = info.width;
@@ -69,7 +76,8 @@ pub fn raster_triangle(info: TriangleInfoJs, canvas_vec: &mut [u32]) -> JsValue 
         count
     });
     let result = TimeResult { simd, no_simd };
-    serde_wasm_bindgen::to_value(&result).unwrap()
+    let jsvalue = serde_wasm_bindgen::to_value(&result).unwrap();
+    TimeResultJs { obj: jsvalue }
 }
 
 fn measure_time<T>(mut f: impl FnMut() -> T) -> f64 {
