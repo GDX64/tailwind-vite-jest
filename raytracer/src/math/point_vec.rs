@@ -207,6 +207,17 @@ impl From<Point> for V3D {
     }
 }
 
+impl From<&[f64]> for Point {
+    fn from(value: &[f64]) -> Self {
+        Point {
+            x: *value.get(0).unwrap_or(&0.0),
+            y: *value.get(1).unwrap_or(&0.0),
+            z: *value.get(2).unwrap_or(&0.0),
+            w: value.get(3).unwrap_or(&1.0).to_owned(),
+        }
+    }
+}
+
 impl Add for V3D {
     type Output = Self;
     fn add(self, rhs: Self) -> Self::Output {

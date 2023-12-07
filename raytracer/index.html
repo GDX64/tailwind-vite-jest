@@ -1,0 +1,29 @@
+<html>
+<head>
+  <title>Home</title>
+  <script type="module">
+    import init, {raster_triangle} from './pkg/raytracer.js'
+    init().then(()=>{
+      const width = 800;
+      const height = 600;
+      const array = new Uint32Array(width*height);
+      raster_triangle({
+        width: 800,
+        height: 600,
+        p1: [10, 10, 10],
+        p2: [100, 10, 10],
+        p3: [100, 100, 10],
+      }, array);
+      console.log(array);
+      const canvas= document.createElement('canvas');
+      document.body.appendChild(canvas);
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      const imageData = ctx.createImageData(width, height);
+      imageData.data.set(new Uint8ClampedArray(array.buffer));
+      ctx.putImageData(imageData, 0, 0);
+      console.log("put image data")
+    })
+  </script>
+</html>
