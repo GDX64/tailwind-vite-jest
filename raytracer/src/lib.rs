@@ -2,7 +2,8 @@
 mod math;
 mod rasterizer;
 use math::point_vec::{Point, V3D};
-pub use rasterizer::*;
+pub use math::*;
+pub use rasterizer::TriangleRaster;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
