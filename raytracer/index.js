@@ -2,9 +2,6 @@ import init, { raster_triangle } from "./pkg/raytracer.js";
 init().then(() => {
   const canvas = document.createElement("canvas");
   document.body.appendChild(canvas);
-  canvas.style.width = "100%";
-  canvas.style.maxHeight = "100%";
-  canvas.style.aspectRatio = "1/1";
   const width = canvas.offsetWidth * devicePixelRatio;
   const height = canvas.offsetHeight * devicePixelRatio;
   canvas.width = width;

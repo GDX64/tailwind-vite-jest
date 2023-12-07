@@ -88,7 +88,7 @@ fn measure_time<T>(mut f: impl FnMut() -> T) -> f64 {
     }
     let end = web_sys::js_sys::Date::now();
     let avg_time = (end - start) / n as f64;
-    log_str(format!("Elapsed: {:?}", avg_time));
+    // log_str(format!("Elapsed: {:?}", avg_time));
     avg_time
 }
 
