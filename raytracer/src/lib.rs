@@ -9,12 +9,20 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(typescript_custom_section)]
 const ITEXT_STYLE: &'static str = r#"
-interface ITextStyle {
-    bold: boolean;
-    italic: boolean;
-    size: number;
+interface TriangleInfo {
+    p1: [number, number, number];
+    p2: [number, number, number];
+    p3: [number, number, number];
+    width: number;
+    height: number;
 }
 "#;
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(typescript_type = "TriangleInfo")]
+    pub type TriangleInfoJs;
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct TriangleInfo {
@@ -32,8 +40,8 @@ pub struct TimeResult {
 }
 
 #[wasm_bindgen]
-pub fn raster_triangle(info: JsValue, canvas_vec: &mut [u32]) -> JsValue {
-    let info = serde_wasm_bindgen::from_value::<TriangleInfo>(info).unwrap();
+pub fn raster_triangle(info: TriangleInfoJs, canvas_vec: &mut [u32]) -> JsValue {
+    let info = serde_wasm_bindgen::from_value::<TriangleInfo>(info.obj).unwrap();
     canvas_vec.iter_mut().for_each(|c| *c = 0xffaaaaaau32);
     let width = info.width;
     let raster = TriangleRaster::new();
