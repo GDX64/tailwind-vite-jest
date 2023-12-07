@@ -1,6 +1,17 @@
 <html>
 <head>
   <title>Home</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    html{
+      min-width: 320px;
+    }
+  </style>
   <script type="module">
     import init, {raster_triangle} from './pkg/raytracer.js'
     init().then(()=>{
@@ -21,7 +32,6 @@
         p2: [0, height, 0],
         p3: [width, height, 0],
       }, array);
-      console.log(array);
       const ctx = canvas.getContext('2d');
       const imageData = ctx.createImageData(width, height);
       imageData.data.set(new Uint8ClampedArray(array.buffer));
@@ -29,7 +39,6 @@
       ctx.font = '32px serif';
       ctx.textBaseline = 'top';
       ctx.fillText(`simd: ${elapsed.simd}ms, no simd: ${elapsed.no_simd}ms`, 10, 10);
-      console.log("put image data")
     })
   </script>
 </html>

@@ -7,6 +7,15 @@ pub use rasterizer::TriangleRaster;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen(typescript_custom_section)]
+const ITEXT_STYLE: &'static str = r#"
+interface ITextStyle {
+    bold: boolean;
+    italic: boolean;
+    size: number;
+}
+"#;
+
 #[derive(Serialize, Deserialize)]
 pub struct TriangleInfo {
     pub p1: [f64; 3],
