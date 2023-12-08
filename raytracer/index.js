@@ -2,8 +2,8 @@ import init, { raster_triangle } from "./pkg/raytracer.js";
 init().then(() => {
   const canvas = document.createElement("canvas");
   document.body.appendChild(canvas);
-  const width = canvas.offsetWidth * devicePixelRatio;
-  const height = canvas.offsetHeight * devicePixelRatio;
+  const width = Math.floor(canvas.offsetWidth * devicePixelRatio);
+  const height = Math.floor(canvas.offsetHeight * devicePixelRatio);
   canvas.width = width;
   canvas.height = height;
   const array = new Uint32Array(width * height);
@@ -23,9 +23,5 @@ init().then(() => {
   ctx.putImageData(imageData, 0, 0);
   ctx.font = "32px serif";
   ctx.textBaseline = "top";
-  ctx.fillText(
-    `simd: ${elapsed.simd}ms, no simd: ${elapsed.no_simd}ms`,
-    10,
-    10
-  );
+  ctx.fillText(`simd: ${elapsed.simd}, no simd: ${elapsed.no_simd}`, 10, 10);
 });

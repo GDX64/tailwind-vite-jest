@@ -18,8 +18,8 @@ interface TriangleInfo {
 }
 
 interface TimeResult {
-    simd: number;
-    no_simd: number;
+    simd: string;
+    no_simd: string;
 }
 "#;
 
@@ -42,8 +42,8 @@ pub struct TriangleInfo {
 
 #[derive(Serialize, Deserialize)]
 pub struct TimeResult {
-    pub simd: f64,
-    pub no_simd: f64,
+    pub simd: String,
+    pub no_simd: String,
 }
 
 #[wasm_bindgen]
@@ -68,16 +68,29 @@ pub fn raster_triangle(info: TriangleInfoJs, canvas_vec: &mut [u32]) -> TimeResu
     TimeResultJs { obj: jsvalue }
 }
 
-fn measure_time<T>(mut f: impl FnMut() -> T) -> f64 {
-    let start = web_sys::js_sys::Date::now();
-    let n = 100;
-    for _ in 0..n {
-        std::hint::black_box(f());
-    }
-    let end = web_sys::js_sys::Date::now();
-    let avg_time = (end - start) / n as f64;
+fn measure_time<T>(mut f: impl FnMut() -> T) -> String {
+    let n = 20;
+    let times: Vec<f64> = (0..n)
+        .map(|_| {
+            let start = web_sys::js_sys::Date::now();
+            std::hint::black_box(f());
+            let end = web_sys::js_sys::Date::now();
+            end - start
+        })
+        .collect();
+
+    let avg_time = times.iter().sum::<f64>() / n as f64;
+    let sum_squared = times
+        .into_iter()
+        .map(|t| (t - avg_time).powi(2))
+        .sum::<f64>();
+    let std_dev = (sum_squared / n as f64).sqrt();
+    let std_error = std_dev / (n as f64).sqrt();
+    let std_error_percent = std_error / avg_time * 100.0;
+
+    let formated_result = format!("{:.2}ms ± {:.1}%", avg_time, std_error_percent);
     // log_str(format!("Elapsed: {:?}", avg_time));
-    avg_time
+    formated_result
 }
 
 pub fn log_str(s: impl Into<String>) {

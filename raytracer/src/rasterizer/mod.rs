@@ -55,7 +55,7 @@ impl TriangleRaster {
         let vx0 = vx0 + simd::f32x4::splat(min.x as f32);
         let add_four = simd::f32x4::splat(4.0);
         let paint_values = simd::u32x4::splat(0xff0000ff);
-        let not_paint_values = simd::u32x4::splat(0xffffffff);
+        let not_paint_values = simd::u32x4::splat(0xffaaaaaa);
         for y in min.y as usize..=max.y as usize {
             let mut vx = vx0;
             let vy = simd::f32x4::splat(y as f32);
