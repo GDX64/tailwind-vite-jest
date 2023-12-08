@@ -26,8 +26,8 @@ watchEffect(async () => {
   const imageData = ctx.createImageData(width, height);
   imageData.data.set(new Uint8ClampedArray(array.buffer));
   ctx.putImageData(imageData, 0, 0);
-  ctx.font = '32px serif';
+  ctx.font = '32px sans-serif';
   ctx.textBaseline = 'top';
-  ctx.fillText(`simd: ${elapsed.simd}ms, no simd: ${elapsed.no_simd}ms`, 10, 10);
+  ctx.fillText(`simd: ${elapsed.simd}, no simd: ${elapsed.no_simd}`, 10, 10);
 });
 </script>
