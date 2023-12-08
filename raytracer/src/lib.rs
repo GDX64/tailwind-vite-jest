@@ -93,7 +93,14 @@ fn measure_time<T>(mut f: impl FnMut() -> T) -> String {
     formated_result
 }
 
+//present only if the target is wasm
+#[cfg(target_arch = "wasm32")]
 pub fn log_str(s: impl Into<String>) {
     let s: String = s.into();
     web_sys::console::log_1(&JsValue::from_str(&s));
+}
+#[cfg(not(target_arch = "wasm32"))]
+pub fn log_str(s: impl Into<String>) {
+    let s: String = s.into();
+    println!("{}", s);
 }
