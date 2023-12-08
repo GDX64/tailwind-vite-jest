@@ -61,11 +61,7 @@ pub fn raster_triangle(info: TriangleInfoJs, canvas_vec: &mut [u32]) -> TimeResu
         raster.rasterize_simd(&triangle, canvas_vec, width);
     });
     let no_simd = measure_time(|| {
-        let mut count = 0;
-        raster.rasterize(&triangle, |x, y| {
-            count += 1;
-        });
-        count
+        raster.rasterize(&triangle, canvas_vec, width);
     });
     let result = TimeResult { simd, no_simd };
     let jsvalue = serde_wasm_bindgen::to_value(&result).unwrap();

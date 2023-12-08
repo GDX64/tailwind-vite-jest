@@ -15,7 +15,7 @@ fn main() {
     ];
     measure_time(|| {
         let mut count = 0usize;
-        raster.rasterize(&triangle, |x, y| count += 1);
+        raster.rasterize(&triangle, &mut canvas.pixels, canvas.width);
         count
     });
     measure_time(|| {

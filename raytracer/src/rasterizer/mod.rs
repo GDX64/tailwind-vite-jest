@@ -28,15 +28,23 @@ impl TriangleRaster {
         TriangleRaster {}
     }
 
-    pub fn rasterize(&self, triangle: &Triangle, mut f: impl FnMut(i32, i32)) {
+    pub fn rasterize(&self, triangle: &Triangle, canvas: &mut [u32], width: usize) {
         let (min, max) = triangle.as_slice().min_max();
-        for x in min.x as i32..=max.x as i32 {
-            for y in min.y as i32..=max.y as i32 {
-                let p = V3D::new(x as f64, y as f64, 0.0);
-                if self.is_inside_triangle(&p, triangle) {
-                    f(x, y);
-                }
+        let normal_triangle = NormalTriangle::from_triangle(triangle);
+        for y in min.y as usize..=max.y as usize {
+            let index_start = y * width + min.x as usize;
+            let index_end = y * width + max.x as usize;
+            if index_end >= canvas.len() {
+                break;
             }
+            let mut x = min.x;
+            canvas[index_start..index_end].iter_mut().for_each(|color| {
+                let p = V3D::new(x as f64, y as f64, 0.0);
+                if normal_triangle.is_inside(&p) {
+                    *color = 0xff0000ff;
+                }
+                x += 1.0;
+            });
         }
     }
 
@@ -61,21 +69,10 @@ impl TriangleRaster {
                 .for_each(|chunk| {
                     let mask = simd_triangle.is_inside(vx, vy);
                     vx = vx + add_four;
-                    let painted = mask.select(paint_values, not_paint_values).to_array();
-                    chunk.copy_from_slice(&painted);
+                    let painted = mask.select(paint_values, not_paint_values);
+                    painted.copy_to_slice(chunk);
                 });
         }
-    }
-
-    pub fn is_inside_triangle(&self, p: &V3D, triangle: &Triangle) -> bool {
-        let (a, b, c) = (triangle[0], triangle[1], triangle[2]);
-        let v0 = b - a;
-        let v1 = c - b;
-        let v2 = a - c;
-        let cross0 = (*p - a).cross_z(&v0);
-        let cross1 = (*p - b).cross_z(&v1);
-        let cross2 = (*p - c).cross_z(&v2);
-        cross0.is_sign_positive() && cross1.is_sign_positive() && cross2.is_sign_positive()
     }
 }
 
@@ -143,16 +140,16 @@ mod test {
 
     #[test]
     fn test_inside() {
-        let raster = super::TriangleRaster::new();
         let triangle = [
             super::V3D::new(0.0, 0.0, 0.0),
             super::V3D::new(0.0, 100.0, 0.0),
             super::V3D::new(100.0, 100.0, 0.0),
         ];
+        let normal_triangle = super::NormalTriangle::from_triangle(&triangle);
         let inside = super::V3D::new(10.0, 50.0, 0.0);
-        assert_eq!(raster.is_inside_triangle(&inside, &triangle), true);
+        assert_eq!(normal_triangle.is_inside(&inside), true);
         let outside = super::V3D::new(100.0, 0.0, 0.0);
-        assert_eq!(raster.is_inside_triangle(&outside, &triangle), false);
+        assert_eq!(normal_triangle.is_inside(&outside), false);
     }
 
     #[test]
@@ -177,5 +174,30 @@ mod test {
         assert_eq!(mask.test(1), false);
         assert_eq!(mask.test(2), false);
         assert_eq!(mask.test(3), false);
+    }
+}
+
+struct NormalTriangle {
+    abc: [V3D; 3],
+    v012: [V3D; 3],
+}
+
+impl NormalTriangle {
+    fn from_triangle(triangle: &Triangle) -> NormalTriangle {
+        let (a, b, c) = (triangle[0], triangle[1], triangle[2]);
+        let v0 = b - a;
+        let v1 = c - b;
+        let v2 = a - c;
+        NormalTriangle {
+            abc: [a, b, c],
+            v012: [v0, v1, v2],
+        }
+    }
+
+    fn is_inside(&self, p: &V3D) -> bool {
+        let cross0 = (*p - self.abc[0]).cross_z(&self.v012[0]);
+        let cross1 = (*p - self.abc[1]).cross_z(&self.v012[1]);
+        let cross2 = (*p - self.abc[2]).cross_z(&self.v012[2]);
+        cross0.is_sign_positive() && cross1.is_sign_positive() && cross2.is_sign_positive()
     }
 }
