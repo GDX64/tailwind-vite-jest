@@ -40,32 +40,30 @@ impl TriangleRaster {
         }
     }
 
-    pub fn rasterize_simd(&self, triangle: &Triangle, mut f: impl FnMut(i32, i32)) {
+    pub fn rasterize_simd(&self, triangle: &Triangle, canvas: &mut [u32], width: usize) {
         let (min, max) = triangle.as_slice().min_max();
         let simd_triangle = SimdTriangle::from_triangle(triangle);
         let vx0 = simd::f32x4::from_array([0.0, 1.0, 2.0, 3.0]);
         let vx0 = vx0 + simd::f32x4::splat(min.x as f32);
         let add_four = simd::f32x4::splat(4.0);
-        for y in min.y as i32..=max.y as i32 {
-            //loop x 4 by 4
+        let paint_values = simd::u32x4::splat(0xff0000ff);
+        let not_paint_values = simd::u32x4::splat(0xffffffff);
+        for y in min.y as usize..=max.y as usize {
             let mut vx = vx0;
             let vy = simd::f32x4::splat(y as f32);
-            for x in (min.x as i32..=max.x as i32).step_by(4) {
-                let mask = simd_triangle.is_inside(vx, vy);
-                vx = vx + add_four;
-                if mask.test(0) {
-                    f(x, y);
-                }
-                if mask.test(1) {
-                    f(x + 1, y);
-                }
-                if mask.test(2) {
-                    f(x + 2, y);
-                }
-                if mask.test(3) {
-                    f(x + 3, y);
-                }
+            let index_start = y * width + min.x as usize;
+            let index_end = y * width + max.x as usize;
+            if index_end >= canvas.len() {
+                break;
             }
+            canvas[index_start..index_end]
+                .chunks_exact_mut(4)
+                .for_each(|chunk| {
+                    let mask = simd_triangle.is_inside(vx, vy);
+                    vx = vx + add_four;
+                    let painted = mask.select(paint_values, not_paint_values).to_array();
+                    chunk.copy_from_slice(&painted);
+                });
         }
     }
 

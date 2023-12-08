@@ -57,16 +57,8 @@ pub fn raster_triangle(info: TriangleInfoJs, canvas_vec: &mut [u32]) -> TimeResu
         Point::from(&info.p2[..]).into(),
         Point::from(&info.p3[..]).into(),
     ];
-    raster.rasterize_simd(&triangle, |x, y| {
-        let index = (y as usize) * width + (x as usize);
-        canvas_vec.get_mut(index).map(|c| *c = 0xff0000ffu32);
-    });
     let simd = measure_time(|| {
-        let mut count = 0;
-        raster.rasterize_simd(&triangle, |x, y| {
-            count += 1;
-        });
-        count
+        raster.rasterize_simd(&triangle, canvas_vec, width);
     });
     let no_simd = measure_time(|| {
         let mut count = 0;

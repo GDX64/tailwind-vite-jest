@@ -13,21 +13,18 @@ fn main() {
         Point::new(0.0, canvas.height as f64, 0.0).into(),
         Point::new(canvas.width as f64, canvas.height as f64, 0.0).into(),
     ];
-    raster.rasterize_simd(&triangle, |x, y| canvas.write(x, y, 0xff0000u32));
     measure_time(|| {
         let mut count = 0usize;
         raster.rasterize(&triangle, |x, y| count += 1);
         count
     });
     measure_time(|| {
-        let mut count = 0usize;
-        raster.rasterize_simd(&triangle, |x, y| count += 1);
-        count
+        raster.rasterize_simd(&triangle, &mut canvas.pixels, canvas.width);
     });
     canvas.loop_until_exit();
 }
 
-fn measure_time<T>(f: impl Fn() -> T) {
+fn measure_time<T>(mut f: impl FnMut() -> T) {
     let start = std::time::Instant::now();
     let n = 100;
     for _ in 0..n {
