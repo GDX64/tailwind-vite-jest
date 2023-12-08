@@ -9,11 +9,8 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@codemirror/lang-javascript": "^6.1.9",
-    "@codemirror/state": "^6.2.1",
     "@types/d3": "^7.4.0",
     "chart.js": "^3.9.1",
-    "codemirror": "^6.0.1",
     "d3": "^7.6.1",
     "gl-matrix": "^3.4.3",
     "mitt": "^3.0.0",
