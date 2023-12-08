@@ -119,8 +119,8 @@ export function useCanvasDPI() {
     size,
     pixelSize: computed(() => {
       return {
-        width: size.width * (self.devicePixelRatio || 1),
-        height: size.height * (self.devicePixelRatio || 1),
+        width: Math.floor(size.width * (self.devicePixelRatio || 1)),
+        height: Math.floor(size.height * (self.devicePixelRatio || 1)),
       };
     }),
   };
