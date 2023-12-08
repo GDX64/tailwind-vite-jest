@@ -5,12 +5,13 @@
 <script setup lang="ts">
 import init, { raster_triangle } from 'raytracer/pkg';
 import { useCanvasDPI } from '../utils/rxjsUtils';
-import { onMounted } from 'vue';
-const { canvas, pixelSize, size } = useCanvasDPI();
-onMounted(async () => {
-  await init();
+import { watchEffect } from 'vue';
+const { canvas, pixelSize } = useCanvasDPI();
+watchEffect(async () => {
   const { height, width } = pixelSize.value;
+  if (!canvas.value || !height || !width) return;
   const array = new Uint32Array(width * height);
+  await init();
   const elapsed = raster_triangle(
     {
       height,
@@ -21,7 +22,7 @@ onMounted(async () => {
     },
     array
   );
-  const ctx = canvas.value!.getContext('2d')!;
+  const ctx = canvas.value.getContext('2d')!;
   const imageData = ctx.createImageData(width, height);
   imageData.data.set(new Uint8ClampedArray(array.buffer));
   ctx.putImageData(imageData, 0, 0);
@@ -29,5 +30,4 @@ onMounted(async () => {
   ctx.textBaseline = 'top';
   ctx.fillText(`simd: ${elapsed.simd}ms, no simd: ${elapsed.no_simd}ms`, 10, 10);
 });
-init().then(() => {});
 </script>
