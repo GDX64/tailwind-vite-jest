@@ -17,7 +17,7 @@ console.log(parsed);
 const code1 = ` 
 use raytracer::simd::Vec3;
 use raytracer::simd::Vec3;
-use raytracer::simd::Vec3;
+use raytracer::simd::Vec3; 
 
 fn main(){
     println!("Hello, world!")
