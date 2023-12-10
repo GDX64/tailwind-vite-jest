@@ -1,5 +1,5 @@
 <template>
-  <canvas ref="canvas" class="w-full max-h-[100vh] aspect-square"></canvas>
+  <canvas ref="canvas"></canvas>
 </template>
 
 <script setup lang="ts">
@@ -32,3 +32,11 @@ watchEffect(async () => {
   ctx.fillText(`simd: ${elapsed.simd}, no simd: ${elapsed.no_simd}`, 10, 10);
 });
 </script>
+
+<style scoped>
+canvas {
+  width: 100%;
+  max-height: 100vh;
+  aspect-ratio: 1;
+}
+</style>
