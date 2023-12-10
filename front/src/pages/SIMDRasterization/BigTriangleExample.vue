@@ -1,11 +1,12 @@
 <template>
-  <canvas ref="canvas" class="w-screen h-screen"></canvas>
+  <canvas ref="canvas" class="w-full max-h-[100vh] aspect-square"></canvas>
 </template>
 
 <script setup lang="ts">
 import init, { raster_triangle } from 'raytracer/pkg';
-import { useCanvasDPI } from '../utils/rxjsUtils';
+import { useCanvasDPI } from '../../utils/rxjsUtils';
 import { watchEffect } from 'vue';
+
 const { canvas, pixelSize } = useCanvasDPI();
 watchEffect(async () => {
   const { height, width } = pixelSize.value;

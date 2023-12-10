@@ -14,3 +14,8 @@ declare module '*.glsl' {
   const code: string;
   export default code;
 }
+
+declare module '*?raw' {
+  const src: string;
+  export default src;
+}

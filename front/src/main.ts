@@ -22,7 +22,7 @@ const routes = [
   { path: '/testWorker', component: () => import('./pages/TestWorkers.vue') },
   {
     path: '/simd-rasterization',
-    component: () => import('./pages/SIMDRasterization.vue'),
+    component: () => import('./pages/SIMDRasterization/SIMDRasterization.vue'),
   },
 ];
 
