@@ -1,5 +1,5 @@
 <template>
-  <div class="my-blog-post px-2" v-html="parsed"></div>
+  <div class="my-blog-post" v-html="parsed"></div>
 </template>
 
 <script setup lang="ts">
@@ -7,7 +7,7 @@ import hljs from 'highlight.js/lib/core';
 import rust from 'highlight.js/lib/languages/rust';
 import wasm from 'highlight.js/lib/languages/wasm';
 import toml from 'highlight.js/lib/languages/yaml';
-import 'highlight.js/styles/stackoverflow-dark.css';
+import 'highlight.js/styles/tokyo-night-dark.css';
 import { onMounted, onUpdated } from 'vue';
 import { marked } from 'marked';
 
@@ -32,7 +32,15 @@ onMounted(() => {
 .my-blog-post h1,
 h2 {
   font-weight: bold;
-  @apply text-2xl mb-5;
+  @apply text-2xl mb-5 text-prime-300;
+}
+
+.my-blog-post code {
+  overscroll-behavior: auto;
+}
+
+.my-blog-post {
+  @apply text-prime-200;
 }
 
 .my-blog-post pre {

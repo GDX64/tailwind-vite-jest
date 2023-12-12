@@ -29,7 +29,9 @@ watchEffect(async () => {
   ctx.putImageData(imageData, 0, 0);
   ctx.font = '32px sans-serif';
   ctx.textBaseline = 'top';
-  ctx.fillText(`simd: ${elapsed.simd}, no simd: ${elapsed.no_simd}`, 10, 10);
+  ctx.fillText(`simd: ${elapsed.simd}`, 10, 10);
+  ctx.fillText(`no simd: ${elapsed.no_simd}`, 10, 40);
+  ctx.fillText(`image size: ${width}x${height} = ${width * height}px`, 10, 70);
 });
 </script>
 

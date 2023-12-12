@@ -1,5 +1,5 @@
 <template>
-  <div class="px-1 bg-stone-800 text-prime-100 py-1">
+  <div class="px-4 bg-slate-900 py-1">
     <BlogFormat :content="postMD"></BlogFormat>
   </div>
 </template>
