@@ -2,8 +2,8 @@
 
 <template>
   <div class="w-full my-bg-styles min-h-screen px-4 flex flex-col items-center">
-    <nav class="h-10 w-full border-b-2 border-prime-800 mb-3">
-      <ul class="ml-auto flex items-center h-full">
+    <nav class="h-10 max-w-[800px] w-full border-b-2 border-prime-800 mb-3">
+      <ul class="ml-auto flex items-center h-full text-xl">
         <li><a href="/">γ Home</a></li>
       </ul>
     </nav>

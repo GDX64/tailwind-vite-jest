@@ -5,7 +5,8 @@ import BackGround from './BackGround.vue';
 <template>
   <BackGround>
     <h1 class="text-2xl mb-4">Trust me, I'm an engineer</h1>
-    <ul class="flex flex-col gap-2 tex-lg text-high-200 underline">
+    <p class="text-lg mb-4">Things that I'm exploring:</p>
+    <ul class="flex flex-col gap-2 text-xl text-high-200 underline capitalize">
       <li>
         <a href="/base64">base64</a>
       </li>
