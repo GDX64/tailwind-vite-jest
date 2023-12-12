@@ -21,21 +21,6 @@
   box-sizing: border-box;
 }
 
-.my-blog-post h1, h2{
-  text-decoration: underline;
-  font-weight: '600';
-  @apply text-2xl;
-}
-
-.my-blog-post{
-  @apply text-lg;
-}
-
-.my-blog-post a {
-  @apply text-high-200;
-  text-decoration: underline;
-}
-
 
 #app {
   font-family: 'Afacad', sans-serif;

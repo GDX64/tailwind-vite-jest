@@ -1,25 +1,33 @@
 ## WASM SIMD
 
-<br >
 
 It has been a while a wanted to mess with some SIMD instructions in webassembly and
 native. But one of the things that kind of stopped me of doing things with SIMD is
 the lack of portablility. If you want to write SIMD code you usually need to use
 platform specific code. But recently I found [this article](https://mcyoung.xyz/2023/11/27/simd-base64/) about the portable SIMD rust library.
 
-<br >
 
 This is part of the standard library of rust, but it is still in a very early stage
 and needs to be used with the nightly compiler. But I found it to work pretty well
 and it is very easy to use. It really improves performance and the same code can
 targer ARM, x86 and WASM.
 
+
 ## Some steps to get SIMD working in rust native and wasm
 
-<br >
+
+* You need to add `#![feature(stdsimd)]` to the top of your lib.rs file. Remember, this is a nightly feature
+* You need to create a `.cargo/config.toml` file and put this for wasm to be converted to SIMD instructions, if you don't do this, the wasm will be converted to scalar instructions:
+  
+
+```toml
+[target.wasm32-unknown-unknown]
+rustflags = ["-C", "target-feature=+simd128"]
+```
+
+
 This is what the code looks like when you use those SIMD functions:
 
-<div class="text-sm my-10">
 
 ```rust
 use wasm_bindgen::prelude::*;
@@ -37,13 +45,9 @@ pub fn test_simd(to_add: f32) -> f32 {
 
 ```
 
-</div>
-
-
-In the code above we create a SIMD vector with 128bits, that is going to be translated into a v128 in wasm,
+In the code above we create a SIMD vector with 128bits, that is going to be translated into a **v128** in wasm,
 in fact, we can easily look into the webassembly and see the instructions that are being generated:
 
-<div class="text-sm my-10">
 
 ```wasm
 (module
@@ -71,6 +75,8 @@ in fact, we can easily look into the webassembly and see the instructions that a
   (export "memory" (memory 0))
   (export "test_simd" (func 0)))
 ```
-</div>
+
+
+We can see that a single **f32x4.add** is being executed, but later we have 4 f32.add, this is because wasm SIMD does not support horizontal operations, so we need to extract the lanes and add them together.
 
 <triangle-example /><triangle-example>
