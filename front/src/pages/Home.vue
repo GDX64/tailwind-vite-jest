@@ -1,40 +1,40 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import BackGround from './BackGround.vue';
+</script>
 
 <template>
-  <div class="px-4 py-4">
+  <BackGround>
     <h1 class="text-2xl mb-4">Trust me, I'm an engineer</h1>
-    <ul class="flex flex-col gap-2 tex-lg">
+    <ul class="flex flex-col gap-2 tex-lg text-high-200 underline">
       <li>
-        <a class="text-sky-700 underline" href="/base64">base64</a>
+        <a href="/base64">base64</a>
       </li>
       <li>
-        <a class="text-sky-700 underline" href="/wasm-chart">Wasm Chart</a>
+        <a href="/wasm-chart">Wasm Chart</a>
       </li>
       <li>
-        <a class="text-sky-700 underline" href="/text-quality">Text render speed</a>
+        <a href="/text-quality">Text render speed</a>
       </li>
       <li>
-        <a class="text-sky-700 underline" href="/gravity">Gravity</a>
+        <a href="/gravity">Gravity</a>
       </li>
       <li>
-        <a class="text-sky-700 underline" href="/cv">CV</a>
+        <a href="/cv">CV</a>
       </li>
       <li>
-        <a class="text-sky-700 underline" href="/projection">Projections</a>
+        <a href="/projection">Projections</a>
       </li>
       <li>
-        <a class="text-sky-700 underline" href="/libtest">test render</a>
+        <a href="/libtest">test render</a>
       </li>
       <li>
-        <a class="text-sky-700 underline" href="/testWorker">test worker</a>
+        <a href="/testWorker">test worker</a>
       </li>
       <li>
-        <a class="text-sky-700 underline" href="/simd-rasterization"
-          >SIMD rasterization</a
-        >
+        <a href="/simd-rasterization">SIMD rasterization</a>
       </li>
     </ul>
-  </div>
+  </BackGround>
 </template>
 
 <style></style>

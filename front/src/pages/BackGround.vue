@@ -1,28 +1,35 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div class="gradient-color fixed top-0 w-screen h-screen z-[-1]"></div>
-  <div
-    class="w-screen my-container min-h-screen px-3 text-white flex flex-col items-center overflow-y-auto overflow-x-hidden"
-  >
-    <nav class="h-10 w-full border-b-2 border-gray-400 mb-3">
+  <div class="w-full my-bg-styles min-h-screen px-4 flex flex-col items-center">
+    <nav class="h-10 w-full border-b-2 border-prime-800 mb-3">
       <ul class="ml-auto flex items-center h-full">
-        <div class="mr-5">Projects</div>
-        <div>About</div>
+        <li><a href="/">γ Home</a></li>
       </ul>
     </nav>
-    <div class="max-w-[500px] overflow-hidden h-max">
+    <div class="max-w-[800px] w-full">
       <slot></slot>
     </div>
   </div>
 </template>
 
-<style scoped>
-.gradient-color {
-  background-image: linear-gradient(to top, rgb(43, 0, 45), rgb(0, 0, 0));
+<style>
+.my-bg-styles h1,
+h2,
+h3,
+h4,
+h5 {
+  @apply text-prime-300;
 }
 
-.my-container {
-  max-width: 100vw;
+.my-bg-styles {
+  @apply text-prime-200 bg-slate-900;
+  font-family: 'Afacad', sans-serif;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+  height: 100%;
+  min-width: 100vw;
+  min-height: 100vh;
 }
 </style>

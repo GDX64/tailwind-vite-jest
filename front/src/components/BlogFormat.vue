@@ -32,15 +32,11 @@ onMounted(() => {
 .my-blog-post h1,
 h2 {
   font-weight: bold;
-  @apply text-2xl mb-5 text-prime-300;
+  @apply text-2xl mb-5;
 }
 
 .my-blog-post code {
   overscroll-behavior: auto;
-}
-
-.my-blog-post {
-  @apply text-prime-200;
 }
 
 .my-blog-post pre {

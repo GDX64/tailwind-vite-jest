@@ -1,7 +1,7 @@
 <template>
-  <div class="px-4 bg-slate-900 py-1">
+  <BackGround>
     <BlogFormat :content="postMD"></BlogFormat>
-  </div>
+  </BackGround>
 </template>
 
 <script setup lang="ts">
@@ -10,6 +10,7 @@ import BigTriangleExample from './BigTriangleExample.ce.vue';
 import { marked } from 'marked';
 import postMD from './SIMDPost.md?raw';
 import { defineCustomElement } from 'vue';
+import BackGround from '../BackGround.vue';
 
 const parsed = marked(postMD, { async: false });
 const triangle = defineCustomElement(BigTriangleExample);
