@@ -114,6 +114,13 @@ impl Login<TwoFactor> {
     }
 }
 
+pub enum LoginStates {
+    FillUser(Login<FillUser>),
+    FillPassword(Login<FillPassword>),
+    TwoFactor(Login<TwoFactor>),
+    LoggedIn(Login<LoggedIn>),
+}
+
 // #[cfg(test)]
 // mod tests {
 //     use crate::messager_things::PasswordResult;
