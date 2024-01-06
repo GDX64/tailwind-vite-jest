@@ -6,27 +6,11 @@ use login_machine::{
     FillPassword, FillUser, LoggedIn, Login, LoginPasswordResult, TwoFactor, TwoFactorResult,
     UserResult,
 };
+mod local_messager;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let mut messager = messager_things::DummyMessager::default();
-    messager.verify_user = Box::new(|user| user == "gabriel");
-    messager.verify_password = Box::new(|user, password| {
-        if user == "gabriel" && password == "123" {
-            messager_things::PasswordResult::Ok
-        } else if user == "gabriel" && password == "456" {
-            messager_things::PasswordResult::TwoFactorRequired
-        } else {
-            messager_things::PasswordResult::WrongPassword
-        }
-    });
-    messager.verify_2fa = Box::new(|user, password, code| {
-        if user == "gabriel" && password == "456" && code == "123" {
-            true
-        } else {
-            false
-        }
-    });
+    let messager = local_messager::LocalMessager::new().await;
     let login_machine = Login::new(messager);
 
     let password_machine = complete_user_stage(login_machine).await?;

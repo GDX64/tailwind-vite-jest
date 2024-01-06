@@ -1,25 +1,18 @@
-use crate::messager_things::{self, Messager};
+use crate::messager_things::{self, Messager, UserData};
 
 pub struct Login<T> {
     state: T,
     messager: Box<dyn Messager>,
+    user_data: UserData,
 }
 
 pub struct FillUser;
 
-pub struct FillPassword {
-    user: String,
-}
+pub struct FillPassword {}
 
-pub struct TwoFactor {
-    user: String,
-    password: String,
-}
+pub struct TwoFactor {}
 
-pub struct LoggedIn {
-    user: String,
-    password: String,
-}
+pub struct LoggedIn {}
 
 pub enum UserResult {
     Ok(Login<FillPassword>),
@@ -31,14 +24,25 @@ impl Login<FillUser> {
         Login {
             state: FillUser,
             messager: Box::new(messager),
+            user_data: UserData {
+                user: "".to_string(),
+                password: None,
+                two_factor_code: None,
+            },
         }
     }
 
     pub async fn go_to_password(self, user: String) -> UserResult {
-        if self.messager.verify_user(user.clone()).await {
+        let user_data = UserData {
+            user,
+            password: None,
+            two_factor_code: None,
+        };
+        if self.messager.verify_user(user_data.clone()).await {
             UserResult::Ok(Login {
-                state: FillPassword { user },
+                state: FillPassword {},
                 messager: self.messager,
+                user_data,
             })
         } else {
             UserResult::InvalidUser(self)
@@ -54,35 +58,31 @@ pub enum LoginPasswordResult {
 
 impl Login<FillPassword> {
     pub async fn login(self, password: String) -> LoginPasswordResult {
-        match self
-            .messager
-            .verify_password(self.state.user.clone(), password.clone())
-            .await
-        {
+        let user_data = UserData {
+            user: self.user_data.user,
+            password: Some(password.clone()),
+            two_factor_code: None,
+        };
+        match self.messager.verify_password(user_data.clone()).await {
             messager_things::PasswordResult::Ok => {
                 LoginPasswordResult::LoggedIn(Login {
-                    state: LoggedIn {
-                        user: self.state.user,
-                        password,
-                    },
+                    state: LoggedIn {},
                     messager: self.messager,
+                    user_data,
                 })
             }
             messager_things::PasswordResult::TwoFactorRequired => {
                 LoginPasswordResult::TwoFactor(Login {
-                    state: TwoFactor {
-                        user: self.state.user,
-                        password,
-                    },
+                    state: TwoFactor {},
                     messager: self.messager,
+                    user_data,
                 })
             }
             messager_things::PasswordResult::WrongPassword => {
                 LoginPasswordResult::WrongPassword(Login {
-                    state: FillPassword {
-                        user: self.state.user,
-                    },
+                    state: FillPassword {},
                     messager: self.messager,
+                    user_data,
                 })
             }
         }
@@ -96,17 +96,17 @@ pub enum TwoFactorResult {
 
 impl Login<TwoFactor> {
     pub async fn login(self, code: String) -> TwoFactorResult {
-        let result = self
-            .messager
-            .verify_2fa(self.state.user.clone(), self.state.password.clone(), code)
-            .await;
+        let user_data = UserData {
+            user: self.user_data.user.clone(),
+            password: self.user_data.password.clone(),
+            two_factor_code: Some(code.clone()),
+        };
+        let result = self.messager.verify_2fa(user_data.clone()).await;
         if result {
             return TwoFactorResult::Ok(Login {
-                state: LoggedIn {
-                    user: self.state.user,
-                    password: self.state.password,
-                },
+                state: LoggedIn {},
                 messager: self.messager,
+                user_data,
             });
         } else {
             TwoFactorResult::WrongCode(self)
