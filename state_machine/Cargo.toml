@@ -8,4 +8,7 @@ version = "0.1.0"
 [dependencies]
 anyhow = "1.0.79"
 async-trait = "0.1.77"
+dioxus = "0.4.3"
+dioxus-desktop = "0.4.3"
 tokio = {version = "1.35.1", features = ["full"]}
+tokio-stream = "0.1.14"

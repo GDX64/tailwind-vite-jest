@@ -1,6 +1,6 @@
 use crate::messager_things::{Messager, PasswordResult, UserData};
 use async_trait::async_trait;
-use std::{borrow::BorrowMut, cell::RefCell, collections::HashMap};
+use std::{borrow::BorrowMut, cell::RefCell, collections::HashMap, time::Duration};
 use tokio::sync::Mutex;
 
 struct User {
@@ -18,6 +18,7 @@ impl LocalMessager {
         let me = LocalMessager {
             users: Mutex::new(HashMap::new()),
         };
+        tokio::time::sleep(Duration::from_secs(1)).await;
         me.add_user("gabriel", "123").await;
         me
     }

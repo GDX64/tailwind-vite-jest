@@ -1,78 +1,124 @@
-use anyhow::Result;
-mod messager_things;
-use tokio::io::{AsyncBufReadExt, BufReader};
-mod login_machine;
-use login_machine::{
-    FillPassword, FillUser, Login, LoginPasswordResult, LoginStates, TwoFactor, TwoFactorResult,
-    UserResult,
-};
+#![allow(non_snake_case)]
 mod local_messager;
+mod login_machine;
+mod messager_things;
+use anyhow::Result;
+use dioxus::prelude::*;
+use login_machine::{LoginStates, UserResult};
+use messager_things::UserData;
+use tokio_stream::StreamExt;
 
-#[tokio::main]
-async fn main() -> Result<()> {
-    let messager = local_messager::LocalMessager::new().await;
-    let login_machine = Login::new(messager);
-    let mut curr_state = complete_user_stage(login_machine).await?;
+fn main() {
+    // launch the dioxus app in a webview
+    dioxus_desktop::launch(App);
+}
+
+#[derive(Debug)]
+enum UIStates {
+    FillUser,
+    FillPassword,
+    SignUp,
+    TwoFactor,
+    LoggedIn,
+}
+
+enum UIEvents {
+    User(UserData),
+    Password(UserData),
+    TwoFactor(UserData),
+    SignUp,
+    Login,
+}
+
+// define a component that renders a div with the text "Hello, world!"
+fn App(cx: Scope) -> Element {
+    let curr_state = use_state(cx, || UIStates::FillUser);
+    let cor = use_coroutine(cx, |rx: UnboundedReceiver<UIEvents>| {
+        let curr_state = curr_state.clone();
+        async move {
+            if let Err(err) = handle_login_states(rx, curr_state).await {
+                println!("Error: {:?}", err);
+            }
+        }
+    });
+
+    match curr_state.get() {
+        UIStates::FillUser => {
+            return cx.render(rsx! {
+                InsertUser {
+                    on_login: move |event| cor.send(event),
+                }
+            });
+        }
+        _ => {
+            return cx.render(rsx! {
+               div {
+                    "another state"
+               }
+            });
+        }
+    }
+}
+
+async fn handle_login_states(
+    mut rx: UnboundedReceiver<UIEvents>,
+    curr_state: UseState<UIStates>,
+) -> Result<()> {
+    let machine = login_machine::Login::new(local_messager::LocalMessager::new().await);
+    let mut machine = LoginStates::FillUser(machine);
     loop {
-        match curr_state {
-            LoginStates::FillUser(login) => {
-                curr_state = complete_user_stage(login).await?;
+        match rx.next().await {
+            Some(UIEvents::User(user)) => {
+                machine = match machine {
+                    LoginStates::FillUser(login) => {
+                        match login.go_to_password(user.user).await {
+                            UserResult::Ok(login) => {
+                                curr_state.set(UIStates::FillPassword);
+                                LoginStates::FillPassword(login)
+                            }
+                            UserResult::InvalidUser(login) => LoginStates::FillUser(login),
+                        }
+                    }
+                    _ => machine,
+                };
+                curr_state.set(UIStates::FillPassword);
             }
-            LoginStates::FillPassword(login) => {
-                curr_state = complete_password_stage(login).await?;
-            }
-            LoginStates::TwoFactor(login) => {
-                curr_state = complete_2fa_stage(login).await?;
-            }
-            LoginStates::LoggedIn(_) => {
-                break;
-            }
-        }
-    }
-    println!("You are logged in!!!");
-    Ok(())
-}
-
-async fn complete_user_stage(login_machine: Login<FillUser>) -> Result<LoginStates> {
-    println!("Enter your username: ");
-    let password = read_one_line().await?;
-    match login_machine.go_to_password(password).await {
-        UserResult::Ok(login) => return Ok(LoginStates::FillPassword(login)),
-        UserResult::InvalidUser(login) => {
-            println!("Invalid user, try again");
-            return Ok(LoginStates::FillUser(login));
+            _ => continue,
         }
     }
 }
 
-async fn complete_password_stage(login_machine: Login<FillPassword>) -> Result<LoginStates> {
-    println!("Enter your password: ");
-    let password = read_one_line().await?;
-    match login_machine.login(password).await {
-        LoginPasswordResult::LoggedIn(login) => return Ok(LoginStates::LoggedIn(login)),
-        LoginPasswordResult::TwoFactor(login) => return Ok(LoginStates::TwoFactor(login)),
-        LoginPasswordResult::WrongPassword(login) => {
-            println!("Wrong password, try again");
-            return Ok(LoginStates::FillPassword(login));
-        }
-    }
+#[derive(Props)]
+struct InsertUserProps<'a> {
+    on_login: EventHandler<'a, UIEvents>,
 }
 
-async fn complete_2fa_stage(login_machine: Login<TwoFactor>) -> Result<LoginStates> {
-    println!("Enter your 2fa code: ");
-    let code = read_one_line().await?;
-    match login_machine.login(code).await {
-        TwoFactorResult::Ok(login) => return Ok(LoginStates::LoggedIn(login)),
-        TwoFactorResult::WrongCode(login) => {
-            println!("Wrong code, try again");
-            Ok(LoginStates::TwoFactor(login))
-        }
-    }
-}
+fn InsertUser<'a>(cx: Scope<'a, InsertUserProps<'a>>) -> Element<'a> {
+    let user = use_state(cx, || "".to_string());
+    cx.render(rsx! {
+        div {
+            display: "flex",
+            flex_direction: "column",
+            align_items: "start",
 
-async fn read_one_line() -> Result<String> {
-    let mut line = String::new();
-    let mut reader = BufReader::new(tokio::io::stdin());
-    reader.read_line(&mut line).await?;
-    Ok(line.trim().to_string())
+            label {
+                "Username: "
+            }
+            input {
+                oninput: |event| {
+                    user.set(event.value.clone());
+                }
+            }
+            button {
+                onclick: move |_| {
+                    cx.props.on_login.call(UIEvents::User(UserData{
+                        user: user.get().clone(),
+                        password: None,
+                        two_factor_code: None,
+                    }));
+                },
+                "Next"
+            }
+        }
+    })
 }
