@@ -3,7 +3,6 @@ import vue from '@vitejs/plugin-vue';
 import svgLoader from 'vite-svg-loader';
 import auto from 'autoprefixer';
 import tailwind from 'tailwindcss';
-import path from 'path';
 
 // https://vitejs.dev/config/
 export default (args) => {
@@ -37,7 +36,6 @@ export default (args) => {
     resolve: {
       alias: {
         vue: 'vue/dist/vue.esm-bundler.js',
-        '@solidRender': path.resolve(__dirname, 'solidRender'),
       },
     },
   };

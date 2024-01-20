@@ -61,6 +61,7 @@ async function* take<T>(g: AsyncGenerator<T>, n: number) {
     yield v;
     i += 1;
   }
+  g.return(null);
 }
 
 async function collectAsync<T>(gen: AsyncGenerator<T>): Promise<T[]> {
@@ -107,6 +108,36 @@ function makeChannel<T>() {
 }
 
 describe('channel', () => {
+  test('clear resources', async () => {
+    async function* animationFrames() {
+      const raf = () => {
+        return new Promise((resolve) => {
+          requestAnimationFrame(resolve);
+        });
+      };
+      while (true) {
+        yield await raf();
+      }
+    }
+
+    async function* withScheduler<T>(
+      gen: AsyncGenerator<T>,
+      scheduler: AsyncGenerator<any>
+    ) {
+      while (true) {
+        const [{ done, value }] = await Promise.all([gen.next(), scheduler.next()]);
+        if (done) {
+          break;
+        }
+        yield value as T;
+      }
+    }
+
+    const g = withScheduler(range(100), animationFrames());
+    const arr = await collectAsync(take(g, 3));
+    expect(arr).toMatchObject([0, 1, 2]);
+  });
+
   test('channel basic', async () => {
     const channel = makeChannel<number>();
     channel.next(1);
