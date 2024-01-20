@@ -52,14 +52,14 @@ function* flatMap<T, K>(g: Generator<T>, f: (x: T) => Generator<K>): Generator<K
   }
 }
 
-function* take<T>(g: Generator<T>, n: number) {
+async function* take<T>(g: AsyncGenerator<T>, n: number) {
   let i = 0;
-  for (const v of g) {
+  for await (const v of g) {
     if (i >= n) {
-      return v;
+      break;
     }
     yield v;
-    i++;
+    i += 1;
   }
 }
 
@@ -72,32 +72,29 @@ async function collectAsync<T>(gen: AsyncGenerator<T>): Promise<T[]> {
 }
 
 function makeChannel<T>() {
-  type Value = { v: T; active: true } | { v: null; active: false };
+  type Value = T;
   const arr: Value[] = [];
-  let onNewValue = () => {};
+  let onNewValue = (complete: boolean) => {};
   const next = (v: T) => {
-    arr.push({ v, active: true });
-    onNewValue();
+    arr.push(v);
+    onNewValue(false);
   };
 
   const complete = () => {
-    arr.push({ v: null, active: false });
-    onNewValue();
+    onNewValue(true);
   };
 
   async function* gen() {
     while (true) {
-      const v = arr.shift();
-      if (v) {
-        if (v.active) {
-          yield v.v;
-        } else {
-          break;
-        }
+      if (arr.length) {
+        yield arr.shift()!;
       } else {
-        await new Promise<void>((resolve) => {
+        const complete = await new Promise<boolean>((resolve) => {
           onNewValue = resolve;
         });
+        if (complete) {
+          break;
+        }
       }
     }
   }
@@ -127,8 +124,25 @@ describe('channel', () => {
   test('channel interleave', async () => {
     const one = range(3);
     const other = range(3);
-    const interleaved = merge(one, other);
-    const arr = await collectAsync(interleaved);
-    expect(arr).toMatchObject([0, 0, 1, 1, 2, 2]);
+    const merged = merge(one, other);
+    const arr = await collectAsync(take(merged, 5));
+    expect(arr).toMatchObject([0, 0, 1, 1, 2]);
+  });
+
+  test('throw iter', async () => {
+    async function* gen() {
+      try {
+        yield 1;
+        yield 2;
+      } catch {
+        yield 3;
+        yield 4;
+      }
+    }
+
+    const g = gen();
+    expect((await g.next()).value).toBe(1);
+    expect((await g.throw(new Error())).value).toBe(3);
+    expect((await g.next()).value).toBe(4);
   });
 });
