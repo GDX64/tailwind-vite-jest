@@ -74,27 +74,27 @@ async function collectAsync<T>(gen: AsyncGenerator<T>): Promise<T[]> {
 function makeChannel<T>() {
   type Value = T;
   const arr: Value[] = [];
-  let onNewValue = (complete: boolean) => {};
+  let onNewValue = () => {};
   const next = (v: T) => {
     arr.push(v);
-    onNewValue(false);
+    onNewValue();
   };
 
+  let completed = false;
+
   const complete = () => {
-    onNewValue(true);
+    onNewValue();
+    completed = true;
   };
 
   async function* gen() {
-    while (true) {
+    while (!completed) {
       if (arr.length) {
         yield arr.shift()!;
       } else {
-        const complete = await new Promise<boolean>((resolve) => {
+        await new Promise<void>((resolve) => {
           onNewValue = resolve;
         });
-        if (complete) {
-          break;
-        }
       }
     }
   }
