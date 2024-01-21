@@ -109,14 +109,60 @@ export function makeChannel<T>() {
     complete,
   };
 }
+
+export function raf() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(resolve);
+  });
+}
+
 export async function* animationFrames() {
-  const raf = () => {
-    return new Promise((resolve) => {
-      requestAnimationFrame(resolve);
-    });
-  };
   while (true) {
     yield await raf();
+  }
+}
+
+export async function* switchGen<T>(gen: AsyncGenerator<AsyncGenerator<T>>) {
+  const { done, value: first } = await gen.next();
+  if (done) {
+    return;
+  }
+  let currentGen = first;
+  let nextGen = gen.next();
+  let nextValue = first.next();
+  let genHasMoreValues = true;
+  let currentHasMoreValues = true;
+  while (genHasMoreValues || currentHasMoreValues) {
+    const now = await new Promise<
+      | { gen: true; value: AsyncGenerator<T>; done: boolean }
+      | { gen: false; value: T; done: boolean }
+    >((resolve) => {
+      if (genHasMoreValues) {
+        nextGen.then(({ value, done }) => {
+          resolve({ gen: true, value, done: done ?? false });
+        });
+      }
+      nextValue.then(({ done, value }) => {
+        resolve({ gen: false, value, done: done ?? false });
+      });
+    });
+    if (now.gen) {
+      if (now.done) {
+        genHasMoreValues = false;
+      } else {
+        currentGen.return(null);
+        currentGen = now.value;
+        nextGen = gen.next();
+        nextValue = currentGen.next();
+      }
+    } else {
+      if (now.done) {
+        currentHasMoreValues = false;
+      } else {
+        nextValue = currentGen.next();
+        yield now.value;
+      }
+    }
   }
 }
 
@@ -124,11 +170,16 @@ export async function* withScheduler<T>(
   gen: AsyncGenerator<T>,
   scheduler: AsyncGenerator<any>
 ) {
-  while (true) {
-    const [{ done, value }] = await Promise.all([gen.next(), scheduler.next()]);
-    if (done) {
-      break;
+  try {
+    while (true) {
+      const [{ done, value }] = await Promise.all([gen.next(), scheduler.next()]);
+      if (done) {
+        break;
+      }
+      yield value as T;
     }
-    yield value as T;
+  } finally {
+    gen.return(null);
+    scheduler.return(null);
   }
 }

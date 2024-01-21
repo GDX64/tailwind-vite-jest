@@ -7,9 +7,38 @@ import {
   take,
   merge,
   map,
+  raf,
+  switchGen,
 } from './Generators';
 
-describe('channel', () => {
+describe('generators test', () => {
+  test('switchGen', async () => {
+    async function* gen() {
+      async function* gen1() {
+        try {
+          yield 1;
+          yield 2;
+          yield 3;
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          yield 4;
+          console.log('i got to the end');
+        } finally {
+          console.log('finally');
+        }
+      }
+      yield gen1();
+      await raf();
+      yield gen1();
+      await raf();
+      yield gen1();
+    }
+    const arr: number[] = [];
+    for await (const v of switchGen(gen())) {
+      console.log(v);
+      arr.push(v);
+    }
+  });
+
   test('clear resources', async () => {
     const g = withScheduler(range(100), animationFrames());
     const arr = await collectAsync(take(g, 3));
