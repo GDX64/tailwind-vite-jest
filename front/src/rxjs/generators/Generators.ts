@@ -122,47 +122,45 @@ export async function* animationFrames() {
   }
 }
 
-export async function* switchGen<T>(gen: AsyncGenerator<AsyncGenerator<T>>) {
-  const { done, value: first } = await gen.next();
-  if (done) {
-    return;
-  }
-  let currentGen = first;
-  let nextGen = gen.next();
-  let nextValue = first.next();
-  let genHasMoreValues = true;
-  let currentHasMoreValues = true;
-  while (genHasMoreValues || currentHasMoreValues) {
-    const now = await new Promise<
-      | { gen: true; value: AsyncGenerator<T>; done: boolean }
-      | { gen: false; value: T; done: boolean }
-    >((resolve) => {
-      if (genHasMoreValues) {
-        nextGen.then(({ value, done }) => {
-          resolve({ gen: true, value, done: done ?? false });
-        });
+export function cancelGenerator<T>(gen: AsyncGenerator<T>) {
+  let resolveCancel = (args: { done: true; value: null }) => {};
+  const cancelPromise = new Promise<{ done: true; value: null }>((resolve) => {
+    resolveCancel = resolve;
+  });
+  async function* cancelable() {
+    while (true) {
+      const { value, done } = await Promise.race([gen.next(), cancelPromise]);
+      if (done) {
+        break;
       }
-      nextValue.then(({ done, value }) => {
-        resolve({ gen: false, value, done: done ?? false });
-      });
-    });
-    if (now.gen) {
-      if (now.done) {
-        genHasMoreValues = false;
-      } else {
-        currentGen.return(null);
-        currentGen = now.value;
-        nextGen = gen.next();
-        nextValue = currentGen.next();
-      }
-    } else {
-      if (now.done) {
-        currentHasMoreValues = false;
-      } else {
-        nextValue = currentGen.next();
-        yield now.value;
-      }
+      yield value;
     }
+  }
+  return {
+    cancel() {
+      resolveCancel({ done: true, value: null });
+      gen.return(null);
+    },
+    gen: cancelable(),
+  };
+}
+
+export async function* switchGen<T>(gen: AsyncGenerator<AsyncGenerator<T>>) {
+  let next = gen.next();
+  while (true) {
+    const current = await next;
+    const { done, value } = current;
+    if (done) {
+      break;
+    }
+    const cancelable = cancelGenerator(value);
+    next = gen.next();
+    next.then((v) => {
+      if (!v.done) {
+        cancelable.cancel();
+      }
+    });
+    yield* cancelable.gen;
   }
 }
 
