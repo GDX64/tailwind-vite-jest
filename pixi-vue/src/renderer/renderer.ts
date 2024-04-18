@@ -14,6 +14,7 @@ import GSprite from "./GSprite";
 
 declare module "vue" {
   type BasicArgs = {
+    fill: number;
     x: number;
     y: number;
     blendMode: PIXI.BLEND_MODES;

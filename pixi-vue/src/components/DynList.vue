@@ -15,7 +15,11 @@
         >
           <g-container>
             <g-sprite :texture="row.image()" :scale="0.5"></g-sprite>
-            <g-text :fontSize="16" :x="imageSize().width / 2 + 10" :y="0"
+            <g-text
+              :fontSize="16"
+              :x="imageSize().width / 2 + 10"
+              :y="0"
+              :fill="0x000000"
               >hello</g-text
             >
             <g-text
@@ -27,9 +31,13 @@
             >
           </g-container>
           <g-container :x="data.width / 3">
-            <g-text :fontSize="16" :x="imageSize().width + 10" :y="0">{{
-              row.age
-            }}</g-text>
+            <g-text
+              :fontSize="16"
+              :x="imageSize().width + 10"
+              :y="0"
+              :fill="0x000000"
+              >{{ row.age }}</g-text
+            >
             <g-text
               :x="imageSize().width + 10"
               :y="25"
@@ -39,9 +47,13 @@
             >
           </g-container>
           <g-container :x="(data.width / 3) * 2">
-            <g-text :fontSize="16" :x="imageSize().width + 10" :y="0">{{
-              row.weight
-            }}</g-text>
+            <g-text
+              :fill="0x000000"
+              :fontSize="16"
+              :x="imageSize().width + 10"
+              :y="0"
+              >{{ row.weight }}</g-text
+            >
             <g-text
               :x="imageSize().width + 10"
               :y="25"

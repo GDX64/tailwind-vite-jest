@@ -63,6 +63,15 @@ export class GElement {
       case "scale":
         this.pixiRef.scale.set(next, next);
         break;
+      case "rotation":
+        this.pixiRef.rotation = next;
+        break;
+      case "originX":
+        this.pixiRef.pivot.x = next;
+        break;
+      case "originY":
+        this.pixiRef.pivot.y = next;
+        break;
       case "x":
         this.x = next;
         this.pixiRef.x = next;
@@ -174,10 +183,10 @@ export class GRect extends GElement {
 }
 
 export class GText extends GElement {
-  pixiRef: PIXI.Text;
+  pixiRef: PIXI.BitmapText;
   constructor(str: string) {
     super();
-    this.pixiRef = new PIXI.Text({ text: str, renderMode: "bitmap" });
+    this.pixiRef = new PIXI.BitmapText({ text: str });
   }
 
   setText(str: string) {
