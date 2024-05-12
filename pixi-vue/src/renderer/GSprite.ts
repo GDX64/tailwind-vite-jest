@@ -23,19 +23,20 @@ export default class GSprite extends GElement {
         break;
       case "url":
         this.pixiRef.texture = Texture.from(next);
-        this.pixiRef.width = this.width;
-        this.pixiRef.height = this.height;
         break;
       case "texture":
         if (next) {
           this.pixiRef.texture = next;
-          this.pixiRef.width = this.width;
-          this.pixiRef.height = this.height;
+          this.pixiRef.pivot.set(
+            this.pixiRef.texture.width / 2,
+            this.pixiRef.texture.height / 2
+          );
         }
         break;
       default:
         break;
     }
-    this.pixiRef.pivot.set(this.width / 2, this.height / 2);
+    this.pixiRef.width = this.width;
+    this.pixiRef.height = this.height;
   }
 }
