@@ -3,6 +3,7 @@ import * as PIXI from "pixi.js";
 export enum ElTags {
   TEXT = "g-text",
   RECT = "g-rect",
+  GRAPHICS = "g-graphics",
   CONTAINER = "g-container",
   RAW = "g-raw",
   SPRITE = "g-sprite",
@@ -15,6 +16,8 @@ export type LayoutBox = {
   y: number;
 };
 
+export type ELKey = string | number | null;
+
 export class GElement {
   pixiRef: PIXI.Container = new PIXI.Container();
   parent = null as any;
@@ -24,6 +27,7 @@ export class GElement {
   width = 0;
   height = 0;
   isDirty = true;
+  elKey = null as ELKey;
 
   redraw() {
     if (!this.isDirty) return;
@@ -41,21 +45,24 @@ export class GElement {
         this.pixiRef.visible = next;
         break;
       }
+      case "alpha":
+        this.pixiRef.alpha = next;
+        break;
       case "onClick":
         this.pixiRef.interactive = true;
-        this.pixiRef.onclick = next;
+        this.pixiRef.onclick = (event) => next(event, this);
         break;
       case "onPointerdown":
         this.pixiRef.interactive = true;
-        this.pixiRef.onpointerdown = next;
+        this.pixiRef.onpointerdown = (event) => next(event, this);
         break;
       case "onPointerup":
         this.pixiRef.interactive = true;
-        this.pixiRef.onpointerup = next;
+        this.pixiRef.onpointerup = (event) => next(event, this);
         break;
       case "onPointermove":
         this.pixiRef.interactive = true;
-        this.pixiRef.onpointermove = (event) => next(event.nativeEvent);
+        this.pixiRef.onpointermove = (event) => next(event, this);
         break;
       case "blendMode":
         this.pixiRef.blendMode = next;
@@ -76,6 +83,9 @@ export class GElement {
         this.x = next;
         this.pixiRef.x = next;
         break;
+      case "elKey":
+        console.log("set key", next);
+        this.elKey = next;
       case "y":
         this.y = next;
         this.pixiRef.y = next;
@@ -124,23 +134,15 @@ export class GElement {
   }
 }
 
-export class GRect extends GElement {
+export class GGraphics extends GElement {
   fill = 0xffffff;
   pixiRef: PIXI.Graphics = new PIXI.Graphics();
-  drawfn: ((pixiRef: PIXI.Graphics) => void) | null = null;
+  drawfn: ((pixiRef: PIXI.GraphicsContext) => void) | null = null;
 
   redraw() {
     if (!this.isDirty) return;
     if (this.drawfn) {
-      this.drawfn(this.pixiRef);
-    } else {
-      this.pixiRef.clear();
-      const { height, width, x, y } = this;
-      const rect = this.pixiRef.rect(0, 0, width, height);
-      rect.fillStyle = this.fill;
-      rect.fill();
-      this.pixiRef.x = x;
-      this.pixiRef.y = y;
+      this.drawfn(this.pixiRef.context);
     }
     this.isDirty = false;
   }
@@ -148,32 +150,9 @@ export class GRect extends GElement {
   patch(prop: string, prev: any, next: any) {
     super.patch(prop, prev, next);
     switch (prop) {
-      case "alpha":
-        this.pixiRef.alpha = next;
-        break;
       case "drawfn":
         this.pixiRef.clear();
         this.drawfn = next;
-        this.markDirty();
-        break;
-      case "width":
-        this.width = next;
-        this.markDirty();
-        break;
-      case "height":
-        this.height = next;
-        this.markDirty();
-        break;
-      case "x":
-        this.x = next;
-        this.pixiRef.x = next;
-        break;
-      case "y":
-        this.y = next;
-        this.pixiRef.y = next;
-        break;
-      case "fill":
-        this.fill = next;
         this.markDirty();
         break;
       default:

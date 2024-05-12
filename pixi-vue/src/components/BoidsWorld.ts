@@ -1,8 +1,10 @@
 import { Vec2 } from "../utils/Vec2";
 
 const SPEED = 2;
+const TOO_CLOSE = 2;
 
-class Boid {
+const NEAR = 5;
+export class Boid {
   position = new Vec2(0, 0);
   velocity = new Vec2(0, 0);
 
@@ -11,23 +13,28 @@ class Boid {
   }
 
   isTooClose(other: Boid) {
-    return this.position.sub(other.position).length() < 2;
+    return this.position.sub(other.position).length() < TOO_CLOSE;
   }
 
   isNear(other: Boid) {
-    return this.position.sub(other.position).length() < 5;
+    return this.position.sub(other.position).length() < NEAR;
   }
 }
 
 export class BoidsWorld {
-  boids: Boid[] = [];
+  boids = new Map<number, Boid>();
   dt = 0.016;
   sceneWidth = 1;
   sceneHeight = 1;
+  currentID = 0;
+
+  static TOO_CLOSE = TOO_CLOSE;
+  static NEAR = NEAR;
 
   create(n: number) {
     for (let i = 0; i < n; i++) {
-      this.boids.push(this.createBoid());
+      this.boids.set(this.currentID, this.createBoid());
+      this.currentID += 1;
     }
   }
 
@@ -38,6 +45,10 @@ export class BoidsWorld {
     boid.velocity.set(Math.random() * 2 - 1, Math.random() * 2 - 1);
     boid.velocity = boid.velocity.normalize().scale(SPEED);
     return boid;
+  }
+
+  findWithID(id: any) {
+    return this.boids.get(id) ?? null;
   }
 
   update() {

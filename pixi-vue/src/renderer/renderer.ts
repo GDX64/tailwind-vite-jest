@@ -8,7 +8,7 @@ import {
   h,
 } from "vue";
 import * as PIXI from "pixi.js";
-import { ElTags, GElement, GRect, GText } from "./Elements";
+import { ElTags, GElement, GGraphics, GText } from "./Elements";
 import RawContainer from "./RawContainer";
 import GSprite from "./GSprite";
 
@@ -17,6 +17,9 @@ declare module "vue" {
     fill: number;
     x: number;
     y: number;
+    width: number;
+    height: number;
+    alpha: number;
     blendMode: PIXI.BLEND_MODES;
     scale: number;
   };
@@ -26,6 +29,9 @@ declare module "vue" {
     GContainer: Component<BasicArgs & {}>;
     GRaw: Component<BasicArgs & { pixiEl: PIXI.Container }>;
     GSprite: Component<BasicArgs & { url: string }>;
+    GGraphics: Component<
+      BasicArgs & { drawfn: (ctx: PIXI.GraphicsContext) => void }
+    >;
   }
 }
 
@@ -37,7 +43,9 @@ function appRenderer() {
     createElement(type, isSVG, isCustomizedBuiltIn, vnodeProps) {
       switch (type) {
         case ElTags.RECT:
-          return new GRect();
+          return new GGraphics();
+        case ElTags.GRAPHICS:
+          return new GGraphics();
         case ElTags.TEXT:
           return new GText("");
         case ElTags.RAW:
