@@ -1,5 +1,7 @@
 <template>
-  <g-container v-if="texture">
+  <g-container>
+    <g-raw :pixiEl="tile" v-if="tile"></g-raw>
+
     <!-- <g-sprite
       v-for="[key, boid] in boids.boids"
       @pointerdown="onBoidClick"
@@ -20,8 +22,8 @@
       :textures="animatedTextures"
       :x="boid.position.x"
       :y="boid.position.y"
-      :width="10"
-      :height="10"
+      :width="BoidsWorld.BOID_SIZE * 2"
+      :height="BoidsWorld.BOID_SIZE * 2"
       :originX="animatedTextures[0].width / 2"
       :originY="animatedTextures[0].height / 2"
       :frameOffset="key"
@@ -46,26 +48,34 @@ import {
   usePixiApp,
 } from "../renderer/renderer";
 import { Assets, Texture } from "pixi.js";
-import baseSpritePath from "../assets/bat.png";
 import birdsPng from "../assets/birds.png";
+import skyPng from "../assets/sky.png";
 import { BoidsWorld, Boid } from "./BoidsWorld";
 import { GElement, ELKey } from "../renderer/Elements";
 import {
   FederatedEvent,
   GraphicsContext,
   Spritesheet,
-  AnimatedSprite,
+  TilingSprite,
 } from "pixi.js";
 import { computed } from "vue";
-
-const SCENE_WIDTH = 50;
+import { watchEffect } from "vue";
+import { watch } from "vue";
 
 const animatedTextures = shallowRef<Texture[]>([]);
-const texture = shallowRef<Texture>();
+const tile = shallowRef<TilingSprite | null>(null);
 
-Assets.load([baseSpritePath, birdsPng]).then(async () => {
-  texture.value = Texture.from(baseSpritePath);
+Assets.load([skyPng, birdsPng]).then(async () => {
   const birdTexture = Texture.from(birdsPng);
+  const skyTexture = Texture.from(skyPng);
+  tile.value = new TilingSprite({
+    texture: skyTexture,
+  });
+
+  tile.value.width = boids.value.sceneWidth;
+  tile.value.height = boids.value.sceneHeight;
+  tile.value.tileScale.set(1 / 2);
+
   const birdSize = 920 / 5;
   const spriteSheet = new Spritesheet(birdTexture, {
     frames: {
@@ -114,19 +124,31 @@ const selectedKey = shallowRef<ELKey | null>(null);
 const data = usePixiAppData();
 const app = usePixiApp();
 
-usePixiAnimation(() => {
+usePixiAnimation((ticker) => {
   boids.value.update();
   triggerRef(boids);
+  if (tile.value) {
+    tile.value.tilePosition.x += ticker.deltaMS / 100;
+  }
 });
 
-app.stage.scale.set(data.width / SCENE_WIDTH);
 app.renderer.background.color = 0xffffff;
-const sceneHeight = Math.floor((app.screen.height * SCENE_WIDTH) / data.width);
-boids.value.sceneWidth = SCENE_WIDTH;
-boids.value.sceneHeight = sceneHeight;
-const sceneArea = SCENE_WIDTH * sceneHeight;
-const boidCount = Math.floor(sceneArea / (BoidsWorld.NEAR / 2) ** 2);
-boids.value.create(boidCount);
+
+watch(
+  () => [data.width, data.height] as const,
+  () => {
+    boids.value.sceneWidth = data.width;
+    boids.value.sceneHeight = data.height;
+    const sceneArea = data.width * data.height;
+    const boidCount = Math.floor(sceneArea / BoidsWorld.BOID_SIZE ** 2 / 8);
+    boids.value.create(boidCount);
+    if (tile.value) {
+      tile.value.width = data.width;
+      tile.value.height = data.height;
+    }
+  },
+  { immediate: true }
+);
 
 const selectedPosition = computed(() => {
   const selected = boids.value.findWithID(selectedKey.value);
@@ -142,8 +164,8 @@ const graphicsDraw = computed(() => {
   return (ctx: GraphicsContext) => {
     ctx
       .circle(0, 0, BoidsWorld.TOO_CLOSE)
-      .stroke({ width: 0.1, color: 0xff0000 });
-    ctx.circle(0, 0, BoidsWorld.NEAR).stroke({ width: 0.1, color: 0xffff00 });
+      .stroke({ width: 1, color: 0xff0000 });
+    ctx.circle(0, 0, BoidsWorld.NEAR).stroke({ width: 1, color: 0xffff00 });
   };
 });
 </script>

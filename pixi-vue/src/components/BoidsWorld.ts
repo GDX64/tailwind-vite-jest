@@ -1,9 +1,11 @@
 import { Vec2 } from "../utils/Vec2";
 
-const SPEED = 2;
-const TOO_CLOSE = 10;
+const SPEED = 50;
 
-const NEAR = 20;
+const BOID_SIZE = 50;
+const TOO_CLOSE = BOID_SIZE;
+
+const NEAR = BOID_SIZE * 2;
 export class Boid {
   position = new Vec2(0, 0);
   velocity = new Vec2(0, 0);
@@ -30,8 +32,10 @@ export class BoidsWorld {
 
   static TOO_CLOSE = TOO_CLOSE;
   static NEAR = NEAR;
+  static BOID_SIZE = BOID_SIZE;
 
   create(n: number) {
+    this.boids.clear();
     for (let i = 0; i < n; i++) {
       this.boids.set(this.currentID, this.createBoid());
       this.currentID += 1;
@@ -42,7 +46,7 @@ export class BoidsWorld {
     const boid = new Boid();
     boid.position.x = Math.random() * this.sceneWidth - this.sceneWidth / 2;
     boid.position.y = Math.random() * this.sceneHeight - this.sceneHeight / 2;
-    boid.velocity.set(Math.random() * 2 - 1, Math.random() * 2 - 1);
+    boid.velocity.set(Math.random() * 2 - 1.3, Math.random() * 2 - 1);
     boid.velocity = boid.velocity.normalize().scale(SPEED);
     return boid;
   }
