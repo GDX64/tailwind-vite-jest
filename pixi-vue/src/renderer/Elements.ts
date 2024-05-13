@@ -7,6 +7,7 @@ export enum ElTags {
   CONTAINER = "g-container",
   RAW = "g-raw",
   SPRITE = "g-sprite",
+  ANIMATED_SPRITE = "g-animated-sprite",
 }
 
 export type LayoutBox = {
@@ -84,7 +85,6 @@ export class GElement {
         this.pixiRef.x = next;
         break;
       case "elKey":
-        console.log("set key", next);
         this.elKey = next;
       case "y":
         this.y = next;

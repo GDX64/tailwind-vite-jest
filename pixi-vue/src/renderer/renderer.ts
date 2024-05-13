@@ -10,7 +10,7 @@ import {
 import * as PIXI from "pixi.js";
 import { ElTags, GElement, GGraphics, GText } from "./Elements";
 import RawContainer from "./RawContainer";
-import GSprite from "./GSprite";
+import GSprite, { GAnimatedSprite } from "./GSprite";
 
 declare module "vue" {
   type BasicArgs = {
@@ -28,7 +28,10 @@ declare module "vue" {
     GRect: Component<BasicArgs & {}>;
     GContainer: Component<BasicArgs & {}>;
     GRaw: Component<BasicArgs & { pixiEl: PIXI.Container }>;
-    GSprite: Component<BasicArgs & { url: string }>;
+    GSprite: Component<BasicArgs & { url: string; texture: PIXI.Texture }>;
+    GAnimatedSprite: Component<
+      BasicArgs & { url: string; textures: PIXI.Texture[] }
+    >;
     GGraphics: Component<
       BasicArgs & { drawfn: (ctx: PIXI.GraphicsContext) => void }
     >;
@@ -52,6 +55,8 @@ function appRenderer() {
           return new RawContainer();
         case ElTags.SPRITE:
           return new GSprite();
+        case ElTags.ANIMATED_SPRITE:
+          return new GAnimatedSprite();
         case ElTags.CONTAINER:
         default:
           return new GElement();

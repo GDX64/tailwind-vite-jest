@@ -1,9 +1,9 @@
 import { Vec2 } from "../utils/Vec2";
 
 const SPEED = 2;
-const TOO_CLOSE = 2;
+const TOO_CLOSE = 10;
 
-const NEAR = 5;
+const NEAR = 20;
 export class Boid {
   position = new Vec2(0, 0);
   velocity = new Vec2(0, 0);
