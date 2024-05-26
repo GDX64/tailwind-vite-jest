@@ -34,6 +34,9 @@ import BackGround from './BackGround.vue';
       <li>
         <a href="/simd-rasterization">SIMD rasterization</a>
       </li>
+      <li>
+        <a href="/canvas_game">Canvas Game</a>
+      </li>
     </ul>
   </BackGround>
 </template>

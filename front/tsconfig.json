@@ -10,10 +10,7 @@
     // "jsxFactory": "solidRender",
     // "jsxFragmentFactory": "solidRender",
     "noUnusedLocals": false,
-    "allowJs": true,
     "sourceMap": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
     "skipLibCheck": true,
     "lib": ["esnext", "dom", "dom.iterable"],
     "types": ["vitest/globals", "@webgpu/types"]

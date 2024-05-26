@@ -16,7 +16,7 @@
     "highlight.js": "^11.9.0",
     "marked": "^11.0.1",
     "mitt": "^3.0.0",
-    "pixi.js": "^8.0.0-beta.8",
+    "pixi.js": "^8.1.5",
     "popmotion": "^11.0.5",
     "ramda": "^0.28.0",
     "roughjs": "^4.5.2",
