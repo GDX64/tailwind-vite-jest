@@ -36,7 +36,7 @@ const me: PlayerState = reactive({
   id: -1,
 });
 
-const ws = new WebSocket('ws://professional-pamela-nelogica-4a911bbc.koyeb.app/ws');
+const ws = new WebSocket('wss://professional-pamela-nelogica-4a911bbc.koyeb.app/ws');
 ws.onmessage = onmessage;
 
 onUnmounted(() => {
