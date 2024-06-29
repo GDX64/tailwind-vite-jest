@@ -12,8 +12,6 @@ const education = [
       'The course had more emphasis in Signal Processing and embedded software development, where I used Matlab, Python, and C with FreeRTOS.',
   },
   {
-    description: `I went for a 2 semesters interchange in Argentina whilst I developed my bachelor thesis. 
-          There I studied adaptive signal processing, machine learning and computer graphics.`,
     schoolPlaceDate: 'UBA - Buneos Aires, AR. 2019',
     title: 'Electronic Engineering Interchange',
   },
@@ -24,32 +22,40 @@ const projects = [
     description: `In my thesis I implemented adaptive filtering algorithms from papers with
             Matlab to analyze harmonics from the electrical energy network. In this work I
             had the opportunity to work with some advanced Linear Algebra to implement the
-            computations. There is also an implementation of the basic algorithm in C with FreeRTOS 
-            in my github for embedded ESP32. You can download it 
-            [here](https://glmachado.herokuapp.com/files/TCC.pdf) (it is in my website).`,
+            computations. You can download it 
+            [here](https://github.com/GDX64/personal-react-website/blob/master/public/files/TCC.pdf?raw=true).`,
     schoolPlaceDate: '2019',
   },
   {
     title: 'Personal Website',
-    description: `I use my website mainly to upload demos experimenting with custom 2D renderers
+    description: `I use my [website](https://glmachado.com) mainly to upload demos experimenting with custom 2D renderers
     for signal based frameworks like solid and vue.`,
-  },
-  {
-    title: 'Blogs And Small Articles',
-    description: `When I'm learning something new, I like to write about it. So I have a
-          [Medium](https://medium.com/@gabriel-delmachado) with some engineering, math and
-          programming related articles. I also have some content on Linkedin about control theory, Rust and Webassembly.`,
   },
 ];
 const experiences = [
   {
-    title: 'Nelógica - Software Developer',
-    description: `Nelógica is the biggest trading software company in Brazil, and has several trading platforms. 
-          I work building cross-platform UIs for web, IOS, android and MAC OS. Our focus is on reliability and performance.
-          We use mainly Typescript and VueJS (but also specific languages for each platform as SWIFT and Kotlin). My role
-          now is more guided towards performance improvements, developer experience (analyzing new tools and technologies)
-          and feature implementations, while instructing new members of the team.`,
-    schoolPlaceDate: 'Porto Alegre - RS, BR. 2020-(Now)',
+    title: 'Nelogica - Software Developer I',
+    description: `Nelogica is the biggest trading software company in Brazil, and has several trading platforms. 
+          During my first years in the company I worked as a web developer in the homebroker and vector web platform.`,
+    schoolPlaceDate: '(Remote) 2020-2021',
+  },
+  {
+    title: 'Nelogica - Software Developer II',
+    description: `In 2021 I started to work focusing on performance improvements and I integrated typescript and build impovements in to the web projects.`,
+    schoolPlaceDate: '(Remote) 2021-2022',
+  },
+  {
+    title: 'Nelogica - Software Developer III',
+    description: `In 2022 I led the technical direction and implementation of the product into the MacOS platform using electron,
+    bringing the company to the MacOS users.`,
+    schoolPlaceDate: '(Remote) 2022-2023',
+  },
+  {
+    title: 'Nelogica - Software Developer IV',
+    description: `In 2023 I was invited to work in the company's headquarters in Porto Alegre to be closer to the mobile team, and again
+    led technically the development of native mobile apps using the core web code. Now we target web, Android, Ios and MacOS with
+    the same main codebase and some native adjusts.`,
+    schoolPlaceDate: 'Porto Alegre - RS, BR. 2023-(Now)',
   },
 ];
 

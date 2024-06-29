@@ -93,9 +93,10 @@ function onkeydown(event: KeyboardEvent) {
 @import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
 .cv-container {
   font-family: 'Lato', sans-serif;
-  width: 800px;
-  height: 1131px;
+  width: 794px;
+  height: 1123px;
   background-color: rgb(248, 244, 237);
+  overflow: hidden;
 }
 .cv-icon {
   height: 16px;

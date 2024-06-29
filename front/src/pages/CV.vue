@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-between">
+  <div class="h-screen overflow-y-auto">
     <CVSimpleVue></CVSimpleVue>
   </div>
 </template>
