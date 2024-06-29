@@ -12,7 +12,7 @@ const education = [
       'The course had more emphasis in Signal Processing and embedded software development, where I used Matlab, Python, and C with FreeRTOS.',
   },
   {
-    schoolPlaceDate: 'UBA - Buneos Aires, AR. 2019',
+    schoolPlaceDate: 'UBA - Buenos Aires, AR. 2019',
     title: 'Electronic Engineering Interchange',
   },
 ];
@@ -41,7 +41,7 @@ const experiences = [
   },
   {
     title: 'Nelogica - Software Developer II',
-    description: `In 2021 I started to work focusing on performance improvements and I integrated typescript and build impovements in to the web projects.`,
+    description: `In 2021 I started to work focusing on performance improvements and I integrated typescript and build improvements in to the web projects.`,
     schoolPlaceDate: '(Remote) 2021-2022',
   },
   {
@@ -53,7 +53,7 @@ const experiences = [
   {
     title: 'Nelogica - Software Developer IV',
     description: `In 2023 I was invited to work in the company's headquarters in Porto Alegre to be closer to the mobile team, and again
-    led technically the development of native mobile apps using the core web code. Now we target web, Android, Ios and MacOS with
+    led technically the development of native mobile apps using the core web code. Now we target web, Android, iOS and MacOS with
     the same main codebase and some native adjusts.`,
     schoolPlaceDate: 'Porto Alegre - RS, BR. 2023-(Now)',
   },
@@ -71,7 +71,7 @@ const glmachadoCVData: CVData = {
     { icon: Icons.Mobile, text: '+55 32 98493-5474' },
     { icon: Icons.Envelope, text: 'gabriel.delmachado@gmail.com' },
     { icon: Icons.GitHub, text: 'GDX64', link: 'https://github.com/GDX64' },
-    { icon: Icons.Location, text: 'Porto Real, RJ, BR' },
+    { icon: Icons.Location, text: 'Porto Alegre, RS, BR' },
     {
       icon: Icons.Linkedin,
       text: 'gabriel-e-l-machado',

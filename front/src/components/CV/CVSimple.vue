@@ -101,6 +101,7 @@ function onkeydown(event: KeyboardEvent) {
 .cv-icon {
   height: 16px;
   margin-right: 5px;
+  fill: rgb(61, 61, 61);
 }
 .icons-container {
   display: grid;
