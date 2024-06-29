@@ -90,7 +90,7 @@ code.hljs {
 .hljs-symbol,
 .hljs-bullet,
 .hljs-addition {
-  @apply text-prime-500;
+  @apply text-prime-300;
 }
 
 /* Blue */
@@ -119,7 +119,7 @@ code.hljs {
 }
 
 .hljs {
-  @apply text-prime-100 bg-sec-900;
+  @apply text-prime-50 bg-sec-900;
 }
 
 .hljs-emphasis {

@@ -21,11 +21,11 @@ h2,
 h3,
 h4,
 h5 {
-  @apply text-prime-300;
+  @apply text-prime-200;
 }
 
 .my-bg-styles {
-  @apply text-prime-100 bg-sec-950;
+  @apply text-prime-50 bg-sec-950;
   font-family: 'Afacad', sans-serif;
   overflow-y: auto;
   overflow-x: hidden;
