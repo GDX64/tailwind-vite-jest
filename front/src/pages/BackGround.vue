@@ -1,13 +1,15 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div class="w-full my-bg-styles min-h-screen px-4 flex flex-col items-center">
-    <nav class="h-10 max-w-[800px] w-full border-b-2 border-prime-800 mb-3">
-      <ul class="ml-auto flex items-center h-full text-xl">
+  <div class="my-bg-styles flex flex-col items-center h-screen">
+    <nav
+      class="h-10 px-2 w-full border-b-2 border-sec-800 bg-sec-800/50 mb-3 sticky top-0 backdrop-blur-sm"
+    >
+      <ul class="ml-auto flex items-center h-full text-x">
         <li><a href="/">γ Home</a></li>
       </ul>
     </nav>
-    <div class="max-w-[800px] w-full">
+    <div class="max-w-[900px] w-full px-2 rounded-sm py-2">
       <slot></slot>
     </div>
   </div>
@@ -23,7 +25,7 @@ h5 {
 }
 
 .my-bg-styles {
-  @apply text-prime-200 bg-slate-900;
+  @apply text-prime-100 bg-sec-950;
   font-family: 'Afacad', sans-serif;
   overflow-y: auto;
   overflow-x: hidden;

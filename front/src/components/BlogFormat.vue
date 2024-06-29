@@ -1,5 +1,5 @@
 <template>
-  <div class="my-blog-post" v-html="parsed"></div>
+  <div class="my-blog-post w-full overflow-hidden" v-html="parsed"></div>
 </template>
 
 <script setup lang="ts">
@@ -7,9 +7,9 @@ import hljs from 'highlight.js/lib/core';
 import rust from 'highlight.js/lib/languages/rust';
 import wasm from 'highlight.js/lib/languages/wasm';
 import toml from 'highlight.js/lib/languages/yaml';
-import 'highlight.js/styles/tokyo-night-dark.css';
 import { onMounted, onUpdated } from 'vue';
 import { marked } from 'marked';
+import './codeStyle.css';
 
 hljs.registerLanguage('rust', rust);
 hljs.registerLanguage('wasm', wasm as any);
@@ -33,6 +33,10 @@ onMounted(() => {
 h2 {
   font-weight: bold;
   @apply text-2xl mb-5;
+}
+
+.my-blog-post code:not(.hljs) {
+  @apply italic text-high-200 bg-sec-900 rounded-sm px-1;
 }
 
 .my-blog-post code {

@@ -7,7 +7,7 @@ module.exports = {
     colors: {
       ...colors,
       prime: colors.sky,
-      sec: colors.gray,
+      sec: colors.stone,
       high: colors.emerald,
     },
     extend: {},
