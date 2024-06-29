@@ -12,7 +12,7 @@ import { marked } from 'marked';
 import './codeStyle.css';
 
 hljs.registerLanguage('rust', rust);
-hljs.registerLanguage('wasm', wasm as any);
+hljs.registerLanguage('wasm', wasm);
 hljs.registerLanguage('toml', toml);
 
 const props = defineProps<{
