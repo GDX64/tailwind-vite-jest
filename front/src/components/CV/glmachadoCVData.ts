@@ -36,7 +36,7 @@ const experiences = [
   {
     title: 'Nelogica - Software Developer I',
     description: `Nelogica is the biggest trading software company in Brazil, and has several trading platforms. 
-          During my first years in the company I worked as a web developer in the homebroker and vector web platform.`,
+          During my first years in the company I worked as a web developer in the homebrokers, [profit web](https://profitweb.nelogica.com.br/) and [vector web](https://web.vectorcrypto.com) applications.`,
     schoolPlaceDate: '(Remote) 2020-2021',
   },
   {
@@ -46,14 +46,15 @@ const experiences = [
   },
   {
     title: 'Nelogica - Software Developer III',
-    description: `In 2022 I led the technical direction and implementation of the product into the MacOS platform using electron,
+    description: `In 2022 I led the technical direction and implementation of the product into the [MacOS](https://www.nelogica.com.br/download) using electron,
     bringing the company to the MacOS users.`,
     schoolPlaceDate: '(Remote) 2022-2023',
   },
   {
     title: 'Nelogica - Software Developer IV',
     description: `In 2023 I was invited to work in the company's headquarters in Porto Alegre to be closer to the mobile team, and again
-    led technically the development of native mobile apps using the core web code. Now we target web, Android, iOS and MacOS with
+    led technically the development of native mobile apps using the core web code. Now we target web, [Android](https://play.google.com/store/apps/details?id=profitchartandroid.nelogica.com.profitchartandroid&pcampaignid=web_share),
+    [iOS](https://apps.apple.com/br/app/profit-mobile/id1163760725) and MacOS with
     the same main codebase and some native adjusts.`,
     schoolPlaceDate: 'Porto Alegre - RS, BR. 2023-(Now)',
   },
