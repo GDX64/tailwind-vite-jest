@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div class="my-bg-styles flex flex-col items-center h-screen">
+  <div class="my-bg-styles flex flex-col items-center h-full">
     <nav
       class="h-10 px-2 w-full border-b-2 border-sec-800 bg-sec-800/50 mb-3 sticky top-0 backdrop-blur-sm"
     >

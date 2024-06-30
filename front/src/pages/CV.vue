@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen overflow-y-auto">
+  <div class="h-full overflow-y-auto">
     <CVSimpleVue></CVSimpleVue>
   </div>
 </template>
