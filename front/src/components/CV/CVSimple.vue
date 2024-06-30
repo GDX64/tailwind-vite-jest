@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex w-full justify-center items-center leading-relaxed text-black"
+    class="flex w-full justify-center items-center leading-relaxed text-sec-950"
     tabindex="-1"
     @keydown="onkeydown"
   >
