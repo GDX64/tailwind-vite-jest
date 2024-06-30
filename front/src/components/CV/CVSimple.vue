@@ -1,17 +1,22 @@
 <template>
   <div
-    class="flex w-full justify-center items-center leading-relaxed"
+    class="flex w-full justify-center items-center leading-relaxed text-black"
     tabindex="-1"
     @keydown="onkeydown"
   >
     <div class="cv-container px-4 py-4 flex flex-col">
-      <header class="flex items-center flex-col text-sm">
-        <h1 class="text-sky-600 text-3xl mb-2">{{ cvData.name }}</h1>
-        <h2 class="text-sky-600 text-xl mb-4">{{ cvData.title }}</h2>
-        <div class="icons-container mb-2">
+      <header class="flex items-start flex-col text-sm">
+        <h1 class="text-prime-600 text-xl sm:text-3xl mb-2">{{ cvData.name }}</h1>
+        <h2 class="text-prime-600 text-xl mb-4">{{ cvData.title }}</h2>
+        <div
+          class="w-full grid justify-start sm:grid-cols-3 grid-cols-[min-content_min-content] gap-2 text-xs mb-2"
+        >
           <template v-for="userInfo of cvData.arrUserInfo">
-            <div class="flex">
-              <component :is="componentMap[userInfo.icon]" class="cv-icon"></component
+            <div class="flex w-max pr-2">
+              <component
+                :is="componentMap[userInfo.icon]"
+                class="cv-icon fill-sec-700"
+              ></component
               ><a :href="userInfo.link" v-if="userInfo.link">{{ userInfo.text }}</a>
               <span v-else class="whitespace-nowrap">{{ userInfo.text }}</span>
             </div>
@@ -91,25 +96,25 @@ function onkeydown(event: KeyboardEvent) {
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
+
+@media screen and (min-width: 800px) {
+  .cv-container {
+    max-height: 1123px;
+  }
+}
+
 .cv-container {
+  max-width: 794px;
   font-family: 'Lato', sans-serif;
-  width: 794px;
-  height: 1123px;
-  background-color: rgb(248, 244, 237);
   overflow: hidden;
 }
+
+.cv-container a {
+  @apply text-high-600 underline;
+}
+
 .cv-icon {
   height: 16px;
   margin-right: 5px;
-  fill: rgb(61, 61, 61);
-}
-.icons-container {
-  display: grid;
-  font-size: 11px;
-  grid-template-columns: min-content min-content min-content;
-  column-gap: 20px;
-}
-.text-with-link a {
-  @apply text-sky-600;
 }
 </style>

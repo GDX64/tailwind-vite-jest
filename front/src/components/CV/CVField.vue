@@ -1,41 +1,21 @@
 <template>
   <div class="">
-    <TippyWrap :target="header">
-      <template #content>
-        <div class="w-52 h-16 pop-container">
-          <button class="action-btn" @click="descriptionEl?.click()">description</button>
-        </div>
-      </template>
-    </TippyWrap>
-    <header ref="header" class="flex justify-between w-full mb-1">
-      <FieldEditTip :value="main" @update:value="$emit('update:main', $event)">
-        <div class="hover-field">{{ main }}</div>
-      </FieldEditTip>
-      <FieldEditTip
-        v-if="dateAndPlace"
-        :value="dateAndPlace"
-        @update:value="$emit('update:dateAndPlace', $event)"
-      >
-        <div class="hover-field">{{ dateAndPlace }}</div>
-      </FieldEditTip>
-    </header>
-    <FieldEditTip
-      v-if="description != null"
-      :value="description"
-      @update:value="$emit('update:description', $event)"
+    <header
+      ref="header"
+      class="flex justify-between sm:items-start w-full mb-1 flex-col sm:flex-row"
     >
-      <div class="text-gray-700 hover-field" ref="descriptionEl">
-        <div class="rounded-full w-[6px] h-[6px] bg-gray-700 mr-2 inline-block"></div>
-        <LinkProcess class="text-with-link" :text="description"></LinkProcess>
-      </div>
-    </FieldEditTip>
+      <div class="">{{ main }}</div>
+      <div class="text-sm text-sec-700">{{ dateAndPlace }}</div>
+    </header>
+    <div class="text-sec-800 pl-2" ref="descriptionEl" v-if="description">
+      <div class="rounded-full w-[6px] h-[6px] bg-sec-800 mr-2 inline-block"></div>
+      <LinkProcess class="text-with-link" :text="description"></LinkProcess>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import LinkProcess from './LinkProcess';
-import FieldEditTip from './FieldEditTip.vue';
-import TippyWrap from '../../TippyWrapper/TippyWrap.vue';
 import { ref } from 'vue';
 
 defineEmits<{
@@ -43,7 +23,8 @@ defineEmits<{
   (event: 'update:description', value: string): void;
   (event: 'update:dateAndPlace', value: string): void;
 }>();
-const props = defineProps<{
+
+defineProps<{
   main: string;
   dateAndPlace?: string;
   title?: string;
@@ -52,9 +33,3 @@ const props = defineProps<{
 const header = ref<HTMLElement>();
 const descriptionEl = ref<HTMLElement>();
 </script>
-
-<style scoped>
-.hover-field {
-  @apply hover:bg-sky-200 hover:rounded-md;
-}
-</style>
