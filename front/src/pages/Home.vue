@@ -33,6 +33,11 @@ import BackGround from './BackGround.vue';
           >Download CV</a
         >
       </li>
+      <li>
+        <a href="https://game.glmachado.com/static/editor/index.html"
+          >GAME - Archpelagus 🕹️</a
+        >
+      </li>
     </ul>
   </BackGround>
 </template>

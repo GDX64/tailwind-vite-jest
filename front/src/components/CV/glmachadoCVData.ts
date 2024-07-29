@@ -9,11 +9,12 @@ const education = [
     title: 'Electronic Engineering Bachelor',
     schoolPlaceDate: 'UFJF - Juiz de fora, MG. 2014-2019',
     description:
-      'The course had more emphasis in Signal Processing and embedded software development, where I used Matlab, Python, and C with FreeRTOS.',
+      'The course had more emphasis in Signal Processing, embedded software development and electronics, where I used Matlab, Python, and C with FreeRTOS.',
   },
   {
     schoolPlaceDate: 'UBA - Buenos Aires, AR. 2019',
     title: 'Electronic Engineering Interchange',
+    description: `In my course of study, I took master's classes in signal processing and machine learning, including speech and pattern recognition.`,
   },
 ];
 const projects = [
