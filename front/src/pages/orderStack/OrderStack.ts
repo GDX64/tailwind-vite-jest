@@ -100,14 +100,13 @@ export class OrderStack {
     });
 
     blocks.forEach((block) => {
-      const last = block.at(-1);
-      if (last) {
-        const lastDisplacement = last.calculatedX - last.x;
-        const dividedDisplacement = lastDisplacement / 2;
-        block.forEach((obj) => {
-          obj.calculatedX -= dividedDisplacement;
-        });
-      }
+      const averageX = block.reduce((acc, obj) => acc + obj.x, 0) / block.length;
+      const calcAverageX =
+        block.reduce((acc, obj) => acc + obj.calculatedX, 0) / block.length;
+      const avgDisplacement = calcAverageX - averageX;
+      block.forEach((obj) => {
+        obj.calculatedX -= avgDisplacement;
+      });
     });
   }
 
