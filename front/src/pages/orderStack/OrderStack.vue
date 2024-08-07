@@ -1,12 +1,12 @@
 <template>
   <div
-    class="w-96 bg-yellow-100 flex flex-col relative select-none"
+    class="w-96 bg-yellow-100 flex flex-col relative select-none mt-5"
     :style="{ height: height + 'px' }"
     @pointerup="onPointerUp"
     @pointermove="onPointerMove"
   >
     <div
-      class="absolute bg-red-500 w-10 border border-black"
+      class="absolute bg-red-500 w-10 border border-black left-5"
       :class="dragging ? 'pointer-events-none' : 'pointer-events-auto'"
       v-for="obj of objects"
       @pointerdown="onPointerDown(obj)"

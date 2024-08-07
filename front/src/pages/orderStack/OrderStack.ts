@@ -13,12 +13,63 @@ export class OrderStack {
   upperLimit = 0;
   lowerLimit = 0;
   objects = new Map<number, StackObject>();
+  runingMode: 'force' | 'greedy' = 'force';
 
   add(obj: StackObject) {
     this.objects.set(obj.id, obj);
   }
 
+  hitsUpperLimit(obj: StackObject) {
+    return obj.calculatedX + obj.width > this.upperLimit;
+  }
+
+  hitsLowerLimit(obj: StackObject) {
+    return obj.calculatedX < this.lowerLimit;
+  }
+
+  runForce() {
+    const arr = Array.from(this.objects.values());
+    arr.sort((a, b) => a.x - b.x);
+
+    arr.forEach((obj) => {
+      obj.calculatedX = obj.x;
+    });
+
+    for (let i = 0; i < 10; i++) {
+      let someOverlapping = false;
+      arr.forEach((obj, index) => {
+        const overlap = overlaping(obj, arr[index - 1]);
+        if (overlap) {
+          someOverlapping = true;
+          const [a, b] = leftRight(obj, arr[index - 1]);
+          a.calculatedX -= overlap / 2;
+          b.calculatedX += overlap / 2;
+        }
+        if (this.hitsUpperLimit(obj)) {
+          someOverlapping = true;
+          obj.calculatedX = this.upperLimit - obj.width;
+        }
+        if (this.hitsLowerLimit(obj)) {
+          someOverlapping = true;
+          obj.calculatedX = this.lowerLimit;
+        }
+      });
+      if (!someOverlapping) {
+        console.log('iterations', i);
+        break;
+      }
+    }
+  }
+
   run() {
+    if (this.runingMode === 'force') {
+      this.runForce();
+    } else {
+      this.runGreedy();
+    }
+  }
+
+  runGreedy() {
     const arr = Array.from(this.objects.values());
     arr.sort((a, b) => a.x - b.x);
     arr.forEach((obj, index) => {
@@ -36,4 +87,18 @@ export class OrderStack {
       }
     });
   }
+}
+
+function overlaping(a?: StackObject, b?: StackObject) {
+  if (a === b || !a || !b) return 0;
+  const isOverlapping =
+    a.calculatedX + a.width > b.calculatedX && a.calculatedX < b.calculatedX + b.width;
+  if (!isOverlapping) return 0;
+
+  const [left, right] = leftRight(a, b);
+  return left.calculatedX + left.width - right.calculatedX;
+}
+
+function leftRight(a: StackObject, b: StackObject) {
+  return a.calculatedX > b.calculatedX ? [b, a] : [a, b];
 }
