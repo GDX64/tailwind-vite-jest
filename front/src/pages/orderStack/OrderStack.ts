@@ -42,8 +42,8 @@ export class OrderStack {
         if (overlap > 1) {
           someOverlapping = true;
           const [a, b] = leftRight(obj, arr[index - 1]);
-          a.calculatedX -= overlap / 2;
-          b.calculatedX += overlap / 2;
+          a.calculatedX -= Math.max(0.5, overlap / 2);
+          b.calculatedX += Math.max(0.5, overlap / 2);
         }
         if (this.hitsUpperLimit(obj)) {
           someOverlapping = true;
@@ -71,6 +71,7 @@ export class OrderStack {
   }
 
   runGreedy(arr: StackObject[] = Array.from(this.objects.values())) {
+    arr.sort((a, b) => a.calculatedX - b.calculatedX);
     arr.forEach((obj, index) => {
       if (index === 0) {
         obj.calculatedX = clamp(

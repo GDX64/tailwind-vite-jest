@@ -5,6 +5,7 @@
     @pointerup="onPointerUp"
     @pointermove="onPointerMove"
   >
+    <div class="bg-sky-600 right-6 w-fit absolute" @click="run">RUN</div>
     <div
       class="absolute bg-red-500 w-10 border border-black left-5"
       :class="dragging ? 'pointer-events-none' : 'pointer-events-auto'"
@@ -14,6 +15,11 @@
     >
       {{ obj.id }}
     </div>
+    <div
+      v-for="obj of objects"
+      class="h-[1px] w-56 bg-black absolute left-5"
+      :style="{ top: obj.x + 'px' }"
+    ></div>
   </div>
 </template>
 
@@ -25,6 +31,10 @@ const dragging = ref<StackObject | null>(null);
 
 function onPointerDown(obj: StackObject) {
   dragging.value = obj;
+}
+
+function run() {
+  stack.run();
 }
 
 function onPointerUp() {
@@ -39,42 +49,16 @@ function onPointerMove(event: PointerEvent) {
 }
 
 const objects = ref<StackObject[]>([
-  {
-    x: 0,
-    id: 0,
-    width: 50,
-    calculatedX: 0,
-  },
-  {
-    x: 30,
-    id: 1,
-    width: 50,
-    calculatedX: 0,
-  },
-  {
-    x: 60,
-    id: 2,
-    width: 50,
-    calculatedX: 0,
-  },
-  {
-    x: 80,
-    id: 3,
-    width: 50,
-    calculatedX: 0,
-  },
-  {
-    x: 300,
-    id: 5,
-    width: 50,
-    calculatedX: 0,
-  },
-  {
-    x: 320,
-    id: 6,
-    width: 50,
-    calculatedX: 0,
-  },
+  ...Array(10)
+    .fill(0)
+    .map((_, i) => {
+      return {
+        id: i,
+        x: i * 10 + 100,
+        width: 20,
+        calculatedX: 0,
+      };
+    }),
 ]);
 const height = ref(500);
 
