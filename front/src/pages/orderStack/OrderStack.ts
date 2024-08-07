@@ -35,11 +35,11 @@ export class OrderStack {
       obj.calculatedX = obj.x;
     });
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 50; i++) {
       let someOverlapping = false;
       arr.forEach((obj, index) => {
         const overlap = overlaping(obj, arr[index - 1]);
-        if (overlap) {
+        if (overlap > 1) {
           someOverlapping = true;
           const [a, b] = leftRight(obj, arr[index - 1]);
           a.calculatedX -= overlap / 2;
@@ -59,6 +59,7 @@ export class OrderStack {
         break;
       }
     }
+    this.runGreedy(arr);
   }
 
   run() {
@@ -69,20 +70,22 @@ export class OrderStack {
     }
   }
 
-  runGreedy() {
-    const arr = Array.from(this.objects.values());
-    arr.sort((a, b) => a.x - b.x);
+  runGreedy(arr: StackObject[] = Array.from(this.objects.values())) {
     arr.forEach((obj, index) => {
       if (index === 0) {
-        obj.calculatedX = clamp(obj.x, this.lowerLimit, this.upperLimit - obj.width);
+        obj.calculatedX = clamp(
+          obj.calculatedX,
+          this.lowerLimit,
+          this.upperLimit - obj.width
+        );
       } else {
         const prevObj = arr[index - 1];
         const prevRight = prevObj.calculatedX + prevObj.width;
-        const overlaps = prevRight > obj.x;
+        const overlaps = prevRight > obj.calculatedX;
         if (overlaps) {
           obj.calculatedX = prevRight;
         } else {
-          obj.calculatedX = obj.x;
+          obj.calculatedX = obj.calculatedX;
         }
       }
     });
