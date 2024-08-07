@@ -13,7 +13,7 @@ export class OrderStack {
   upperLimit = 0;
   lowerLimit = 0;
   objects = new Map<number, StackObject>();
-  runingMode: 'force' | 'greedy' = 'force';
+  runingMode: 'force' | 'greedy' | 'greedyBlock' = 'greedyBlock';
 
   add(obj: StackObject) {
     this.objects.set(obj.id, obj);
@@ -62,12 +62,53 @@ export class OrderStack {
     this.runGreedy(arr);
   }
 
+  init() {
+    this.objects.forEach((obj) => {
+      obj.calculatedX = obj.x;
+    });
+  }
+
   run() {
+    this.init();
     if (this.runingMode === 'force') {
       this.runForce();
+    } else if (this.runingMode === 'greedyBlock') {
+      this.runGreedyBlock();
     } else {
       this.runGreedy();
     }
+  }
+
+  runGreedyBlock() {
+    const arr = this.runGreedy();
+    const blocks: StackObject[][] = [];
+    console.log(arr.map((obj) => obj.calculatedX));
+    arr.forEach((obj) => {
+      const currentBlock = blocks.at(-1);
+      if (!currentBlock) {
+        blocks.push([obj]);
+        return;
+      }
+      const lastBlockElement = currentBlock.at(-1);
+      if (!lastBlockElement) return;
+      const blockRight = lastBlockElement.calculatedX + lastBlockElement.width;
+      if (blockRight === obj.calculatedX) {
+        currentBlock.push(obj);
+      } else {
+        blocks.push([obj]);
+      }
+    });
+
+    blocks.forEach((block) => {
+      const last = block.at(-1);
+      if (last) {
+        const lastDisplacement = last.calculatedX - last.x;
+        const dividedDisplacement = lastDisplacement / 2;
+        block.forEach((obj) => {
+          obj.calculatedX -= dividedDisplacement;
+        });
+      }
+    });
   }
 
   runGreedy(arr: StackObject[] = Array.from(this.objects.values())) {
@@ -90,6 +131,7 @@ export class OrderStack {
         }
       }
     });
+    return arr;
   }
 }
 

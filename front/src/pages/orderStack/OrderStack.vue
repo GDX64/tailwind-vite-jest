@@ -18,7 +18,7 @@
     <div
       v-for="obj of objects"
       class="h-[1px] w-56 bg-black absolute left-5"
-      :style="{ top: obj.x + 'px' }"
+      :style="{ top: obj.x + obj.width / 2 + 'px' }"
     ></div>
   </div>
 </template>
@@ -49,13 +49,13 @@ function onPointerMove(event: PointerEvent) {
 }
 
 const objects = ref<StackObject[]>([
-  ...Array(10)
+  ...Array(5)
     .fill(0)
     .map((_, i) => {
       return {
         id: i,
         x: i * 10 + 100,
-        width: 20,
+        width: 50,
         calculatedX: 0,
       };
     }),
