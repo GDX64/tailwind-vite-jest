@@ -19,6 +19,7 @@ const routes = [
   { path: '/libtest', component: () => import('./pages/LibTest.vue') },
   { path: '/testWorker', component: () => import('./pages/TestWorkers.vue') },
   { path: '/canvas_game', component: () => import('./pages/CanvasGame.vue') },
+  { path: '/stack', component: () => import('./pages/orderStack/OrderStack.vue') },
   {
     path: '/simd-rasterization',
     component: () => import('./pages/SIMDRasterization/SIMDRasterization.vue'),
