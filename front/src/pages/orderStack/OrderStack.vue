@@ -9,25 +9,29 @@
     <div
       class="absolute bg-red-500 w-10 border border-black left-5"
       :class="dragging ? 'pointer-events-none' : 'pointer-events-auto'"
-      v-for="obj of objects"
-      @pointerdown="onPointerDown(obj)"
-      :style="{ height: obj.width + 'px', top: obj.calculatedX + 'px' }"
+      v-for="obj of stacked"
+      @pointerdown="onPointerDown(obj.original)"
+      :style="{ height: obj.original.width + 'px', top: obj.x + 'px' }"
     >
-      {{ obj.id }}
+      {{ obj.original.id }}
     </div>
     <div
-      v-for="obj of objects"
+      v-for="obj of stacked"
       class="h-[1px] w-56 bg-black absolute left-5"
-      :style="{ top: obj.x + obj.width / 2 + 'px' }"
+      :style="{ top: obj.original.x + obj.original.width / 2 + 'px' }"
     ></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { OrderStack, StackObject } from './OrderStack';
 
 const dragging = ref<StackObject | null>(null);
+
+const stacked = computed(() => {
+  return stack.run();
+});
 
 function onPointerDown(obj: StackObject) {
   dragging.value = obj;
@@ -44,7 +48,6 @@ function onPointerUp() {
 function onPointerMove(event: PointerEvent) {
   if (dragging.value) {
     dragging.value.x += event.movementY;
-    stack.run();
   }
 }
 
@@ -56,7 +59,6 @@ const objects = ref<StackObject[]>([
         id: i,
         x: i * 10 + 100,
         width: 50,
-        calculatedX: 0,
       };
     }),
 ]);
@@ -69,6 +71,4 @@ stack.upperLimit = height.value;
 objects.value.forEach((object) => {
   stack.add(object);
 });
-
-stack.run();
 </script>
