@@ -5,7 +5,6 @@
     @pointerup="onPointerUp"
     @pointermove="onPointerMove"
   >
-    <div class="bg-sky-600 right-6 w-fit absolute" @click="run">RUN</div>
     <div
       class="absolute bg-red-500 w-10 border border-black left-5"
       :class="dragging ? 'pointer-events-none' : 'pointer-events-auto'"
@@ -17,9 +16,14 @@
     </div>
     <div
       v-for="obj of stacked"
-      class="h-[1px] w-56 bg-black absolute left-5"
+      class="absolute left-16 flex items-center"
       :style="{ top: obj.original.x + obj.original.width / 2 + 'px' }"
-    ></div>
+    >
+      <div class="w-56 h-[1px] bg-black"></div>
+      <div class="">
+        {{ obj.original.id }}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -35,10 +39,6 @@ const stacked = computed(() => {
 
 function onPointerDown(obj: StackObject) {
   dragging.value = obj;
-}
-
-function run() {
-  stack.run();
 }
 
 function onPointerUp() {

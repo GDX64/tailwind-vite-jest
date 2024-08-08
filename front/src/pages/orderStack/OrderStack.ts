@@ -20,9 +20,11 @@ export class OrderStack {
   run() {
     let groups = [...this.objects.values()]
       .sort((a, b) => a.x - b.x)
-      .map((obj) => Group.from([obj]));
+      .map((obj) => Group.from([obj], this.upperLimit, this.lowerLimit));
 
-    for (let i = 0; i < 100; i++) {
+    const MAX_ITERATIONS = 100;
+
+    for (let i = 0; i < MAX_ITERATIONS; i++) {
       let overlap = false;
       const newGroups: Group[] = [];
       for (let i = 0; i < groups.length; i += 1) {
@@ -61,17 +63,20 @@ class Group implements StackObject {
   width = 0;
   x = 0;
 
+  constructor(private uppperLimit: number, private lowerLimit: number) {}
+
   overlaps(other?: Group) {
     if (!other) return false;
     return this.x + this.width > other.x && this.x < other.x + other.width;
   }
 
-  static from(objects: StackObject[]) {
+  static from(objects: StackObject[], upper: number, lower: number) {
     const average =
       objects.reduce((acc, obj) => acc + obj.x + obj.width / 2, 0) / objects.length;
     const width = objects.reduce((acc, obj) => acc + obj.width, 0);
-    const x = average - width / 2;
-    const group = new Group();
+    let x = average - width / 2;
+    x = clamp(x, lower, upper - width);
+    const group = new Group(upper, lower);
     group.objects = objects;
     group.width = width;
     group.x = x;
@@ -79,7 +84,11 @@ class Group implements StackObject {
   }
 
   merge(other: Group) {
-    const newGroup = Group.from([...this.objects, ...other.objects]);
+    const newGroup = Group.from(
+      [...this.objects, ...other.objects],
+      this.uppperLimit,
+      this.lowerLimit
+    );
     this.objects = newGroup.objects;
     this.width = newGroup.width;
     this.x = newGroup.x;
