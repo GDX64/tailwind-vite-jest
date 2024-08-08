@@ -12,36 +12,40 @@ export class OrderStack {
   upperLimit = 0;
   lowerLimit = 0;
   objects = new Map<number | undefined, StackObject>();
-  runingMode: 'force' | 'greedy' | 'greedyBlock' = 'greedyBlock';
 
   add(obj: StackObject) {
     this.objects.set(obj.id, obj);
   }
 
   run() {
-    const groups = [...this.objects.values()]
+    let groups = [...this.objects.values()]
       .sort((a, b) => a.x - b.x)
       .map((obj) => Group.from([obj]));
 
-    function merge(groups: Group[]): Group[] {
-      if (groups.length <= 1) return groups;
-      if (groups.length === 2) {
-        const [a, b] = groups;
-        if (isOverlapping(a, b)) {
-          return [a.merge(b)];
+    for (let i = 0; i < 100; i++) {
+      let overlap = false;
+      const newGroups: Group[] = [];
+      for (let i = 0; i < groups.length; i += 1) {
+        const currentNewGroup = newGroups.at(-1);
+        if (!currentNewGroup) {
+          newGroups.push(groups[i]);
+          continue;
         }
-        return groups;
+        if (currentNewGroup.overlaps(groups[i])) {
+          overlap = true;
+          currentNewGroup.merge(groups[i]);
+        } else {
+          newGroups.push(groups[i]);
+        }
       }
-      const [head, ...tail] = groups;
-      const tailMerged = merge(tail);
-      const tryMergeHead = merge([head, tailMerged[0]]);
-      if (tryMergeHead.length === 1) {
-        return merge([...tryMergeHead, ...tailMerged.slice(1)]);
+      if (!overlap) {
+        console.log('Iterations', i);
+        break;
       }
-      return [head, ...tailMerged];
+      groups = newGroups;
     }
 
-    return merge(groups).flatMap((group) => {
+    return groups.flatMap((group) => {
       return group.objects.map((obj, i) => {
         return {
           x: clamp(group.x + obj.width * i, this.lowerLimit, this.upperLimit),
@@ -52,15 +56,15 @@ export class OrderStack {
   }
 }
 
-function isOverlapping(a?: StackObject, b?: StackObject) {
-  if (a === b || !a || !b) return false;
-  return a.x + a.width > b.x && a.x < b.x + b.width;
-}
-
 class Group implements StackObject {
   objects: StackObject[] = [];
   width = 0;
   x = 0;
+
+  overlaps(other?: Group) {
+    if (!other) return false;
+    return this.x + this.width > other.x && this.x < other.x + other.width;
+  }
 
   static from(objects: StackObject[]) {
     const average =
@@ -74,12 +78,11 @@ class Group implements StackObject {
     return group;
   }
 
-  add(obj: StackObject) {
-    this.objects.push(obj);
-  }
-
   merge(other: Group) {
-    return Group.from([...this.objects, ...other.objects]);
+    const newGroup = Group.from([...this.objects, ...other.objects]);
+    this.objects = newGroup.objects;
+    this.width = newGroup.width;
+    this.x = newGroup.x;
   }
 
   average() {}
