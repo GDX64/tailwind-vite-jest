@@ -18,11 +18,30 @@ export class OrderStack {
   }
 
   run() {
+    const result = this._run();
+    if (!result) {
+      return null;
+    }
+    const objects = result.newGroups.flatMap((group) => {
+      let acc = group.x;
+      return group.objects.map((obj, i) => {
+        const final = {
+          x: acc,
+          original: obj,
+        };
+        acc += obj.width;
+        return final;
+      });
+    });
+    return { objects, iterations: result.iterations };
+  }
+
+  private _run() {
     let groups = [...this.objects.values()]
       .sort((a, b) => a.x - b.x)
       .map((obj) => Group.from([obj], this.upperLimit, this.lowerLimit));
 
-    const MAX_ITERATIONS = 100;
+    const MAX_ITERATIONS = groups.length + 1;
 
     for (let i = 0; i < MAX_ITERATIONS; i++) {
       let overlap = false;
@@ -41,20 +60,11 @@ export class OrderStack {
         }
       }
       if (!overlap) {
-        console.log('Iterations', i);
-        break;
+        return { newGroups, iterations: i };
       }
       groups = newGroups;
     }
-
-    return groups.flatMap((group) => {
-      return group.objects.map((obj, i) => {
-        return {
-          x: clamp(group.x + obj.width * i, this.lowerLimit, this.upperLimit),
-          original: obj,
-        };
-      });
-    });
+    return null;
   }
 }
 
@@ -71,10 +81,13 @@ class Group implements StackObject {
   }
 
   static from(objects: StackObject[], upper: number, lower: number) {
-    const average =
-      objects.reduce((acc, obj) => acc + obj.x + obj.width / 2, 0) / objects.length;
+    const posSum = objects.reduce(
+      (acc, obj) => acc + (obj.x + obj.width / 2) * obj.width,
+      0
+    );
+    const L = objects.length;
     const width = objects.reduce((acc, obj) => acc + obj.width, 0);
-    let x = average - width / 2;
+    let x = posSum / width - width / 2;
     x = clamp(x, lower, upper - width);
     const group = new Group(upper, lower);
     group.objects = objects;

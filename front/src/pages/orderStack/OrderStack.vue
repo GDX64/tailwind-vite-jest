@@ -1,4 +1,5 @@
 <template>
+  <div class="py-4">Iterations {{ stacked?.iterations }}</div>
   <div
     class="w-96 bg-yellow-100 flex flex-col relative select-none mt-5 touch-none"
     :style="{ height: height + 'px' }"
@@ -8,15 +9,15 @@
     <div
       class="absolute bg-red-500 w-10 border border-black left-5"
       :class="dragging ? 'pointer-events-none' : 'pointer-events-auto'"
-      v-for="obj of stacked"
+      v-for="obj of stacked?.objects ?? []"
       @pointerdown="onPointerDown(obj.original)"
       :style="{ height: obj.original.width + 'px', top: obj.x + 'px' }"
     >
       {{ obj.original.id }}
     </div>
     <div
-      v-for="obj of stacked"
-      class="absolute left-16 flex items-center"
+      v-for="obj of stacked?.objects ?? []"
+      class="absolute left-16 flex items-center -translate-y-1/2"
       :style="{ top: obj.original.x + obj.original.width / 2 + 'px' }"
     >
       <div class="w-56 h-[1px] bg-black"></div>
@@ -53,17 +54,17 @@ function onPointerMove(event: PointerEvent) {
 }
 
 const objects = ref<StackObject[]>([
-  ...Array(5)
+  ...Array(7)
     .fill(0)
     .map((_, i) => {
       return {
         id: i,
-        x: i * 10 + 100,
-        width: 50,
+        x: i * 50 + 100,
+        width: 50 + i * 3,
       };
     }),
 ]);
-const height = ref(500);
+const height = ref(600);
 
 const stack = new OrderStack();
 stack.lowerLimit = 0;
