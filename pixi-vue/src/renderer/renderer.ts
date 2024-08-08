@@ -83,17 +83,7 @@ function appRenderer() {
     parentNode(node) {
       return node.parent?.deref() ?? null;
     },
-    patchProp(
-      el,
-      key,
-      prevValue,
-      nextValue,
-      isSVG,
-      prevChildren,
-      parentComponent,
-      parentSuspense,
-      unmountChildren
-    ) {
+    patchProp(el, key, prevValue, nextValue) {
       el.patch(key, prevValue, nextValue);
     },
     remove(el) {

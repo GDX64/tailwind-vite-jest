@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-96 bg-yellow-100 flex flex-col relative select-none mt-5"
+    class="w-96 bg-yellow-100 flex flex-col relative select-none mt-5 touch-none"
     :style="{ height: height + 'px' }"
     @pointerup="onPointerUp"
     @pointermove="onPointerMove"
@@ -42,6 +42,7 @@ function run() {
 }
 
 function onPointerUp() {
+  console.log('up');
   dragging.value = null;
 }
 
