@@ -81,13 +81,15 @@ class Group implements StackObject {
   }
 
   static from(objects: StackObject[], upper: number, lower: number) {
-    const posSum = objects.reduce(
-      (acc, obj) => acc + (obj.x + obj.width / 2) * obj.width,
-      0
-    );
-    const L = objects.length;
+    let posSum = 0;
+    objects.forEach((obj) => {
+      posSum += (obj.x + obj.width / 2) * obj.width;
+    });
     const width = objects.reduce((acc, obj) => acc + obj.width, 0);
-    let x = posSum / width - width / 2;
+    //This is the center of mass
+    let x = posSum / width;
+    //The group will be placed behind the center of mass
+    x -= width / 2;
     x = clamp(x, lower, upper - width);
     const group = new Group(upper, lower);
     group.objects = objects;
