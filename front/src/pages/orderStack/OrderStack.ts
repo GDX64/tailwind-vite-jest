@@ -1,51 +1,45 @@
 export type StackObject = {
-  width: number;
-  x: number;
-  id?: number;
+  size: number;
+  position: number;
 };
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-export class OrderStack {
+export class OrderStack<T extends StackObject> {
   upperLimit = 0;
   lowerLimit = 0;
-  objects = new Map<number | undefined, StackObject>();
 
-  add(obj: StackObject) {
-    this.objects.set(obj.id, obj);
-  }
-
-  run() {
-    const result = this._run();
+  run(arr: T[]) {
+    const result = this._run(arr);
     if (!result) {
       return null;
     }
     const objects = result.newGroups.flatMap((group) => {
-      let acc = group.x;
-      return group.objects.map((obj, i) => {
+      let acc = group.position;
+      return group.objects.map((obj) => {
         const final = {
           x: acc,
           original: obj,
         };
-        acc += obj.width;
+        acc += obj.size;
         return final;
       });
     });
     return { objects, iterations: result.iterations };
   }
 
-  private _run() {
-    let groups = [...this.objects.values()]
-      .sort((a, b) => a.x - b.x)
-      .map((obj) => Group.from([obj], this.upperLimit, this.lowerLimit));
+  private _run(arr: T[]) {
+    let groups = arr
+      .map((obj) => Group.from([obj], this.upperLimit, this.lowerLimit))
+      .sort((a, b) => a.position - b.position);
 
     const MAX_ITERATIONS = groups.length + 1;
 
     for (let i = 0; i < MAX_ITERATIONS; i++) {
       let overlap = false;
-      const newGroups: Group[] = [];
+      const newGroups: Group<T>[] = [];
       for (let i = 0; i < groups.length; i += 1) {
         const currentNewGroup = newGroups.at(-1);
         if (!currentNewGroup) {
@@ -68,45 +62,48 @@ export class OrderStack {
   }
 }
 
-class Group implements StackObject {
-  objects: StackObject[] = [];
-  width = 0;
-  x = 0;
+class Group<T extends StackObject> implements StackObject {
+  objects: T[] = [];
+  size = 0;
+  position = 0;
 
   constructor(private uppperLimit: number, private lowerLimit: number) {}
 
-  overlaps(other?: Group) {
+  overlaps(other?: Group<T>) {
     if (!other) return false;
-    return this.x + this.width > other.x && this.x < other.x + other.width;
+    return (
+      this.position + this.size > other.position &&
+      this.position < other.position + other.size
+    );
   }
 
-  static from(objects: StackObject[], upper: number, lower: number) {
+  static from<T extends StackObject>(objects: T[], upper: number, lower: number) {
     let posSum = 0;
     objects.forEach((obj) => {
-      posSum += (obj.x + obj.width / 2) * obj.width;
+      posSum += (obj.position + obj.size / 2) * obj.size;
     });
-    const width = objects.reduce((acc, obj) => acc + obj.width, 0);
+    const width = objects.reduce((acc, obj) => acc + obj.size, 0);
     //This is the center of mass
     let x = posSum / width;
     //The group will be placed behind the center of mass
     x -= width / 2;
     x = clamp(x, lower, upper - width);
-    const group = new Group(upper, lower);
+    const group = new Group<T>(upper, lower);
     group.objects = objects;
-    group.width = width;
-    group.x = x;
+    group.size = width;
+    group.position = x;
     return group;
   }
 
-  merge(other: Group) {
+  merge(other: Group<T>) {
     const newGroup = Group.from(
       [...this.objects, ...other.objects],
       this.uppperLimit,
       this.lowerLimit
     );
     this.objects = newGroup.objects;
-    this.width = newGroup.width;
-    this.x = newGroup.x;
+    this.size = newGroup.size;
+    this.position = newGroup.position;
   }
 
   average() {}

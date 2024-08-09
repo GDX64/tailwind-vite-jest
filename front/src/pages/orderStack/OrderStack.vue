@@ -12,14 +12,14 @@
         :class="dragging ? 'pointer-events-none' : 'pointer-events-auto'"
         v-for="obj of stacked?.objects ?? []"
         @pointerdown="onPointerDown(obj.original)"
-        :style="{ height: obj.original.width + 'px', top: obj.x + 'px' }"
+        :style="{ height: obj.original.size + 'px', top: obj.x + 'px' }"
       >
         {{ obj.original.id }}
       </div>
       <div
         v-for="obj of stacked?.objects ?? []"
         class="absolute left-16 flex items-center -translate-y-1/2 gap-2"
-        :style="{ top: obj.original.x + obj.original.width / 2 + 'px' }"
+        :style="{ top: obj.original.position + obj.original.size / 2 + 'px' }"
       >
         <div class="w-56 h-[1px] bg-white"></div>
         <div class="">
@@ -37,10 +37,6 @@ import BackGround from '../BackGround.vue';
 
 const dragging = ref<StackObject | null>(null);
 
-const stacked = computed(() => {
-  return stack.run();
-});
-
 function onPointerDown(obj: StackObject) {
   dragging.value = obj;
 }
@@ -51,28 +47,28 @@ function onPointerUp() {
 
 function onPointerMove(event: PointerEvent) {
   if (dragging.value) {
-    dragging.value.x += event.movementY;
+    dragging.value.position += event.movementY;
   }
 }
 
-const objects = ref<StackObject[]>([
+const objects = ref([
   ...Array(5)
     .fill(0)
     .map((_, i) => {
       return {
         id: i,
-        x: i * 60 + 100,
-        width: 50 + i * 10,
+        position: i * 60 + 100,
+        size: 50 + i * 10,
       };
     }),
 ]);
 const height = ref(600);
 
-const stack = new OrderStack();
+const stacked = computed(() => {
+  return stack.run(objects.value);
+});
+
+const stack = new OrderStack<{ id: number; position: number; size: number }>();
 stack.lowerLimit = 0;
 stack.upperLimit = height.value;
-
-objects.value.forEach((object) => {
-  stack.add(object);
-});
 </script>
