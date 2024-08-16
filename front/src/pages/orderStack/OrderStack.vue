@@ -10,11 +10,12 @@
       :style="{ height: height + 'px' }"
       @pointerup="onPointerUp"
       @pointermove="onPointerMove"
+      ref="container"
     >
       <div
         class="absolute bg-prime-600 w-28 border border-white left-5"
-        :class="dragging ? 'pointer-events-none' : 'pointer-events-auto'"
         v-for="obj of objects"
+        :class="[obj.id === dragging?.id ? 'animate-pulse bg-high-600': '']"
         @pointerdown="onPointerDown(obj)"
         :style="{ height: obj.size + 'px', top: obj.showPosition + 'px' }"
       >
@@ -44,6 +45,8 @@ type DragObj = StackObject & { id: number; priority: number };
 const dragging = ref<DragObj | null>(null);
 const dragWithPriority = ref(false);
 
+const container = ref<HTMLDivElement | null>(null);
+
 function onPointerDown(obj: DragObj) {
   dragging.value = obj;
   dragging.value.priority = dragWithPriority.value ? 1 : 0;
@@ -57,8 +60,10 @@ function onPointerUp() {
 }
 
 function onPointerMove(event: PointerEvent) {
+  const {y} = container.value!.getBoundingClientRect()
+  const offsetY = event.pageY - y
   if (dragging.value) {
-    dragging.value.position += event.movementY;
+    dragging.value.position = offsetY - dragging.value.size / 2;
   }
 }
 
@@ -68,7 +73,7 @@ const objects = ref([
     .map((_, i) => {
       return {
         id: i,
-        position: i * 60 + 100,
+        position: i * 45 + 100,
         showPosition: i * 60 + 100,
         size: 40 ,
         priority: 0,
@@ -85,7 +90,7 @@ useAnimationFrames(() => {
         obj.showPosition = findWithId.x;
       } else {
         const diff = findWithId.x - obj.showPosition;
-        obj.showPosition = obj.showPosition + diff / 5;
+        obj.showPosition = obj.showPosition + diff / 10;
       }
     }
   });
