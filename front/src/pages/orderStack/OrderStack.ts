@@ -88,10 +88,10 @@ class Group<T extends StackObject> {
    * 2. Then we find the position of the first object such that the center of
    * mass of the final group is the same as the CM calculated in step 1.
    *
-   * CM = (m1 * x1 + m2 * (x1 + s1) + ... + mn * (x1 + s1 + ... + sn)) / (m1 + ... + mn)
+   * CM = (m1 * x1 + m2 * (x1 + s1/2 + s2/2) + ... + mn * (x1 + s1/2 + s2/2 + ... )) / (m1 + ...)
    *
    * rearranging the formula we get:
-   * x1 = CM - (m2 * s1 + m3 * (s1 + s2) ...)/TotalMass
+   * x1 = CM - (m2 * (s1/2 + s2/2) + m3 * (s1/2 + s2 + s3/2) ...)/TotalMass
    */
   static from<T extends StackObject>(objects: T[], upper: number, lower: number) {
     let totalWeightXPosition = 0;
@@ -101,16 +101,17 @@ class Group<T extends StackObject> {
       totalMass += mass;
       totalWeightXPosition += (obj.position + obj.size / 2) * mass;
     });
+
     const width = objects.reduce((acc, obj) => acc + obj.size, 0);
-    //This is the center of mass
     const centerOfMass = totalWeightXPosition / totalMass;
 
     let sumOfDistanceXMass = 0;
     let currentDistance = 0;
     for (let i = 1; i < objects.length; i++) {
-      const obj = objects[i];
-      currentDistance += obj.size;
-      const mass = obj.size * obj.density;
+      const prev = objects[i - 1];
+      const current = objects[i];
+      currentDistance += current.size / 2 + prev.size / 2;
+      const mass = current.size * current.density;
       sumOfDistanceXMass += currentDistance * mass;
     }
 
