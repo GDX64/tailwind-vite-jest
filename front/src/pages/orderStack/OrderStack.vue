@@ -41,7 +41,7 @@ import { OrderStack, StackObject } from './OrderStack';
 import BackGround from '../BackGround.vue';
 import { useAnimationFrames } from '../../utils/rxjsUtils';
 
-type DragObj = StackObject & { id: number; weight: number };
+type DragObj = StackObject & { id: number; density: number };
 const dragging = ref<DragObj | null>(null);
 const draggedWeight = ref(2);
 const draggedFactor = computed(()=>{
@@ -52,12 +52,12 @@ const container = ref<HTMLDivElement | null>(null);
 
 function onPointerDown(obj: DragObj) {
   dragging.value = obj;
-  dragging.value.weight = draggedFactor.value;
+  dragging.value.density = draggedFactor.value;
 }
 
 function onPointerUp() {
   if (dragging.value) {
-    dragging.value.weight = 1;
+    dragging.value.density = 1;
     dragging.value = null;
   }
 }
@@ -79,7 +79,7 @@ const objects = ref([
         position: i * 45 + 100,
         showPosition: i * 60 + 100,
         size: 40 ,
-        weight: 1,
+        density: 1,
       };
     }),
 ]);
@@ -109,7 +109,7 @@ const stack = new OrderStack<{
   id: number;
   position: number;
   size: number;
-  weight: number;
+  density: number;
 }>();
 stack.lowerLimit = 0;
 stack.upperLimit = height.value;

@@ -1,6 +1,6 @@
 export type StackObject = {
   size: number;
-  weight: number;
+  density: number;
   position: number;
 };
 
@@ -80,26 +80,42 @@ class Group<T extends StackObject> {
     );
   }
 
+  /**
+   * How the calculation works:
+   * 1. We calculate the center of mass (CM) of the desired position
+   * as if there were no objects in the way and nothing was overlapping.
+   *
+   * 2. Then we find the position of the first object such that the center of
+   * mass of the final group is the same as the CM calculated in step 1.
+   *
+   * CM = (m1 * x1 + m2 * (x1 + s1) + ... + mn * (x1 + s1 + ... + sn)) / (m1 + ... + mn)
+   *
+   * rearranging the formula we get:
+   * x1 = CM - (m2 * s1 + m3 * (s1 + s2) ...)/TotalMass
+   */
   static from<T extends StackObject>(objects: T[], upper: number, lower: number) {
-    let posSum = 0;
+    let totalWeightXPosition = 0;
+    let totalMass = 0;
     objects.forEach((obj) => {
-      posSum += (obj.position + obj.size / 2) * obj.size * obj.weight;
+      const mass = obj.size * obj.density;
+      totalMass += mass;
+      totalWeightXPosition += (obj.position + obj.size / 2) * mass;
     });
-    const weight = objects.reduce((acc, obj) => acc + obj.size * obj.weight, 0);
     const width = objects.reduce((acc, obj) => acc + obj.size, 0);
     //This is the center of mass
-    const cm = posSum / weight;
-    //The group will be placed behind the center of mass
+    const centerOfMass = totalWeightXPosition / totalMass;
 
-    let psum = 0;
-    let distSum = 0;
+    let sumOfDistanceXMass = 0;
+    let currentDistance = 0;
     for (let i = 1; i < objects.length; i++) {
       const obj = objects[i];
-      distSum += obj.size;
-      psum += distSum * obj.size * obj.weight;
+      currentDistance += obj.size;
+      const mass = obj.size * obj.density;
+      sumOfDistanceXMass += currentDistance * mass;
     }
 
-    const x1 = cm - psum / weight - objects[0].size / 2;
+    const halfFirstObjectSize = objects[0].size / 2;
+    const x1 = centerOfMass - sumOfDistanceXMass / totalMass - halfFirstObjectSize;
 
     const x = clamp(x1, lower, upper - width);
     const group = new Group<T>(upper, lower);
