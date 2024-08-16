@@ -26,6 +26,9 @@ import BackGround from './BackGround.vue';
         <a href="/simd-rasterization">SIMD rasterization</a>
       </li>
       <li>
+        <a href="/stack">Stack boxes</a>
+      </li>
+      <li>
         <a href="/cv">CV Online</a>
       </li>
       <li>

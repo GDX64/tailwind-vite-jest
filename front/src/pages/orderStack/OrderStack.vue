@@ -1,5 +1,11 @@
 <template>
   <BackGround>
+    <h1>What is that?</h1>
+    <div class="">
+      This is a layout algorithm stacks objects in a way that they don't overlap.
+      It works by grouping the boxes recursively while keeping the center of mass 
+      of the original boxes that compose the group
+    </div>
     <div class="py-4">Iterations {{ stacked?.iterations }}</div>
     <div class="flex items-center gap-4">
       <input type="range" v-model.number="draggedWeight" class="h-5 w-32" min="1" max="4" step="0.1"></input>
@@ -71,12 +77,12 @@ function onPointerMove(event: PointerEvent) {
 }
 
 const objects = ref([
-  ...Array(8)
+  ...Array(6)
     .fill(0)
     .map((_, i) => {
       return {
         id: i,
-        position: i * 45 + 100,
+        position: i * 45 + 50,
         showPosition: i * 60 + 100,
         size: 40 ,
         density: 1,
@@ -99,7 +105,7 @@ useAnimationFrames(() => {
   });
 });
 
-const height = ref(600);
+const height = ref(400);
 
 const stacked = computed(() => {
   return stack.run(objects.value);
