@@ -13,9 +13,9 @@
       ref="container"
     >
       <div
-        class="absolute bg-prime-600 w-28 border border-white left-5"
+        class="absolute bg-prime-600 w-36 border border-white left-5"
         v-for="obj of objects"
-        :class="[obj.id === dragging?.id ? 'animate-pulse bg-high-600': '']"
+        :class="[obj.id === dragging?.id ? 'animate-pulse !bg-high-600': '']"
         @pointerdown="onPointerDown(obj)"
         :style="{ height: obj.size + 'px', top: obj.showPosition + 'px' }"
       >
@@ -23,7 +23,7 @@
       </div>
       <div
         v-for="obj of objects"
-        class="absolute left-28 flex items-center -translate-y-1/2 gap-2 pointer-events-none"
+        class="absolute left-36 flex items-center -translate-y-1/2 gap-2 pointer-events-none"
         :style="{ top: obj.position + obj.size / 2 + 'px' }"
       >
         <div class="w-56 h-[1px] bg-white"></div>
