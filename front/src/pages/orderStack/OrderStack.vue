@@ -2,8 +2,8 @@
   <BackGround>
     <div class="py-4">Iterations {{ stacked?.iterations }}</div>
     <div class="flex items-center gap-4">
-      <div class="">Drag with priority</div>
-      <input type="checkbox" v-model="dragWithPriority" class="h-5 w-5"></input>
+      <input type="range" v-model.number="draggedWeight" class="h-5 w-32" min="1" max="4" step="0.1"></input>
+      <div class="">Dragged weight {{ draggedFactor.toFixed(2) }}</div>
     </div>
     <div
       class="w-full bg-sec-900 flex flex-col relative select-none mt-5 touch-none"
@@ -41,20 +41,23 @@ import { OrderStack, StackObject } from './OrderStack';
 import BackGround from '../BackGround.vue';
 import { useAnimationFrames } from '../../utils/rxjsUtils';
 
-type DragObj = StackObject & { id: number; priority: number };
+type DragObj = StackObject & { id: number; weight: number };
 const dragging = ref<DragObj | null>(null);
-const dragWithPriority = ref(false);
+const draggedWeight = ref(2);
+const draggedFactor = computed(()=>{
+  return 10**(draggedWeight.value)/100;
+})
 
 const container = ref<HTMLDivElement | null>(null);
 
 function onPointerDown(obj: DragObj) {
   dragging.value = obj;
-  dragging.value.priority = dragWithPriority.value ? 1 : 0;
+  dragging.value.weight = draggedFactor.value;
 }
 
 function onPointerUp() {
   if (dragging.value) {
-    dragging.value.priority = 0;
+    dragging.value.weight = 1;
     dragging.value = null;
   }
 }
@@ -76,7 +79,7 @@ const objects = ref([
         position: i * 45 + 100,
         showPosition: i * 60 + 100,
         size: 40 ,
-        priority: 0,
+        weight: 1,
       };
     }),
 ]);
@@ -106,7 +109,7 @@ const stack = new OrderStack<{
   id: number;
   position: number;
   size: number;
-  priority: number;
+  weight: number;
 }>();
 stack.lowerLimit = 0;
 stack.upperLimit = height.value;
