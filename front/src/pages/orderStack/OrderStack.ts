@@ -1,5 +1,6 @@
 export type StackObject = {
   size: number;
+  density: number;
   position: number;
 };
 
@@ -31,6 +32,8 @@ export class OrderStack<T extends StackObject> {
   }
 
   private _run(arr: T[]) {
+    if (arr.length === 0) return { newGroups: [], iterations: 0 };
+
     let groups = arr
       .map((obj) => Group.from([obj], this.upperLimit, this.lowerLimit))
       .sort((a, b) => a.position - b.position);
@@ -58,11 +61,11 @@ export class OrderStack<T extends StackObject> {
       }
       groups = newGroups;
     }
-    return null;
+    return { newGroups: groups, iterations: MAX_ITERATIONS };
   }
 }
 
-class Group<T extends StackObject> implements StackObject {
+class Group<T extends StackObject> {
   objects: T[] = [];
   size = 0;
   position = 0;
@@ -77,17 +80,45 @@ class Group<T extends StackObject> implements StackObject {
     );
   }
 
+  /**
+   * How the calculation works:
+   * 1. We calculate the center of mass (CM) of the desired position
+   * as if there were no objects in the way and nothing was overlapping.
+   *
+   * 2. Then we find the position of the first object such that the center of
+   * mass of the final group is the same as the CM calculated in step 1.
+   *
+   * CM = (m1 * x1 + m2 * (x1 + s1/2 + s2/2) + ... + mn * (x1 + s1/2 + s2/2 + ... )) / (m1 + ...)
+   *
+   * rearranging the formula we get:
+   * x1 = CM - (m2 * (s1/2 + s2/2) + m3 * (s1/2 + s2 + s3/2) ...)/TotalMass
+   */
   static from<T extends StackObject>(objects: T[], upper: number, lower: number) {
-    let posSum = 0;
+    let totalWeightXPosition = 0;
+    let totalMass = 0;
     objects.forEach((obj) => {
-      posSum += (obj.position + obj.size / 2) * obj.size;
+      const mass = obj.size * obj.density;
+      totalMass += mass;
+      totalWeightXPosition += (obj.position + obj.size / 2) * mass;
     });
+
     const width = objects.reduce((acc, obj) => acc + obj.size, 0);
-    //This is the center of mass
-    let x = posSum / width;
-    //The group will be placed behind the center of mass
-    x -= width / 2;
-    x = clamp(x, lower, upper - width);
+    const centerOfMass = totalWeightXPosition / totalMass;
+
+    let sumOfDistanceXMass = 0;
+    let currentDistance = 0;
+    for (let i = 1; i < objects.length; i++) {
+      const prev = objects[i - 1];
+      const current = objects[i];
+      currentDistance += current.size / 2 + prev.size / 2;
+      const mass = current.size * current.density;
+      sumOfDistanceXMass += currentDistance * mass;
+    }
+
+    const halfFirstObjectSize = objects[0].size / 2;
+    const x1 = centerOfMass - sumOfDistanceXMass / totalMass - halfFirstObjectSize;
+
+    const x = clamp(x1, lower, upper - width);
     const group = new Group<T>(upper, lower);
     group.objects = objects;
     group.size = width;
