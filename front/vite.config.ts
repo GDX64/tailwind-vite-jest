@@ -32,6 +32,15 @@ export default (args) => {
     build: {
       minify: false,
       sourcemap: false,
+      target: 'esnext',
+    },
+    esbuild: {
+      target: 'esnext',
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        target: 'esnext',
+      },
     },
     resolve: {
       alias: {
