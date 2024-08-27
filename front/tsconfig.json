@@ -16,5 +16,5 @@
     "lib": ["esnext", "dom", "dom.iterable"],
     "types": ["vitest/globals", "@webgpu/types"]
   },
-  "include": ["src/main.ts", "src/**/*.d.ts", "src/**/*.test.ts"]
+  "include": ["src/main.ts", "src/**/*.d.ts", "src/**/*.vue", "src/**/*.test.ts"]
 }
