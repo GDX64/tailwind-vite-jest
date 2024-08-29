@@ -71,6 +71,7 @@ function makeOrder() {
 
   const orderBody = new BoxEl('order body');
   orderBody.layout.setFlexDirection(Yoga.FLEX_DIRECTION_ROW);
+  orderBody.layout.setPadding(Yoga.EDGE_ALL, 1);
   orderBody.render = (ctx) => {
     ctx.fillStyle = '#5a4e1b';
     ctx.beginPath();
@@ -78,7 +79,7 @@ function makeOrder() {
     ctx.fill();
     ctx.closePath();
     ctx.beginPath();
-    ctx.roundRect(-1, -1, orderBody.width() + 1, orderBody.height() + 1, 3);
+    ctx.roundRect(0, 0, orderBody.width(), orderBody.height(), 3);
     ctx.strokeStyle = '#aeae03';
     ctx.lineWidth = 2;
     ctx.stroke();
