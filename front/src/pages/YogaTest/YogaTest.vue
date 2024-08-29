@@ -1,8 +1,15 @@
 <template>
-  <div class="w-screen h-screen flex flex-col">
+  <div class="w-screen h-screen flex flex-col" @pointerup="onPointerUp">
     <input type="text" v-model="textValue" />
     <input type="text" v-model="simText" />
-    <canvas class="grow" ref="canvas" @click="hitTest"> </canvas>
+    <canvas
+      class="grow"
+      ref="canvas"
+      @pointerdown="onPointerDown"
+      @pointermove="onPointerMove"
+      @click="onClick"
+    >
+    </canvas>
   </div>
 </template>
 
@@ -16,8 +23,15 @@ const { canvas, size } = useCanvasDPI();
 const measureCtx = new OffscreenCanvas(0, 0).getContext('2d')!;
 const textValue = ref('Compra 1');
 const simText = ref('Simulador');
+const isDragging = ref(false);
 const fontSize = ref(20);
-const { root, quantityText, simulatorText } = makeOrder();
+const orderTop = ref(30);
+const { root, quantityText, simulatorText, orderContainer } = makeOrder();
+
+watchEffect(() => {
+  orderContainer.layout.setPosition(Yoga.EDGE_TOP, orderTop.value);
+  orderContainer.layout.setPosition(Yoga.EDGE_LEFT, 30);
+});
 
 watchEffect(() => {
   const qunatityTextBoundings = textWidthAndHeight(
@@ -53,6 +67,7 @@ function makeOrder() {
 
   const orderContainer = new BoxEl('order container');
   orderContainer.layout.setFlexDirection(Yoga.FLEX_DIRECTION_ROW);
+  orderContainer.layout.setPositionType(Yoga.POSITION_TYPE_ABSOLUTE);
 
   const orderBody = new BoxEl('order body');
   orderBody.layout.setFlexDirection(Yoga.FLEX_DIRECTION_ROW);
@@ -122,7 +137,7 @@ function makeOrder() {
   orderBody.insertChild(quantityBox);
   quantityBox.insertChild(quantityText);
 
-  return { root, quantityText, simulatorText };
+  return { root, quantityText, simulatorText, orderContainer };
 }
 
 function textWidthAndHeight(font: string, text: string) {
@@ -132,10 +147,31 @@ function textWidthAndHeight(font: string, text: string) {
   return { width, height };
 }
 
-function hitTest(event: MouseEvent) {
+function onPointerDown(event: MouseEvent) {
   const { offsetX, offsetY } = event;
   const boxes = root.hitTest(offsetX, offsetY);
   console.log(boxes.map((box) => box.id));
+  const hitsOrderContainer = boxes.find((box) => box === orderContainer);
+  isDragging.value = Boolean(hitsOrderContainer);
+}
+
+function onPointerMove(event: MouseEvent) {
+  if (!isDragging.value) return;
+  const { movementY } = event;
+  orderTop.value += movementY;
+}
+
+function onPointerUp() {
+  isDragging.value = false;
+}
+
+function onClick(event: MouseEvent) {
+  const { offsetX, offsetY } = event;
+  const boxes = root.hitTest(offsetX, offsetY);
+  const clickedOnCloseBtn = boxes.find((box) => box.id === 'close btn');
+  if (clickedOnCloseBtn) {
+    alert('close btn clicked');
+  }
 }
 
 useAnimationFrames(() => {
