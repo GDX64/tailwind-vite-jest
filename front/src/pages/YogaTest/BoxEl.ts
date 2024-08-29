@@ -63,6 +63,10 @@ export class BoxEl {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
+    const isDisplayNone = this.layout.getDisplay() === Yoga.DISPLAY_NONE;
+    if (isDisplayNone) {
+      return;
+    }
     ctx.save();
     ctx.translate(this.layout.getComputedLeft(), this.layout.getComputedTop());
     this.render?.(ctx);

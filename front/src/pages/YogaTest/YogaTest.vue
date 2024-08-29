@@ -21,24 +21,39 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watchEffect } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 import { useAnimationFrames, useCanvasDPI } from '../../utils/rxjsUtils';
 import Yoga, { Node } from 'yoga-layout';
 import { BoxEl } from './BoxEl';
+
+enum States {
+  IDLE,
+  POINTERDOWN,
+  DRAG,
+}
 
 const { canvas, size } = useCanvasDPI();
 const measureCtx = new OffscreenCanvas(0, 0).getContext('2d')!;
 const textValue = ref('Compra 1');
 const simText = ref('Simulador');
-const isDragging = ref(false);
+const isDragging = computed(() => state.value === States.DRAG);
+const showResults = ref(false);
 const fontSize = ref(20);
 const orderTop = ref(30);
+const state = ref(States.IDLE);
 const isOverOrder = ref(false);
-const { root, quantityText, simulatorText, orderContainer, closeBTN } = makeOrder();
+const { root, quantityText, simulatorText, orderContainer, closeBTN, resultsBox } =
+  makeOrder();
 
 watchEffect(() => {
   orderContainer.layout.setPosition(Yoga.EDGE_TOP, orderTop.value);
   orderContainer.layout.setPosition(Yoga.EDGE_LEFT, 30);
+
+  if (showResults.value) {
+    resultsBox.layout.setDisplay(Yoga.DISPLAY_FLEX);
+  } else {
+    resultsBox.layout.setDisplay(Yoga.DISPLAY_NONE);
+  }
 });
 
 watchEffect(() => {
@@ -121,6 +136,29 @@ function makeOrder() {
     ctx.closePath();
   };
 
+  const resultsBox = new BoxEl('results box');
+  resultsBox.layout.setPadding(Yoga.EDGE_HORIZONTAL, 10);
+  resultsBox.layout.setJustifyContent(Yoga.JUSTIFY_CENTER);
+  resultsBox.render = (ctx) => {
+    ctx.fillStyle = '#489d48';
+    ctx.beginPath();
+    ctx.roundRect(0, 0, resultsBox.width(), resultsBox.height(), 3);
+    ctx.fill();
+    ctx.closePath();
+  };
+
+  const resultsText = new BoxEl('results text');
+  const resultsTextBoundings = textWidthAndHeight('20px Arial', 'R$ 100,00');
+  resultsText.layout.setWidth(resultsTextBoundings.width);
+  resultsText.layout.setHeight(resultsTextBoundings.height);
+  resultsText.render = (ctx) => {
+    ctx.fillStyle = 'white';
+    ctx.font = '20px Arial';
+    ctx.textBaseline = 'top';
+    ctx.fillText('R$ 100,00', 0, 0);
+  };
+  resultsBox.insertChild(resultsText);
+
   const closeBTN = new BoxEl('close btn');
   closeBTN.layout.setWidth(40);
   closeBTN.layout.setHeight(40);
@@ -147,9 +185,10 @@ function makeOrder() {
   orderContainer.insertChild(closeBTN);
   orderBody.insertChild(simulatorBox);
   orderBody.insertChild(quantityBox);
+  orderBody.insertChild(resultsBox);
   quantityBox.insertChild(quantityText);
 
-  return { root, quantityText, simulatorText, orderContainer, closeBTN };
+  return { root, quantityText, simulatorText, orderContainer, closeBTN, resultsBox };
 }
 
 function textWidthAndHeight(font: string, text: string) {
@@ -164,29 +203,39 @@ function onPointerDown(event: MouseEvent) {
   const boxes = root.hitTest(offsetX, offsetY);
   console.log(boxes.map((box) => box.id));
   const hitsOrderContainer = boxes.find((box) => box === orderContainer);
-  isDragging.value = Boolean(hitsOrderContainer);
+  if (hitsOrderContainer) {
+    state.value = States.POINTERDOWN;
+  }
 }
 
 function onPointerMove(event: MouseEvent) {
   isOverOrder.value = root.hitTest(event.offsetX, event.offsetY).includes(orderContainer);
-
+  if (state.value === States.POINTERDOWN) {
+    state.value = States.DRAG;
+  }
   if (!isDragging.value) return;
   const { movementY } = event;
   orderTop.value += movementY;
 }
 
-function onPointerUp() {
-  isDragging.value = false;
-}
-
-function onClick(event: MouseEvent) {
+function onPointerUp(event: PointerEvent) {
+  if (isDragging.value) {
+    state.value = States.IDLE;
+    return;
+  }
+  state.value = States.IDLE;
   const { offsetX, offsetY } = event;
   const boxes = root.hitTest(offsetX, offsetY);
-  const clickedOnCloseBtn = boxes.find((box) => box.id === 'close btn');
+  const clickedOnCloseBtn = boxes.find((box) => box === closeBTN);
+  const clickedOnOrder = boxes.find((box) => box === orderContainer);
   if (clickedOnCloseBtn) {
-    console.log('close btn clicked', closeBTN.worldTop());
+    alert('close');
+  } else if (clickedOnOrder) {
+    showResults.value = !showResults.value;
   }
 }
+
+function onClick(event: MouseEvent) {}
 
 useAnimationFrames(() => {
   const ctx = canvas.value?.getContext('2d');
