@@ -23,6 +23,10 @@ function makeOrder() {
   root.layout.setPadding(Yoga.EDGE_ALL, 30);
   root.layout.setAlignItems(Yoga.ALIGN_FLEX_START);
   root.layout.setFlexDirection(Yoga.FLEX_DIRECTION_ROW);
+
+  const orderContainer = new BoxEl('order container');
+  orderContainer.layout.setFlexDirection(Yoga.FLEX_DIRECTION_ROW);
+
   const orderBody = new BoxEl('order body');
   orderBody.layout.setFlexDirection(Yoga.FLEX_DIRECTION_ROW);
   orderBody.render = (ctx) => {
@@ -34,7 +38,6 @@ function makeOrder() {
     ctx.beginPath();
     ctx.roundRect(0, 0, orderBody.width(), orderBody.height(), 3);
     ctx.strokeStyle = '#ffff00';
-    ctx.setLineDash([3, 3]);
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.closePath();
@@ -85,7 +88,30 @@ function makeOrder() {
     ctx.closePath();
   };
 
-  root.insertChild(orderBody);
+  const closeBTN = new BoxEl('close btn');
+  closeBTN.layout.setWidth(40);
+  closeBTN.layout.setHeight(40);
+  closeBTN.layout.setMargin(Yoga.EDGE_LEFT, 5);
+  closeBTN.render = (ctx) => {
+    ctx.fillStyle = 'red';
+    ctx.beginPath();
+    ctx.roundRect(0, 0, closeBTN.width(), closeBTN.height(), 3);
+    ctx.fill();
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.font = '20px Arial';
+    ctx.textBaseline = 'top';
+    ctx.moveTo(5, 5);
+    ctx.lineTo(35, 35);
+    ctx.moveTo(35, 5);
+    ctx.lineTo(5, 35);
+    ctx.stroke();
+    ctx.closePath();
+  };
+
+  root.insertChild(orderContainer);
+  orderContainer.insertChild(orderBody);
+  orderContainer.insertChild(closeBTN);
   orderBody.insertChild(simulatorBox);
   orderBody.insertChild(quantityBox);
   quantityBox.insertChild(quantityText);

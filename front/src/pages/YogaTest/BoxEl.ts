@@ -53,7 +53,9 @@ export class BoxEl {
   draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
     ctx.translate(this.layout.getComputedLeft(), this.layout.getComputedTop());
+    ctx.save();
     this.render?.(ctx);
+    ctx.restore();
     this.children.forEach((child) => child.draw(ctx));
     ctx.restore();
   }
