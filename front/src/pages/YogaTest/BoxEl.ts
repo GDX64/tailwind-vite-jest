@@ -24,6 +24,18 @@ export class BoxEl {
     return this.layout.getComputedHeight();
   }
 
+  worldLeft(): number {
+    const myLeft = this.layout.getComputedLeft();
+    let parentLeft = this.parent?.worldLeft() ?? 0;
+    return myLeft + parentLeft;
+  }
+
+  worldTop(): number {
+    const myTop = this.layout.getComputedTop();
+    let parentTop = this.parent?.worldTop() ?? 0;
+    return myTop + parentTop;
+  }
+
   insertChild(box: BoxEl) {
     this.children.push(box);
     this.layout.insertChild(box.layout, this.children.length - 1);
@@ -53,11 +65,7 @@ export class BoxEl {
   draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
     ctx.translate(this.layout.getComputedLeft(), this.layout.getComputedTop());
-    if (this.render) {
-      ctx.save();
-      this.render?.(ctx);
-      ctx.restore();
-    }
+    this.render?.(ctx);
     this.children.forEach((child) => child.draw(ctx));
     ctx.restore();
   }

@@ -1,7 +1,14 @@
 <template>
-  <div class="w-screen h-screen flex flex-col" @pointerup="onPointerUp">
-    <input type="text" v-model="textValue" />
-    <input type="text" v-model="simText" />
+  <div
+    class="w-screen h-screen flex flex-col bg-sec-950 text-prime-200"
+    @pointerup="onPointerUp"
+  >
+    <input
+      type="text"
+      class="bg-sec-900 w-96 border-high-200 border mb-2"
+      v-model="textValue"
+    />
+    <input type="text" class="bg-sec-900 w-96 border-high-200 border" v-model="simText" />
     <canvas
       class="grow"
       ref="canvas"
@@ -26,7 +33,8 @@ const simText = ref('Simulador');
 const isDragging = ref(false);
 const fontSize = ref(20);
 const orderTop = ref(30);
-const { root, quantityText, simulatorText, orderContainer } = makeOrder();
+const isOverOrder = ref(false);
+const { root, quantityText, simulatorText, orderContainer, closeBTN } = makeOrder();
 
 watchEffect(() => {
   orderContainer.layout.setPosition(Yoga.EDGE_TOP, orderTop.value);
@@ -66,6 +74,11 @@ function makeOrder() {
   root.layout.setFlexDirection(Yoga.FLEX_DIRECTION_ROW);
 
   const orderContainer = new BoxEl('order container');
+  orderContainer.render = (ctx) => {
+    if (!isOverOrder.value) {
+      ctx.globalAlpha = 0.9;
+    }
+  };
   orderContainer.layout.setFlexDirection(Yoga.FLEX_DIRECTION_ROW);
   orderContainer.layout.setPositionType(Yoga.POSITION_TYPE_ABSOLUTE);
 
@@ -80,7 +93,7 @@ function makeOrder() {
     ctx.closePath();
     ctx.beginPath();
     ctx.roundRect(0, 0, orderBody.width(), orderBody.height(), 3);
-    ctx.strokeStyle = '#aeae03';
+    ctx.strokeStyle = '#e8e837';
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.closePath();
@@ -136,7 +149,7 @@ function makeOrder() {
   orderBody.insertChild(quantityBox);
   quantityBox.insertChild(quantityText);
 
-  return { root, quantityText, simulatorText, orderContainer };
+  return { root, quantityText, simulatorText, orderContainer, closeBTN };
 }
 
 function textWidthAndHeight(font: string, text: string) {
@@ -155,6 +168,8 @@ function onPointerDown(event: MouseEvent) {
 }
 
 function onPointerMove(event: MouseEvent) {
+  isOverOrder.value = root.hitTest(event.offsetX, event.offsetY).includes(orderContainer);
+
   if (!isDragging.value) return;
   const { movementY } = event;
   orderTop.value += movementY;
@@ -169,7 +184,7 @@ function onClick(event: MouseEvent) {
   const boxes = root.hitTest(offsetX, offsetY);
   const clickedOnCloseBtn = boxes.find((box) => box.id === 'close btn');
   if (clickedOnCloseBtn) {
-    alert('close btn clicked');
+    console.log('close btn clicked', closeBTN.worldTop());
   }
 }
 
@@ -182,6 +197,17 @@ useAnimationFrames(() => {
   ctx.scale(devicePixelRatio, devicePixelRatio);
   ctx.clearRect(0, 0, size.width, size.height);
   root.draw(ctx);
+
+  //draw absolute line
+  const lineTop = closeBTN.worldTop() + closeBTN.height() / 2;
+  const lineLeft = closeBTN.worldLeft() + closeBTN.width();
+  ctx.strokeStyle = 'white';
+  ctx.beginPath();
+  ctx.moveTo(lineLeft, lineTop);
+  ctx.lineTo(lineLeft + 50, lineTop);
+  ctx.lineTo(size.width - 50, 0);
+  ctx.lineTo(size.width, 0);
+  ctx.stroke();
   ctx.restore();
 });
 </script>
