@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-screen h-screen flex flex-col bg-sec-950 text-prime-200"
+    class="w-screen h-screen flex flex-col bg-sec-950 text-prime-200 touch-none"
     @pointerup="onPointerUp"
   >
     <input
@@ -9,6 +9,7 @@
       v-model="textValue"
     />
     <input type="text" class="bg-sec-900 w-96 border-high-200 border" v-model="simText" />
+    <div class="min-h-20">event path: {{ eventPath }}</div>
     <canvas
       class="grow"
       ref="canvas"
@@ -23,7 +24,7 @@
 <script lang="ts" setup>
 import { computed, ref, watchEffect } from 'vue';
 import { useAnimationFrames, useCanvasDPI } from '../../utils/rxjsUtils';
-import Yoga, { Node } from 'yoga-layout';
+import Yoga from 'yoga-layout';
 import { BoxEl } from './BoxEl';
 
 enum States {
@@ -34,8 +35,9 @@ enum States {
 
 const { canvas, size } = useCanvasDPI();
 const measureCtx = new OffscreenCanvas(0, 0).getContext('2d')!;
-const textValue = ref('Compra 1');
-const simText = ref('Simulador');
+const eventPath = ref('');
+const textValue = ref('C 1');
+const simText = ref('Sim.');
 const isDragging = computed(() => state.value === States.DRAG);
 const showResults = ref(false);
 const fontSize = ref(20);
@@ -201,7 +203,7 @@ function textWidthAndHeight(font: string, text: string) {
 function onPointerDown(event: MouseEvent) {
   const { offsetX, offsetY } = event;
   const boxes = root.hitTest(offsetX, offsetY);
-  console.log(boxes.map((box) => box.id));
+  eventPath.value = boxes.map((box) => box.id).join(' -> ');
   const hitsOrderContainer = boxes.find((box) => box === orderContainer);
   if (hitsOrderContainer) {
     state.value = States.POINTERDOWN;
