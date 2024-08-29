@@ -57,14 +57,16 @@ function makeOrder() {
   const orderBody = new BoxEl('order body');
   orderBody.layout.setFlexDirection(Yoga.FLEX_DIRECTION_ROW);
   orderBody.render = (ctx) => {
-    ctx.fillStyle = '#7a7a1d';
+    ctx.fillStyle = '#5a4e1b';
     ctx.beginPath();
     ctx.roundRect(0, 0, orderBody.width(), orderBody.height(), 3);
     ctx.fill();
     ctx.closePath();
+  };
+  orderBody.postRender = (ctx) => {
     ctx.beginPath();
     ctx.roundRect(0, 0, orderBody.width(), orderBody.height(), 3);
-    ctx.strokeStyle = '#ffff00';
+    ctx.strokeStyle = '#aeae03';
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.closePath();
