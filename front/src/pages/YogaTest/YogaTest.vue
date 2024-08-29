@@ -56,6 +56,8 @@ watchEffect(() => {
   } else {
     resultsBox.layout.setDisplay(Yoga.DISPLAY_NONE);
   }
+  root.layout.setWidth(size.width);
+  root.layout.setHeight(size.height);
 });
 
 watchEffect(() => {
@@ -243,7 +245,8 @@ useAnimationFrames(() => {
   const ctx = canvas.value?.getContext('2d');
   if (!ctx) return;
 
-  root.layout.calculateLayout(size.width, size.height);
+  root.calculateLayout();
+
   ctx.save();
   ctx.scale(devicePixelRatio, devicePixelRatio);
   ctx.clearRect(0, 0, size.width, size.height);

@@ -25,15 +25,19 @@ export class BoxEl {
   }
 
   worldLeft(): number {
-    const myLeft = this.layout.getComputedLeft();
-    let parentLeft = this.parent?.worldLeft() ?? 0;
-    return myLeft + parentLeft;
+    const parentLeft = this.parent?.worldLeft() ?? 0;
+    return this.left() + parentLeft;
   }
 
   worldTop(): number {
-    const myTop = this.layout.getComputedTop();
-    let parentTop = this.parent?.worldTop() ?? 0;
-    return myTop + parentTop;
+    const parentTop = this.parent?.worldTop() ?? 0;
+    return this.top() + parentTop;
+  }
+
+  calculateLayout() {
+    if (this.layout.isDirty()) {
+      this.layout.calculateLayout('auto', 'auto');
+    }
   }
 
   insertChild(box: BoxEl) {
@@ -42,23 +46,17 @@ export class BoxEl {
     box.parent = this;
   }
 
-  withChildren(fn: () => BoxEl[]) {
-    fn().forEach((child) => this.insertChild(child));
-    return this;
-  }
-
   hitTest(x: number, y: number): BoxEl[] {
-    const left = this.layout.getComputedLeft();
-    const top = this.layout.getComputedTop();
-    const right = left + this.layout.getComputedWidth();
-    const bottom = top + this.layout.getComputedHeight();
+    const { left, top, width, height } = this.layout.getComputedLayout();
+    const right = left + width;
+    const bottom = top + height;
     const result: BoxEl[] = [];
     if (x >= left && x <= right && y >= top && y <= bottom) {
       result.push(this);
+      this.children.forEach((child) => {
+        result.push(...child.hitTest(x - left, y - top));
+      });
     }
-    this.children.forEach((child) => {
-      result.push(...child.hitTest(x - left, y - top));
-    });
     return result;
   }
 
