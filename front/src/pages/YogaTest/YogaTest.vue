@@ -1,7 +1,7 @@
 <template>
   <div class="w-screen h-screen flex flex-col">
     <input type="text" v-model="textValue" />
-    <input type="range" v-model.number="fontSize" min="10" max="50" />
+    <input type="text" v-model="simText" />
     <canvas class="grow" ref="canvas" @click="hitTest"> </canvas>
   </div>
 </template>
@@ -15,8 +15,35 @@ import { BoxEl } from './BoxEl';
 const { canvas, size } = useCanvasDPI();
 const measureCtx = new OffscreenCanvas(0, 0).getContext('2d')!;
 const textValue = ref('Compra 1');
+const simText = ref('Simulador');
 const fontSize = ref(20);
-const root = makeOrder();
+const { root, quantityText, simulatorText } = makeOrder();
+
+watchEffect(() => {
+  const qunatityTextBoundings = textWidthAndHeight(
+    `${fontSize.value}px Arial`,
+    textValue.value
+  );
+  quantityText.layout.setWidth(qunatityTextBoundings.width);
+  quantityText.layout.setHeight(qunatityTextBoundings.height);
+
+  quantityText.render = (ctx) => {
+    ctx.font = `${fontSize.value}px Arial`;
+    ctx.fillStyle = 'white';
+    ctx.textBaseline = 'top';
+    ctx.fillText(textValue.value, 0, 0);
+  };
+
+  const simulatorTextBoundings = textWidthAndHeight('20px Arial', simText.value);
+  simulatorText.layout.setWidth(simulatorTextBoundings.width);
+  simulatorText.layout.setHeight(simulatorTextBoundings.height);
+  simulatorText.render = (ctx) => {
+    ctx.font = `${fontSize.value}px Arial`;
+    ctx.fillStyle = 'white';
+    ctx.textBaseline = 'top';
+    ctx.fillText(simText.value, 0, 0);
+  };
+});
 
 function makeOrder() {
   const root = new BoxEl('root box');
@@ -50,36 +77,13 @@ function makeOrder() {
   quantityBox.layout.setPadding(Yoga.EDGE_HORIZONTAL, 10);
   const quantityText = new BoxEl('quantity text');
 
-  const qunatityTextBoundings = textWidthAndHeight(
-    `${fontSize.value}px Arial`,
-    textValue.value
-  );
-  quantityText.layout.setWidth(qunatityTextBoundings.width);
-  quantityText.layout.setHeight(qunatityTextBoundings.height);
-
-  quantityText.render = (ctx) => {
-    ctx.font = `${fontSize.value}px Arial`;
-    ctx.fillStyle = 'white';
-    ctx.textBaseline = 'top';
-    ctx.fillText(textValue.value, 0, 0);
-  };
-
   const simulatorBox = new BoxEl('simulator box');
   simulatorBox.layout.setPadding(Yoga.EDGE_HORIZONTAL, 10);
 
   const simulatorText = new BoxEl('simulator text');
   simulatorBox.insertChild(simulatorText);
-  const simulatorTextBoundings = textWidthAndHeight('20px Arial', 'Simulador');
-  simulatorText.layout.setWidth(simulatorTextBoundings.width);
-  simulatorText.layout.setHeight(simulatorTextBoundings.height);
 
   simulatorBox.layout.setJustifyContent(Yoga.JUSTIFY_CENTER);
-  simulatorText.render = (ctx) => {
-    ctx.font = `${fontSize.value}px Arial`;
-    ctx.fillStyle = 'white';
-    ctx.textBaseline = 'top';
-    ctx.fillText('Simulador', 0, 0);
-  };
   simulatorBox.render = (ctx) => {
     ctx.fillStyle = 'red';
     ctx.beginPath();
@@ -116,7 +120,7 @@ function makeOrder() {
   orderBody.insertChild(quantityBox);
   quantityBox.insertChild(quantityText);
 
-  return root;
+  return { root, quantityText, simulatorText };
 }
 
 function textWidthAndHeight(font: string, text: string) {
