@@ -5,7 +5,6 @@ export class BoxEl {
   children: BoxEl[] = [];
   parent?: BoxEl = undefined;
   render?: (ctx: CanvasRenderingContext2D) => void = undefined;
-  postRender?: (ctx: CanvasRenderingContext2D) => void = undefined;
 
   constructor(public id?: string) {}
 
@@ -60,11 +59,6 @@ export class BoxEl {
       ctx.restore();
     }
     this.children.forEach((child) => child.draw(ctx));
-    if (this.postRender) {
-      ctx.save();
-      this.postRender?.(ctx);
-      ctx.restore();
-    }
     ctx.restore();
   }
 }

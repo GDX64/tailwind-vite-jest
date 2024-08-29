@@ -77,10 +77,8 @@ function makeOrder() {
     ctx.roundRect(0, 0, orderBody.width(), orderBody.height(), 3);
     ctx.fill();
     ctx.closePath();
-  };
-  orderBody.postRender = (ctx) => {
     ctx.beginPath();
-    ctx.roundRect(0, 0, orderBody.width(), orderBody.height(), 3);
+    ctx.roundRect(-1, -1, orderBody.width() + 1, orderBody.height() + 1, 3);
     ctx.strokeStyle = '#aeae03';
     ctx.lineWidth = 2;
     ctx.stroke();
