@@ -32,14 +32,14 @@ export default (args) => {
     build: {
       minify: false,
       sourcemap: false,
-      target: 'esnext',
+      target: 'es2022',
     },
     esbuild: {
-      target: 'esnext',
+      target: 'es2022',
     },
     optimizeDeps: {
       esbuildOptions: {
-        target: 'esnext',
+        target: 'es2022',
       },
     },
     resolve: {
