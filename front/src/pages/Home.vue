@@ -19,8 +19,8 @@ import BackGround from './BackGround.vue';
         <p>Basics of how to do SIMD with rust on WASM</p>
       </li>
       <li>
-        <a href="https://game.glmachado.com/static/editor/index.html"
-          >GAME - Archpelagus 🕹️</a
+        <a href="https://archpelagus.glmachado.com/static/editor/index.html"
+          >GAME - Archpelagus 🚢</a
         >
         <p>Online Real Time Strategy game (kind of age of empires, but with boats)</p>
       </li>
