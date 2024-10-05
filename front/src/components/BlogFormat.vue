@@ -9,12 +9,14 @@ import hljs from 'highlight.js/lib/core';
 import rust from 'highlight.js/lib/languages/rust';
 import wasm from 'highlight.js/lib/languages/wasm';
 import toml from 'highlight.js/lib/languages/yaml';
+import ts from 'highlight.js/lib/languages/typescript';
 import { onMounted } from 'vue';
 import './codeStyle.css';
 
 hljs.registerLanguage('rust', rust);
 hljs.registerLanguage('wasm', wasm);
 hljs.registerLanguage('toml', toml);
+hljs.registerLanguage('typescript', ts);
 
 onMounted(() => {
   hljs.highlightAll();
