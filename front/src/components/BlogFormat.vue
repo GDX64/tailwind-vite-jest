@@ -1,5 +1,7 @@
 <template>
-  <div class="my-blog-post w-full overflow-hidden" v-html="parsed"></div>
+  <div class="my-blog-post w-full overflow-hidden">
+    <slot></slot>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -7,22 +9,13 @@ import hljs from 'highlight.js/lib/core';
 import rust from 'highlight.js/lib/languages/rust';
 import wasm from 'highlight.js/lib/languages/wasm';
 import toml from 'highlight.js/lib/languages/yaml';
-import { onMounted, onUpdated } from 'vue';
-import { marked } from 'marked';
+import { onMounted } from 'vue';
 import './codeStyle.css';
 
 hljs.registerLanguage('rust', rust);
 hljs.registerLanguage('wasm', wasm);
 hljs.registerLanguage('toml', toml);
 
-const props = defineProps<{
-  content: string;
-}>();
-const parsed = marked(props.content, { async: false });
-
-onUpdated(() => {
-  hljs.highlightAll();
-});
 onMounted(() => {
   hljs.highlightAll();
 });

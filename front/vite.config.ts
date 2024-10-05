@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue';
 import svgLoader from 'vite-svg-loader';
 import auto from 'autoprefixer';
 import tailwind from 'tailwindcss';
+import mdPlugin, { Mode } from 'vite-plugin-markdown';
 
 // https://vitejs.dev/config/
 export default (args) => {
@@ -10,7 +11,13 @@ export default (args) => {
     worker: {
       plugins: [makeVuePlugin()],
     },
-    plugins: [makeVuePlugin(), svgLoader() as any],
+    plugins: [
+      makeVuePlugin(),
+      svgLoader() as any,
+      mdPlugin({
+        mode: [Mode.VUE],
+      }),
+    ],
     test: {
       globals: true,
       environment: 'happy-dom',
