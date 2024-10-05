@@ -4,8 +4,21 @@ import BackGround from './BackGround.vue';
 
 <template>
   <BackGround>
-    <h1 class="text-2xl mb-4">Trust me, I'm an engineer</h1>
-    <h3 class="text-xl mb-4">Things with a bit of context:</h3>
+    <h2 class="text-xl mb-4">The archpelagus saga</h2>
+    <ul class="flex flex-col gap-4 text-xl [&_a]:text-high-300 [&_a]:underline">
+      <li>
+        <a href="https://archpelagus.glmachado.com/static/editor/index.html"
+          >GAME - Archpelagus 🚢</a
+        >
+        <p>Online Real Time Strategy game (kind of age of empires, but with boats)</p>
+      </li>
+      <li>
+        <a href="/space-index">Spacial Indexing for my game</a>
+        <p>Some aproaches to space indexing for games</p>
+      </li>
+    </ul>
+    <div class="border-t-2 my-8 border-sec-700"></div>
+    <h2 class="text-xl mb-4">Things with a bit of context:</h2>
     <ul class="flex flex-col gap-4 text-xl [&_a]:text-high-300 [&_a]:underline">
       <li>
         <a href="/wasm-chart">Wasm Chart</a>
@@ -19,12 +32,6 @@ import BackGround from './BackGround.vue';
         <p>Basics of how to do SIMD with rust on WASM</p>
       </li>
       <li>
-        <a href="https://archpelagus.glmachado.com/static/editor/index.html"
-          >GAME - Archpelagus 🚢</a
-        >
-        <p>Online Real Time Strategy game (kind of age of empires, but with boats)</p>
-      </li>
-      <li>
         <a href="/cv">CV Online</a>
       </li>
       <li>
@@ -34,9 +41,9 @@ import BackGround from './BackGround.vue';
       </li>
     </ul>
     <div class="border-t-2 my-8 border-sec-700"></div>
-    <h3 class="text-xl mb-4">
+    <h2 class="text-xl mb-4">
       Things with no context I keep here just to show to my friends:
-    </h3>
+    </h2>
     <ul class="flex flex-col gap-5 text-xl [&_a]:text-high-300 [&_a]:underline">
       <li>
         <a href="/gravity">Gravity</a>
