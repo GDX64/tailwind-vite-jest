@@ -1,16 +1,24 @@
 <template>
   <div class="container">
-    <div class="">
-      <label>Calc Time: </label>
-      <span>{{ drawTime.toFixed(2) }}ms</span>
+    <div class="flex items-center gap-2 mb-2">
+      <button class="rounded-md px-2 bg-sec-500" @click="onRestart">Restart</button>
+      <div class="">
+        <label>Calc Time: </label>
+        <span>{{ drawTime.toFixed(2) }}ms</span>
+      </div>
     </div>
     <canvas ref="canvas" class="my-canvas" @pointermove="onPointerMove"></canvas>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watchEffect } from 'vue';
-import { useAnimationFrames, useCanvasDPI, useSize } from '../../utils/rxjsUtils';
+import { onMounted, ref } from 'vue';
+import {
+  useAnimationFrames,
+  useCanvasDPI,
+  useSize,
+  useVisibility,
+} from '../../utils/rxjsUtils';
 import { GridIndex } from './GridIndex';
 import { Vec2 } from '../../utils/Vec2';
 import { Entity, SpaceIndex } from './SpaceIndexTypes';
@@ -36,18 +44,21 @@ const { canvas, size } = useCanvasDPI();
 let collection: SpaceIndex<Circle> = createCollection();
 
 onMounted(() => {
-  for (const circle of randCircles()) {
-    collection.insert(circle);
-  }
+  onRestart();
 });
 
-useAnimationFrames(({ delta }) => {
+const { isVisible } = useVisibility(canvas);
+
+useAnimationFrames(() => {
+  if (!isVisible.value) {
+    return;
+  }
   const ctx = canvas.value?.getContext('2d');
   if (!ctx) {
     return;
   }
   const { elapsed } = measureTime(() => {
-    evolveSimulation(delta / 1000);
+    evolveSimulation(0.016);
   });
 
   drawTime.value = elapsed;
@@ -167,9 +178,24 @@ class Circle implements Entity {
 function onPointerMove(e: PointerEvent) {
   pointerPositon.value = Vec2.new(e.offsetX, e.offsetY);
 }
+
+function onRestart() {
+  collection = createCollection();
+  for (const circle of randCircles()) {
+    collection.insert(circle);
+  }
+}
 </script>
 
 <style>
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.container {
+  font-family: monospace sans-serif;
+}
+
 .my-canvas {
   width: 100%;
   max-width: 400px;

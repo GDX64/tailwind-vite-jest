@@ -19,6 +19,7 @@ import {
   Ref,
   ref,
   shallowRef,
+  watch,
   watchEffect,
   watchSyncEffect,
 } from 'vue';
@@ -80,6 +81,30 @@ export function storageRef(name: string, initial = '') {
     localStorage.setItem(name, value.value);
   });
   return value;
+}
+
+export function useVisibility(container: Ref<HTMLElement | null | undefined>) {
+  const isVisible = ref(false);
+  const observer = new IntersectionObserver((entries) => {
+    isVisible.value = entries.at(-1)?.isIntersecting ?? false;
+  });
+
+  watch(
+    container,
+    (el, _, clear) => {
+      if (el) {
+        observer.observe(el);
+        clear(() => {
+          observer.unobserve(el);
+        });
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  return { isVisible };
 }
 
 export function useSize(container = ref<HTMLElement | null>()) {
