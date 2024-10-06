@@ -2,7 +2,7 @@ import { LinScale } from '../../utils/LinScale';
 import { Vec2 } from '../../utils/Vec2';
 import { Entity, SpaceIndex } from './SpaceIndexTypes';
 
-const MIN_SIZE = 10;
+const MIN_SIZE = 3;
 
 export class QuadTreeIndex<T extends Entity> implements SpaceIndex<T> {
   nw: QuadTreeIndex<T> | null = null;

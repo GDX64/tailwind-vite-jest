@@ -33,6 +33,8 @@ Lets suppose that we have a map that is 100x100 and we have random circles in th
 
 <space-index-example kind="grid"></space-index-example>
 
+This idea is very simple, but it works quite well. Here on my machine, for 500 circles we can speed up the simulation for a factor of 10.
+
 
 ## The classic one: Quadtree
 
@@ -42,3 +44,17 @@ Lets try it out:
 
 
 <space-index-example kind="quadtree"></space-index-example>
+
+A quad tree is a bit more complicated than a grid, but it has some advantages. With the grid we can end up with lots of empty cells, and with the quadtree we can have a more dynamic structure that will adapt to the entities that are being inserted. But dispite that, the quadtree can be slower than the grid in some cases, maily because of the computational cost of traversing the tree. Modern hardware likes arrays, and the grid is just an array of arrays, so it can be faster in some cases.
+
+## The cool kids one: Spatial Hash
+
+The spatial hash is very similar to the grid, but it is more dynamic. Instead of having a fixed grid, we have a hash table where the keys are the cells and the values are the entities that are inside the cell. This way we have a fixed size grid, but it wont be as sparse as the grid we've seen before.
+
+<space-index-example kind="spatial-hash"></space-index-example>
+
+## What did I end up using?
+
+My game is a RTS, so units tend to group themselves in clusters. So something like a quadtree fits well for this case. We can also mix up quadtrees and hashgrids so that the quadtree does not get too deep (wich is what harms the performance at the end). 
+
+That all said... I'm using just a grid anyways, because it is simple and it is fast enough for now 🤭. I'm also using rust for my core game logic, and rust is very efficient with arrays, much more than javascript. So I will roll this thing with a grid for a while. It's all very easy to swap if I need to, so I won't worry much about that.
