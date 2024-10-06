@@ -38,10 +38,6 @@ h2 {
   @apply italic text-high-200 bg-sec-900 rounded-sm px-1;
 }
 
-.my-blog-post code {
-  overscroll-behavior: auto;
-}
-
 .my-blog-post pre {
   @apply text-sm mb-5;
 }
