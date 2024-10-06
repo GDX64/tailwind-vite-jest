@@ -26,15 +26,16 @@ import { LinScale } from '../../utils/LinScale';
 import { measureTime } from '../../utils/benchMark';
 import { QuadTreeIndex } from './QuadTreeIndex';
 import { SpatialGridColors } from './SpatialGridColors';
+import { HashGridIndex } from './HashGridIndex';
 
 const CIRCLES = 100;
 const GRID_SIZE = 100;
 const CIRC_RADIUS = 1;
-const R = 15;
+const R = 10;
 const V = 10;
 
 const props = defineProps<{
-  kind: 'quadtree' | 'grid';
+  kind: 'quadtree' | 'grid' | 'hashgrid';
 }>();
 
 const drawTime = ref(0);
@@ -135,7 +136,10 @@ function createCollection() {
   if (props.kind === 'quadtree') {
     return new QuadTreeIndex<Circle>(GRID_SIZE);
   }
-  return new GridIndex<Circle>(10, GRID_SIZE);
+  if (props.kind === 'hashgrid') {
+    return new HashGridIndex<Circle>(R * 2.5, GRID_SIZE);
+  }
+  return new GridIndex<Circle>(R, GRID_SIZE);
 }
 
 function randCircles() {
