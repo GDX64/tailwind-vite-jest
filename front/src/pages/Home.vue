@@ -13,7 +13,7 @@ import BackGround from './BackGround.vue';
         <p>Online Real Time Strategy game (kind of age of empires, but with boats)</p>
       </li>
       <li>
-        <a href="/space-index">Spacial Indexing for my game</a>
+        <a href="/space-index">Spatial Indexing for my game</a>
         <p>Some aproaches to space indexing for games</p>
       </li>
     </ul>
