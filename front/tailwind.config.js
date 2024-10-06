@@ -6,8 +6,14 @@ module.exports = {
   theme: {
     colors: {
       ...colors,
-      prime: colors.sky,
-      sec: colors.stone,
+      prime: {
+        ...colors.sky,
+        50: '#ffffff',
+      },
+      sec: {
+        ...colors.gray,
+        950: '#000000',
+      },
       high: colors.emerald,
     },
     extend: {},

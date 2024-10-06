@@ -1,4 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import Linkedin from '../assets/linkedin-brands.svg?component';
+import Github from '../assets/github-brands.svg?component';
+</script>
 
 <template>
   <div class="my-bg-styles flex flex-col items-center h-full">
@@ -11,6 +14,14 @@
     </nav>
     <div class="max-w-[900px] w-full px-2 rounded-sm py-2">
       <slot></slot>
+    </div>
+    <div class="self-end bg-sec-900 w-full min-h-12 flex items-center px-2 gap-4 mt-4">
+      <a href="https://www.linkedin.com/in/gabriel-e-l-machado">
+        <Linkedin class="w-8 h-8 fill-emerald-300"></Linkedin>
+      </a>
+      <a href="https://github.com/GDX64/">
+        <Github class="w-8 h-8 fill-emerald-300"></Github>
+      </a>
     </div>
   </div>
 </template>
