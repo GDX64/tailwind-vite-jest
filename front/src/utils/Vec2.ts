@@ -13,6 +13,12 @@ export class Vec2 {
     return new Vec2(this.x - v.x, this.y - v.y);
   }
 
+  distanceTo(v: Vec2): number {
+    const dx = this.x - v.x;
+    const dy = this.y - v.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
   mul(scalar: number): Vec2 {
     return new Vec2(this.x * scalar, this.y * scalar);
   }

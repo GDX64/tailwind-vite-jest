@@ -20,17 +20,17 @@ export class GridIndex<T extends Entity> implements SpaceIndex<T> {
     }
   }
 
-  query(pos: Vec2, r: number): T[] {
-    const near: T[] = [];
+  *query(pos: Vec2, r: number) {
     for (const { bucket } of this.queryBuckets(pos, r)) {
       if (bucket) {
         for (const entity of bucket) {
-          const d = entity.position().sub(pos).length();
-          if (d < r) near.push(entity);
+          const d = entity.position().distanceTo(pos);
+          if (d < r) {
+            yield entity;
+          }
         }
       }
     }
-    return near;
   }
 
   private *queryBuckets(pos: Vec2, r: number) {

@@ -57,17 +57,17 @@ export class HashGridIndex<T extends Entity> implements SpaceIndex<T> {
     }
   }
 
-  query(pos: Vec2, r: number): T[] {
-    const near: T[] = [];
+  *query(pos: Vec2, r: number) {
     for (const { bucket } of this.queryBuckets(pos, r)) {
       if (bucket) {
         for (const entity of bucket) {
-          const d = entity.position().sub(pos).length();
-          if (d < r) near.push(entity);
+          const d = entity.position().distanceTo(pos);
+          if (d < r) {
+            yield entity;
+          }
         }
       }
     }
-    return near;
   }
 
   private indexOf(x: number, y: number): number {
@@ -93,7 +93,7 @@ export class HashGridIndex<T extends Entity> implements SpaceIndex<T> {
         const y = j * this.cellSize;
         const bucketIndex = this.indexOf(x, y);
         const bucket = this.grid.get(bucketIndex) ?? null;
-        yield { bucket, x: i * this.cellSize, y: j * this.cellSize };
+        yield { bucket, x, y };
       }
     }
     return near;
