@@ -51,7 +51,11 @@ A quad tree is a bit more complicated than a grid, but it has some advantages. W
 
 The spatial hash is very similar to the grid, but it is more dynamic. Instead of having a fixed grid, we have a hash table where the keys are the cells and the values are the entities that are inside the cell. This way we have a fixed size grid, but it wont be as sparse as the grid we've seen before.
 
+Try changing the number of cells and the number of entities in the example below:
+
 <space-index-example kind="hashgrid"></space-index-example>
+
+I found it kind of tricky to get the parameters right for the hashgrid. You can set a number of cells, and the size of the cells, and it affects the performance of the queries. It looks like usually you should set the cell size to be the size of your most common queries. If the cell is too big, you will end up looking at too many entities, and if it is too small you will end up looking at too many cells (and too many entities also).
 
 ## What did I end up using?
 
