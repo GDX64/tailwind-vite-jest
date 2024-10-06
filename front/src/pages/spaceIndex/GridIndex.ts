@@ -3,20 +3,19 @@ import { Vec2 } from '../../utils/Vec2';
 import { Entity, SpaceIndex } from './SpaceIndexTypes';
 
 export class GridIndex<T extends Entity> implements SpaceIndex<T> {
-  private grid: T[][];
+  private grid: Map<number, T[]> = new Map();
   private readonly N;
   constructor(private readonly cellSize: number, private readonly gridSize: number) {
     this.N = Math.ceil(gridSize / cellSize);
-    this.grid = [];
   }
 
   insert(entity: T): void {
     const index = this.indexOf(entity.position());
-    const bucket = this.grid.at(index);
+    const bucket = this.grid.get(index);
     if (bucket) {
       bucket.push(entity);
     } else {
-      this.grid[index] = [entity];
+      this.grid.set(index, [entity]);
     }
   }
 
@@ -41,7 +40,7 @@ export class GridIndex<T extends Entity> implements SpaceIndex<T> {
     const yEnd = Math.min(this.N - 1, Math.floor(max.y / this.cellSize));
     for (let i = xStart; i <= xEnd; i++) {
       for (let j = yStart; j <= yEnd; j++) {
-        const bucket = this.grid.at(i * this.N + j);
+        const bucket = this.grid.get(i * this.N + j);
         if (bucket) {
           yield { bucket, x: i * this.cellSize, y: j * this.cellSize };
         }
@@ -58,7 +57,7 @@ export class GridIndex<T extends Entity> implements SpaceIndex<T> {
 
   private bucketOf(entity: T) {
     const index = this.indexOf(entity.position());
-    return this.grid.at(index);
+    return this.grid.get(index);
   }
 
   remove(entity: T): void {
@@ -70,7 +69,7 @@ export class GridIndex<T extends Entity> implements SpaceIndex<T> {
   }
 
   iter() {
-    return this.grid.flatMap((v) => v);
+    return [...this.grid.values()].flatMap((v) => v);
   }
 
   drawQuery(pos: Vec2, r: number, ctx: CanvasRenderingContext2D): void {

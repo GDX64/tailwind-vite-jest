@@ -26,7 +26,7 @@ import { LinScale } from '../../utils/LinScale';
 import { measureTime } from '../../utils/benchMark';
 import { QuadTreeIndex } from './QuadTreeIndex';
 
-const CIRCLES = 100;
+const CIRCLES = 500;
 const GRID_SIZE = 100;
 const CIRC_RADIUS = 1;
 const R = 15;
@@ -140,7 +140,7 @@ function createCollection() {
   if (props.kind === 'quadtree') {
     return new QuadTreeIndex<Circle>(GRID_SIZE);
   }
-  return new GridIndex<Circle>(10, 100);
+  return new GridIndex<Circle>(5, GRID_SIZE);
 }
 
 function randCircles() {

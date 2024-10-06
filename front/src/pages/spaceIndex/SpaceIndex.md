@@ -17,7 +17,8 @@ interface Entity{
 interface SpaceCollection<T extends Entity>{
     insert(entity: T): void;
     remove(entity: T): void;
-    near(position: Vec2, r: number): T[];
+    query(position: Vec2, r: number): T[];
+    iter(): Iterable<T>;
 }
 
 ```
