@@ -9,7 +9,7 @@ export class HashGridIndex<T extends Entity> implements SpaceIndex<T> {
   private readonly CELLS;
   constructor(private readonly cellSize: number, private readonly gridSize: number) {
     this.N = Math.ceil(gridSize / cellSize);
-    this.CELLS = 100;
+    this.CELLS = 23;
   }
 
   drawQuery(pos: Vec2, r: number, ctx: CanvasRenderingContext2D): void {
@@ -70,7 +70,7 @@ export class HashGridIndex<T extends Entity> implements SpaceIndex<T> {
     const i = Math.floor(x / this.cellSize);
     const j = Math.floor(y / this.cellSize);
     const index = i * this.N + j;
-    const result = Math.abs(hash(index)) % this.CELLS;
+    const result = index % this.CELLS;
     return result;
   }
 

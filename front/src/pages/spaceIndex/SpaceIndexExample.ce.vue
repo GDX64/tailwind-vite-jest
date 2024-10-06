@@ -137,7 +137,7 @@ function createCollection() {
     return new QuadTreeIndex<Circle>(GRID_SIZE);
   }
   if (props.kind === 'hashgrid') {
-    return new HashGridIndex<Circle>(R * 2.5, GRID_SIZE);
+    return new HashGridIndex<Circle>(R, GRID_SIZE);
   }
   return new GridIndex<Circle>(R, GRID_SIZE);
 }
