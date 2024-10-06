@@ -22,9 +22,32 @@ export class GridIndex<T extends Entity> implements SpaceIndex<T> {
 
   query(pos: Vec2, r: number): T[] {
     const near: T[] = [];
-    const index = this.indexOf(pos);
-    const bucket = this.grid.at(index);
-    return bucket ?? [];
+    for (const { bucket } of this.queryBuckets(pos, r)) {
+      for (const entity of bucket) {
+        const d = entity.position().sub(pos).length();
+        if (d < r) near.push(entity);
+      }
+    }
+    return near;
+  }
+
+  private *queryBuckets(pos: Vec2, r: number) {
+    const near: T[] = [];
+    const min = pos.subScalar(r);
+    const max = pos.addScalar(r);
+    const xStart = Math.max(0, Math.floor(min.x / this.cellSize));
+    const yStart = Math.max(0, Math.floor(min.y / this.cellSize));
+    const xEnd = Math.min(this.N - 1, Math.floor(max.x / this.cellSize));
+    const yEnd = Math.min(this.N - 1, Math.floor(max.y / this.cellSize));
+    for (let i = xStart; i <= xEnd; i++) {
+      for (let j = yStart; j <= yEnd; j++) {
+        const bucket = this.grid.at(i * this.N + j);
+        if (bucket) {
+          yield { bucket, x: i * this.cellSize, y: j * this.cellSize };
+        }
+      }
+    }
+    return near;
   }
 
   private indexOf(v: Vec2): number {
@@ -63,6 +86,16 @@ export class GridIndex<T extends Entity> implements SpaceIndex<T> {
         const y = scaleY.scale(j * this.cellSize);
         ctx.strokeRect(x, y, scaleX.scale(this.cellSize), scaleY.scale(this.cellSize));
       }
+    }
+
+    for (const { x, y, bucket } of this.queryBuckets(pos, r)) {
+      ctx.fillStyle = '#fff89644';
+      ctx.fillRect(
+        scaleX.scale(x),
+        scaleY.scale(y),
+        scaleX.scale(this.cellSize),
+        scaleY.scale(this.cellSize)
+      );
     }
 
     ctx.beginPath();

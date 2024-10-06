@@ -17,6 +17,14 @@ export class Vec2 {
     return new Vec2(this.x * scalar, this.y * scalar);
   }
 
+  normalize(): Vec2 {
+    const length = this.length();
+    if (!length) {
+      return new Vec2(0, 0);
+    }
+    return new Vec2(this.x / length, this.y / length);
+  }
+
   div(scalar: number): Vec2 {
     return new Vec2(this.x / scalar, this.y / scalar);
   }
@@ -27,5 +35,17 @@ export class Vec2 {
 
   length(): number {
     return Math.sqrt(this.x ** 2 + this.y ** 2);
+  }
+
+  subScalar(scalar: number): Vec2 {
+    return new Vec2(this.x - scalar, this.y - scalar);
+  }
+
+  addScalar(scalar: number): Vec2 {
+    return new Vec2(this.x + scalar, this.y + scalar);
+  }
+
+  clone(): Vec2 {
+    return new Vec2(this.x, this.y);
   }
 }
