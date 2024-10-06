@@ -9,7 +9,7 @@ export class HashGridIndex<T extends Entity> implements SpaceIndex<T> {
   private readonly CELLS;
   constructor(private readonly cellSize: number, private readonly gridSize: number) {
     this.N = Math.ceil(gridSize / cellSize);
-    this.CELLS = 23;
+    this.CELLS = 100;
   }
 
   drawQuery(pos: Vec2, r: number, ctx: CanvasRenderingContext2D): void {
@@ -30,8 +30,10 @@ export class HashGridIndex<T extends Entity> implements SpaceIndex<T> {
       ctx.stroke();
 
       ctx.fillStyle = SpatialGridColors.visitedCircle;
-      for (const entity of bucket) {
-        entity.debugDraw(ctx, scaleX, scaleY);
+      if (bucket) {
+        for (const entity of bucket) {
+          entity.debugDraw(ctx, scaleX, scaleY);
+        }
       }
     }
 
@@ -58,9 +60,11 @@ export class HashGridIndex<T extends Entity> implements SpaceIndex<T> {
   query(pos: Vec2, r: number): T[] {
     const near: T[] = [];
     for (const { bucket } of this.queryBuckets(pos, r)) {
-      for (const entity of bucket) {
-        const d = entity.position().sub(pos).length();
-        if (d < r) near.push(entity);
+      if (bucket) {
+        for (const entity of bucket) {
+          const d = entity.position().sub(pos).length();
+          if (d < r) near.push(entity);
+        }
       }
     }
     return near;
@@ -70,6 +74,7 @@ export class HashGridIndex<T extends Entity> implements SpaceIndex<T> {
     const i = Math.floor(x / this.cellSize);
     const j = Math.floor(y / this.cellSize);
     const index = i * this.N + j;
+    // const result = Math.abs(hash(index)) % this.CELLS;
     const result = index % this.CELLS;
     return result;
   }
@@ -87,7 +92,7 @@ export class HashGridIndex<T extends Entity> implements SpaceIndex<T> {
         const x = i * this.cellSize;
         const y = j * this.cellSize;
         const bucketIndex = this.indexOf(x, y);
-        const bucket = this.grid.get(bucketIndex) ?? [];
+        const bucket = this.grid.get(bucketIndex) ?? null;
         yield { bucket, x: i * this.cellSize, y: j * this.cellSize };
       }
     }

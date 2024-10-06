@@ -1,10 +1,24 @@
 <template>
   <div class="container">
-    <div class="flex items-center gap-2 mb-2">
+    <div class="flex items-center gap-2 mb-2 flex-wrap justify-between">
       <button class="rounded-md px-2 bg-sec-500" @click="onRestart">Restart</button>
-      <div class="">
-        <label>Calc Time: </label>
+      <div class="flex gap-2">
+        <label>Calc Time:</label>
         <span>{{ drawTime.toFixed(2) }}ms</span>
+      </div>
+      <div class="flex gap-2">
+        <label>Radius</label>
+        <input type="range" min="1" max="20" v-model.number="radius" />
+      </div>
+      <div class="flex gap-2">
+        <label>Circles</label>
+        <input
+          type="range"
+          min="1"
+          max="2000"
+          v-model.number="circlesNumber"
+          @input="onRestart"
+        />
       </div>
     </div>
     <canvas ref="canvas" class="my-canvas" @pointermove="onPointerMove"></canvas>
@@ -28,11 +42,11 @@ import { QuadTreeIndex } from './QuadTreeIndex';
 import { SpatialGridColors } from './SpatialGridColors';
 import { HashGridIndex } from './HashGridIndex';
 
-const CIRCLES = 100;
 const GRID_SIZE = 100;
 const CIRC_RADIUS = 1;
-const R = 10;
+const radius = ref(10);
 const V = 10;
+const circlesNumber = ref(100);
 
 const props = defineProps<{
   kind: 'quadtree' | 'grid' | 'hashgrid';
@@ -83,9 +97,9 @@ useAnimationFrames(() => {
     circle.debugDraw(ctx, scaleX, scaleY);
   }
 
-  collection.drawQuery(worldPointer, R, ctx);
+  collection.drawQuery(worldPointer, radius.value, ctx);
 
-  const nearPointer = collection.query(worldPointer, R);
+  const nearPointer = collection.query(worldPointer, radius.value);
   for (const circle of nearPointer) {
     ctx.fillStyle = SpatialGridColors.queryCircle;
     circle.debugDraw(ctx, scaleX, scaleY);
@@ -137,13 +151,13 @@ function createCollection() {
     return new QuadTreeIndex<Circle>(GRID_SIZE);
   }
   if (props.kind === 'hashgrid') {
-    return new HashGridIndex<Circle>(R, GRID_SIZE);
+    return new HashGridIndex<Circle>(radius.value * 2, GRID_SIZE);
   }
-  return new GridIndex<Circle>(R, GRID_SIZE);
+  return new GridIndex<Circle>(radius.value, GRID_SIZE);
 }
 
 function randCircles() {
-  const circles = Array.from({ length: CIRCLES }, () => {
+  const circles = Array.from({ length: circlesNumber.value }, () => {
     const v = Vec2.new((Math.random() * 2 - 1) * V, (Math.random() * 2 - 1) * V);
     return new Circle(
       Vec2.new(Math.random() * GRID_SIZE, Math.random() * GRID_SIZE),

@@ -23,9 +23,11 @@ export class GridIndex<T extends Entity> implements SpaceIndex<T> {
   query(pos: Vec2, r: number): T[] {
     const near: T[] = [];
     for (const { bucket } of this.queryBuckets(pos, r)) {
-      for (const entity of bucket) {
-        const d = entity.position().sub(pos).length();
-        if (d < r) near.push(entity);
+      if (bucket) {
+        for (const entity of bucket) {
+          const d = entity.position().sub(pos).length();
+          if (d < r) near.push(entity);
+        }
       }
     }
     return near;
@@ -42,9 +44,7 @@ export class GridIndex<T extends Entity> implements SpaceIndex<T> {
     for (let i = xStart; i <= xEnd; i++) {
       for (let j = yStart; j <= yEnd; j++) {
         const bucket = this.grid.get(i * this.N + j);
-        if (bucket) {
-          yield { bucket, x: i * this.cellSize, y: j * this.cellSize };
-        }
+        yield { bucket, x: i * this.cellSize, y: j * this.cellSize };
       }
     }
     return near;
@@ -89,9 +89,11 @@ export class GridIndex<T extends Entity> implements SpaceIndex<T> {
         scaleX.scale(this.cellSize),
         scaleY.scale(this.cellSize)
       );
-      ctx.fillStyle = SpatialGridColors.visitedCircle;
-      for (const entity of bucket) {
-        entity.debugDraw(ctx, scaleX, scaleY);
+      if (bucket) {
+        ctx.fillStyle = SpatialGridColors.visitedCircle;
+        for (const entity of bucket) {
+          entity.debugDraw(ctx, scaleX, scaleY);
+        }
       }
     }
 
