@@ -6,8 +6,7 @@ export interface Entity {
 
 export interface SpaceIndex<T> {
   insert(entity: T): void;
-  remove(entity: T): void;
-  query(pos: Vec2, r: number): T[];
+  query(pos: Vec2, r: number): Iterable<T>;
   iter(): Iterable<T>;
   drawQuery(pos: Vec2, r: number, ctx: CanvasRenderingContext2D): void;
 }

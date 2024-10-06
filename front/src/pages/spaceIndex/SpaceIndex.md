@@ -30,7 +30,7 @@ Maybe the first thing you think of when confronted with this problem is "why not
 
 Lets suppose that we have a map that is 100x100 and we have random circles in this map and whe whant to know if they collide. We can divide the space in 10x10 cells and put the circles inside the cells.
 
-<space-index-example></space-index-example>
+<space-index-example kind="grid"></space-index-example>
 
 
 ## The classic one: Quadtree
@@ -39,3 +39,5 @@ Maybe the most famous space indexing data structure is the quadtree. It is a tre
 
 Lets try it out:
 
+
+<space-index-example kind="quadtree"></space-index-example>

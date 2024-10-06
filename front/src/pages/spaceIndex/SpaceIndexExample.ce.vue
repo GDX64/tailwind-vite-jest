@@ -24,8 +24,9 @@ import { Vec2 } from '../../utils/Vec2';
 import { Entity, SpaceIndex } from './SpaceIndexTypes';
 import { LinScale } from '../../utils/LinScale';
 import { measureTime } from '../../utils/benchMark';
+import { QuadTreeIndex } from './QuadTreeIndex';
 
-const CIRCLES = 500;
+const CIRCLES = 100;
 const GRID_SIZE = 100;
 const CIRC_RADIUS = 1;
 const R = 15;
@@ -61,7 +62,7 @@ useAnimationFrames(() => {
     evolveSimulation(0.016);
   });
 
-  drawTime.value = elapsed;
+  drawTime.value = elapsed * 0.05 + drawTime.value * 0.95;
 
   const scaleX = LinScale.fromPoints(0, 0, GRID_SIZE, size.width);
   const scaleY = LinScale.fromPoints(0, 0, GRID_SIZE, size.height);
@@ -136,6 +137,9 @@ function evolveSimulation(dt: number) {
 }
 
 function createCollection() {
+  if (props.kind === 'quadtree') {
+    return new QuadTreeIndex<Circle>(GRID_SIZE);
+  }
   return new GridIndex<Circle>(10, 100);
 }
 
