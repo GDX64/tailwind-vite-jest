@@ -59,6 +59,6 @@ I found it kind of tricky to get the parameters right for the hashgrid. You can 
 
 ## What did I end up using?
 
-My game is a RTS, so units tend to group themselves in clusters. So something like a quadtree fits well for this case. We can also mix up quadtrees and hashgrids so that the quadtree does not get too deep (wich is what harms the performance at the end). 
+My game is an RTS, so units tend to group themselves in clusters. So something like a quadtree fits well for this case. We can also mix up quadtrees and hashgrids so that the quadtree does not get too deep (wich is what harms the performance at the end). 
 
 That all said... I'm using just a grid anyways, because it is simple and it is fast enough for now 🤭. I'm also using rust for my core game logic, and rust is very efficient with arrays, much more than javascript. So I will roll this thing with a grid for a while. It's all very easy to swap if I need to, so I won't worry much about that.
