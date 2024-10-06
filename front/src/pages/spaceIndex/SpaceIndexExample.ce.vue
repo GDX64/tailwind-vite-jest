@@ -25,6 +25,7 @@ import { Entity, SpaceIndex } from './SpaceIndexTypes';
 import { LinScale } from '../../utils/LinScale';
 import { measureTime } from '../../utils/benchMark';
 import { QuadTreeIndex } from './QuadTreeIndex';
+import { SpatialGridColors } from './SpatialGridColors';
 
 const CIRCLES = 100;
 const GRID_SIZE = 100;
@@ -74,27 +75,21 @@ useAnimationFrames(() => {
   ctx.save();
   ctx.scale(devicePixelRatio, devicePixelRatio);
   ctx.clearRect(0, 0, size.width, size.height);
-  collection.drawQuery(worldPointer, R, ctx);
 
-  ctx.fillStyle = '#ff0000';
-
-  const r = scaleX.alpha * CIRC_RADIUS;
-  const drawCircle = (circle: Circle) => {
-    ctx.beginPath();
-    const { x, y } = circle.position();
-    ctx.arc(scaleX.scale(x), scaleY.scale(y), r, 0, 2 * Math.PI);
-    ctx.fill();
-  };
+  ctx.fillStyle = SpatialGridColors.circles;
 
   for (const circle of collection.iter()) {
-    drawCircle(circle);
+    circle.debugDraw(ctx, scaleX, scaleY);
   }
-  const nearPointer = collection.query(worldPointer, R);
 
+  collection.drawQuery(worldPointer, R, ctx);
+
+  const nearPointer = collection.query(worldPointer, R);
   for (const circle of nearPointer) {
-    ctx.fillStyle = '#00ff00';
-    drawCircle(circle);
+    ctx.fillStyle = SpatialGridColors.queryCircle;
+    circle.debugDraw(ctx, scaleX, scaleY);
   }
+
   ctx.restore();
 });
 
@@ -164,6 +159,18 @@ class Circle implements Entity {
 
   clone() {
     return new Circle(this.pos.clone(), this.radius, this.v.clone());
+  }
+
+  debugDraw(ctx: CanvasRenderingContext2D, scaleX: LinScale, scaleY: LinScale): void {
+    ctx.beginPath();
+    ctx.arc(
+      scaleX.scale(this.pos.x),
+      scaleY.scale(this.pos.y),
+      scaleX.alpha * this.radius,
+      0,
+      2 * Math.PI
+    );
+    ctx.fill();
   }
 
   collide(other: Circle) {

@@ -111,8 +111,8 @@ export function useSize(container = ref<HTMLElement | null>()) {
   const size = reactive({ width: 0, height: 0 });
   const obs = new ResizeObserver((entries) => {
     const el = container.value;
-    size.width = el?.clientWidth ?? 0;
-    size.height = el?.clientHeight ?? 0;
+    size.width = el?.offsetWidth ?? 0;
+    size.height = el?.offsetHeight ?? 0;
   });
   watchEffect((clear) => {
     const el = container.value;

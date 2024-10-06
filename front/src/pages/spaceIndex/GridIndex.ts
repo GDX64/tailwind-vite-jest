@@ -1,6 +1,7 @@
 import { LinScale } from '../../utils/LinScale';
 import { Vec2 } from '../../utils/Vec2';
 import { Entity, SpaceIndex } from './SpaceIndexTypes';
+import { SpatialGridColors } from './SpatialGridColors';
 
 export class GridIndex<T extends Entity> implements SpaceIndex<T> {
   private grid: Map<number, T[]> = new Map();
@@ -74,27 +75,32 @@ export class GridIndex<T extends Entity> implements SpaceIndex<T> {
 
   drawQuery(pos: Vec2, r: number, ctx: CanvasRenderingContext2D): void {
     ctx.save();
-    ctx.strokeStyle = 'white';
+    ctx.strokeStyle = SpatialGridColors.gridLine;
     const width = ctx.canvas.offsetWidth;
     const height = ctx.canvas.offsetHeight;
     const scaleX = LinScale.fromPoints(0, 0, this.gridSize, width);
     const scaleY = LinScale.fromPoints(0, 0, this.gridSize, height);
-    for (let i = 0; i < this.N; i++) {
-      for (let j = 0; j < this.N; j++) {
-        const x = scaleX.scale(i * this.cellSize);
-        const y = scaleY.scale(j * this.cellSize);
-        ctx.strokeRect(x, y, scaleX.scale(this.cellSize), scaleY.scale(this.cellSize));
-      }
-    }
-
+    ctx.lineWidth = 1;
     for (const { x, y, bucket } of this.queryBuckets(pos, r)) {
-      ctx.fillStyle = '#fff89644';
+      ctx.fillStyle = SpatialGridColors.visitedCell;
       ctx.fillRect(
         scaleX.scale(x),
         scaleY.scale(y),
         scaleX.scale(this.cellSize),
         scaleY.scale(this.cellSize)
       );
+      ctx.fillStyle = SpatialGridColors.visitedCircle;
+      for (const entity of bucket) {
+        entity.debugDraw(ctx, scaleX, scaleY);
+      }
+    }
+
+    for (let i = 0; i < this.N; i++) {
+      for (let j = 0; j < this.N; j++) {
+        const x = scaleX.scale(i * this.cellSize);
+        const y = scaleY.scale(j * this.cellSize);
+        ctx.strokeRect(x, y, scaleX.scale(this.cellSize), scaleY.scale(this.cellSize));
+      }
     }
 
     ctx.beginPath();

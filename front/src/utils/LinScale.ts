@@ -18,4 +18,14 @@ export class LinScale {
   inverse(): LinScale {
     return new LinScale(1 / this.alpha, -this.beta / this.alpha);
   }
+
+  applyOnX(ctx: CanvasRenderingContext2D): void {
+    ctx.scale(this.alpha, 1);
+    ctx.translate(this.beta, 0);
+  }
+
+  applyOnY(ctx: CanvasRenderingContext2D): void {
+    ctx.scale(1, this.alpha);
+    ctx.translate(0, this.beta);
+  }
 }

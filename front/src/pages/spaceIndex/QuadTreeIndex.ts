@@ -1,6 +1,7 @@
 import { LinScale } from '../../utils/LinScale';
 import { Vec2 } from '../../utils/Vec2';
 import { Entity, SpaceIndex } from './SpaceIndexTypes';
+import { SpatialGridColors } from './SpatialGridColors';
 
 const MIN_SIZE = 3;
 
@@ -78,15 +79,30 @@ export class QuadTreeIndex<T extends Entity> implements SpaceIndex<T> {
     ctx.save();
     const scaleX = LinScale.fromPoints(0, 0, this.size, ctx.canvas.offsetWidth);
     const scaleY = LinScale.fromPoints(0, 0, this.size, ctx.canvas.offsetHeight);
-    ctx.strokeStyle = 'white';
-    for (const node of this.allNodes()) {
-      const { x, y } = node.origin;
-      ctx.strokeRect(
-        scaleX.scale(x),
-        scaleY.scale(y),
-        scaleX.alpha * node.size,
-        scaleX.alpha * node.size
-      );
+    ctx.strokeStyle = SpatialGridColors.gridLine;
+    ctx.lineWidth = 2;
+    for (const node of this.queryPath(pos, r)) {
+      ctx.fillStyle = SpatialGridColors.visitedCell;
+
+      for (const childNode of [...node.children(), node]) {
+        const { x, y } = childNode.origin;
+        ctx.beginPath();
+        ctx.rect(
+          scaleX.scale(x),
+          scaleY.scale(y),
+          scaleX.alpha * node.size,
+          scaleY.alpha * node.size
+        );
+        ctx.stroke();
+        if (node.data) {
+          ctx.fill();
+        }
+      }
+
+      ctx.fillStyle = SpatialGridColors.visitedCircle;
+      for (const entity of node.data ?? []) {
+        entity.debugDraw(ctx, scaleX, scaleY);
+      }
     }
 
     ctx.beginPath();
@@ -145,13 +161,9 @@ export class QuadTreeIndex<T extends Entity> implements SpaceIndex<T> {
 
   private *queryPath(pos: Vec2, r: number): Generator<QuadTreeIndex<T>> {
     if (this.contains(pos, r)) {
-      if (this.data) {
+      for (const child of this.children()) {
         yield this;
-      } else {
-        for (const child of this.children()) {
-          yield this;
-          yield* child.queryTree(pos, r);
-        }
+        yield* child.queryTree(pos, r);
       }
     }
   }
