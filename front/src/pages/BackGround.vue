@@ -12,7 +12,7 @@ import Github from '../assets/github-brands.svg?component';
         <li><a href="/">γ Home</a></li>
       </ul>
     </nav>
-    <div class="max-w-[900px] w-full px-2 rounded-sm py-2">
+    <div class="max-w-[900px] w-full px-2 rounded-sm py-2 grow">
       <slot></slot>
     </div>
     <div
