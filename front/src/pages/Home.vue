@@ -1,69 +1,35 @@
 <script setup lang="ts">
 import BackGround from './BackGround.vue';
+import Linkedin from '../assets/linkedin-home.svg?component';
+import Github from '../assets/github-home.svg?component';
+import Instagram from '../assets/instagran-home.svg?component';
+import ADown from '../assets/arrow-down.svg?component';
+import Button from '../components/Button.vue';
+import NavBar from '../components/NavBar.vue';
 </script>
 
 <template>
-  <BackGround>
-    <h2 class="text-xl mb-4">The archpelagus saga</h2>
-    <ul class="flex flex-col gap-4 text-xl [&_a]:text-high-300 [&_a]:underline">
-      <li>
-        <a href="https://archpelagus.glmachado.com/">GAME - Archpelagus 🚢</a>
-        <p>Online Real Time Strategy game (kind of age of empires, but with boats)</p>
-      </li>
-      <li>
-        <a href="/space-index">Spatial Indexing for my game</a>
-        <p>Some aproaches to space indexing for games</p>
-      </li>
-    </ul>
-    <div class="border-t-2 my-8 border-sec-700"></div>
-    <h2 class="text-xl mb-4">Things with a bit of context:</h2>
-    <ul class="flex flex-col gap-4 text-xl [&_a]:text-high-300 [&_a]:underline">
-      <li>
-        <a href="/wasm-chart">Wasm Chart</a>
-        <p>
-          This is a chart made with rust, compiled to webassembly, it has 1M points but
-          uses a range tree to aggregate the data realtime as you move it around.
-        </p>
-      </li>
-      <li>
-        <a href="/simd-rasterization">SIMD Rasterization</a>
-        <p>Basics of how to do SIMD with rust on WASM</p>
-      </li>
-      <li>
-        <a href="/cv">CV Online</a>
-      </li>
-      <li>
-        <a href="/CV_Gabriel_Machado.pdf" download="CV_Gabriel_Machado.pdf"
-          >Download CV</a
-        >
-      </li>
-    </ul>
-    <div class="border-t-2 my-8 border-sec-700"></div>
-    <h2 class="text-xl mb-4">
-      Things with no context I keep here just to show to my friends:
-    </h2>
-    <ul class="flex flex-col gap-5 text-xl [&_a]:text-high-300 [&_a]:underline">
-      <li>
-        <a href="/gravity">Gravity</a>
-      </li>
-      <li>
-        <a href="/projection">Projections</a>
-      </li>
-      <li>
-        <a href="/libtest">Test render</a>
-      </li>
-      <li>
-        <a href="/testWorker">Test worker</a>
-      </li>
+  <NavBar />
+  <div class="flex flex-col items-center px-10 text-text-prime">
+    <div class="max-w-[1420px] w-full">
+      <div class="py-72 w-full flex justify-between">
+        <div class="">
+          <label for="" class="text-text-label text-2xl font-semibold">I am</label>
+          <h1 class="text-6xl leading-[1.8] font-extrabold">Gabriel Machado</h1>
+          <h1 class="text-6xl font-extrabold">Cross-platform Developer</h1>
+        </div>
+        <div class="flex flex-col justify-between">
+          <Linkedin></Linkedin>
+          <Github></Github>
+          <Instagram></Instagram>
+        </div>
+      </div>
 
-      <li>
-        <a href="/stack">Stack boxes</a>
-      </li>
-      <li>
-        <a href="/audio-things">Audio API</a>
-      </li>
-    </ul>
-  </BackGround>
+      <div class="flex justify-center w-full">
+        <Button class="flex items-center gap-2"><span>About Me</span> <ADown /></Button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style></style>

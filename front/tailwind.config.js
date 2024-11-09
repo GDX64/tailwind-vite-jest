@@ -15,6 +15,19 @@ module.exports = {
         950: '#000000',
       },
       high: colors.emerald,
+      text: {
+        prime: '#000000',
+        label: '#6b7280',
+      },
+      btn: {
+        prime: '#000000',
+        sec: '#ffffff',
+        contrast: '#ffffff',
+        secContrast: '#000000',
+      },
+      bg: {
+        prime: '#ffffff',
+      },
     },
     extend: {},
   },
