@@ -23,6 +23,10 @@ const routes = [
   { path: '/yoga', component: () => import('./pages/YogaTest/YogaTest.vue') },
   { path: '/space-index', component: () => import('./pages/spaceIndex/SpaceIndex.vue') },
   {
+    path: '/audio-things',
+    component: () => import('./pages/audioExperiments/AudiosThings.vue'),
+  },
+  {
     path: '/simd-rasterization',
     component: () => import('./pages/SIMDRasterization/SIMDRasterization.vue'),
   },

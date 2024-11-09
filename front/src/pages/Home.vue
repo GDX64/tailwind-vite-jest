@@ -59,6 +59,9 @@ import BackGround from './BackGround.vue';
       <li>
         <a href="/stack">Stack boxes</a>
       </li>
+      <li>
+        <a href="/audio-things">Audio API</a>
+      </li>
     </ul>
   </BackGround>
 </template>
