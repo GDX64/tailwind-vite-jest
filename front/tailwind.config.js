@@ -14,6 +14,7 @@ module.exports = {
       text: {
         prime: '#000000',
         label: '#6b7280',
+        contrast: '#ffffff',
       },
       btn: {
         prime: '#000000',
@@ -23,7 +24,9 @@ module.exports = {
       },
       bg: {
         prime: '#ffffff',
-        sec: '#d1d1d1',
+      },
+      card: {
+        ...colors.sky,
       },
       hover: colors.sky[500],
     },
