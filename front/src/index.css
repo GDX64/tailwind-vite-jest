@@ -37,9 +37,9 @@
 html,
 body {
   scroll-behavior: smooth;
-  height: 100%;
-  /* Make html and body take up the full height of the viewport */
+  min-height: 100%;
   margin: 0;
+  /* Make html and body take up the full height of the viewport */
   /* Remove default margin */
   /* overflow: hidden; */
   /* Keep your existing overflow rule */

@@ -5,7 +5,9 @@ import Logo from '../assets/logo.svg?component';
 </script>
 
 <template>
-  <nav class="w-full flex justify-center px-10 py-6 sticky top-0 left-0 bg-bg-prime">
+  <nav
+    class="w-full flex justify-center px-10 py-6 sticky top-0 left-0 bg-bg-prime/75 backdrop-blur-sm"
+  >
     <div class="flex w-full items-center max-w-[1720px]">
       <div class="grow">
         <a href="/#landing">
