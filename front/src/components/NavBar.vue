@@ -9,7 +9,7 @@ import Logo from '../assets/logo.svg?component';
     <div class="flex w-full items-center max-w-[1720px]">
       <div class="grow">
         <a href="/#landing">
-          <Logo />
+          <Logo class="hover:text-hover transition-all hover:scale-105" />
         </a>
       </div>
       <ul class="flex gap-8 items-center font-semibold">
