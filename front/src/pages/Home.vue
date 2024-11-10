@@ -157,14 +157,26 @@ import archpelagusURL2 from '../assets/project_images/boat_render.jpg?url';
       </section>
       <section id="contact" class="py-10">
         <div
-          class="min-h-[300px] w-full border-2 border-text-prime rounded-lg p-10 flex gap-10 items-start bg-prime-200 flex-wrap"
+          class="min-h-[300px] w-full border-2 border-text-prime rounded-lg p-10 flex gap-10 items-start bg-prime-100 flex-wrap"
         >
-          <div class="flex flex-col gap-6">
+          <div class="flex flex-col gap-6 w-min grow">
             <h2 class="font-bold text-3xl">Interested? Let's get in touch!</h2>
-            <p class="font-semibold">
+            <p class="font-semibold max-w-[600px]">
               If you are interested in my work, or just want to say hi and talk about
               programming, feel free to send me a message. I'd be happy to hear from you!
             </p>
+            <div class="grow"></div>
+            <div class="flex gap-4">
+              <Linkedin
+                class="hover:text-hover hover:scale-105 transition-all cursor-pointer"
+              ></Linkedin>
+              <Github
+                class="hover:text-hover hover:scale-105 transition-all cursor-pointer"
+              ></Github>
+              <Instagram
+                class="hover:text-hover hover:scale-105 transition-all cursor-pointer"
+              ></Instagram>
+            </div>
           </div>
           <img
             :src="perfil"
