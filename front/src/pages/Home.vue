@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import BackGround from './BackGround.vue';
 import Linkedin from '../assets/linkedin-home.svg?component';
 import Github from '../assets/github-home.svg?component';
 import Instagram from '../assets/instagran-home.svg?component';
@@ -10,9 +9,9 @@ import NavBar from '../components/NavBar.vue';
 
 <template>
   <NavBar />
-  <div class="flex flex-col items-center px-10 text-text-prime">
+  <div class="flex flex-col items-center px-10 text-text-prime pb-10">
     <div class="max-w-[1420px] w-full">
-      <section class="w-full min-h-[calc(100vh-96px)] flex flex-col">
+      <section class="w-full min-h-[calc(100vh-96px)] flex flex-col" id="landing">
         <div class="grow flex flex-col justify-center py-10">
           <div class="w-full flex justify-between">
             <div class="">
@@ -33,7 +32,29 @@ import NavBar from '../components/NavBar.vue';
         </div>
 
         <div class="flex justify-center w-full py-10">
-          <Button class="flex items-center gap-2"><span>About Me</span> <ADown /></Button>
+          <a href="#about-me">
+            <Button class="flex items-center gap-2"
+              ><span>About Me</span> <ADown
+            /></Button>
+          </a>
+        </div>
+      </section>
+      <section id="about-me">
+        <div class="max-w-[560px] flex flex-col gap-7 text-xl">
+          <p>
+            Electrical Engineer turned Software Developer with a specialization in
+            cross-platform app development for iOS, Android, macOS, and web environments.
+          </p>
+          <p>
+            Proficient in TypeScript, Electron, and CapacitorJS, I bring a focus on
+            creating efficient, scalable, and user-centric software solutions tailored to
+            the trading industry.
+          </p>
+          <p>
+            My approach combines technical precision with a commitment to delivering
+            seamless, high-performance applications that elevate the user experience
+            across platforms.
+          </p>
         </div>
       </section>
     </div>
