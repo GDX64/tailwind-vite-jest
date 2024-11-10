@@ -12,13 +12,25 @@ import Logo from '../assets/logo.svg?component';
       </div>
       <ul class="flex gap-8 items-center font-semibold">
         <li>
-          <a class="flex gap-4" href="/"><span>About Me</span> <ADown /></a>
+          <a
+            class="flex gap-4 transition-colors hover:text-hover hover:underline"
+            href="/"
+            ><span>About Me</span> <ADown
+          /></a>
         </li>
         <li>
-          <a class="flex gap-4" href="/"><span>Projects</span> <ADown /></a>
+          <a
+            class="flex gap-4 transition-colors hover:text-hover hover:underline"
+            href="/"
+            ><span>Projects</span> <ADown
+          /></a>
         </li>
         <li>
-          <a class="flex gap-4" href="/"><span>Contact</span> <ADown /></a>
+          <a
+            class="flex gap-4 transition-colors hover:text-hover hover:underline"
+            href="/"
+            ><span>Contact</span> <ADown
+          /></a>
         </li>
         <li><Button>My Resume</Button></li>
       </ul>

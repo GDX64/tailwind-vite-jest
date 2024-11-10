@@ -19,9 +19,9 @@ import NavBar from '../components/NavBar.vue';
           <h1 class="text-6xl font-extrabold">Cross-platform Developer</h1>
         </div>
         <div class="flex flex-col justify-between">
-          <Linkedin></Linkedin>
-          <Github></Github>
-          <Instagram></Instagram>
+          <Linkedin class="hover:text-hover hover:scale-105 transition-all"></Linkedin>
+          <Github class="hover:text-hover hover:scale-105 transition-all"></Github>
+          <Instagram class="hover:text-hover hover:scale-105 transition-all"></Instagram>
         </div>
       </div>
 

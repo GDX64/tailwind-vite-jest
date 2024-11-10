@@ -10,10 +10,6 @@ module.exports = {
         ...colors.sky,
         50: '#ffffff',
       },
-      sec: {
-        ...colors.gray,
-        950: '#000000',
-      },
       high: colors.emerald,
       text: {
         prime: '#000000',
@@ -27,7 +23,9 @@ module.exports = {
       },
       bg: {
         prime: '#ffffff',
+        sec: '#d1d1d1',
       },
+      hover: colors.sky[500],
     },
     extend: {},
   },
