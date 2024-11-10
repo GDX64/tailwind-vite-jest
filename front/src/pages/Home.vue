@@ -7,6 +7,7 @@ import Button from '../components/Button.vue';
 import NavBar from '../components/NavBar.vue';
 import Experience from '../components/Experience.vue';
 import perfil from '../assets/perfil.jfif?url';
+import ProjectPresentation from '../components/ProjectPresentation.vue';
 </script>
 
 <template>
@@ -23,11 +24,13 @@ import perfil from '../assets/perfil.jfif?url';
             </div>
             <div class="flex flex-col justify-between">
               <Linkedin
-                class="hover:text-hover hover:scale-105 transition-all"
+                class="hover:text-hover hover:scale-105 transition-all cursor-pointer"
               ></Linkedin>
-              <Github class="hover:text-hover hover:scale-105 transition-all"></Github>
+              <Github
+                class="hover:text-hover hover:scale-105 transition-all cursor-pointer"
+              ></Github>
               <Instagram
-                class="hover:text-hover hover:scale-105 transition-all"
+                class="hover:text-hover hover:scale-105 transition-all cursor-pointer"
               ></Instagram>
             </div>
           </div>
@@ -67,25 +70,31 @@ import perfil from '../assets/perfil.jfif?url';
                 company="Nelogica"
                 date="2023 - Now"
                 title="Software Developer IV"
-                :tags="['TypeScript', 'Electron', 'CapacitorJS']"
+                :tags="['iOS', 'Android', 'CapacitorJS']"
               ></Experience>
               <Experience
                 company="Nelogica"
-                date="2023 - Now"
-                title="Software Developer IV"
-                :tags="['TypeScript', 'Electron', 'CapacitorJS']"
+                date="2022 - 2023"
+                title="Software Developer III"
+                :tags="['Electron', 'MacOS']"
               ></Experience>
               <Experience
                 company="Nelogica"
-                date="2023 - Now"
-                title="Software Developer IV"
-                :tags="['TypeScript', 'Electron', 'CapacitorJS']"
+                date="2021 - 2022"
+                title="Software Developer II"
+                :tags="['TypeScript', 'Webpack', 'WebPlatform']"
               ></Experience>
               <Experience
                 company="Nelogica"
-                date="2023 - Now"
-                title="Software Developer IV"
-                :tags="['TypeScript', 'Electron', 'CapacitorJS']"
+                date="2020 - 2021"
+                title="Software Developer I"
+                :tags="['Javascript', 'HTML', 'CSS']"
+              ></Experience>
+              <Experience
+                company="PSA (Peugeot Citroën)"
+                date="2019"
+                title="Engeenier Intern"
+                :tags="['Excel']"
               ></Experience>
             </div>
           </div>
@@ -99,9 +108,41 @@ import perfil from '../assets/perfil.jfif?url';
         </div>
       </section>
       <section id="projects" class="py-10">
-        <div class="h-[1000px] w-full">
+        <div class="w-full pb-10">
           <label class="text-text-label text-lg font-bold">Projects</label>
           <h2 class="font-bold text-5xl mt-5">What I've been working on</h2>
+        </div>
+        <div class="grid grid-cols-[3fr_2fr] gap-2" style="grid-auto-rows: 1fr">
+          <ProjectPresentation
+            title="Archpelagus"
+            description="This is an RTS game like Age of Empites, but with boats and islands."
+            class="rounded-md row-span-2 aspect-square"
+            :tags="['WebgGL', 'WebAssembly', 'Rust', 'ThreeJS']"
+          ></ProjectPresentation>
+          <ProjectPresentation
+            title="Archpelagus"
+            description="This is an RTS game like Age of Empites, but with boats and islands."
+            class="rounded-md"
+            :tags="['WebgGL', 'WebAssembly', 'Rust', 'ThreeJS']"
+          ></ProjectPresentation>
+          <ProjectPresentation
+            title="Archpelagus"
+            description="This is an RTS game like Age of Empites, but with boats and islands."
+            class="rounded-md"
+            :tags="['WebgGL', 'WebAssembly', 'Rust', 'ThreeJS']"
+          ></ProjectPresentation>
+          <ProjectPresentation
+            title="Archpelagus"
+            description="This is an RTS game like Age of Empites, but with boats and islands."
+            class="rounded-md"
+            :tags="['WebgGL', 'WebAssembly', 'Rust', 'ThreeJS']"
+          ></ProjectPresentation>
+          <ProjectPresentation
+            title="Archpelagus"
+            description="This is an RTS game like Age of Empites, but with boats and islands."
+            class="rounded-md"
+            :tags="['WebgGL', 'WebAssembly', 'Rust', 'ThreeJS']"
+          ></ProjectPresentation>
         </div>
       </section>
       <section id="contact" class="py-10">
