@@ -1,13 +1,18 @@
 <template>
   <div
-    class="rounded-md p-3 pb-5 hover:border-prime-500 border border-text-prime transition-transform flex flex-col"
+    class="rounded-md p-3 pb-5 hover:bg-prime-100 transition-transform flex flex-col bg-neutral-100 min-h-[400px]"
   >
-    <div class="w-full grow relative rounded-md overflow-hidden">
-      <img
-        :src="perfil"
-        alt="Project image"
-        class="absolute top-0 left-0 w-full h-full object-cover grayscale-[100%] hover:grayscale-0 transition-all"
-      />
+    <div class="w-full grow flex flex-col gap-2 overflow-hidden">
+      <div
+        class="w-full relative rounded-md overflow-hidden grow"
+        v-for="url of [imgURL].flat()"
+      >
+        <img
+          :src="url"
+          alt="Project image"
+          class="absolute top-0 left-0 w-full h-full object-cover grayscale-[100%] hover:grayscale-0 transition-all"
+        />
+      </div>
     </div>
     <h3 class="font-bold text-2xl py-2">{{ title }}</h3>
     <div class="grid grid-cols-2 gap-2">
@@ -26,5 +31,6 @@ defineProps<{
   title: string;
   tags: string[];
   description: string;
+  imgURL: string | string[];
 }>();
 </script>

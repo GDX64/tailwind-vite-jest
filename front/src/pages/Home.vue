@@ -8,6 +8,8 @@ import NavBar from '../components/NavBar.vue';
 import Experience from '../components/Experience.vue';
 import perfil from '../assets/perfil.jfif?url';
 import ProjectPresentation from '../components/ProjectPresentation.vue';
+import archpelagusURL from '../assets/project_images/archpelagus_print.jpg?url';
+import archpelagusURL2 from '../assets/project_images/boat_render.jpg?url';
 </script>
 
 <template>
@@ -19,10 +21,14 @@ import ProjectPresentation from '../components/ProjectPresentation.vue';
           <div class="w-full flex justify-between">
             <div class="">
               <label for="" class="text-text-label text-2xl font-semibold">I am</label>
-              <h1 class="text-6xl leading-[1.8] font-extrabold">Gabriel Machado</h1>
-              <h1 class="text-6xl font-extrabold">Cross-platform Developer</h1>
+              <h1 class="md:text-6xl text-3xl leading-[1.8] font-extrabold">
+                Gabriel Machado
+              </h1>
+              <h1 class="md:text-6xl text-3xl font-extrabold">
+                Cross-platform Developer
+              </h1>
             </div>
-            <div class="flex flex-col justify-between">
+            <div class="flex flex-col justify-between md:visible invisible">
               <Linkedin
                 class="hover:text-hover hover:scale-105 transition-all cursor-pointer"
               ></Linkedin>
@@ -45,8 +51,8 @@ import ProjectPresentation from '../components/ProjectPresentation.vue';
         </div>
       </section>
       <section id="about-me" class="w-full py-10">
-        <div class="flex justify-between">
-          <div class="max-w-[560px] flex flex-col gap-7 text-xl">
+        <div class="flex justify-between flex-wrap gap-4">
+          <div class="max-w-[560px] min-w-[380px] flex flex-col gap-7 text-xl">
             <p>
               Electrical Engineer turned Software Developer with a specialization in
               cross-platform app development for iOS, Android, macOS, and web
@@ -112,42 +118,46 @@ import ProjectPresentation from '../components/ProjectPresentation.vue';
           <label class="text-text-label text-lg font-bold">Projects</label>
           <h2 class="font-bold text-5xl mt-5">What I've been working on</h2>
         </div>
-        <div class="grid grid-cols-[3fr_2fr] gap-2" style="grid-auto-rows: 1fr">
+        <div
+          class="grid xl:grid-cols-[1fr_1fr] grid-cols-1 gap-2"
+          style="grid-auto-rows: 1fr"
+        >
           <ProjectPresentation
             title="Archpelagus"
             description="This is an RTS game like Age of Empites, but with boats and islands."
-            class="rounded-md row-span-2 aspect-square"
+            class="rounded-md row-span-2"
             :tags="['WebgGL', 'WebAssembly', 'Rust', 'ThreeJS']"
+            :imgURL="[archpelagusURL, archpelagusURL2]"
           ></ProjectPresentation>
           <ProjectPresentation
-            title="Archpelagus"
-            description="This is an RTS game like Age of Empites, but with boats and islands."
-            class="rounded-md"
-            :tags="['WebgGL', 'WebAssembly', 'Rust', 'ThreeJS']"
+            title="Spatial indexing"
+            description="Some approaches to spatial indexing, wich is a technique to optimize searchs in space widly used in games like my own."
+            :tags="['Algorithms', 'Canvas2D', 'Typescript']"
+            :imgURL="archpelagusURL"
           ></ProjectPresentation>
           <ProjectPresentation
-            title="Archpelagus"
-            description="This is an RTS game like Age of Empites, but with boats and islands."
-            class="rounded-md"
-            :tags="['WebgGL', 'WebAssembly', 'Rust', 'ThreeJS']"
+            title="Wasm Chart"
+            description="This is a chart built with rust compiled to webassembly, the idea is to visualize millions of data points at once in real time using some clever trees."
+            :tags="['Algorithms', 'WebAssembly', 'Rust', 'Canvas2D']"
+            :imgURL="archpelagusURL"
           ></ProjectPresentation>
           <ProjectPresentation
-            title="Archpelagus"
-            description="This is an RTS game like Age of Empites, but with boats and islands."
-            class="rounded-md"
-            :tags="['WebgGL', 'WebAssembly', 'Rust', 'ThreeJS']"
+            title="More fun stuff"
+            description="Random cool projects with little context I like to keep around to show to my friends."
+            :tags="['WebgGL', 'WebAssembly', 'Rust', 'Typescript']"
+            :imgURL="archpelagusURL"
           ></ProjectPresentation>
           <ProjectPresentation
-            title="Archpelagus"
-            description="This is an RTS game like Age of Empites, but with boats and islands."
-            class="rounded-md"
+            title="SIMD Rasterization"
+            description="Basics with how to do SIMD with rust and compile it to webassembly. I used triangle rasterization as an example as it is highly parallelizable."
             :tags="['WebgGL', 'WebAssembly', 'Rust', 'ThreeJS']"
+            :imgURL="archpelagusURL"
           ></ProjectPresentation>
         </div>
       </section>
       <section id="contact" class="py-10">
         <div
-          class="h-[300px] w-full border-2 border-text-prime rounded-lg p-10 flex gap-10 items-start bg-prime-200"
+          class="min-h-[300px] w-full border-2 border-text-prime rounded-lg p-10 flex gap-10 items-start bg-prime-200 flex-wrap"
         >
           <div class="flex flex-col gap-6">
             <h2 class="font-bold text-3xl">Interested? Let's get in touch!</h2>

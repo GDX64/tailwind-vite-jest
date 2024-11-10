@@ -1,5 +1,5 @@
 <template>
-  <div class="flex gap-2">
+  <div class="flex gap-1">
     <div
       v-for="(tag, index) of tags"
       class="rounded-2xl bg-prime-950 text-text-contrast px-3 py-1 select-none h-fit text-base"
