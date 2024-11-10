@@ -10,7 +10,7 @@
         <img
           :src="url"
           alt="Project image"
-          class="absolute top-0 left-0 w-full h-full object-cover grayscale-[100%] hover:grayscale-0 transition-all"
+          class="absolute top-0 left-0 w-full h-full object-cover transition-all"
         />
       </div>
     </div>
