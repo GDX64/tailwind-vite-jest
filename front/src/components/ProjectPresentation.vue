@@ -14,7 +14,12 @@
         />
       </div>
     </div>
-    <h3 class="font-bold text-2xl py-2">{{ title }}</h3>
+    <div class="flex justify-between items-center">
+      <h3 class="font-bold text-2xl py-2">{{ title }}</h3>
+      <button @click="onArrowClick">
+        <Arrow></Arrow>
+      </button>
+    </div>
     <div class="grid grid-cols-2 gap-2">
       <h4 class="text-text-label font-semibold">Tags</h4>
       <h4 class="text-text-label font-semibold">Description</h4>
@@ -25,12 +30,27 @@
 </template>
 
 <script setup lang="ts">
-import perfil from '../assets/perfil.jfif?url';
 import TagList from './TagList.vue';
-defineProps<{
+import Arrow from '../assets/arrow-ne.svg?component';
+import { useRouter } from 'vue-router';
+
+const props = defineProps<{
   title: string;
   tags: string[];
   description: string;
   imgURL: string | string[];
+  url: string;
 }>();
+
+const router = useRouter();
+
+function onArrowClick() {
+  if (props.url.startsWith('http')) {
+    window.open(props.url, '_blank');
+  } else {
+    router.push({
+      path: props.url,
+    });
+  }
+}
 </script>

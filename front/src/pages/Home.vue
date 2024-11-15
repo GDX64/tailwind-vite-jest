@@ -132,30 +132,35 @@ import birdsURL from '../assets/project_images/birds_example.jpg?url';
             class="rounded-md row-span-2"
             :tags="['WebgGL', 'WebAssembly', 'Rust', 'ThreeJS']"
             :imgURL="[archpelagusURL, archpelagusURL2]"
+            url="https://archpelagus.glmachado.com"
           ></ProjectPresentation>
           <ProjectPresentation
             title="Spatial indexing"
             description="Some approaches to spatial indexing, wich is a technique to optimize searchs in space widly used in games like my own."
             :tags="['Algorithms', 'Canvas2D', 'Typescript']"
             :imgURL="quadTreeURL"
+            url="/space-index"
           ></ProjectPresentation>
           <ProjectPresentation
             title="Wasm Chart"
             description="This is a chart built with rust compiled to webassembly, the idea is to visualize millions of data points at once in real time using some clever trees."
             :tags="['Algorithms', 'WebAssembly', 'Rust', 'Canvas2D']"
             :imgURL="wasmChart"
+            url="/wasm-chart"
           ></ProjectPresentation>
           <ProjectPresentation
             title="More fun stuff"
             description="Random cool projects with little context I like to keep around to show to my friends."
             :tags="['WebgGL', 'WebAssembly', 'Rust', 'Typescript']"
             :imgURL="birdsURL"
+            url="/fun-stuff"
           ></ProjectPresentation>
           <ProjectPresentation
             title="SIMD Rasterization"
             description="Basics with how to do SIMD with rust and compile it to webassembly. I used triangle rasterization as an example as it is highly parallelizable."
             :tags="['WebgGL', 'WebAssembly', 'Rust', 'ThreeJS']"
             :imgURL="triangleURL"
+            url="/simd-rasterization"
           ></ProjectPresentation>
         </div>
       </section>
