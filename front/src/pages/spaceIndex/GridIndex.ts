@@ -80,7 +80,7 @@ export class GridIndex<T extends Entity> implements SpaceIndex<T> {
     const height = ctx.canvas.offsetHeight;
     const scaleX = LinScale.fromPoints(0, 0, this.gridSize, width);
     const scaleY = LinScale.fromPoints(0, 0, this.gridSize, height);
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 2;
     for (const { x, y, bucket } of this.queryBuckets(pos, r)) {
       ctx.fillStyle = SpatialGridColors.visitedCell;
       ctx.fillRect(

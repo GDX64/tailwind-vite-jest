@@ -1,8 +1,8 @@
 export const SpatialGridColors = {
-  visitedCell: '#46421aff',
+  visitedCell: '#bebebeff',
   circles: '#ff4646ff',
   queryCircle: '#64ff45ff',
   visitedCircle: '#3fb9ffff',
-  gridLine: '#ffffff',
+  gridLine: '#000000',
   queryCircleLine: '#64ffa5',
 };

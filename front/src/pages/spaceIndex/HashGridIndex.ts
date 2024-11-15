@@ -17,6 +17,7 @@ export class HashGridIndex<T extends Entity> implements SpaceIndex<T> {
     const scaleX = LinScale.fromPoints(0, 0, this.gridSize, ctx.canvas.offsetWidth);
     const scaleY = LinScale.fromPoints(0, 0, this.gridSize, ctx.canvas.offsetHeight);
     ctx.strokeStyle = SpatialGridColors.gridLine;
+    ctx.lineWidth = 2;
     for (const { bucket, x, y } of visited) {
       ctx.fillStyle = SpatialGridColors.visitedCell;
       ctx.beginPath();

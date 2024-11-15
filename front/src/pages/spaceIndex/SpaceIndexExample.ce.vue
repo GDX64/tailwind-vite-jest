@@ -1,16 +1,16 @@
 <template>
-  <div class="container">
-    <div class="flex items-center gap-2 mb-2 flex-wrap justify-between">
-      <button class="rounded-md px-2 bg-sec-500" @click="onRestart">Restart</button>
-      <div class="flex gap-2">
+  <div class="container flex gap-10 text-base flex-wrap">
+    <canvas ref="canvas" class="my-canvas" @pointermove="onPointerMove"></canvas>
+    <div class="flex flex-col items-start gap-4 mb-2 grow min-h-96">
+      <div class="flex gap-2 w-full justify-center">
         <label>Calc Time:</label>
         <span>{{ drawTime.toFixed(2) }}ms</span>
       </div>
-      <div class="flex gap-2">
+      <div class="flex flex-col gap-1 font-semibold w-full">
         <label>Radius</label>
         <input type="range" min="1" max="20" v-model.number="radius" />
       </div>
-      <div class="flex gap-2">
+      <div class="flex flex-col gap-1 font-semibold w-full">
         <label>Circles</label>
         <input
           type="range"
@@ -20,8 +20,9 @@
           @input="onRestart"
         />
       </div>
+      <div class="grow"></div>
+      <Button class="rounded-md px-2 w-full" @click="onRestart">Restart</Button>
     </div>
-    <canvas ref="canvas" class="my-canvas" @pointermove="onPointerMove"></canvas>
   </div>
 </template>
 
@@ -41,6 +42,7 @@ import { measureTime } from '../../utils/benchMark';
 import { QuadTreeIndex } from './QuadTreeIndex';
 import { SpatialGridColors } from './SpatialGridColors';
 import { HashGridIndex } from './HashGridIndex';
+import Button from '../../components/Button.vue';
 
 const GRID_SIZE = 100;
 const CIRC_RADIUS = 1;
@@ -229,7 +231,7 @@ function onRestart() {
   width: 100%;
   max-width: 400px;
   aspect-ratio: 1;
-  border: 1px solid white;
+  border: 1px solid rgb(0, 0, 0);
   touch-action: none;
 }
 </style>
