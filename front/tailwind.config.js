@@ -28,7 +28,7 @@ module.exports = {
       },
       bg: {
         prime: '#ffffff',
-        sec: '#e0e0e0',
+        sec: '#ebebeb',
       },
       card: {
         ...colors.sky,

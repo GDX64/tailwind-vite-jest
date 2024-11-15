@@ -14,7 +14,7 @@ import Logo from '../assets/logo.svg?component';
           <Logo class="hover:text-hover transition-all hover:scale-105" />
         </a>
       </div>
-      <ul class="flex gap-8 items-center font-semibold md:visible invisible">
+      <ul class="gap-8 items-center font-semibold md:flex hidden">
         <li>
           <a
             class="flex gap-4 transition-colors hover:text-hover hover:underline"

@@ -1,8 +1,8 @@
 <template>
-  <div class="container flex gap-10 text-base flex-wrap">
+  <div class="flex gap-10 text-base flex-wrap w-full">
     <canvas ref="canvas" class="my-canvas" @pointermove="onPointerMove"></canvas>
-    <div class="flex flex-col items-start gap-4 mb-2 grow min-h-96">
-      <div class="flex gap-2 w-full justify-center">
+    <div class="flex flex-col items-start gap-4 mb-2 grow min-w-96">
+      <div class="flex gap-2 w-full">
         <label>Calc Time:</label>
         <span>{{ drawTime.toFixed(2) }}ms</span>
       </div>
@@ -223,11 +223,8 @@ function onRestart() {
 @tailwind components;
 @tailwind utilities;
 
-.container {
-  font-family: monospace sans-serif;
-}
-
 .my-canvas {
+  font-family: monospace sans-serif;
   width: 100%;
   max-width: 400px;
   aspect-ratio: 1;

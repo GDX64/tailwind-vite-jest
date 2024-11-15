@@ -18,7 +18,7 @@ import birdsURL from '../assets/project_images/birds_example.jpg?url';
 
 <template>
   <NavBar />
-  <div class="flex flex-col items-center px-10 text-text-prime pb-10">
+  <div class="flex flex-col items-center px-2 md:px-10 text-text-prime pb-10">
     <div class="max-w-[1420px] w-full">
       <section class="w-full min-h-[calc(100vh-96px)] flex flex-col" id="landing">
         <div class="grow flex flex-col justify-center py-10">

@@ -38,7 +38,7 @@ html,
 body {
   scroll-behavior: smooth;
   margin: 0;
-  min-width: 400px;
+  /* min-width: 400px; */
   width: 100%;
   min-height: 100%;
   /* Make html and body take up the full height of the viewport */
