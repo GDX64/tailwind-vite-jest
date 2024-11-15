@@ -9,7 +9,7 @@
     </header>
     <div class="text-sec-800 pl-2" ref="descriptionEl" v-if="description">
       <div class="rounded-full w-[6px] h-[6px] bg-sec-800 mr-2 inline-block"></div>
-      <LinkProcess class="text-with-link" :text="description"></LinkProcess>
+      <LinkProcess :text="description"></LinkProcess>
     </div>
   </div>
 </template>

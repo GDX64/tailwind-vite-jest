@@ -1,7 +1,7 @@
 <template>
   <div class="py-1">
-    <h2 class="text-prime-600 text-xl">{{ title }}</h2>
-    <hr class="w-full border-t-2 border-t-prime-600" />
+    <h2 class="text-prime-800 text-xl">{{ title }}</h2>
+    <hr class="w-full border-t-2 border-t-prime-800" />
   </div>
 </template>
 

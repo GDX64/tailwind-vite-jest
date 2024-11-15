@@ -36,7 +36,11 @@ import Logo from '../assets/logo.svg?component';
             ><span>Contact</span> <ADown
           /></a>
         </li>
-        <li><Button>My Resume</Button></li>
+        <li>
+          <a href="/cv">
+            <Button>My Resume</Button>
+          </a>
+        </li>
       </ul>
     </div>
   </nav>

@@ -14,6 +14,9 @@ import quadTreeURL from '../assets/project_images/quad_tree.png?url';
 import wasmChart from '../assets/project_images/wasm_chart.png?url';
 import triangleURL from '../assets/project_images/triangle_example.ppm?url';
 import birdsURL from '../assets/project_images/birds_example.jpg?url';
+import LinkedinRound from '../components/Contacts/LinkedinRound.vue';
+import GithubRound from '../components/Contacts/GithubRound.vue';
+import InstagramRound from '../components/Contacts/InstagramRound.vue';
 </script>
 
 <template>
@@ -33,15 +36,9 @@ import birdsURL from '../assets/project_images/birds_example.jpg?url';
               </h1>
             </div>
             <div class="flex flex-col justify-between md:visible invisible">
-              <Linkedin
-                class="hover:text-hover hover:scale-105 transition-all cursor-pointer"
-              ></Linkedin>
-              <Github
-                class="hover:text-hover hover:scale-105 transition-all cursor-pointer"
-              ></Github>
-              <Instagram
-                class="hover:text-hover hover:scale-105 transition-all cursor-pointer"
-              ></Instagram>
+              <LinkedinRound></LinkedinRound>
+              <GithubRound></GithubRound>
+              <InstagramRound></InstagramRound>
             </div>
           </div>
         </div>
@@ -176,15 +173,9 @@ import birdsURL from '../assets/project_images/birds_example.jpg?url';
             </p>
             <div class="grow"></div>
             <div class="flex gap-4">
-              <Linkedin
-                class="hover:text-hover hover:scale-105 transition-all cursor-pointer"
-              ></Linkedin>
-              <Github
-                class="hover:text-hover hover:scale-105 transition-all cursor-pointer"
-              ></Github>
-              <Instagram
-                class="hover:text-hover hover:scale-105 transition-all cursor-pointer"
-              ></Instagram>
+              <LinkedinRound></LinkedinRound>
+              <GithubRound></GithubRound>
+              <InstagramRound></InstagramRound>
             </div>
           </div>
           <img

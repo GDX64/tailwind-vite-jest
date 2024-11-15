@@ -1,13 +1,20 @@
 <template>
   <div
-    class="flex w-full justify-center items-center leading-relaxed text-sec-950"
+    class="flex w-full justify-center items-center leading-relaxed text-sec-950 relative"
     tabindex="-1"
     @keydown="onkeydown"
   >
     <div class="cv-container px-4 py-4 flex flex-col">
       <header class="flex items-start flex-col text-sm">
-        <h1 class="text-prime-600 text-xl sm:text-3xl mb-2">{{ cvData.name }}</h1>
-        <h2 class="text-prime-600 text-xl mb-4">{{ cvData.title }}</h2>
+        <div class="flex items-start justify-between w-full">
+          <h1 class="text-prime-800 text-xl sm:text-3xl mb-2">{{ cvData.name }}</h1>
+          <a href="/CV_Gabriel_Machado.pdf" download="cv_gabriel_machado.pdf">
+            <Download
+              class="w-9 h-9 text-prime-800 rounded-md border-2 border-prime-800 p-1 hover:bg-prime-200 cursor-pointer"
+            ></Download>
+          </a>
+        </div>
+        <h2 class="text-prime-800 text-xl mb-4">{{ cvData.title }}</h2>
         <div
           class="w-full grid justify-start sm:grid-cols-3 grid-cols-[min-content_min-content] gap-2 text-xs mb-2"
         >
@@ -56,6 +63,7 @@ import Mobile from '../../assets/mobile-solid.svg';
 import Linkedin from '../../assets/linkedin-brands.svg';
 import { Field, Icons } from './SimpleCVTypes';
 import { injectCV } from './CVStore';
+import Download from '../../assets/download.svg?component';
 
 const { data: cvData, doUndo, undo, doAgain } = injectCV();
 
@@ -110,7 +118,7 @@ function onkeydown(event: KeyboardEvent) {
 }
 
 .cv-container a {
-  @apply text-high-600 underline;
+  @apply text-prime-600 underline;
 }
 
 .cv-icon {

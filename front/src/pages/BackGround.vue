@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import Linkedin from '../assets/linkedin-brands.svg?component';
-import Github from '../assets/github-brands.svg?component';
 import NavBar from '../components/NavBar.vue';
+import LinkedinRound from '../components/Contacts/LinkedinRound.vue';
+import GithubRound from '../components/Contacts/GithubRound.vue';
+import InstagramRound from '../components/Contacts/InstagramRound.vue';
 </script>
 
 <template>
@@ -11,15 +12,12 @@ import NavBar from '../components/NavBar.vue';
       <slot></slot>
     </div>
     <div
-      class="self-end bg-bg-sec w-full min-h-12 flex items-center px-2 mt-4 justify-center"
+      class="self-end bg-bg-sec w-full min-h-12 flex items-center px-2 mt-4 justify-center py-2"
     >
       <div class="max-w-[900px] w-full flex gap-8">
-        <a href="https://www.linkedin.com/in/gabriel-e-l-machado">
-          <Linkedin class="w-8 h-8 fill-prime-500"></Linkedin>
-        </a>
-        <a href="https://github.com/GDX64/">
-          <Github class="w-8 h-8 fill-prime-500"></Github>
-        </a>
+        <LinkedinRound></LinkedinRound>
+        <GithubRound></GithubRound>
+        <InstagramRound></InstagramRound>
       </div>
     </div>
   </div>
