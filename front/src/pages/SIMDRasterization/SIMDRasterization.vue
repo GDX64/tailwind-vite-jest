@@ -13,6 +13,9 @@ import { VueComponent } from './SIMDPost.md';
 import { defineCustomElement } from 'vue';
 import BackGround from '../BackGround.vue';
 
-const triangle = defineCustomElement(BigTriangleExample);
-customElements.define('triangle-example', triangle);
+const name = 'triangle-example';
+if (!customElements.get(name)) {
+  const triangle = defineCustomElement(BigTriangleExample);
+  customElements.define(name, triangle);
+}
 </script>
