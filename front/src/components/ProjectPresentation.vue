@@ -10,7 +10,7 @@
         <img
           :src="url"
           alt="Project image"
-          class="absolute top-0 left-0 w-full h-full object-cover transition-all"
+          class="absolute top-0 left-0 w-full h-full object-cover bg-prime-950"
         />
       </div>
     </div>

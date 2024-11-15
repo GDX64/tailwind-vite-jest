@@ -1,11 +1,11 @@
 pre code.hljs {
   display: block;
   overflow-x: auto;
-  padding: 1em
+  padding: 1em;
 }
 
 code.hljs {
-  padding: 3px 5px
+  padding: 3px 5px;
 }
 
 /*!
@@ -48,9 +48,9 @@ code.hljs {
   @apply text-prime-300;
 }
 
-.hljs-type{
-    @apply text-high-400;
-  }
+.hljs-type {
+  @apply text-high-400;
+}
 
 /*  Yellow */
 /* INFO:  	Function parameters, Regex character sets, Terminal Yellow */
@@ -123,9 +123,9 @@ code.hljs {
 }
 
 .hljs-emphasis {
-  font-style: italic
+  font-style: italic;
 }
 
 .hljs-strong {
-  font-weight: bold
+  font-weight: bold;
 }

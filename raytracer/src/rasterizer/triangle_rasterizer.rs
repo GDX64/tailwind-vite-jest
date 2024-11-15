@@ -5,8 +5,6 @@ use std::{
 };
 type Triangle = [V3D; 3];
 
-const PAINT_COLOR: u32 = 0xff0022aa;
-
 trait Boundable {
     fn min_max(&self) -> (V3D, V3D);
 }
@@ -34,7 +32,13 @@ impl TriangleRaster {
         TriangleRaster {}
     }
 
-    pub fn rasterize(&self, triangle: &Triangle, canvas: &mut [u32], width: usize) {
+    pub fn rasterize(
+        &self,
+        triangle: &Triangle,
+        canvas: &mut [u32],
+        width: usize,
+        paint_color: u32,
+    ) {
         //find triangle boundaries so we don't have to check all the canvas
         let (min, max) = triangle.as_slice().min_max();
         let normal_triangle = NormalTriangle::from_triangle(triangle);
@@ -48,20 +52,26 @@ impl TriangleRaster {
             canvas[index_start..index_end].iter_mut().for_each(|color| {
                 let p = V3D::new(x as f64, y as f64, 0.0);
                 if normal_triangle.is_inside(&p) {
-                    *color = PAINT_COLOR;
+                    *color = paint_color;
                 }
                 x += 1.0;
             });
         }
     }
 
-    pub fn rasterize_simd(&self, triangle: &Triangle, canvas: &mut [u32], width: usize) {
+    pub fn rasterize_simd(
+        &self,
+        triangle: &Triangle,
+        canvas: &mut [u32],
+        width: usize,
+        paint_color: u32,
+    ) {
         let (min, max) = triangle.as_slice().min_max();
         let simd_triangle = SimdTriangle::from_triangle(triangle);
         let vx0 = simd::f32x4::from_array([0.0, 1.0, 2.0, 3.0]);
         let vx0 = vx0 + simd::f32x4::splat(min.x as f32);
         let add_four = simd::f32x4::splat(4.0);
-        let paint_values = simd::u32x4::splat(PAINT_COLOR);
+        let paint_values = simd::u32x4::splat(paint_color);
         let not_paint_values = simd::u32x4::splat(0xaaaaaaaa);
 
         for y in min.y as usize..=max.y as usize {

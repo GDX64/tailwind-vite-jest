@@ -15,7 +15,7 @@
     </div>
   </div>
   <div
-    class="w-full overscroll-none touch-pan-y h-screen max-h-[500px] border-black border-2 bg-yellow-100"
+    class="w-full overscroll-none touch-pan-y h-screen max-h-[500px] border-black border-2 bg-prime-900"
   >
     <canvas
       ref="canvas"

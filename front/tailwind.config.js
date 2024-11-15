@@ -10,6 +10,10 @@ module.exports = {
         ...colors.sky,
         50: '#ffffff',
       },
+      sec: {
+        ...colors.rose,
+        50: '#fff5f5',
+      },
       high: colors.emerald,
       text: {
         prime: '#000000',

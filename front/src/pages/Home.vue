@@ -10,6 +10,10 @@ import perfil from '../assets/perfil.jfif?url';
 import ProjectPresentation from '../components/ProjectPresentation.vue';
 import archpelagusURL from '../assets/project_images/archpelagus_print.jpg?url';
 import archpelagusURL2 from '../assets/project_images/boat_render.jpg?url';
+import quadTreeURL from '../assets/project_images/quad_tree.png?url';
+import wasmChart from '../assets/project_images/wasm_chart.png?url';
+import triangleURL from '../assets/project_images/triangle_example.ppm?url';
+import birdsURL from '../assets/project_images/birds_example.jpg?url';
 </script>
 
 <template>
@@ -133,25 +137,25 @@ import archpelagusURL2 from '../assets/project_images/boat_render.jpg?url';
             title="Spatial indexing"
             description="Some approaches to spatial indexing, wich is a technique to optimize searchs in space widly used in games like my own."
             :tags="['Algorithms', 'Canvas2D', 'Typescript']"
-            :imgURL="archpelagusURL"
+            :imgURL="quadTreeURL"
           ></ProjectPresentation>
           <ProjectPresentation
             title="Wasm Chart"
             description="This is a chart built with rust compiled to webassembly, the idea is to visualize millions of data points at once in real time using some clever trees."
             :tags="['Algorithms', 'WebAssembly', 'Rust', 'Canvas2D']"
-            :imgURL="archpelagusURL"
+            :imgURL="wasmChart"
           ></ProjectPresentation>
           <ProjectPresentation
             title="More fun stuff"
             description="Random cool projects with little context I like to keep around to show to my friends."
             :tags="['WebgGL', 'WebAssembly', 'Rust', 'Typescript']"
-            :imgURL="archpelagusURL"
+            :imgURL="birdsURL"
           ></ProjectPresentation>
           <ProjectPresentation
             title="SIMD Rasterization"
             description="Basics with how to do SIMD with rust and compile it to webassembly. I used triangle rasterization as an example as it is highly parallelizable."
             :tags="['WebgGL', 'WebAssembly', 'Rust', 'ThreeJS']"
-            :imgURL="archpelagusURL"
+            :imgURL="triangleURL"
           ></ProjectPresentation>
         </div>
       </section>

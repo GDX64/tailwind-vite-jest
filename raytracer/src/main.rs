@@ -14,12 +14,10 @@ fn main() {
         Point::new(canvas.width as f64, canvas.height as f64, 0.0).into(),
     ];
     measure_time(|| {
-        let mut count = 0usize;
-        raster.rasterize(&triangle, &mut canvas.pixels, canvas.width);
-        count
+        raster.rasterize(&triangle, &mut canvas.pixels, canvas.width, 0xffaaaaaau32);
     });
     measure_time(|| {
-        raster.rasterize_simd(&triangle, &mut canvas.pixels, canvas.width);
+        raster.rasterize_simd(&triangle, &mut canvas.pixels, canvas.width, 0xffaaaaaau32);
     });
     canvas.loop_until_exit();
 }

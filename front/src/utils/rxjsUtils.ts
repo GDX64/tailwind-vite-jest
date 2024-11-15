@@ -125,17 +125,19 @@ export function useSize(container = ref<HTMLElement | null>()) {
   return { size, container };
 }
 
-export function useCanvasDPI() {
+export function useCanvasDPI(fixed?: { width: number; height: number }) {
   const canvas = ref<HTMLCanvasElement>();
   const { size } = useSize(canvas);
   watchSyncEffect(() => {
     if (canvas.value) {
-      const ctx = canvas.value.getContext('2d');
-      if (ctx) {
+      if (!fixed) {
         const dpr = self.devicePixelRatio || 1;
         const { width, height } = size;
         canvas.value.width = Math.floor(width * dpr);
         canvas.value.height = Math.floor(height * dpr);
+      } else {
+        canvas.value.width = fixed.width;
+        canvas.value.height = fixed.height;
       }
     }
   });
@@ -143,6 +145,9 @@ export function useCanvasDPI() {
     canvas,
     size,
     pixelSize: computed(() => {
+      if (fixed) {
+        return fixed;
+      }
       return {
         width: Math.floor(size.width * (self.devicePixelRatio || 1)),
         height: Math.floor(size.height * (self.devicePixelRatio || 1)),

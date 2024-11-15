@@ -47,7 +47,11 @@ pub struct TimeResult {
 }
 
 #[wasm_bindgen]
-pub fn raster_triangle(info: TriangleInfoJs, canvas_vec: &mut [u32]) -> TimeResultJs {
+pub fn raster_triangle(
+    info: TriangleInfoJs,
+    canvas_vec: &mut [u32],
+    paint_color: u32,
+) -> TimeResultJs {
     let info = serde_wasm_bindgen::from_value::<TriangleInfo>(info.obj).unwrap();
     canvas_vec.iter_mut().for_each(|c| *c = 0xffaaaaaau32);
     let width = info.width;
@@ -58,10 +62,10 @@ pub fn raster_triangle(info: TriangleInfoJs, canvas_vec: &mut [u32]) -> TimeResu
         Point::from(&info.p3[..]).into(),
     ];
     let simd = measure_time(|| {
-        raster.rasterize_simd(&triangle, canvas_vec, width);
+        raster.rasterize_simd(&triangle, canvas_vec, width, paint_color);
     });
     let no_simd = measure_time(|| {
-        raster.rasterize(&triangle, canvas_vec, width);
+        raster.rasterize(&triangle, canvas_vec, width, paint_color);
     });
     let result = TimeResult { simd, no_simd };
     let jsvalue = serde_wasm_bindgen::to_value(&result).unwrap();

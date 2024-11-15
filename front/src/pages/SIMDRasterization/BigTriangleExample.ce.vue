@@ -21,7 +21,8 @@ watchEffect(async () => {
       p2: [0, height, 0],
       p3: [width, height, 0],
     },
-    array
+    array,
+    0xffff8c00
   );
   const ctx = canvas.value.getContext('2d')!;
   const imageData = ctx.createImageData(width, height);
