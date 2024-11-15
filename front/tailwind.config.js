@@ -11,7 +11,7 @@ module.exports = {
         50: '#ffffff',
       },
       sec: {
-        ...colors.rose,
+        ...colors.neutral,
         50: '#fff5f5',
       },
       high: colors.emerald,
@@ -28,6 +28,7 @@ module.exports = {
       },
       bg: {
         prime: '#ffffff',
+        sec: '#e0e0e0',
       },
       card: {
         ...colors.sky,

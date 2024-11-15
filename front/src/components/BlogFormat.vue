@@ -30,12 +30,8 @@ h2 {
   @apply text-2xl mb-5;
 }
 
-.my-blog-post li::marker {
-  @apply text-high-200;
-}
-
 .my-blog-post code:not(.hljs) {
-  @apply italic text-high-200 bg-sec-900 rounded-sm px-1;
+  @apply italic bg-bg-sec rounded-sm px-1;
 }
 
 .my-blog-post pre {
@@ -57,7 +53,7 @@ ul {
 }
 
 .my-blog-post a {
-  @apply text-high-200;
+  @apply text-prime-700;
   text-decoration: underline;
 }
 </style>
