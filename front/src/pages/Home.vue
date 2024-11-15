@@ -51,7 +51,7 @@ import InstagramRound from '../components/Contacts/InstagramRound.vue';
           </a>
         </div>
       </section>
-      <section id="about-me" class="w-full py-10">
+      <section id="about-me" class="w-full pt-20">
         <div class="flex justify-between flex-wrap gap-4">
           <div class="max-w-[560px] min-w-[380px] flex flex-col gap-7 text-xl">
             <p>
@@ -75,7 +75,13 @@ import InstagramRound from '../components/Contacts/InstagramRound.vue';
             <div class="flex flex-col gap-8">
               <Experience
                 company="Nelogica"
-                date="2023 - Now"
+                date="2024 - Now"
+                title="Tech Lead"
+                :tags="['Web', 'FrontEnd']"
+              ></Experience>
+              <Experience
+                company="Nelogica"
+                date="2023 - 2024"
                 title="Software Developer IV"
                 :tags="['iOS', 'Android', 'CapacitorJS']"
               ></Experience>
@@ -89,7 +95,7 @@ import InstagramRound from '../components/Contacts/InstagramRound.vue';
                 company="Nelogica"
                 date="2021 - 2022"
                 title="Software Developer II"
-                :tags="['TypeScript', 'Webpack', 'WebPlatform']"
+                :tags="['Typescript', 'Webpack', 'WebPlatform']"
               ></Experience>
               <Experience
                 company="Nelogica"
@@ -114,9 +120,9 @@ import InstagramRound from '../components/Contacts/InstagramRound.vue';
           </a>
         </div>
       </section>
-      <section id="projects" class="py-10">
+      <section id="projects" class="py-20">
         <div class="w-full pb-10">
-          <label class="text-text-label text-lg font-bold">Projects</label>
+          <label class="text-text-label text-lg font-bold">Personal projects</label>
           <h2 class="font-bold text-5xl mt-5">What I've been working on</h2>
         </div>
         <div
