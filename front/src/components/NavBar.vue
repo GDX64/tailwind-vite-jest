@@ -6,7 +6,7 @@ import Logo from '../assets/logo.svg?component';
 
 <template>
   <nav
-    class="w-full flex justify-center px-10 py-2 sticky top-0 left-0 bg-bg-prime/75 backdrop-blur-sm z-10"
+    class="w-full flex justify-center md:px-10 px-2 py-2 sticky top-0 left-0 bg-bg-prime/75 backdrop-blur-sm z-10"
   >
     <div class="flex w-full items-center max-w-[1720px]">
       <div class="grow">

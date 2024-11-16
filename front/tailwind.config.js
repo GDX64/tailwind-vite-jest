@@ -30,9 +30,6 @@ module.exports = {
         prime: '#ffffff',
         sec: '#ebebeb',
       },
-      card: {
-        ...colors.sky,
-      },
       hover: colors.sky[500],
     },
     screens: {

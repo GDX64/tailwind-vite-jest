@@ -18,15 +18,15 @@ defineProps<{
 
 <style scoped>
 .tag1 {
-  @apply bg-card-950;
+  @apply bg-prime-950;
 }
 .tag2 {
-  @apply bg-card-900;
+  @apply bg-prime-900;
 }
 .tag3 {
-  @apply bg-card-800;
+  @apply bg-prime-800;
 }
 .tag4 {
-  @apply bg-card-700;
+  @apply bg-prime-700;
 }
 </style>
