@@ -21,7 +21,7 @@
       <div
         class="absolute bg-prime-600 w-36 border border-white left-5"
         v-for="obj of objects"
-        :class="[obj.id === dragging?.id ? 'animate-pulse !bg-high-600': '']"
+        :class="[obj.id === dragging?.id ? 'animate-pulse !bg-prime-400': '']"
         @pointerdown="onPointerDown(obj)"
         :style="{ height: obj.size + 'px', top: obj.showPosition + 'px' }"
       >

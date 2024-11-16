@@ -14,7 +14,6 @@ module.exports = {
         ...colors.neutral,
         50: '#fff5f5',
       },
-      high: colors.emerald,
       text: {
         prime: '#000000',
         label: '#6b7280',

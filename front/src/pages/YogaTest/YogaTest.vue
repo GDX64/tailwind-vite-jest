@@ -5,10 +5,14 @@
   >
     <input
       type="text"
-      class="bg-sec-900 w-96 border-high-200 border mb-2"
+      class="bg-sec-900 w-96 border-prime-200 border mb-2"
       v-model="textValue"
     />
-    <input type="text" class="bg-sec-900 w-96 border-high-200 border" v-model="simText" />
+    <input
+      type="text"
+      class="bg-sec-900 w-96 border-prime-200 border"
+      v-model="simText"
+    />
     <div class="min-h-20">event path: {{ eventPath }}</div>
     <canvas
       class="grow"

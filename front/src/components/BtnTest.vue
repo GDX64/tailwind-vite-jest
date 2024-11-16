@@ -40,7 +40,7 @@ function remove(removeIndex: number) {
       @keypress.enter="insertData"
       type="text"
       ref="input"
-      class="w-52 rounded-sm mb-5 text-prime-900 bg-prime-400 outline focus:outline-high-400 outline-2 border-none"
+      class="w-52 rounded-sm mb-5 text-prime-900 bg-prime-400 outline outline-2 border-none"
     />
     <button
       @click="insertData"
