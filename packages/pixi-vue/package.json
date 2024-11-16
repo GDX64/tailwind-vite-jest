@@ -1,18 +1,8 @@
 {
-  "name": "pixi-vue",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "types": "./dist/lib.d.ts",
-  "files": [
-    "dist"
-  ],
-  "main": "./dist/pixi-vue.umd.cjs",
-  "module": "./dist/pixi-vue.js",
+  "name": "@repo/pixi-vue",
+  "version": "1.0.0",
   "exports": {
-    ".": {
-      "import": "./dist/pixi-vue.js"
-    }
+    ".": "./src/lib.ts"
   },
   "scripts": {
     "dev": "vite",

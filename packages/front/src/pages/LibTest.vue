@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { startApp } from 'pixi-vue';
+import { startApp } from '@repo/pixi-vue';
 import { onMounted, onUnmounted, ref } from 'vue';
 
 const el = ref<HTMLElement>();

@@ -4,6 +4,12 @@ import svgLoader from 'vite-svg-loader';
 import auto from 'autoprefixer';
 import tailwind from 'tailwindcss';
 import mdPlugin, { Mode } from 'vite-plugin-markdown';
+import { searchForWorkspaceRoot } from 'vite';
+import { resolve } from 'path';
+
+const root = searchForWorkspaceRoot(process.cwd());
+const allowed = resolve(root, 'packages/front');
+console.log({ root, cdw: process.cwd(), allowed });
 
 // https://vitejs.dev/config/
 export default (args) => {
@@ -27,8 +33,8 @@ export default (args) => {
     css: getCssConfig(args.mode),
     server: {
       fs: {
-        // Allow serving files from one level up to the project root
-        allow: ['..'],
+        allow: [allowed],
+        strict: true,
       },
       host: true,
       headers: {
