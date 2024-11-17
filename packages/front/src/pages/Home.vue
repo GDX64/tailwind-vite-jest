@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import Linkedin from '../assets/linkedin-home.svg?component';
-import Github from '../assets/github-home.svg?component';
-import Instagram from '../assets/instagran-home.svg?component';
 import ADown from '../assets/arrow-down.svg?component';
 import Button from '../components/Button.vue';
 import NavBar from '../components/NavBar.vue';
@@ -21,7 +18,7 @@ import { CVLinks } from '../components/CV/glmachadoCVData';
 </script>
 
 <template>
-  <NavBar />
+  <NavBar></NavBar>
   <main
     class="flex flex-col items-center px-2 md:px-10 text-text-prime pb-10 max-w-[1420px] w-full"
   >

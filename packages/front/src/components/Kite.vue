@@ -6,6 +6,7 @@
 import { useAnimationFrames, useCanvasDPI } from '../utils/rxjsUtils';
 import { mat4, vec2, vec3 } from 'gl-matrix';
 import { LinScale } from '../utils/LinScale';
+import R from 'roughjs';
 
 const { canvas, pixelSize } = useCanvasDPI();
 
@@ -30,21 +31,23 @@ function projectionMatrix() {
 }
 
 function kiteDraw(ctx: CanvasRenderingContext2D) {
-  const HEIGHT = 1;
+  const HEIGHT = 3;
   const width = (HEIGHT * 2) / 3;
   const armHeight = HEIGHT / 3;
-  const v1: vec3 = [0, 0, 0];
-  const v2: vec3 = [-width / 2, armHeight, 0];
-  const v3: vec3 = [0, HEIGHT, 0];
-  const v4: vec3 = [width / 2, armHeight, 0];
-  const center: vec3 = [0, armHeight / 2, HEIGHT / 10];
+  const down: vec3 = [0, 0, 0];
+  const left: vec3 = [-width / 2, armHeight, 0];
+  const up: vec3 = [0, HEIGHT, 0];
+  const right: vec3 = [width / 2, armHeight, 0];
+  const center: vec3 = [0, armHeight, HEIGHT / 10];
 
   const kite = new VertexObject();
-  kite.paths[0] = [v1, v2, v3, v4, v1];
-  kite.paths[1] = [v2, center, v4];
-  kite.paths[2] = [v1, center, v3];
-  kite.setPosition([0, 0, Math.sin(Date.now() / 1000) * 5]);
+  kite.paths[0] = [down, left, center];
+  kite.paths[1] = [down, right, center];
+  kite.paths[2] = [up, left, center];
+  kite.paths[3] = [up, right, center];
+  kite.setPosition([-center[0], -center[1], 0]);
   kite.rotateY(Date.now() / 1000);
+  kite.rotateX(-Math.PI / 10);
   const camera = new Camera();
   camera.update();
   kite.draw(ctx, camera);
@@ -68,6 +71,10 @@ class VertexObject {
 
   rotateY(angle: number) {
     mat4.rotateY(this.modelMatrix, this.modelMatrix, angle);
+  }
+
+  rotateX(angle: number) {
+    mat4.rotateX(this.modelMatrix, this.modelMatrix, angle);
   }
 
   setPosition(position: vec3) {
@@ -97,13 +104,13 @@ class VertexObject {
   }
 
   draw(ctx: CanvasRenderingContext2D, camera: Camera) {
+    const rough = R.canvas(ctx.canvas, {});
     for (const path of this.vertexTransform(camera)) {
-      ctx.beginPath();
-      ctx.moveTo(path[0][0], path[0][1]);
-      for (let i = 1; i < path.length; i++) {
-        ctx.lineTo(path[i][0], path[i][1]);
-      }
-      ctx.stroke();
+      rough.polygon(path as any, {
+        seed: 3,
+        fill: '#f72043',
+        fillStyle: 'solid',
+      });
     }
   }
 }

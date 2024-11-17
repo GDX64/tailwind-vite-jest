@@ -15,10 +15,11 @@
     "gl-matrix": "^3.4.3",
     "highlight.js": "^11.9.0",
     "mitt": "^3.0.0",
+    "@repo/pixi-vue": "*",
     "pixi.js": "^8.1.5",
     "popmotion": "^11.0.5",
     "ramda": "^0.28.0",
-    "roughjs": "^4.5.2",
+    "roughjs": "^4.6.6",
     "rxjs": "^7.5.4",
     "tailwind": "^4.0.0",
     "tippy.js": "^6.3.7",
@@ -28,8 +29,7 @@
     "vite-svg-loader": "^4.0.0",
     "vue": "^3.4.36",
     "vue-router": "^4.1.6",
-    "yoga-layout": "^3.1.0",
-    "pixi-vue": "*"
+    "yoga-layout": "^3.1.0"
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",
