@@ -1,6 +1,6 @@
 <template>
   <div
-    class="rounded-md p-3 pb-5 hover:bg-prime-100 transition-transform flex flex-col bg-neutral-100 min-h-[400px]"
+    class="rounded-md p-3 pb-5 hover:bg-prime-100 transition-transform flex flex-col border-2 border-text-prime min-h-[400px] group"
   >
     <div class="w-full grow flex flex-col gap-2 overflow-hidden">
       <div
@@ -17,7 +17,9 @@
     <div class="flex justify-between items-center">
       <h3 class="font-bold text-2xl py-2">{{ title }}</h3>
       <button @click="onArrowClick">
-        <Arrow></Arrow>
+        <Arrow
+          class="group-hover:text-prime-500 transition-all group-hover:animate-pointd"
+        ></Arrow>
       </button>
     </div>
     <div class="grid grid-cols-2 gap-2">

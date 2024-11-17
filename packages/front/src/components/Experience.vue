@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full flex flex-col gap-3 border-l-2 border-text-label hover:border-prime-500 pl-3 cursor-pointer hover:bg-prime-100 pr-2 py-2 rounded-md hover:translate-x-1 transition-all"
+    class="w-full flex flex-col gap-3 border-l-2 border-text-prime hover:border-prime-500 pl-3 cursor-pointer hover:bg-prime-100 pr-2 py-2 rounded-md hover:translate-x-1 transition-all"
     @click="isOpen = !isOpen"
   >
     <div class="w-full flex justify-between text-lg">

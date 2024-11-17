@@ -48,7 +48,18 @@ module.exports = {
       '2xl': '1536px',
       // => @media (min-width: 1536px) { ... }
     },
-    extend: {},
+    extend: {
+      animation: {
+        pointd: 'pointd 1.5s ease-in-out infinite',
+      },
+      keyframes: {
+        pointd: {
+          '0%': { transform: 'translate(0, 0)' }, // No movement for the first 25%
+          '33%': { transform: 'translate(2px, -2px)' },
+          '66%, 100%': { transform: 'translate(0, 0)' }, // No movement for the last 25%
+        },
+      },
+    },
   },
   plugins: [
     plugin(({ addUtilities }) => {

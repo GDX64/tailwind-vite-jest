@@ -17,6 +17,7 @@ import birdsURL from '../assets/project_images/birds_example.jpg?url';
 import LinkedinRound from '../components/Contacts/LinkedinRound.vue';
 import GithubRound from '../components/Contacts/GithubRound.vue';
 import InstagramRound from '../components/Contacts/InstagramRound.vue';
+import { CVLinks } from '../components/CV/glmachadoCVData';
 </script>
 
 <template>
@@ -49,7 +50,46 @@ import InstagramRound from '../components/Contacts/InstagramRound.vue';
       </div>
     </section>
     <section id="about-me" class="w-full pt-20">
-      <div class="flex justify-between flex-wrap gap-4">
+      <div
+        class="flex justify-between flex-wrap gap-4 [&_a]:text-prime-600 [&_a]:underline"
+      >
+        <div class="max-w-[560px] min-w-[380px] flex flex-col gap-7 text-xl">
+          <p>
+            In 2020 I graduated in Electrical Engineering at UFJF. But even before that,
+            throughout my whole studies I was always deeply interested in science,
+            mathemathics and technology.
+          </p>
+          <p>
+            I started programming with relays and logic gates in technical school, and
+            then with microcontrollers and MATLAB in college. My
+            <a :href="CVLinks.bachelorThesis">bachelor's thesis</a>
+            was about signal processing techniques to identify harmonic distortion in
+            power systems, implementing signal processing Algorithms in MATLAB, and I am
+            quite proud of that.
+          </p>
+          <p>
+            After graduating I started working at Nelogica, where I fell in love with web
+            development and graphics programming in the
+            <a :href="CVLinks.profitWeb" target="_blank">Profit Web</a> project. Right
+            after I got some familiarity with the projects I started to work on
+            performance improvements for the aplication and bringing new technologies to
+            the stack.
+          </p>
+          <p>
+            Nowdays we manage codebases that target web,
+            <a :href="CVLinks.profitChartAndroid" target="_blank">Android</a>,
+            <a :href="CVLinks.IOS" target="_blank">IOS</a> and
+            <a :href="CVLinks.profitChartMacOS" target="_blank">macOS</a>, with hundreds
+            of thousands of active users, trading billions of reais in stocks every day in
+            the brazilian, foring market and crypto exchanges.
+          </p>
+          <p>
+            As a side project I am developing a game called
+            <a :href="CVLinks.archpelagus" target="_blank">Archpelagus</a>, a Real Time
+            Strategy game. I am also always testing with cutting edge web technologies,
+            like Webassembly and WebGPU, and from time to time I write about it.
+          </p>
+        </div>
         <div class="max-w-[600px] grow">
           <h3 class="text-xl text-text-label font-semibold pb-4">Experiences</h3>
           <div class="flex flex-col gap-4">
@@ -80,7 +120,7 @@ import InstagramRound from '../components/Contacts/InstagramRound.vue';
               title="Software Developer II"
               description="As I acquired more skills and experience, I started to guide my work towards the aplication performance and developer tools.
               In this year I introduced typescript to the web projects."
-              :tags="['Typescript', 'VueJS']"
+              :tags="['Typescript', 'VueJS', 'WebSockets']"
             ></Experience>
             <Experience
               company="Nelogica"
@@ -97,22 +137,6 @@ import InstagramRound from '../components/Contacts/InstagramRound.vue';
               :tags="['Excel']"
             ></Experience>
           </div>
-        </div>
-        <div class="max-w-[560px] min-w-[380px] flex flex-col gap-7 text-xl">
-          <p>
-            Electrical Engineer turned Software Developer with a specialization in
-            cross-platform app development for iOS, Android, macOS, and web environments.
-          </p>
-          <p>
-            Proficient in TypeScript, Electron, and CapacitorJS, I bring a focus on
-            creating efficient, scalable, and user-centric software solutions tailored to
-            the trading industry.
-          </p>
-          <p>
-            My approach combines technical precision with a commitment to delivering
-            seamless, high-performance applications that elevate the user experience
-            across platforms.
-          </p>
         </div>
       </div>
       <div class="flex justify-center w-full pt-10">
@@ -132,9 +156,12 @@ import InstagramRound from '../components/Contacts/InstagramRound.vue';
       >
         <ProjectPresentation
           title="Archpelagus"
-          description="This is an RTS game like Age of Empites, but with boats and islands."
+          description="This is an RTS game like Age of Empites, but with boats and islands. 
+          My backend is written in rust and the frontend in typescript. 
+          I am using webassembly to run the game logic in the browser and websockets to communicate with the server. 
+          Quite fancy stuff!"
           class="rounded-md row-span-2"
-          :tags="['WebgGL', 'WebAssembly', 'Rust', 'ThreeJS']"
+          :tags="['WebgGL', 'WebAssembly', 'Rust', 'ThreeJS', 'WebSockets']"
           :imgURL="[archpelagusURL, archpelagusURL2]"
           url="https://archpelagus.glmachado.com"
         ></ProjectPresentation>
