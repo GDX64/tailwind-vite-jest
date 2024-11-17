@@ -1,4 +1,4 @@
-# Some things about space indexing
+# Somethings about space indexing
 
 ## What is it
 

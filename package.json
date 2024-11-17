@@ -7,7 +7,7 @@
     "build": "npm-run-all --parallel build:* && npm run build --workspace=front",
     "build:rust": "npm run build --workspace=rust",
     "build:incremental_draw": "npm run build --workspace=incremental_draw",
-    "build:pixi-vue": "npm run build --workspace=pixi-vue",
+    "build:pixi-vue": "npm run build --workspace=@repo/pixi-vue",
     "build:syncjs": "npm run build --workspace=syncjs",
     "build:raytracer": "npm run build --workspace=raytracer",
     "preview": "firebase serve",

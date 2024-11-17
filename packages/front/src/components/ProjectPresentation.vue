@@ -25,7 +25,7 @@
     <div class="grid grid-cols-2 gap-2">
       <h4 class="text-text-label font-semibold">Tags</h4>
       <h4 class="text-text-label font-semibold">Description</h4>
-      <TagList :tags="tags" class="flex-wrap" />
+      <TagList :tags="tags" class="flex-wrap h-min" />
       <p>{{ description }}</p>
     </div>
   </div>
