@@ -107,9 +107,12 @@ class VertexObject {
     const rough = R.canvas(ctx.canvas, {});
     for (const path of this.vertexTransform(camera)) {
       rough.polygon(path as any, {
-        seed: 3,
+        seed: 1,
         fill: '#f72043',
         fillStyle: 'solid',
+        // bowing: 1,
+        // roughness: 1,
+        strokeWidth: Math.ceil(devicePixelRatio),
       });
     }
   }

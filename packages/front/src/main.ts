@@ -15,7 +15,6 @@ const routes = [
   { path: '/wasm-chart', component: () => import('./pages/WasmChart.vue') },
   { path: '/gravity', component: () => import('./pages/Gravity.vue') },
   { path: '/projection', component: () => import('./pages/Projection/Projection.vue') },
-  { path: '/aninha', component: () => import('./pages/Aninha.vue') },
   { path: '/libtest', component: () => import('./pages/LibTest.vue') },
   { path: '/testWorker', component: () => import('./pages/TestWorkers.vue') },
   { path: '/canvas_game', component: () => import('./pages/CanvasGame.vue') },
