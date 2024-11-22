@@ -194,7 +194,7 @@ import { CVLinks } from '../components/CV/glmachadoCVData';
     </section>
     <section id="contact" class="w-full">
       <div
-        class="min-h-[300px] w-full border-2 border-text-prime rounded-lg p-10 flex gap-10 items-start bg-prime-100 flex-wrap"
+        class="min-h-[300px] w-full rounded-lg p-10 flex gap-10 items-start flex-wrap border border-text-prime bg-gradient-to-br from-prime-100 to-prime-0 to-50%"
       >
         <div class="flex flex-col gap-6 w-min grow">
           <h2 class="font-bold text-3xl">Interested? Let's get in touch!</h2>

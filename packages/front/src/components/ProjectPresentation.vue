@@ -1,6 +1,6 @@
 <template>
   <div
-    class="rounded-md p-3 pb-5 hover:bg-prime-100 transition-transform flex flex-col border-2 border-text-prime min-h-[400px] group"
+    class="rounded-md p-3 pb-5 hover:bg-prime-100 transition-transform flex flex-col min-h-[400px] group border border-text-prime bg-gradient-to-br from-prime-100 to-prime-0 to-50% shadow-md"
   >
     <div class="w-full grow flex flex-col gap-2 overflow-hidden">
       <div
