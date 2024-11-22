@@ -39,9 +39,7 @@ body {
   margin: 0;
   /* min-width: 400px; */
   width: 100%;
-  height: 100vh;
   min-height: 100vh;
-  max-height: 100vh;
   /* Make html and body take up the full height of the viewport */
   /* Remove default margin */
   /* overflow: hidden; */
