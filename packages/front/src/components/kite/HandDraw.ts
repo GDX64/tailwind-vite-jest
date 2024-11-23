@@ -44,6 +44,14 @@ export class VertexObject {
     this.modelMatrix[14] = position[2];
   }
 
+  getPosition() {
+    return vec3.fromValues(
+      this.modelMatrix[12],
+      this.modelMatrix[13],
+      this.modelMatrix[14]
+    );
+  }
+
   vertexTransform(camera: Camera) {
     const modelMatrix = this.modelMatrix;
     const viewMatrix = camera.viewMatrix;
@@ -81,14 +89,22 @@ export class VertexObject {
   }
 }
 
+type KiteRope = {
+  kiteAnchor: vec3;
+  rope: PDBRope;
+  vertexObject: VertexObject;
+};
+
 export class KiteDraw {
   vertex;
-  rope;
-  ropeVertexPosition;
-  ropeVertexObject;
+  ropes: KiteRope[] = [];
 
   get matrix() {
     return this.vertex.modelMatrix;
+  }
+
+  getPosition() {
+    return this.vertex.getPosition();
   }
 
   getWorldPosition(v: vec3) {
@@ -116,29 +132,68 @@ export class KiteDraw {
     this.vertex = kite;
     this.vertex.setPosition(initial);
 
-    this.ropeVertexPosition = left;
-    const ropeWorldPosition = this.getWorldPosition(this.ropeVertexPosition);
-    this.rope = PDBRope.fromLength(HEIGHT / 2, 0.1, 0.1, ropeWorldPosition);
-    this.ropeVertexObject = new VertexObject();
+    {
+      const ropeWorldPosition = this.getWorldPosition(left);
+      const rope1 = PDBRope.fromLength(HEIGHT / 3, 0.1, 0.1, ropeWorldPosition);
+      const rope1VertexObject = new VertexObject();
+      this.ropes.push({
+        kiteAnchor: left,
+        rope: rope1,
+        vertexObject: rope1VertexObject,
+      });
+    }
+    {
+      const ropeWorldPosition = this.getWorldPosition(right);
+      const rope2 = PDBRope.fromLength(HEIGHT / 3, 0.1, 0.1, ropeWorldPosition);
+      const rope2VertexObject = new VertexObject();
+      this.ropes.push({
+        kiteAnchor: right,
+        rope: rope2,
+        vertexObject: rope2VertexObject,
+      });
+    }
+    {
+      const ropeWorldPosition = this.getWorldPosition(down);
+      const rope3 = PDBRope.fromLength(HEIGHT * 0.75, 0.1, 0.1, ropeWorldPosition);
+      const rope3VertexObject = new VertexObject();
+      this.ropes.push({
+        kiteAnchor: down,
+        rope: rope3,
+        vertexObject: rope3VertexObject,
+      });
+    }
+    {
+      const ropeWorldPosition = this.getWorldPosition(center);
+      const rope4 = PDBRope.fromLength(HEIGHT * 4, 0.1, 0.1, ropeWorldPosition);
+      const rope4VertexObject = new VertexObject();
+      this.ropes.push({
+        kiteAnchor: center,
+        rope: rope4,
+        vertexObject: rope4VertexObject,
+      });
+    }
   }
 
   evolve(dt: number) {
-    const ropePosition = this.getWorldPosition(this.ropeVertexPosition);
-    this.rope.updateFirstPosition(ropePosition);
-    this.rope.evolve(dt);
+    this.ropes.forEach((rope) => {
+      const ropePosition = this.getWorldPosition(rope.kiteAnchor);
+      rope.rope.updateFirstPosition(ropePosition);
+      rope.rope.evolve(dt);
 
-    const ropeVertexObject = new VertexObject();
-    const vertex = this.rope.nodesPos;
-    ropeVertexObject.paths = [vertex];
-    this.ropeVertexObject = ropeVertexObject;
+      const ropeVertexObject = new VertexObject();
+      const vertex = rope.rope.nodesPos;
+      ropeVertexObject.paths = [vertex];
+      rope.vertexObject = ropeVertexObject;
+    });
   }
 
   draw(ctx: CanvasRenderingContext2D, camera: Camera) {
     this.vertex.drawAsPolygon(ctx, camera, { fill: 'red', seed: 1 });
-    this.ropeVertexObject.drawAsLine(ctx, camera, {
-      stroke: 'black',
-      seed: 1,
+    this.ropes.forEach((rope) => {
+      rope.vertexObject.drawAsLine(ctx, camera, {
+        stroke: 'black',
+        seed: 1,
+      });
     });
-    const rough = R.canvas(ctx.canvas);
   }
 }
