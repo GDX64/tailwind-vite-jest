@@ -5,7 +5,7 @@ import { Options } from 'roughjs/bin/core';
 import { PBDRope } from './PDBRope';
 
 export class Camera {
-  position: vec3 = [0, 0, 10];
+  position: vec3 = [0, 0, 20];
   target: vec3 = [0, 0, 0];
   up: vec3 = [0, 1, 0];
   projectionMatrix;
