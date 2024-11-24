@@ -43,13 +43,30 @@ const refreshRate = useAsyncComputed(async () => {
       <div class="grow flex flex-col justify-center py-10">
         <div class="w-full flex justify-between">
           <div class="">
-            <label for="" class="text-text-label text-2xl font-semibold">I am</label>
-            <h1 class="md:text-6xl text-3xl leading-[1.8] font-extrabold">
+            <label
+              for=""
+              class="text-text-label text-xl font-semibold animate-appear animate-delay-[1s]"
+              >Hi! My name is</label
+            >
+            <h1
+              class="md:text-6xl text-3xl font-extrabold mb-6 animate-appear animate-delay-[2.5s]"
+            >
               Gabriel Machado
             </h1>
-            <h1 class="md:text-6xl text-3xl font-extrabold">Cross-platform Developer</h1>
+            <label
+              for=""
+              class="text-text-label text-xl font-semibold animate-appear animate-delay-[4s]"
+              >And I am a</label
+            >
+            <h1
+              class="md:text-6xl text-3xl font-extrabold animate-appear animate-delay-[5.5s]"
+            >
+              Cross-platform Developer
+            </h1>
           </div>
-          <div class="flex flex-col justify-between md:visible invisible">
+          <div
+            class="flex flex-col justify-between md:visible invisible animate-appear animate-delay-[7s]"
+          >
             <LinkedinRound></LinkedinRound>
             <GithubRound></GithubRound>
             <InstagramRound></InstagramRound>

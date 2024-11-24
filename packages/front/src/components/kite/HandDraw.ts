@@ -220,6 +220,11 @@ export class KiteDraw {
 
       rope4.updateLastPosition(vec3.fromValues(x, y, z));
     }
+
+    //lets make it stable first
+    for (let i = 0; i < 100; i++) {
+      this.evolve(0.016);
+    }
   }
 
   updateMouse(event: PointerEvent) {

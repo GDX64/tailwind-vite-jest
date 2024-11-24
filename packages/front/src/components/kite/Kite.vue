@@ -2,7 +2,13 @@
   <canvas ref="canvas" class="w-full h-full pointer-events-none absolute top-0 left-0">
     <!-- <Teleport to="body">
       <div class="absolute top-24 left-24">
-        <input type="range" min="1" max="3" step="0.1" v-model.number="roughness" />
+        <input
+          type="range"
+          min="20"
+          max="50"
+          step="0.1"
+          v-model.number="cameraDistance"
+        />
       </div>
     </Teleport> -->
   </canvas>
@@ -19,11 +25,13 @@ const prime = designConfig.theme.colors.prime;
 const props = defineProps<{
   sampleRate: number;
 }>();
+
 const roughness = ref(1.5);
+const cameraDistance = ref(30);
 
 const { canvas, size } = useCanvasDPI();
 const kites = [
-  new KiteDraw([2, 4, 0], props.sampleRate),
+  new KiteDraw([2, 5, 0], props.sampleRate),
   new KiteDraw([2, 2, -10], props.sampleRate),
   new KiteDraw([-10, -4, -10], props.sampleRate),
 ];
@@ -52,12 +60,13 @@ useAnimationFrames(({ delta, elapsed }) => {
 
   // kite1.vertex.rotateX(-Math.PI / 10);
   const camera = new Camera([size.width, size.height]);
-  camera.position = [0, 0, 20];
+  const d = 10 * Math.sin(elapsed / 5000 - Math.PI / 2);
+  camera.position = [0, 0, d + cameraDistance.value];
   vec3.rotateY(
     camera.position,
     camera.position,
     [0, 0, 0],
-    elapsed / 10_000 + Math.PI / 8
+    -elapsed / 10_000 + Math.PI * 1.1
   );
   camera.update();
   const dt = Math.min(delta, 16) / 1000;
@@ -70,11 +79,11 @@ useAnimationFrames(({ delta, elapsed }) => {
       kite.evolve(dt);
     }
     if (index === isOverIndex.value) {
-      return kite.draw(ctx, camera, { fill: prime[500], roughness: roughness.value });
+      return kite.draw(ctx, camera, { fill: prime[400], roughness: roughness.value });
     } else if (index === selected.value) {
-      return kite.draw(ctx, camera, { fill: prime[500], roughness: roughness.value });
+      return kite.draw(ctx, camera, { fill: prime[400], roughness: roughness.value });
     } else {
-      return kite.draw(ctx, camera, { fill: prime[900], roughness: roughness.value });
+      return kite.draw(ctx, camera, { fill: prime[100], roughness: roughness.value });
     }
   });
 

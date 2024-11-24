@@ -30,7 +30,7 @@ export const designConfig = resolveConfig({
       },
       text: {
         prime: '#000000',
-        label: '#6b7280',
+        label: '#5d6169',
         contrast: '#ffffff',
       },
       bg: {
@@ -60,6 +60,7 @@ export const designConfig = resolveConfig({
     extend: {
       animation: {
         pointd: 'pointd 1.5s ease-in-out infinite',
+        appear: 'appear 1s ease-out both',
       },
       keyframes: {
         pointd: {
@@ -67,11 +68,25 @@ export const designConfig = resolveConfig({
           '33%': { transform: 'translate(2px, -2px)' },
           '66%, 100%': { transform: 'translate(0, 0)' }, // No movement for the last 25%
         },
+        appear: {
+          '0%': { opacity: '0' },
+          '100%': {},
+        },
       },
     },
   },
   plugins: [
-    plugin(({ addUtilities }) => {
+    plugin(({ addUtilities, matchUtilities, theme }) => {
+      matchUtilities(
+        {
+          'animate-delay': (value) => {
+            return {
+              'animation-delay': value,
+            };
+          },
+        },
+        { values: theme('transitionDelay') }
+      );
       addUtilities({
         '.my-section-title': {
           'text-decoration': 'underline',
