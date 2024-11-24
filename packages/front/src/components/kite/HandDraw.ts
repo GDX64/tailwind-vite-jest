@@ -207,7 +207,7 @@ export class KiteDraw {
   }
 
   draw(ctx: CanvasRenderingContext2D, camera: Camera) {
-    this.vertex.drawAsPolygon(ctx, camera, { fill: 'red', seed: 1 });
+    this.vertex.drawAsPolygon(ctx, camera, { fill: '#0ea5e9', seed: 1 });
     this.ropes.forEach((rope) => {
       rope.vertexObject.drawAsLine(ctx, camera, {
         stroke: 'black',
