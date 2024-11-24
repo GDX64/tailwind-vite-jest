@@ -1,10 +1,11 @@
 import { vec3 } from 'gl-matrix';
 
-export class PDBRope {
+export class PBDRope {
   nodesPos: vec3[] = [];
   private nodesV: vec3[] = [];
   private masses: number[] = [];
   private nodeLength = 0.1;
+  private force = vec3.create();
   private constructor() {}
 
   static fromLength(
@@ -12,8 +13,8 @@ export class PDBRope {
     nodeLen: number,
     mass: number,
     initial: vec3
-  ): PDBRope {
-    const rope = new PDBRope();
+  ): PBDRope {
+    const rope = new PBDRope();
     const N = Math.ceil(length / nodeLen);
     for (let i = 0; i < N; i++) {
       const delta = vec3.fromValues(0, -i * nodeLen, 0);
@@ -32,8 +33,12 @@ export class PDBRope {
     this.masses[0] = 1000_000_000;
   }
 
+  setConeForce(force: vec3) {
+    this.force = force;
+  }
+
   evolve(dt: number) {
-    const g = vec3.fromValues(0, -9.8, 0);
+    const force = this.force;
     const l0 = this.nodeLength;
     const nodes = this.nodesPos;
     const initialPositions = nodes.map((v) => vec3.clone(v));
@@ -42,9 +47,9 @@ export class PDBRope {
       const nodeV = this.nodesV[i];
       const nodeDelta = vec3.create();
       //first we update the velocity
-      nodeV[0] += g[0] * dt;
-      nodeV[1] += g[1] * dt;
-      nodeV[2] += g[2] * dt;
+      nodeV[0] += force[0] * dt;
+      nodeV[1] += force[1] * dt;
+      nodeV[2] += force[2] * dt;
       //then we update the position as if there were no constraints
       nodeDelta[0] = nodeV[0] * dt;
       nodeDelta[1] = nodeV[1] * dt;

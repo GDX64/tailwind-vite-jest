@@ -2,7 +2,7 @@ import { mat4, vec2, vec3 } from 'gl-matrix';
 import { LinScale } from '../../utils/LinScale';
 import R from 'roughjs';
 import { Options } from 'roughjs/bin/core';
-import { PDBRope } from './PDBRope';
+import { PBDRope } from './PDBRope';
 
 export class Camera {
   position: vec3 = [0, 0, 10];
@@ -32,6 +32,14 @@ export class VertexObject {
 
   rotateY(angle: number) {
     mat4.rotateY(this.modelMatrix, this.modelMatrix, angle);
+  }
+
+  setRotation(x: number, y: number) {
+    const pos = this.getPosition();
+    this.modelMatrix = mat4.create();
+    mat4.rotateX(this.modelMatrix, this.modelMatrix, x);
+    mat4.rotateY(this.modelMatrix, this.modelMatrix, y);
+    this.setPosition(pos);
   }
 
   rotateX(angle: number) {
@@ -91,7 +99,7 @@ export class VertexObject {
 
 type KiteRope = {
   kiteAnchor: vec3;
-  rope: PDBRope;
+  rope: PBDRope;
   vertexObject: VertexObject;
 };
 
@@ -132,45 +140,53 @@ export class KiteDraw {
     this.vertex = kite;
     this.vertex.setPosition(initial);
 
+    //gravity and wind
+    const constForce = vec3.fromValues(0, -9.8, -10);
+
     {
       const ropeWorldPosition = this.getWorldPosition(left);
-      const rope1 = PDBRope.fromLength(HEIGHT / 3, 0.1, 0.1, ropeWorldPosition);
+      const rope1 = PBDRope.fromLength(HEIGHT / 3, 0.1, 0.1, ropeWorldPosition);
       const rope1VertexObject = new VertexObject();
       this.ropes.push({
         kiteAnchor: left,
         rope: rope1,
         vertexObject: rope1VertexObject,
       });
+      rope1.setConeForce(constForce);
     }
     {
       const ropeWorldPosition = this.getWorldPosition(right);
-      const rope2 = PDBRope.fromLength(HEIGHT / 3, 0.1, 0.1, ropeWorldPosition);
+      const rope2 = PBDRope.fromLength(HEIGHT / 3, 0.1, 0.1, ropeWorldPosition);
       const rope2VertexObject = new VertexObject();
       this.ropes.push({
         kiteAnchor: right,
         rope: rope2,
         vertexObject: rope2VertexObject,
       });
+      rope2.setConeForce(constForce);
     }
     {
       const ropeWorldPosition = this.getWorldPosition(down);
-      const rope3 = PDBRope.fromLength(HEIGHT * 0.75, 0.1, 0.1, ropeWorldPosition);
+      const rope3 = PBDRope.fromLength(HEIGHT * 0.75, 0.1, 0.1, ropeWorldPosition);
       const rope3VertexObject = new VertexObject();
       this.ropes.push({
         kiteAnchor: down,
         rope: rope3,
         vertexObject: rope3VertexObject,
       });
+      rope3.setConeForce(constForce);
     }
     {
       const ropeWorldPosition = this.getWorldPosition(center);
-      const rope4 = PDBRope.fromLength(HEIGHT * 4, 0.1, 0.1, ropeWorldPosition);
+      const rope4 = PBDRope.fromLength(HEIGHT * 4, 0.1, 0.1, ropeWorldPosition);
       const rope4VertexObject = new VertexObject();
       this.ropes.push({
         kiteAnchor: center,
         rope: rope4,
         vertexObject: rope4VertexObject,
       });
+      const gravity = vec3.fromValues(0, -9.8, 0);
+      rope4.setConeForce(gravity);
     }
   }
 
