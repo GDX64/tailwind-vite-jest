@@ -64,7 +64,7 @@ const refreshRate = useAsyncComputed(async () => {
     </section>
     <section id="about-me" class="w-full pt-20">
       <div
-        class="flex justify-between flex-wrap gap-4 [&_a]:text-prime-600 [&_a]:underline"
+        class="flex justify-between flex-wrap gap-4 [&_a]:decoration-prime-400 [&_a]:underline"
       >
         <div class="max-w-[560px] min-w-[380px] flex flex-col gap-7 text-xl">
           <p>
@@ -105,7 +105,7 @@ const refreshRate = useAsyncComputed(async () => {
         </div>
         <div class="max-w-[600px] grow">
           <h3 class="text-xl text-text-label font-semibold pb-4">Experiences</h3>
-          <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-2">
             <Experience
               company="Nelogica"
               date="2024 - Now"
@@ -145,17 +145,12 @@ const refreshRate = useAsyncComputed(async () => {
             <Experience
               company="PSA (Peugeot Citroën)"
               date="2019"
-              title="Engineering Entern"
+              title="Engineering Intern"
               description="I worked in the maintenance department, where I helped with spare parts management and maintenance planning."
               :tags="['Excel']"
             ></Experience>
           </div>
         </div>
-      </div>
-      <div class="flex justify-center w-full pt-10">
-        <a href="#projects">
-          <Button class="flex items-center gap-2"><span>Projects</span> <ADown /></Button>
-        </a>
       </div>
     </section>
     <section id="projects" class="py-20">
