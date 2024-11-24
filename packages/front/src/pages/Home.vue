@@ -25,7 +25,7 @@ const refreshRate = useAsyncComputed(async () => {
 </script>
 
 <template>
-  <NavBar></NavBar>
+  <NavBar class="animate-appear animate-delay-[5.5s]"></NavBar>
   <main
     class="flex flex-col items-center px-2 md:px-10 text-text-prime pb-10 max-w-[1420px] w-full"
   >
@@ -33,13 +33,11 @@ const refreshRate = useAsyncComputed(async () => {
       class="w-full min-h-[calc(100vh-96px)] flex flex-col relative touch-pan-y"
       id="landing"
     >
-      <Transition enterFromClass="opacity-0" enterActiveClass="transition-all">
-        <Kite
-          class="absolute top-0 left-0"
-          v-if="refreshRate"
-          :sampleRate="refreshRate"
-        ></Kite>
-      </Transition>
+      <Kite
+        class="absolute top-0 left-0 animate-appear"
+        v-if="refreshRate"
+        :sampleRate="refreshRate"
+      ></Kite>
       <div class="grow flex flex-col justify-center py-10">
         <div class="w-full flex justify-between">
           <div class="">
@@ -65,7 +63,7 @@ const refreshRate = useAsyncComputed(async () => {
             </h1>
           </div>
           <div
-            class="flex flex-col justify-between md:visible invisible animate-appear animate-delay-[7s]"
+            class="flex flex-col justify-between md:visible invisible animate-appear animate-delay-[5.5s]"
           >
             <LinkedinRound></LinkedinRound>
             <GithubRound></GithubRound>
@@ -74,7 +72,7 @@ const refreshRate = useAsyncComputed(async () => {
         </div>
       </div>
 
-      <div class="flex justify-center w-full pb-16">
+      <div class="flex justify-center w-full pb-16 animate-appear animate-delay-[5.5s]">
         <a href="#about-me">
           <Button class="flex items-center gap-2"><span>About Me</span> <ADown /></Button>
         </a>
