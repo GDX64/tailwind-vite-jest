@@ -121,11 +121,11 @@ function onClick(event: MouseEvent) {
 }
 
 function selectedKite() {
-  return kites[selected.value];
+  return kites.find((kite) => kite.id === selected.value);
 }
 
 function onPointerMove(event: PointerEvent) {
-  selectedKite().updateMouse(event);
+  selectedKite()?.updateMouse(event);
   isOverID.value = isOver(event);
 }
 </script>
