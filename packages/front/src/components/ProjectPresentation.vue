@@ -10,13 +10,16 @@
         <img
           :src="url"
           alt="Project image"
-          class="absolute top-0 left-0 w-full h-full object-cover bg-prime-950"
+          class="absolute top-0 left-0 w-full h-full object-cover bg-prime-950 cursor-pointer"
+          @click="goToLink"
         />
       </div>
     </div>
     <div class="flex justify-between items-center">
-      <h3 class="font-bold text-2xl py-2">{{ title }}</h3>
-      <button @click="onArrowClick">
+      <h3 class="font-bold text-2xl py-2 cursor-pointer" @click="goToLink">
+        {{ title }}
+      </h3>
+      <button @click="goToLink">
         <Arrow
           class="group-hover:text-prime-500 transition-all group-hover:animate-pointd"
         ></Arrow>
@@ -46,7 +49,7 @@ const props = defineProps<{
 
 const router = useRouter();
 
-function onArrowClick() {
+function goToLink() {
   if (props.url.startsWith('http')) {
     window.open(props.url, '_blank');
   } else {
