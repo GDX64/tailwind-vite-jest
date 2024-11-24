@@ -6,7 +6,7 @@ import { PBDRope } from './PDBRope';
 import { IIRHighPassFilter, IIRLowPassFilter } from './IIRFilter';
 
 export class Camera {
-  position: vec3 = [0, 0, 20];
+  position: vec3 = [10, 0, 20];
   target: vec3 = [0, 0, 0];
   up: vec3 = [0, 1, 0];
   projectionMatrix;
@@ -94,6 +94,7 @@ export class VertexObject {
       }
       shape.closePath();
     }
+    return shape;
   }
 
   drawAsLine(ctx: CanvasRenderingContext2D, camera: Camera, options: Options) {
@@ -198,8 +199,8 @@ export class KiteDraw {
     }
     {
       const ropeWorldPosition = this.getWorldPosition(center);
-      const ropeLength = HEIGHT * 10;
-      const rope4 = PBDRope.fromLength(ropeLength, 0.5, 0.1, ropeWorldPosition);
+      const ropeLength = HEIGHT * 30;
+      const rope4 = PBDRope.fromLength(ropeLength, 1, 0.1, ropeWorldPosition);
       const rope4VertexObject = new VertexObject();
       this.ropes.push({
         kiteAnchor: center,
@@ -219,7 +220,7 @@ export class KiteDraw {
     }
   }
 
-  evolve(dt: number, mouseX: number, mouseY: number) {
+  evolve(dt: number, mouseX?: number, mouseY?: number) {
     const lowGain = 3;
     const hightGain = 0.01;
     const rotationGain = 0.005;
@@ -227,8 +228,12 @@ export class KiteDraw {
     const lowX = this.lowX.process(gaussianNoise()) * lowGain;
     const lowY = this.lowY.process(gaussianNoise()) * lowGain;
 
-    const yFilter = this.highY.process(mouseY);
-    const xFilter = this.highX.process(mouseX);
+    if (mouseX !== undefined && mouseY !== undefined) {
+      this.highY.process(mouseY);
+      this.highX.process(mouseX);
+    }
+    const xFilter = this.highX.get();
+    const yFilter = this.highY.get();
 
     const x = -xFilter * hightGain + lowX + this.initial[0];
     const y = yFilter * hightGain + lowY + this.initial[1];
@@ -252,13 +257,17 @@ export class KiteDraw {
   }
 
   draw(ctx: CanvasRenderingContext2D, camera: Camera, options?: Options) {
-    this.vertex.drawAsPolygon(ctx, camera, { fill: '#0ea5e9', seed: 1, ...options });
+    const shapes = this.vertex.drawAsPolygon(ctx, camera, {
+      seed: 1,
+      ...options,
+    });
     this.ropes.forEach((rope) => {
       rope.vertexObject.drawAsLine(ctx, camera, {
         stroke: 'black',
         seed: 1,
       });
     });
+    return shapes;
   }
 }
 

@@ -45,6 +45,10 @@ export class IIRHighPassFilter {
 
     return this.y[0];
   }
+
+  get() {
+    return this.y[0];
+  }
 }
 
 export class IIRLowPassFilter {
