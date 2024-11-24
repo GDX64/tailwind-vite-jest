@@ -134,7 +134,7 @@ import Kite from '../components/kite/Kite.vue';
             <Experience
               company="PSA (Peugeot Citroën)"
               date="2019"
-              title="Engeenier Intern"
+              title="Engineering Entern"
               description="I worked in the maintenance department, where I helped with spare parts management and maintenance planning."
               :tags="['Excel']"
             ></Experience>

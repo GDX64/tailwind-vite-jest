@@ -11,7 +11,7 @@ import { onMounted, onUnmounted } from 'vue';
 
 const { canvas, size } = useCanvasDPI();
 const BASE_HEIGHT = 4;
-const BASE_X = 3;
+const BASE_X = 2;
 const kite1 = new KiteDraw([BASE_X, BASE_HEIGHT, 0]);
 let mouseY = 0;
 let mouseX = 0;
