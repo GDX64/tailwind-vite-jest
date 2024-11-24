@@ -45,6 +45,14 @@ export class PBDRope {
   }
 
   evolve(dt: number) {
+    const SUBSTEPS = 3;
+    const subDt = dt / SUBSTEPS;
+    for (let i = 0; i < SUBSTEPS; i++) {
+      this._evolve(subDt);
+    }
+  }
+
+  private _evolve(dt: number) {
     const force = this.force;
     const l0 = this.nodeLength;
     const nodes = this.nodesPos;
@@ -103,6 +111,10 @@ export class PBDRope {
       const nodeV = this.nodesV[i];
       vec3.subtract(nodeV, nodePos, initialPos);
       vec3.scale(nodeV, nodeV, 1 / dt);
+      const vLen = vec3.length(nodeV);
+      const dragConst = Math.max(-1, -0.2 * dt);
+      const drag = vec3.scale(vec3.create(), nodeV, dragConst * vLen);
+      vec3.add(nodeV, nodeV, drag);
     }
   }
 }

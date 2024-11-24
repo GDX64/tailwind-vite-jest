@@ -145,7 +145,7 @@ export class KiteDraw {
 
     {
       const ropeWorldPosition = this.getWorldPosition(left);
-      const rope1 = PBDRope.fromLength(HEIGHT / 3, 0.1, 0.1, ropeWorldPosition);
+      const rope1 = PBDRope.fromLength(HEIGHT / 4, 0.1, 0.1, ropeWorldPosition);
       const rope1VertexObject = new VertexObject();
       this.ropes.push({
         kiteAnchor: left,
@@ -156,7 +156,7 @@ export class KiteDraw {
     }
     {
       const ropeWorldPosition = this.getWorldPosition(right);
-      const rope2 = PBDRope.fromLength(HEIGHT / 3, 0.1, 0.1, ropeWorldPosition);
+      const rope2 = PBDRope.fromLength(HEIGHT / 4, 0.1, 0.1, ropeWorldPosition);
       const rope2VertexObject = new VertexObject();
       this.ropes.push({
         kiteAnchor: right,
@@ -167,7 +167,7 @@ export class KiteDraw {
     }
     {
       const ropeWorldPosition = this.getWorldPosition(down);
-      const rope3 = PBDRope.fromLength(HEIGHT * 0.75, 0.1, 0.1, ropeWorldPosition);
+      const rope3 = PBDRope.fromLength(HEIGHT, 0.1, 0.1, ropeWorldPosition);
       const rope3VertexObject = new VertexObject();
       this.ropes.push({
         kiteAnchor: down,
