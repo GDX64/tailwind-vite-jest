@@ -12,7 +12,7 @@ import InstagramRound from '../components/Contacts/InstagramRound.vue';
       <slot></slot>
     </div>
     <div
-      class="self-end bg-bg-sec w-full min-h-12 flex items-center px-2 mt-4 justify-center py-2"
+      class="self-end bg-bg-100 w-full min-h-12 flex items-center px-2 mt-4 justify-center py-2"
     >
       <div class="max-w-[900px] w-full flex gap-8">
         <LinkedinRound></LinkedinRound>

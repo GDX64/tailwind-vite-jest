@@ -14,7 +14,7 @@ const prime = {
   // '800': '#22739e',
   // '900': '#19587c',
   // '950': '#16405c',
-  ...colors.red,
+  ...colors.sky,
 };
 
 export const designConfig = resolveConfig({
@@ -34,10 +34,11 @@ export const designConfig = resolveConfig({
         contrast: '#ffffff',
       },
       bg: {
-        prime: '#ffffff',
-        sec: '#ebebeb',
+        0: '#ffffff',
+        ...colors.neutral,
+        1000: '#000000',
       },
-      hover: prime,
+      hover: prime[500],
     },
     screens: {
       xs: '500px',

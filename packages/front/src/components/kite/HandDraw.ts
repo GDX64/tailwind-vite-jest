@@ -266,16 +266,16 @@ export class KiteDraw {
   draw(ctx: CanvasRenderingContext2D, camera: Camera, options?: Options) {
     const shapes = this.vertex.drawAsPolygon(ctx, camera, {
       seed: 1,
+      fillStyle: 'solid',
+      roughness: 1,
       ...options,
       // fillWeight: 1,
-      fillStyle: 'solid',
-      roughness: 2,
     });
     this.ropes.forEach((rope) => {
       rope.vertexObject.drawAsLine(ctx, camera, {
         stroke: 'black',
         seed: 1,
-        roughness: 2,
+        roughness: 1,
       });
     });
     return shapes;

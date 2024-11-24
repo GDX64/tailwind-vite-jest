@@ -2,7 +2,7 @@
   <div class="flex gap-1">
     <div
       v-for="(tag, index) of tags"
-      class="rounded-2xl bg-prime-950 text-text-contrast px-3 py-1 select-none h-fit text-base"
+      class="rounded-2xl text-text-contrast px-3 py-1 select-none h-fit text-base"
       :class="`tag${index + 1}`"
     >
       {{ tag }}
@@ -18,15 +18,18 @@ defineProps<{
 
 <style scoped>
 .tag1 {
-  @apply bg-prime-950;
-}
-.tag2 {
-  @apply bg-prime-900;
-}
-.tag3 {
   @apply bg-prime-800;
 }
-.tag4 {
+.tag2 {
   @apply bg-prime-700;
+}
+.tag3 {
+  @apply bg-prime-600;
+}
+.tag4 {
+  @apply bg-prime-500 text-text-prime;
+}
+.tag5 {
+  @apply bg-prime-400 text-text-prime;
 }
 </style>

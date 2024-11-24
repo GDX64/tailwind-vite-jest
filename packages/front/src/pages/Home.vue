@@ -17,6 +17,7 @@ import InstagramRound from '../components/Contacts/InstagramRound.vue';
 import { CVLinks } from '../components/CV/glmachadoCVData';
 import Kite from '../components/kite/Kite.vue';
 import { estimateRefreshRate, useAsyncComputed } from '../utils/rxjsUtils';
+import BorderContainer from '../components/BorderContainer.vue';
 
 const refreshRate = useAsyncComputed(async () => {
   return estimateRefreshRate();
@@ -204,8 +205,8 @@ const refreshRate = useAsyncComputed(async () => {
       </div>
     </section>
     <section id="contact" class="w-full">
-      <div
-        class="min-h-[300px] w-full rounded-lg p-10 flex gap-10 items-start flex-wrap border border-text-prime bg-gradient-to-br from-prime-100 to-prime-0 to-50%"
+      <BorderContainer
+        class="min-h-[300px] w-full rounded-lg p-10 flex gap-10 items-start flex-wrap"
       >
         <div class="flex flex-col gap-6 w-min grow">
           <h2 class="font-bold text-3xl">Interested? Let's get in touch!</h2>
@@ -221,7 +222,7 @@ const refreshRate = useAsyncComputed(async () => {
           </div>
         </div>
         <img :src="perfil" class="rounded-3xl w-[200px] aspect-square grayscale h-auto" />
-      </div>
+      </BorderContainer>
     </section>
   </main>
 </template>

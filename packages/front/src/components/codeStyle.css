@@ -82,7 +82,7 @@ code.hljs {
 }
 
 .hljs {
-  @apply text-text-prime bg-bg-sec;
+  @apply text-text-prime bg-bg-200;
 }
 
 .hljs-emphasis {

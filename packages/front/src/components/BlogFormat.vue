@@ -31,7 +31,7 @@ h2 {
 }
 
 .my-blog-post code:not(.hljs) {
-  @apply italic bg-bg-sec rounded-sm px-1;
+  @apply italic bg-bg-100 rounded-sm px-1;
 }
 
 .my-blog-post pre {

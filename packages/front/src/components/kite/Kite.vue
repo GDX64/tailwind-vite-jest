@@ -1,5 +1,11 @@
 <template>
-  <canvas ref="canvas" class="w-full h-full pointer-events-none"></canvas>
+  <canvas ref="canvas" class="w-full h-full pointer-events-none absolute top-0 left-0">
+    <!-- <Teleport to="body">
+      <div class="absolute top-24 left-24">
+        <input type="range" min="1" max="3" step="0.1" v-model.number="roughness" />
+      </div>
+    </Teleport> -->
+  </canvas>
 </template>
 
 <script lang="ts" setup>
@@ -13,6 +19,7 @@ const prime = designConfig.theme.colors.prime;
 const props = defineProps<{
   sampleRate: number;
 }>();
+const roughness = ref(1.5);
 
 const { canvas, size } = useCanvasDPI();
 const kites = [
@@ -63,11 +70,11 @@ useAnimationFrames(({ delta, elapsed }) => {
       kite.evolve(dt);
     }
     if (index === isOverIndex.value) {
-      return kite.draw(ctx, camera, { fill: prime[500] });
+      return kite.draw(ctx, camera, { fill: prime[500], roughness: roughness.value });
     } else if (index === selected.value) {
-      return kite.draw(ctx, camera, { fill: prime[500] });
+      return kite.draw(ctx, camera, { fill: prime[500], roughness: roughness.value });
     } else {
-      return kite.draw(ctx, camera, { fill: prime[900] });
+      return kite.draw(ctx, camera, { fill: prime[900], roughness: roughness.value });
     }
   });
 
