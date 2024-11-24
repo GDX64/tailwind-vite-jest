@@ -38,7 +38,7 @@ const lowPassFilterX = new IIRLowPassFilter(lowCutOffFrequency, sampleRate);
 const lowPassFilterY = new IIRLowPassFilter(lowCutOffFrequency, sampleRate);
 
 const hightGain = 0.01;
-const rotationGain = 0.003;
+const rotationGain = 0.005;
 const lowGain = 3;
 
 useAnimationFrames(({ delta }) => {
@@ -65,7 +65,7 @@ useAnimationFrames(({ delta }) => {
   // kite1.vertex.rotateX(-Math.PI / 10);
   const camera = new Camera([size.width, size.height]);
   camera.update();
-  kite1.evolve(delta / 1000);
+  kite1.evolve(Math.min(delta, 16) / 1000);
   kite1.draw(ctx, camera);
   ctx.restore();
 });
