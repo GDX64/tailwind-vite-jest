@@ -152,7 +152,7 @@ export class KiteDraw {
         rope: rope1,
         vertexObject: rope1VertexObject,
       });
-      rope1.setConeForce(constForce);
+      rope1.setConstForce(constForce);
     }
     {
       const ropeWorldPosition = this.getWorldPosition(right);
@@ -163,7 +163,7 @@ export class KiteDraw {
         rope: rope2,
         vertexObject: rope2VertexObject,
       });
-      rope2.setConeForce(constForce);
+      rope2.setConstForce(constForce);
     }
     {
       const ropeWorldPosition = this.getWorldPosition(down);
@@ -174,11 +174,12 @@ export class KiteDraw {
         rope: rope3,
         vertexObject: rope3VertexObject,
       });
-      rope3.setConeForce(constForce);
+      rope3.setConstForce(constForce);
     }
     {
       const ropeWorldPosition = this.getWorldPosition(center);
-      const rope4 = PBDRope.fromLength(HEIGHT * 4, 0.1, 0.1, ropeWorldPosition);
+      const ropeLength = HEIGHT * 7;
+      const rope4 = PBDRope.fromLength(ropeLength, 0.5, 0.1, ropeWorldPosition);
       const rope4VertexObject = new VertexObject();
       this.ropes.push({
         kiteAnchor: center,
@@ -186,7 +187,9 @@ export class KiteDraw {
         vertexObject: rope4VertexObject,
       });
       const gravity = vec3.fromValues(0, -9.8, 0);
-      rope4.setConeForce(gravity);
+      rope4.setConstForce(gravity);
+
+      rope4.updateLastPosition(vec3.fromValues(0, -ropeLength * 0.7, ropeLength * 0.7));
     }
   }
 

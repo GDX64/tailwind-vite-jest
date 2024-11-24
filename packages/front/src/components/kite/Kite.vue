@@ -19,7 +19,7 @@ let mouseX = 0;
 
 const sampleRate = 60;
 const centerFrequency = 15;
-const bandwidth = 10;
+const bandwidth = 7;
 const filterX = new IIRBandPassFilter(centerFrequency, bandwidth, sampleRate);
 const filterY = new IIRBandPassFilter(centerFrequency, bandwidth, sampleRate);
 

@@ -1,5 +1,7 @@
 import { vec3 } from 'gl-matrix';
 
+const FIXED_MASS = 1000_000_000;
+
 export class PBDRope {
   nodesPos: vec3[] = [];
   private nodesV: vec3[] = [];
@@ -30,10 +32,15 @@ export class PBDRope {
 
   updateFirstPosition(pos: vec3) {
     this.nodesPos[0] = pos;
-    this.masses[0] = 1000_000_000;
+    this.masses[0] = FIXED_MASS;
   }
 
-  setConeForce(force: vec3) {
+  updateLastPosition(pos: vec3) {
+    this.nodesPos[this.nodesPos.length - 1] = pos;
+    this.masses[this.nodesPos.length - 1] = FIXED_MASS;
+  }
+
+  setConstForce(force: vec3) {
     this.force = force;
   }
 
@@ -42,7 +49,10 @@ export class PBDRope {
     const l0 = this.nodeLength;
     const nodes = this.nodesPos;
     const initialPositions = nodes.map((v) => vec3.clone(v));
-    for (let i = 1; i < nodes.length; i++) {
+    for (let i = 0; i < nodes.length; i++) {
+      if (this.masses[i] === FIXED_MASS) {
+        continue;
+      }
       const nodePos = nodes[i];
       const nodeV = this.nodesV[i];
       const nodeDelta = vec3.create();
