@@ -3,6 +3,7 @@
 </template>
 
 <script lang="ts" setup>
+import { vec3 } from 'gl-matrix';
 import { useAnimationFrames, useCanvasDPI } from '../../utils/rxjsUtils';
 import { Camera, KiteDraw } from './HandDraw';
 import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
@@ -35,7 +36,7 @@ onUnmounted(() => {
   document.removeEventListener('click', onClick);
 });
 
-useAnimationFrames(({ delta }) => {
+useAnimationFrames(({ delta, elapsed }) => {
   const ctx = canvas.value?.getContext('2d');
   if (!ctx || !size.width || !size.height) return;
 
@@ -45,7 +46,8 @@ useAnimationFrames(({ delta }) => {
 
   // kite1.vertex.rotateX(-Math.PI / 10);
   const camera = new Camera([size.width, size.height]);
-  // camera.position = [];
+  camera.position = [0, 0, 100];
+  vec3.rotateY(camera.position, camera.position, [0, 0, 0], elapsed / 10_000);
   camera.update();
   const dt = Math.min(delta, 16) / 1000;
 

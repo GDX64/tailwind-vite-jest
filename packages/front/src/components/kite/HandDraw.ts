@@ -6,7 +6,7 @@ import { PBDRope } from './PDBRope';
 import { IIRHighPassFilter, IIRLowPassFilter } from './IIRFilter';
 
 export class Camera {
-  position: vec3 = [10, 0, 20];
+  position: vec3 = [0, 0, 20];
   target: vec3 = [0, 0, 0];
   up: vec3 = [0, 1, 0];
   projectionMatrix;
@@ -199,7 +199,7 @@ export class KiteDraw {
     }
     {
       const ropeWorldPosition = this.getWorldPosition(center);
-      const ropeLength = HEIGHT * 30;
+      const ropeLength = HEIGHT * 7;
       const rope4 = PBDRope.fromLength(ropeLength, 1, 0.1, ropeWorldPosition);
       const rope4VertexObject = new VertexObject();
       this.ropes.push({
@@ -207,11 +207,11 @@ export class KiteDraw {
         rope: rope4,
         vertexObject: rope4VertexObject,
       });
-      const gravity = vec3.fromValues(0, -9.8, 0);
-      rope4.setConstForce(gravity);
+      rope4.setConstForce(constForce);
 
-      const yDelta = -ropeLength * 0.7;
-      const zDelta = ropeLength * 0.7;
+      const sqrt2 = Math.sqrt(2);
+      const yDelta = -ropeLength / sqrt2;
+      const zDelta = ropeLength / sqrt2;
       const x = initial[0];
       const y = initial[1] + yDelta;
       const z = initial[2] + zDelta;
