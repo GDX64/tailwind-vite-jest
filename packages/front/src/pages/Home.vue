@@ -15,6 +15,7 @@ import LinkedinRound from '../components/Contacts/LinkedinRound.vue';
 import GithubRound from '../components/Contacts/GithubRound.vue';
 import InstagramRound from '../components/Contacts/InstagramRound.vue';
 import { CVLinks } from '../components/CV/glmachadoCVData';
+import Kite from '../components/kite/Kite.vue';
 </script>
 
 <template>
@@ -22,7 +23,11 @@ import { CVLinks } from '../components/CV/glmachadoCVData';
   <main
     class="flex flex-col items-center px-2 md:px-10 text-text-prime pb-10 max-w-[1420px] w-full"
   >
-    <section class="w-full min-h-[calc(100vh-96px)] flex flex-col" id="landing">
+    <section
+      class="w-full min-h-[calc(100vh-96px)] flex flex-col relative touch-pan-y"
+      id="landing"
+    >
+      <Kite class="absolute top-0 left-0 z-10"></Kite>
       <div class="grow flex flex-col justify-center py-10">
         <div class="w-full flex justify-between">
           <div class="">

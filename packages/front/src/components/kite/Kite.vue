@@ -1,10 +1,5 @@
 <template>
-  <div class="absolute top-0 left-0"></div>
-  <canvas
-    ref="canvas"
-    class="w-full h-full min-h-screen"
-    @pointermove="onPointerMove"
-  ></canvas>
+  <canvas ref="canvas" class="w-full h-full min-h-screen pointer-events-none"></canvas>
 </template>
 
 <script lang="ts" setup>
@@ -12,11 +7,22 @@ import { vec3 } from 'gl-matrix';
 import { useAnimationFrames, useCanvasDPI } from '../../utils/rxjsUtils';
 import { Camera, KiteDraw } from './HandDraw';
 import { IIRHighPassFilter, IIRLowPassFilter } from './IIRFilter';
+import { onMounted, onUnmounted } from 'vue';
 
 const { canvas, size } = useCanvasDPI();
-const kite1 = new KiteDraw([-2, 0, 0]);
+const BASE_HEIGHT = 4;
+const BASE_X = 3;
+const kite1 = new KiteDraw([BASE_X, BASE_HEIGHT, 0]);
 let mouseY = 0;
 let mouseX = 0;
+
+onMounted(() => {
+  document.addEventListener('pointermove', onPointerMove);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('pointermove', onPointerMove);
+});
 
 const sampleRate = 60;
 const centerFrequency = 0.5;
@@ -33,9 +39,7 @@ const lowPassFilterY = new IIRLowPassFilter(lowCutOffFrequency, sampleRate);
 
 const hightGain = 0.01;
 const rotationGain = 0.003;
-const lowGain = 2;
-
-const BASE_HEIGHT = 2;
+const lowGain = 3;
 
 useAnimationFrames(({ delta }) => {
   const ctx = canvas.value?.getContext('2d');
@@ -51,9 +55,12 @@ useAnimationFrames(({ delta }) => {
   const lowX = lowPassFilterX.process(gaussianNoise()) * lowGain;
   const lowY = lowPassFilterY.process(gaussianNoise()) * lowGain;
 
-  const x = -xFilter * hightGain + lowX;
+  const x = -xFilter * hightGain + lowX + BASE_X;
   const y = yFilter * hightGain + lowY + BASE_HEIGHT;
-  kite1.vertex.setRotation(Math.PI / 4 - yFilter * rotationGain, xFilter * rotationGain);
+  kite1.vertex.setRotation(
+    Math.PI / 4 - yFilter * rotationGain,
+    xFilter * rotationGain + lowX
+  );
   kite1.vertex.setPosition(vec3.fromValues(x, y, 0));
   // kite1.vertex.rotateX(-Math.PI / 10);
   const camera = new Camera([size.width, size.height]);

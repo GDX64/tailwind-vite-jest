@@ -178,7 +178,7 @@ export class KiteDraw {
     }
     {
       const ropeWorldPosition = this.getWorldPosition(center);
-      const ropeLength = HEIGHT * 7;
+      const ropeLength = HEIGHT * 10;
       const rope4 = PBDRope.fromLength(ropeLength, 0.5, 0.1, ropeWorldPosition);
       const rope4VertexObject = new VertexObject();
       this.ropes.push({
