@@ -22,7 +22,8 @@
 }
 
 #app {
-  @apply text-text-prime bg-bg-prime;
+  @apply text-text-prime;
+  background-color: rgb(255, 255, 245);
   font-family: 'Lato', sans-serif;
   font-optical-sizing: auto;
   width: 100%;

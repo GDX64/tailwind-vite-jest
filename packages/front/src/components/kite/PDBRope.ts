@@ -45,7 +45,7 @@ export class PBDRope {
   }
 
   evolve(dt: number) {
-    const SUBSTEPS = 3;
+    const SUBSTEPS = 6;
     const subDt = dt / SUBSTEPS;
     for (let i = 0; i < SUBSTEPS; i++) {
       this._evolve(subDt);

@@ -39,7 +39,7 @@ const refreshRate = useAsyncComputed(async () => {
           :sampleRate="refreshRate"
         ></Kite>
       </Transition>
-      <div class="grow flex flex-col justify-center py-10 z-10">
+      <div class="grow flex flex-col justify-center py-10">
         <div class="w-full flex justify-between">
           <div class="">
             <label for="" class="text-text-label text-2xl font-semibold">I am</label>
