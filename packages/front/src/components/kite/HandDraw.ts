@@ -3,6 +3,7 @@ import { LinScale } from '../../utils/LinScale';
 import R from 'roughjs';
 import { Options } from 'roughjs/bin/core';
 import { PBDRope } from './PDBRope';
+import { IIRHighPassFilter, IIRLowPassFilter } from './IIRFilter';
 
 export class Camera {
   position: vec3 = [0, 0, 20];
@@ -84,8 +85,14 @@ export class VertexObject {
 
   drawAsPolygon(ctx: CanvasRenderingContext2D, camera: Camera, options: Options) {
     const rough = R.canvas(ctx.canvas, {});
+    const shape = new Path2D();
     for (const path of this.vertexTransform(camera)) {
       rough.polygon(path as [number, number][], options);
+      shape.moveTo(path[0][0], path[0][1]);
+      for (let i = 1; i < path.length; i++) {
+        shape.lineTo(path[i][0], path[i][1]);
+      }
+      shape.closePath();
     }
   }
 
@@ -106,6 +113,10 @@ type KiteRope = {
 export class KiteDraw {
   vertex;
   ropes: KiteRope[] = [];
+  lowY;
+  lowX;
+  highY;
+  highX;
 
   get matrix() {
     return this.vertex.modelMatrix;
@@ -122,7 +133,7 @@ export class KiteDraw {
     return worldPos;
   }
 
-  constructor(initial: vec3) {
+  constructor(private initial: vec3, sampleRate: number) {
     const HEIGHT = 3;
     const width = (HEIGHT * 2) / 3;
     const armHeight = (2 * HEIGHT) / 3;
@@ -142,6 +153,15 @@ export class KiteDraw {
 
     //gravity and wind
     const constForce = vec3.fromValues(0, -9.8, -10);
+
+    const samplingFactor = sampleRate / 60;
+    const lowCutOffFrequency = 0.1 * samplingFactor;
+
+    this.lowY = new IIRLowPassFilter(lowCutOffFrequency, sampleRate);
+    this.lowX = new IIRLowPassFilter(lowCutOffFrequency, sampleRate);
+    const centerFrequency = 0.5 * samplingFactor;
+    this.highY = new IIRHighPassFilter(centerFrequency, sampleRate);
+    this.highX = new IIRHighPassFilter(centerFrequency, sampleRate);
 
     {
       const ropeWorldPosition = this.getWorldPosition(left);
@@ -189,11 +209,36 @@ export class KiteDraw {
       const gravity = vec3.fromValues(0, -9.8, 0);
       rope4.setConstForce(gravity);
 
-      rope4.updateLastPosition(vec3.fromValues(0, -ropeLength * 0.7, ropeLength * 0.7));
+      const yDelta = -ropeLength * 0.7;
+      const zDelta = ropeLength * 0.7;
+      const x = initial[0];
+      const y = initial[1] + yDelta;
+      const z = initial[2] + zDelta;
+
+      rope4.updateLastPosition(vec3.fromValues(x, y, z));
     }
   }
 
-  evolve(dt: number) {
+  evolve(dt: number, mouseX: number, mouseY: number) {
+    const lowGain = 3;
+    const hightGain = 0.01;
+    const rotationGain = 0.005;
+
+    const lowX = this.lowX.process(gaussianNoise()) * lowGain;
+    const lowY = this.lowY.process(gaussianNoise()) * lowGain;
+
+    const yFilter = this.highY.process(mouseY);
+    const xFilter = this.highX.process(mouseX);
+
+    const x = -xFilter * hightGain + lowX + this.initial[0];
+    const y = yFilter * hightGain + lowY + this.initial[1];
+    const z = this.initial[2];
+    this.vertex.setRotation(
+      Math.PI / 4 - yFilter * rotationGain,
+      xFilter * rotationGain + lowX
+    );
+    this.vertex.setPosition(vec3.fromValues(x, y, z));
+
     this.ropes.forEach((rope) => {
       const ropePosition = this.getWorldPosition(rope.kiteAnchor);
       rope.rope.updateFirstPosition(ropePosition);
@@ -206,8 +251,8 @@ export class KiteDraw {
     });
   }
 
-  draw(ctx: CanvasRenderingContext2D, camera: Camera) {
-    this.vertex.drawAsPolygon(ctx, camera, { fill: '#0ea5e9', seed: 1 });
+  draw(ctx: CanvasRenderingContext2D, camera: Camera, options?: Options) {
+    this.vertex.drawAsPolygon(ctx, camera, { fill: '#0ea5e9', seed: 1, ...options });
     this.ropes.forEach((rope) => {
       rope.vertexObject.drawAsLine(ctx, camera, {
         stroke: 'black',
@@ -215,4 +260,8 @@ export class KiteDraw {
       });
     });
   }
+}
+
+function gaussianNoise() {
+  return Math.sqrt(-2 * Math.log(Math.random())) * Math.cos(2 * Math.PI * Math.random());
 }

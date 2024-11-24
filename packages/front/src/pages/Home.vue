@@ -34,7 +34,7 @@ const refreshRate = useAsyncComputed(async () => {
     >
       <Transition enterFromClass="opacity-0" enterActiveClass="transition-all">
         <Kite
-          class="absolute top-0 left-0 z-10"
+          class="absolute top-0 left-0"
           v-if="refreshRate"
           :sampleRate="refreshRate"
         ></Kite>
