@@ -7,7 +7,9 @@ import { vec3 } from 'gl-matrix';
 import { useAnimationFrames, useCanvasDPI } from '../../utils/rxjsUtils';
 import { Camera, KiteDraw } from './HandDraw';
 import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
+import { designConfig } from '../../../tailwind.config';
 
+const prime = designConfig.theme.colors.prime;
 const props = defineProps<{
   sampleRate: number;
 }>();
@@ -61,11 +63,11 @@ useAnimationFrames(({ delta, elapsed }) => {
       kite.evolve(dt);
     }
     if (index === isOverIndex.value) {
-      return kite.draw(ctx, camera, { fill: '#0ea5e9' });
+      return kite.draw(ctx, camera, { fill: prime[500] });
     } else if (index === selected.value) {
-      return kite.draw(ctx, camera, { fill: '#0ea5e9' });
+      return kite.draw(ctx, camera, { fill: prime[500] });
     } else {
-      return kite.draw(ctx, camera, { fill: '#3a6d85' });
+      return kite.draw(ctx, camera, { fill: prime[900] });
     }
   });
 

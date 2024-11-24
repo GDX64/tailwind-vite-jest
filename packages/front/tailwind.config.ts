@@ -2,16 +2,28 @@ import colors from 'tailwindcss/colors';
 import plugin from 'tailwindcss/plugin';
 import resolveConfig from 'tailwindcss/resolveConfig';
 
-module.exports = resolveConfig({
+const prime = {
+  // '50': '#f0f9ff',
+  // '100': '#e0f2fe',
+  // '200': '#bae6fd',
+  // '300': '#9ee0ff',
+  // '400': '#4ab9e9',
+  // '500': '#2a9bcf',
+  // '600': '#17a6ee',
+  // '700': '#2689be',
+  // '800': '#22739e',
+  // '900': '#19587c',
+  // '950': '#16405c',
+  ...colors.red,
+};
+
+export const designConfig = resolveConfig({
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx,md}'],
   safelist: ['opacity-0', 'opacity-100'],
   theme: {
     colors: {
       ...colors,
-      prime: {
-        ...colors.sky,
-        50: '#ffffff',
-      },
+      prime,
       sec: {
         ...colors.neutral,
         50: '#fff5f5',
@@ -21,17 +33,11 @@ module.exports = resolveConfig({
         label: '#6b7280',
         contrast: '#ffffff',
       },
-      btn: {
-        prime: '#000000',
-        sec: '#ffffff',
-        contrast: '#ffffff',
-        secContrast: '#000000',
-      },
       bg: {
         prime: '#ffffff',
         sec: '#ebebeb',
       },
-      hover: colors.sky[500],
+      hover: prime,
     },
     screens: {
       xs: '500px',
@@ -80,3 +86,5 @@ module.exports = resolveConfig({
     }),
   ],
 });
+
+export default designConfig;
