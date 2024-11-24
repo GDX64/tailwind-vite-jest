@@ -16,5 +16,11 @@
     "lib": ["esnext", "dom", "dom.iterable"],
     "types": ["vitest/globals", "@webgpu/types"]
   },
-  "include": ["src/main.ts", "src/**/*.ts", "src/**/*.test.ts", "src/**/*.vue"]
+  "include": [
+    "src/main.ts",
+    "src/**/*.ts",
+    "src/**/*.test.ts",
+    "src/**/*.vue",
+    "./tailwind.config.js"
+  ]
 }

@@ -1,8 +1,10 @@
-const colors = require('tailwindcss/colors');
-const plugin = require('tailwindcss/plugin');
+import colors from 'tailwindcss/colors';
+import plugin from 'tailwindcss/plugin';
+import resolveConfig from 'tailwindcss/resolveConfig';
 
-module.exports = {
+module.exports = resolveConfig({
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx,md}'],
+  safelist: ['opacity-0', 'opacity-100'],
   theme: {
     colors: {
       ...colors,
@@ -77,4 +79,4 @@ module.exports = {
       });
     }),
   ],
-};
+});

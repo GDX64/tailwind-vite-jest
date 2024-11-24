@@ -138,3 +138,22 @@ export class IIRBandPassFilter {
     return this.y[0];
   }
 }
+
+export class DownSampler {
+  private factor: number;
+  private currentSample: number;
+  private count = 0;
+
+  constructor(factor: number) {
+    this.factor = factor;
+    this.currentSample = 0;
+  }
+
+  public process(sample: number) {
+    this.count++;
+    if (this.count % this.factor === 0) {
+      this.currentSample = sample;
+    }
+    return this.currentSample;
+  }
+}

@@ -9,6 +9,10 @@ import { Camera, KiteDraw } from './HandDraw';
 import { IIRHighPassFilter, IIRLowPassFilter } from './IIRFilter';
 import { onMounted, onUnmounted } from 'vue';
 
+const props = defineProps<{
+  sampleRate: number;
+}>();
+
 const { canvas, size } = useCanvasDPI();
 const BASE_HEIGHT = 4;
 const BASE_X = 2;
@@ -24,18 +28,19 @@ onUnmounted(() => {
   document.removeEventListener('pointermove', onPointerMove);
 });
 
-const sampleRate = 60;
-const centerFrequency = 0.5;
-const filterY = new IIRHighPassFilter(centerFrequency, sampleRate);
-const filterX1 = new IIRHighPassFilter(centerFrequency, sampleRate);
+const samplingFactor = props.sampleRate / 60;
+const centerFrequency = 0.5 * samplingFactor;
+const lowCutOffFrequency = 0.1 * samplingFactor;
+const filterY = new IIRHighPassFilter(centerFrequency, props.sampleRate);
+const filterX1 = new IIRHighPassFilter(centerFrequency, props.sampleRate);
+
 const filterX = (value: number) => {
   const x1 = filterX1.process(value);
   return x1;
 };
 
-const lowCutOffFrequency = 0.1;
-const lowPassFilterX = new IIRLowPassFilter(lowCutOffFrequency, sampleRate);
-const lowPassFilterY = new IIRLowPassFilter(lowCutOffFrequency, sampleRate);
+const lowPassFilterX = new IIRLowPassFilter(lowCutOffFrequency, props.sampleRate);
+const lowPassFilterY = new IIRLowPassFilter(lowCutOffFrequency, props.sampleRate);
 
 const hightGain = 0.01;
 const rotationGain = 0.005;

@@ -16,6 +16,11 @@ import GithubRound from '../components/Contacts/GithubRound.vue';
 import InstagramRound from '../components/Contacts/InstagramRound.vue';
 import { CVLinks } from '../components/CV/glmachadoCVData';
 import Kite from '../components/kite/Kite.vue';
+import { estimateRefreshRate, useAsyncComputed } from '../utils/rxjsUtils';
+
+const refreshRate = useAsyncComputed(async () => {
+  return estimateRefreshRate();
+}, null);
 </script>
 
 <template>
@@ -27,7 +32,13 @@ import Kite from '../components/kite/Kite.vue';
       class="w-full min-h-[calc(100vh-96px)] flex flex-col relative touch-pan-y"
       id="landing"
     >
-      <Kite class="absolute top-0 left-0 z-10"></Kite>
+      <Transition enterFromClass="opacity-0" enterActiveClass="transition-all">
+        <Kite
+          class="absolute top-0 left-0 z-10"
+          v-if="refreshRate"
+          :sampleRate="refreshRate"
+        ></Kite>
+      </Transition>
       <div class="grow flex flex-col justify-center py-10">
         <div class="w-full flex justify-between">
           <div class="">

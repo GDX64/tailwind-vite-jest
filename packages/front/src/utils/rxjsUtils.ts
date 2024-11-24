@@ -1,6 +1,8 @@
 import {
   animationFrames,
+  firstValueFrom,
   fromEvent,
+  last,
   map,
   Observable,
   pairwise,
@@ -8,9 +10,11 @@ import {
   skip,
   Subject,
   switchMap,
+  take,
   takeUntil,
   takeWhile,
   tap,
+  toArray,
 } from 'rxjs';
 import {
   computed,
@@ -123,6 +127,28 @@ export function useSize(container = ref<HTMLElement | null>()) {
   });
   onUnmounted(() => obs.disconnect());
   return { size, container };
+}
+
+export function useAsyncComputed<T>(fn: () => Promise<T>, initial: T) {
+  const value = shallowRef(initial);
+  watchEffect(async () => {
+    const promise = fn();
+    value.value = await promise;
+  });
+  return value;
+}
+
+export function awaitTime(time: number) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
+
+/**
+ * Result in Hz
+ */
+export async function estimateRefreshRate(samples = 10) {
+  const lastValue = await firstValueFrom(animationFrames().pipe(take(samples), last()));
+  const avg = lastValue.elapsed / samples;
+  return 1000 / avg;
 }
 
 export function useCanvasDPI(fixed?: { width: number; height: number }) {
