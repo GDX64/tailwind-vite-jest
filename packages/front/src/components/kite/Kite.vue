@@ -31,14 +31,13 @@ const cameraDistance = ref(30);
 
 const { canvas, size } = useCanvasDPI();
 const kites = [
-  new KiteDraw([2, 5, 0], props.sampleRate),
-  new KiteDraw([2, 2, -10], props.sampleRate),
-  new KiteDraw([-10, -4, -10], props.sampleRate),
+  new KiteDraw([2, 5, 0], props.sampleRate, 1),
+  new KiteDraw([2, 2, -10], props.sampleRate, 2),
+  new KiteDraw([-10, -4, -10], props.sampleRate, 3),
 ];
 
-const selected = ref(0);
-const shapes = shallowRef<Path2D[]>([]);
-const isOverIndex = ref<number>();
+const selected = ref(1);
+const isOverID = ref<number>();
 
 onMounted(() => {
   document.addEventListener('pointermove', onPointerMove);
@@ -71,21 +70,27 @@ useAnimationFrames(({ delta, elapsed }) => {
   camera.update();
   const dt = Math.min(delta, 16) / 1000;
 
-  shapes.value = kites.map((kite, index) => {
-    if (selected.value === index) {
-      const { mouseX, mouseY } = kite;
-      kite.evolve(dt, mouseX, mouseY);
-    } else {
-      kite.evolve(dt);
-    }
-    if (index === isOverIndex.value) {
-      return kite.draw(ctx, camera, { fill: prime[400], roughness: roughness.value });
-    } else if (index === selected.value) {
-      return kite.draw(ctx, camera, { fill: prime[400], roughness: roughness.value });
-    } else {
-      return kite.draw(ctx, camera, { fill: prime[100], roughness: roughness.value });
-    }
-  });
+  //we need to sort the kites by their z position
+  //so we can draw the ones that are closer to the camera last
+  [...kites]
+    .sort((a, b) => {
+      return b.zCamera(camera) - a.zCamera(camera);
+    })
+    .forEach((kite) => {
+      if (selected.value === kite.id) {
+        const { mouseX, mouseY } = kite;
+        kite.evolve(dt, mouseX, mouseY);
+      } else {
+        kite.evolve(dt);
+      }
+      if (kite.id === isOverID.value) {
+        return kite.draw(ctx, camera, { fill: prime[400], roughness: roughness.value });
+      } else if (kite.id === selected.value) {
+        return kite.draw(ctx, camera, { fill: prime[400], roughness: roughness.value });
+      } else {
+        return kite.draw(ctx, camera, { fill: prime[100], roughness: roughness.value });
+      }
+    });
 
   ctx.restore();
 });
@@ -98,13 +103,13 @@ function isOver(event: MouseEvent) {
   const offsetY = event.clientY - y;
   const ctx = canvas.value?.getContext('2d');
   if (!ctx) return;
-  const index = shapes.value.findIndex((shape) => {
-    if (ctx.isPointInPath(shape, offsetX, offsetY)) {
+  const kite = kites.find((kite) => {
+    if (ctx.isPointInPath(kite.shape, offsetX, offsetY)) {
       return true;
     }
   });
-  if (index !== -1) {
-    return index;
+  if (kite) {
+    return kite.id;
   }
 }
 
@@ -121,6 +126,6 @@ function selectedKite() {
 
 function onPointerMove(event: PointerEvent) {
   selectedKite().updateMouse(event);
-  isOverIndex.value = isOver(event);
+  isOverID.value = isOver(event);
 }
 </script>

@@ -19,6 +19,13 @@ export class Camera {
   update() {
     mat4.lookAt(this.viewMatrix, this.position, this.target, this.up);
   }
+
+  transform(vertex: vec3) {
+    const viewMatrix = this.viewMatrix;
+    const projectionMatrix = this.projectionMatrix;
+    vec3.transformMat4(vertex, vertex, viewMatrix);
+    vec3.transformMat4(vertex, vertex, projectionMatrix);
+  }
 }
 
 function projectionMatrix(viewportSize: vec2) {
@@ -71,8 +78,7 @@ export class VertexObject {
       return item.map((vertex) => {
         const newVertex = vec3.create();
         vec3.transformMat4(newVertex, vertex, modelMatrix);
-        vec3.transformMat4(newVertex, newVertex, viewMatrix);
-        vec3.transformMat4(newVertex, newVertex, projectionMatrix);
+        camera.transform(newVertex);
         // now we should be in the domain of the screen [-1, 1]
         // lets put it into the canvas domain
         newVertex[0] = scaleX.scale(newVertex[0]);
@@ -120,6 +126,7 @@ export class KiteDraw {
   highX;
   mouseX = 0;
   mouseY = 0;
+  shape = new Path2D();
 
   get matrix() {
     return this.vertex.modelMatrix;
@@ -136,7 +143,7 @@ export class KiteDraw {
     return worldPos;
   }
 
-  constructor(private initial: vec3, sampleRate: number) {
+  constructor(private initial: vec3, sampleRate: number, public id: number) {
     const HEIGHT = 3;
     const width = (HEIGHT * 2) / 3;
     const armHeight = (2 * HEIGHT) / 3;
@@ -268,8 +275,14 @@ export class KiteDraw {
     });
   }
 
+  zCamera(camera: Camera) {
+    const pos = this.getPosition();
+    camera.transform(pos);
+    return pos[2];
+  }
+
   draw(ctx: CanvasRenderingContext2D, camera: Camera, options?: Options) {
-    const shapes = this.vertex.drawAsPolygon(ctx, camera, {
+    this.shape = this.vertex.drawAsPolygon(ctx, camera, {
       seed: 1,
       fillStyle: 'solid',
       roughness: 1,
@@ -283,7 +296,6 @@ export class KiteDraw {
         roughness: 1,
       });
     });
-    return shapes;
   }
 }
 
