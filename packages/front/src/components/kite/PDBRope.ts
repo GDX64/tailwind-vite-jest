@@ -101,7 +101,10 @@ export class PBDRope {
       const nextAdjustVector = vec3.scale(vec3.create(), diffNorm, nextDisplacement);
 
       vec3.add(thisNode, thisNode, thisAdjustVector);
-      vec3.sub(nextNode, nextNode, nextAdjustVector);
+      const nextIsFixed = nextMass === FIXED_MASS;
+      if (!nextIsFixed) {
+        vec3.sub(nextNode, nextNode, nextAdjustVector);
+      }
     }
 
     //the last step is to update the velocities

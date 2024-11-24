@@ -118,6 +118,8 @@ export class KiteDraw {
   lowX;
   highY;
   highX;
+  mouseX = 0;
+  mouseY = 0;
 
   get matrix() {
     return this.vertex.modelMatrix;
@@ -199,8 +201,8 @@ export class KiteDraw {
     }
     {
       const ropeWorldPosition = this.getWorldPosition(center);
-      const ropeLength = HEIGHT * 7;
-      const rope4 = PBDRope.fromLength(ropeLength, 1, 0.1, ropeWorldPosition);
+      const ropeLength = HEIGHT * 10;
+      const rope4 = PBDRope.fromLength(ropeLength, 3, 0.1, ropeWorldPosition);
       const rope4VertexObject = new VertexObject();
       this.ropes.push({
         kiteAnchor: center,
@@ -209,15 +211,20 @@ export class KiteDraw {
       });
       rope4.setConstForce(constForce);
 
-      const sqrt2 = Math.sqrt(2);
-      const yDelta = -ropeLength / sqrt2;
-      const zDelta = ropeLength / sqrt2;
+      const factor = 0.9 / Math.sqrt(2);
+      const yDelta = -ropeLength * factor;
+      const zDelta = ropeLength * factor;
       const x = initial[0];
       const y = initial[1] + yDelta;
       const z = initial[2] + zDelta;
 
       rope4.updateLastPosition(vec3.fromValues(x, y, z));
     }
+  }
+
+  updateMouse(event: PointerEvent) {
+    this.mouseX += event.movementX;
+    this.mouseY += event.movementY;
   }
 
   evolve(dt: number, mouseX?: number, mouseY?: number) {
@@ -260,11 +267,15 @@ export class KiteDraw {
     const shapes = this.vertex.drawAsPolygon(ctx, camera, {
       seed: 1,
       ...options,
+      // fillWeight: 1,
+      fillStyle: 'solid',
+      roughness: 2,
     });
     this.ropes.forEach((rope) => {
       rope.vertexObject.drawAsLine(ctx, camera, {
         stroke: 'black',
         seed: 1,
+        roughness: 2,
       });
     });
     return shapes;

@@ -23,9 +23,6 @@ const selected = ref(0);
 const shapes = shallowRef<Path2D[]>([]);
 const isOverIndex = ref<number>();
 
-let mouseY = 0;
-let mouseX = 0;
-
 onMounted(() => {
   document.addEventListener('pointermove', onPointerMove);
   document.addEventListener('click', onClick);
@@ -46,13 +43,19 @@ useAnimationFrames(({ delta, elapsed }) => {
 
   // kite1.vertex.rotateX(-Math.PI / 10);
   const camera = new Camera([size.width, size.height]);
-  camera.position = [0, 0, 100];
-  vec3.rotateY(camera.position, camera.position, [0, 0, 0], elapsed / 10_000);
+  camera.position = [0, 0, 20];
+  vec3.rotateY(
+    camera.position,
+    camera.position,
+    [0, 0, 0],
+    elapsed / 10_000 + Math.PI / 8
+  );
   camera.update();
   const dt = Math.min(delta, 16) / 1000;
 
   shapes.value = kites.map((kite, index) => {
     if (selected.value === index) {
+      const { mouseX, mouseY } = kite;
       kite.evolve(dt, mouseX, mouseY);
     } else {
       kite.evolve(dt);
@@ -62,7 +65,7 @@ useAnimationFrames(({ delta, elapsed }) => {
     } else if (index === selected.value) {
       return kite.draw(ctx, camera, { fill: '#0ea5e9' });
     } else {
-      return kite.draw(ctx, camera, { fill: '#243c47' });
+      return kite.draw(ctx, camera, { fill: '#3a6d85' });
     }
   });
 
@@ -90,15 +93,16 @@ function isOver(event: MouseEvent) {
 function onClick(event: MouseEvent) {
   const over = isOver(event);
   if (over !== undefined) {
-    mouseY = 0;
-    mouseX = 0;
     selected.value = over;
   }
 }
 
+function selectedKite() {
+  return kites[selected.value];
+}
+
 function onPointerMove(event: PointerEvent) {
-  mouseY += event.movementY > 0 ? event.movementY : 0;
-  mouseX += event.movementX;
+  selectedKite().updateMouse(event);
   isOverIndex.value = isOver(event);
 }
 </script>
