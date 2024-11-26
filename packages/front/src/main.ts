@@ -20,6 +20,7 @@ const routes = [
   { path: '/canvas_game', component: () => import('./pages/CanvasGame.vue') },
   { path: '/stack', component: () => import('./pages/orderStack/OrderStack.vue') },
   { path: '/kite', component: () => import('./components/kite/Kite.vue') },
+  { path: '/graph', component: () => import('./pages/graphs/Graphs.vue') },
   { path: '/yoga', component: () => import('./pages/YogaTest/YogaTest.vue') },
   { path: '/space-index', component: () => import('./pages/spaceIndex/SpaceIndex.vue') },
   {

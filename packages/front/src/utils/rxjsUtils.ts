@@ -18,6 +18,7 @@ import {
 } from 'rxjs';
 import {
   computed,
+  onMounted,
   onUnmounted,
   reactive,
   Ref,
@@ -114,9 +115,15 @@ export function useVisibility(container: Ref<HTMLElement | null | undefined>) {
 export function useSize(container = ref<HTMLElement | null>()) {
   const size = reactive({ width: 0, height: 0 });
   const obs = new ResizeObserver((entries) => {
+    updateSize();
+  });
+  function updateSize() {
     const el = container.value;
     size.width = el?.offsetWidth ?? 0;
     size.height = el?.offsetHeight ?? 0;
+  }
+  onMounted(() => {
+    updateSize();
   });
   watchEffect((clear) => {
     const el = container.value;
@@ -154,7 +161,7 @@ export async function estimateRefreshRate(samples = 10) {
 export function useCanvasDPI(fixed?: { width: number; height: number }) {
   const canvas = ref<HTMLCanvasElement>();
   const { size } = useSize(canvas);
-  watchSyncEffect(() => {
+  function updateValues() {
     if (canvas.value) {
       if (!fixed) {
         const dpr = self.devicePixelRatio || 1;
@@ -166,6 +173,9 @@ export function useCanvasDPI(fixed?: { width: number; height: number }) {
         canvas.value.height = fixed.height;
       }
     }
+  }
+  watchSyncEffect(() => {
+    updateValues();
   });
   return {
     canvas,
