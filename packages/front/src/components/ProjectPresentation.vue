@@ -8,6 +8,7 @@
         v-for="url of [imgURL].flat()"
       >
         <img
+          loading="lazy"
           :src="url"
           alt="Project image"
           class="absolute top-0 left-0 w-full h-full object-cover bg-prime-950 cursor-pointer"

@@ -34,7 +34,7 @@ export const designConfig = resolveConfig({
         contrast: '#ffffff',
       },
       bg: {
-        0: '#ffffff',
+        0: '#fffff6',
         ...colors.neutral,
         1000: '#000000',
       },

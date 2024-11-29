@@ -25,7 +25,7 @@ const refreshRate = useAsyncComputed(async () => {
 </script>
 
 <template>
-  <NavBar class="animate-appear animate-delay-[5.5s]"></NavBar>
+  <NavBar class="animate-appear animate-delay-[4s]"></NavBar>
   <main
     class="flex flex-col items-center px-2 md:px-10 text-text-prime pb-10 max-w-[1420px] w-full"
   >
@@ -47,23 +47,23 @@ const refreshRate = useAsyncComputed(async () => {
               >Hi! My name is</label
             >
             <h1
-              class="md:text-6xl text-3xl font-extrabold mb-6 animate-appear animate-delay-[2.5s]"
+              class="md:text-6xl text-3xl font-extrabold mb-6 animate-appear animate-delay-[2s]"
             >
               Gabriel Machado
             </h1>
             <label
               for=""
-              class="text-text-label text-xl font-semibold animate-appear animate-delay-[4s]"
+              class="text-text-label text-xl font-semibold animate-appear animate-delay-[3s]"
               >And I am a</label
             >
             <h1
-              class="md:text-6xl text-3xl font-extrabold animate-appear animate-delay-[5.5s]"
+              class="md:text-6xl text-3xl font-extrabold animate-appear animate-delay-[4s]"
             >
               Cross-platform Developer
             </h1>
           </div>
           <div
-            class="flex flex-col justify-between md:visible invisible animate-appear animate-delay-[5.5s]"
+            class="flex flex-col justify-between md:visible invisible animate-appear animate-delay-[4s]"
           >
             <LinkedinRound></LinkedinRound>
             <GithubRound></GithubRound>
@@ -72,7 +72,7 @@ const refreshRate = useAsyncComputed(async () => {
         </div>
       </div>
 
-      <div class="flex justify-center w-full pb-16 animate-appear animate-delay-[5.5s]">
+      <div class="flex justify-center w-full pb-16 animate-appear animate-delay-[4s]">
         <a href="#about-me">
           <Button class="flex items-center gap-2"><span>About Me</span> <ADown /></Button>
         </a>
