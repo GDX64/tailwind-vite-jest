@@ -5,6 +5,8 @@
     "useDefineForClassFields": true,
     "moduleResolution": "Bundler",
     "strict": true,
+    "strictBuiltinIteratorReturn": true,
+    "strictFunctionTypes": true,
     "strictNullChecks": true,
     "jsx": "preserve",
     "noUnusedLocals": false,
@@ -14,8 +16,13 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "lib": ["ESNext", "dom", "dom.iterable", "ESNext.WeakRef"],
-    "typeRoots": ["@types"]
+    "typeRoots": ["@types"],
+    "composite": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
+
   "include": [
     "src/main.ts",
     "src/**/*.d.ts",

@@ -16,6 +16,15 @@
     "lib": ["esnext", "dom", "dom.iterable"],
     "types": ["vitest/globals", "@webgpu/types"]
   },
+  "vueCompilerOptions": {
+    "strictTemplates": true,
+    "skipTemplateCodegen": false
+  },
+  "references": [
+    {
+      "path": "../pixi-vue"
+    }
+  ],
   "include": [
     "src/main.ts",
     "src/**/*.ts",
