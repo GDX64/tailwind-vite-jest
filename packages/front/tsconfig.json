@@ -10,10 +10,12 @@
     "jsx": "preserve",
     // "jsxFactory": "solidRender",
     // "jsxFragmentFactory": "solidRender",
+    "emitDeclarationOnly": true,
     "outDir": "dist",
     "noUnusedLocals": false,
     "sourceMap": true,
     "skipLibCheck": true,
+    "composite": true,
     "lib": ["esnext", "dom", "dom.iterable"],
     "types": ["vitest/globals", "@webgpu/types"]
   },
@@ -27,10 +29,10 @@
     }
   ],
   "include": [
+    "./tailwind.config.ts",
     "src/main.ts",
     "src/**/*.ts",
     "src/**/*.test.ts",
-    "src/**/*.vue",
-    "./tailwind.config.js"
+    "src/**/*.vue"
   ]
 }

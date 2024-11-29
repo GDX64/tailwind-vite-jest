@@ -9,7 +9,6 @@ import { resolve } from 'path';
 
 const root = searchForWorkspaceRoot(process.cwd());
 const allowed = resolve(root, 'packages/front');
-console.log({ root, cdw: process.cwd(), allowed });
 
 // https://vitejs.dev/config/
 export default (args) => {
