@@ -14,26 +14,26 @@ import GSprite, { GAnimatedSprite } from "./GSprite";
 
 declare module "vue" {
   type BasicArgs = {
-    fill: number;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    alpha: number;
-    blendMode: PIXI.BLEND_MODES;
-    scale: number;
+    fill?: number | string;
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    alpha?: number;
+    blendMode?: PIXI.BLEND_MODES;
+    scale?: number;
   };
   export interface GlobalComponents {
-    GText: Component<BasicArgs & { text: string }>;
+    GText: Component<BasicArgs & { text?: string }>;
     GRect: Component<BasicArgs & {}>;
     GContainer: Component<BasicArgs & {}>;
-    GRaw: Component<BasicArgs & { pixiEl: PIXI.Container }>;
-    GSprite: Component<BasicArgs & { url: string; texture: PIXI.Texture }>;
+    GRaw: Component<BasicArgs & { pixiEl?: PIXI.Container }>;
+    GSprite: Component<BasicArgs & { url?: string; texture?: PIXI.Texture }>;
     GAnimatedSprite: Component<
-      BasicArgs & { url: string; textures: PIXI.Texture[] }
+      BasicArgs & { url?: string; textures?: PIXI.Texture[] }
     >;
     GGraphics: Component<
-      BasicArgs & { drawfn: (ctx: PIXI.GraphicsContext) => void }
+      BasicArgs & { drawfn?: (ctx: PIXI.GraphicsContext) => void }
     >;
   }
 }

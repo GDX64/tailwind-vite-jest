@@ -5,7 +5,6 @@
     "useDefineForClassFields": true,
     "moduleResolution": "Bundler",
     "strict": true,
-    "strictBuiltinIteratorReturn": true,
     "strictFunctionTypes": true,
     "strictNullChecks": true,
     "jsx": "preserve",
@@ -20,14 +19,10 @@
     "composite": true,
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "rootDir": "."
   },
 
-  "include": [
-    "src/main.ts",
-    "src/**/*.d.ts",
-    "src/**/*.vue",
-    "src/**/*.test.ts",
-    "src/lib.ts"
-  ]
+  "include": ["./src/**/*.ts", "./src/**/*.vue"],
+  "exclude": ["./node_modules"]
 }

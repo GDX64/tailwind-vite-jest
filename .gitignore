@@ -6,3 +6,4 @@ dist-ssr
 target
 Cargo.lock
 firebase-debug.log
+tsconfig.tsbuildinfo
