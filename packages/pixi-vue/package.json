@@ -5,6 +5,7 @@
     ".": "./src/lib.ts"
   },
   "scripts": {
+    "check": "vue-tsc --build",
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",

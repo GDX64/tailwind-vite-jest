@@ -10,6 +10,7 @@
     "jsx": "preserve",
     // "jsxFactory": "solidRender",
     // "jsxFragmentFactory": "solidRender",
+    "outDir": "dist",
     "noUnusedLocals": false,
     "sourceMap": true,
     "skipLibCheck": true,

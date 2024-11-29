@@ -6,10 +6,9 @@
       class="w-10 h-10 bg-red-500 mb-10 flex items-center justify-center"
       draggable="true"
       v-for="item in list"
-      :ondragstart="(event: DragEvent)=>dragStart(event, item)"
-      :drag-key="item"
-      :ondragover="dragOver"
-      :ondrop="drop"
+      @dragstart="dragStart($event, item)"
+      @dragover="dragOver"
+      @drop="drop"
     >
       {{ item }}
     </div>

@@ -5,7 +5,6 @@ const props = defineProps<{ list: string[] }>();
 
 const inputValue = ref('');
 const currentList = ref(props.list);
-const derived = computed(() => inputValue.value + 'a');
 
 function insertData() {
   if (inputValue.value === '') return;
@@ -25,9 +24,8 @@ function remove(removeIndex: number) {
         v-for="(element, index) in currentList"
         class="w-72 flex justify-between items-center hover:bg-neutral-400/25 hover:scale-105 h-8 pr-2 pl-2 rounded-sm transition-all duration-200"
       >
-        <span test-data="todo">{{ element }}</span>
+        <span>{{ element }}</span>
         <div
-          test-data="remove-btn"
           @click="remove(index)"
           class="text-red-400 hover:text-red-700 cursor-pointer"
         >

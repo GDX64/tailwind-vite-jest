@@ -12,7 +12,7 @@ export default defineConfig({
         },
       },
     }),
-    dts({ include: ["src/lib.ts"] }) as any,
+    dts({ rollupTypes: true }),
   ],
   build: {
     minify: false,

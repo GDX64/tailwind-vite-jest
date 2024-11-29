@@ -9,20 +9,20 @@
     "strictNullChecks": true,
     "jsx": "preserve",
     "noUnusedLocals": false,
+    "emitDeclarationOnly": true,
     "allowJs": true,
+    "outDir": "./dist",
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "lib": ["ESNext", "dom", "dom.iterable", "ESNext.WeakRef"],
-    "typeRoots": ["@types"],
+    "lib": ["ESNext", "dom", "dom.iterable"],
     "composite": true,
     "paths": {
       "@/*": ["./src/*"]
-    },
-    "rootDir": "."
+    }
   },
 
   "include": ["./src/**/*.ts", "./src/**/*.vue"],
-  "exclude": ["./node_modules"]
+  "exclude": ["./node_modules", "./dist"]
 }

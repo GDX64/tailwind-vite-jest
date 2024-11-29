@@ -2,7 +2,7 @@
   <div>
     <input type="text" v-model="localData.title" @input="onInput" />
     <input type="text" v-model="localData.schoolPlaceDate" @input="onInput" />
-    <textarea type="text" v-model="localData.description" @input="onInput" />
+    <textarea v-model="localData.description" @input="onInput" />
   </div>
 </template>
 

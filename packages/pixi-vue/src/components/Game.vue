@@ -50,7 +50,7 @@ import {
 import { Assets, Texture } from "pixi.js";
 import birdsPng from "../assets/birds.png";
 import skyPng from "../assets/sky.png";
-import { BoidsWorld, Boid } from "./BoidsWorld";
+import { BoidsWorld } from "./BoidsWorld";
 import { GElement, ELKey } from "../renderer/Elements";
 import {
   FederatedEvent,
@@ -59,7 +59,6 @@ import {
   TilingSprite,
 } from "pixi.js";
 import { computed } from "vue";
-import { watchEffect } from "vue";
 import { watch } from "vue";
 
 const animatedTextures = shallowRef<Texture[]>([]);
