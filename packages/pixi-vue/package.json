@@ -4,6 +4,11 @@
   "exports": {
     ".": "./src/lib.ts"
   },
+  "imports": {
+    "#els": {
+      "default": "./src/renderer/Elements.ts"
+    }
+  },
   "scripts": {
     "check": "vue-tsc --build",
     "dev": "vite",
