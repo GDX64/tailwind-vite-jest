@@ -3,6 +3,11 @@
   "compilerOptions": {
     "outDir": "./dist-ts"
   },
+  "references": [
+    {
+      "path": "./src/renderer"
+    }
+  ],
   "include": ["./src/**/*.ts", "./src/**/*.vue"],
   "exclude": ["./node_modules", "./dist"]
 }

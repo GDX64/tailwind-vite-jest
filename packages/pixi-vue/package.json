@@ -5,9 +5,7 @@
     ".": "./src/lib.ts"
   },
   "imports": {
-    "#els": {
-      "default": "./src/renderer/Elements.ts"
-    }
+    "#els/*": "./src/renderer/*"
   },
   "scripts": {
     "check": "vue-tsc --build",
