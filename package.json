@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npm-run-all --parallel build:* && npm run build --workspace=front",
+    "build": "npm run check && npm-run-all --parallel build:* && npm run build --workspace=front",
     "build:rust": "npm run build --workspace=rust",
     "build:incremental_draw": "npm run build --workspace=incremental_draw",
     "build:pixi-vue": "npm run build --workspace=@repo/pixi-vue",
@@ -12,7 +12,8 @@
     "build:raytracer": "npm run build --workspace=raytracer",
     "preview": "firebase serve",
     "deploy": "npm run build && firebase deploy",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "check": "vue-tsc --build"
   },
   "repository": {
     "type": "git",

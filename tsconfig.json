@@ -13,7 +13,6 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "composite": true,
-    "extendedDiagnostics": true,
     "lib": ["esnext", "dom", "dom.iterable"],
     "types": ["vitest/globals", "@webgpu/types"]
   },
