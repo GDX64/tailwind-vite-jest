@@ -7,3 +7,4 @@ target
 Cargo.lock
 firebase-debug.log
 tsconfig.tsbuildinfo
+dist-ts

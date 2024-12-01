@@ -4,14 +4,14 @@ import svgLoader from 'vite-svg-loader';
 import auto from 'autoprefixer';
 import tailwind from 'tailwindcss';
 import mdPlugin, { Mode } from 'vite-plugin-markdown';
-import { searchForWorkspaceRoot } from 'vite';
+import { defineConfig, searchForWorkspaceRoot } from 'vite';
 import { resolve } from 'path';
 
 const root = searchForWorkspaceRoot(process.cwd());
 const allowed = resolve(root, 'packages/front');
 
 // https://vitejs.dev/config/
-export default (args) => {
+export default defineConfig((args) => {
   const conifg: UserConfig = {
     worker: {
       plugins: [vue()],
@@ -62,7 +62,7 @@ export default (args) => {
   };
 
   return conifg;
-};
+});
 
 function getCssConfig(mode: string) {
   if (mode === 'test') {

@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "useDefineForClassFields": true,
+    "moduleResolution": "bundler",
+    "strict": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "jsx": "preserve",
+    "emitDeclarationOnly": true,
+    "noUnusedLocals": false,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "composite": true,
+    "extendedDiagnostics": true,
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "types": ["vitest/globals", "@webgpu/types"]
+  },
+  "references": [
+    {
+      "path": "./packages/pixi-vue"
+    },
+    {
+      "path": "./packages/front"
+    },
+    {
+      "path": "./packages/syncjs"
+    }
+  ]
+}

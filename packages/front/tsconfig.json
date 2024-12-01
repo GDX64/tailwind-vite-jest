@@ -1,27 +1,7 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "useDefineForClassFields": true,
-    "moduleResolution": "bundler",
-    "strict": true,
-    "strictNullChecks": true,
-    "strictPropertyInitialization": true,
-    "jsx": "preserve",
-    // "jsxFactory": "solidRender",
-    // "jsxFragmentFactory": "solidRender",
-    "emitDeclarationOnly": true,
-    "outDir": "dist",
-    "noUnusedLocals": false,
-    "sourceMap": true,
-    "skipLibCheck": true,
-    "composite": true,
-    "lib": ["esnext", "dom", "dom.iterable"],
-    "types": ["vitest/globals", "@webgpu/types"]
-  },
-  "vueCompilerOptions": {
-    "strictTemplates": true,
-    "skipTemplateCodegen": false
+    "outDir": "./dist-ts"
   },
   "references": [
     {
